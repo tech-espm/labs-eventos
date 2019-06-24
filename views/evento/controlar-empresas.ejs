@@ -32,6 +32,13 @@
 					<label for="txtEmpresaImagem">Imagem</label>
 					<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
 				</div>
+				<div class="form-group">
+					<label for="cbEmpresaImagemModo">Modo de Ajuste da Imagem</label>
+					<select id="cbEmpresaImagemModo" name="cbEmpresaImagemModo" class="form-control upper" size="1">
+						<option value="" selected="selected">AMPLIAR (SEM BORDAS PRETAS)</option>
+						<option value="1">REDUZIR PARA CABER (COM BORDAS PRETAS)</option>
+					</select>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <span id="lblAlterarEmpresa">Criar Empresa</span></button>
@@ -270,15 +277,28 @@
 								context.fillStyle = "#000";
 								context.fillRect(0, 0, cw, ch);
 
-								// Redimensiona e centraliza a imagem dentro do canvas
-								if ((cw / ch) > (w / h)) {
-									// Bordas verticais nas laterais
-									w = (((w * ch) / h) + 0.5) | 0;
-									h = ch;
+								if ($("#cbEmpresaImagemModo").val()) {
+									// Redimensiona e centraliza a imagem dentro do canvas
+									if ((cw / ch) > (w / h)) {
+										// Bordas verticais nas laterais
+										w = (((w * ch) / h) + 0.5) | 0;
+										h = ch;
+									} else {
+										// Bordas horizontais acima e abaixo
+										h = (((h * cw) / w) + 0.5) | 0;
+										w = cw;
+									}
 								} else {
-									// Bordas horizontais acima e abaixo
-									h = (((h * cw) / w) + 0.5) | 0;
-									w = cw;
+									// Amplia cortando o excesso
+									if ((cw / ch) > (w / h)) {
+										// Corta a parte superior e inferior da imagem
+										h = (((h * cw) / w) + 0.5) | 0;
+										w = cw;
+									} else {
+										// Corta as laterais da imagem
+										w = (((w * ch) / h) + 0.5) | 0;
+										h = ch;
+									}
 								}
 
 								context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
