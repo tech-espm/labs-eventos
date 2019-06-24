@@ -1,0 +1,142 @@
+﻿
+<div class="row">
+	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+		<form id="form" class="panel panel-default" action="#">
+			<div class="panel-heading">Informações Básicas do Evento</div>
+			<div class="panel-body no-bottom">
+				<input type="hidden" id="id" name="id" value="<%=(item ? item.id : 0) %>" />
+				<div class="form-group">
+					<label for="nome">Nome</label>
+					<input id="nome" name="nome" maxlength="100" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
+				</div>
+				<div class="form-group">
+					<label for="url">URL</label>
+					<input id="url" name="url" maxlength="50" class="form-control lower" type="text" spellcheck="false" value="<%=(item ? item.url : '') %>" />
+				</div>
+				<div class="form-group">
+					<label for="descricao">Descrição</label>
+					<textarea id="descricao" name="descricao" maxlength="250" class="form-control upper" spellcheck="false" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
+				</div>
+				<div class="checkbox">
+					<label for="habilitado">
+						<input id="habilitado" name="habilitado" type="checkbox" value="1" <%=((!item || item.habilitado) ? 'checked="checked"' : '') %> /> Acesso habilitado à landing page
+					</label>
+				</div>
+				<div class="form-group">
+					<label for="aspectratioempresa">Aspect Ratio das Imagens das Empresas</label>
+					<input id="aspectratioempresa" name="aspectratioempresa" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratioempresa : '') %>" />
+					<input id="aspectratioempresavalido" type="hidden" value="<%=(item ? item.aspectratioempresa : '') %>" />
+				</div>
+				<div class="form-group">
+					<label for="aspectratiopalestrante">Aspect Ratio das Imagens dos Palestrantes</label>
+					<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
+					<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
+				</div>
+				<div class="checkbox">
+					<label for="permitealuno">
+						<input id="permitealuno" name="permitealuno" type="checkbox" value="1" <%=((item && item.permitealuno) ? 'checked="checked"' : '') %> /> Permite inscrições de alunos
+					</label>
+				</div>
+				<div class="checkbox">
+					<label for="permitefuncionario">
+						<input id="permitefuncionario" name="permitefuncionario" type="checkbox" value="1" <%=((item && item.permitefuncionario) ? 'checked="checked"' : '') %> /> Permite inscrições de funcionários
+					</label>
+				</div>
+				<div class="checkbox">
+					<label for="permiteexterno">
+						<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
+					</label>
+				</div>
+			</div>
+			<div class="panel-footer">
+				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Evento') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		$("#aspectratioempresa").mask("09999:09999");
+		$("#aspectratiopalestrante").mask("09999:09999");
+
+		var urlRegExp = /[^a-z0-9_\-]/gi;
+		var aspectRatioRegExp = /^\d+:\d+$/;
+
+		$.validator.addMethod("eventoUrl", function (value) {
+			return (!value || !urlRegExp.test(value));
+		}, "A URL deve conter apenas letras, números, e os caracteres \"-\" e \"_\".");
+
+		$.validator.addMethod("eventoAspectRatio", function (value) {
+			return (!value || aspectRatioRegExp.test(value));
+		}, "O aspect ratio deve ter o formato \"999:999\" (16:9, 1:1, 3:4...)");
+
+		$("#form").validate({
+			rules: {
+				nome: {
+					required: true,
+					minlength: 3,
+					maxlength: 100
+				},
+				url: {
+					required: true,
+					minlength: 2,
+					maxlength: 50,
+					eventoUrl: true
+				},
+				descricao: {
+					maxlength: 250
+				},
+				aspectratioempresa: {
+					maxlength: 11,
+					eventoAspectRatio: true
+				},
+				aspectratiopalestrante: {
+					maxlength: 11,
+					eventoAspectRatio: true
+				}
+			},
+
+			submitHandler: function (form) {
+				if (JsonWebApi.active)
+					return;
+
+				Notification.wait();
+
+				//<% if (item) { %>
+
+				JsonWebApi.postFormData("/api/evento/alterar", form, function (response) {
+					if (response.success) {
+						if (window.eventoUrlListener)
+							window.eventoUrlListener(trim($("#url").val()).toLowerCase());
+						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
+						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
+						Notification.success("Evento alterado com sucesso! \uD83D\uDE04");
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+
+				//<% } else { %>
+
+				JsonWebApi.postFormData("/api/evento/criar", form, function (response) {
+					if (response.success) {
+						resetForm("#form");
+						Notification.success("Evento criado com sucesso! \uD83D\uDE04");
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+
+				//<% } %>
+			}
+		});
+	});
+	//]]>
+</script>

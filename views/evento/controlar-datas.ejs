@@ -1,0 +1,259 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body dataTable_wrapper">
+				<div class="col-xs-space-bottom">
+					<button class="btn btn-primary" type="button" onclick="criarData()"><i class="fa fa-plus"></i> Criar Data...</button>
+				</div>
+				<table class="table table-striped table-hover" id="tabela-datas"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAlterarData">
+	<div class="modal-dialog" role="document">
+		<form class="modal-content" id="formAlterarData" method="post">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Data do Evento</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-xs-4">
+						<div class="form-group">
+							<label for="txtDataAno">Ano</label>
+							<input id="txtDataAno" name="txtDataAno" class="form-control" type="number" min="1" max="9999" />
+						</div>
+					</div>
+					<div class="col-xs-4">
+						<div class="form-group">
+							<label for="txtDataMes">Mês</label>
+							<input id="txtDataMes" name="txtDataMes" class="form-control" type="number" min="1" max="12" />
+						</div>
+					</div>
+					<div class="col-xs-4">
+						<div class="form-group">
+							<label for="txtDataDia">Dia</label>
+							<input id="txtDataDia" name="txtDataDia" class="form-control" type="number" min="1" max="31" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <span id="lblAlterarData">Criar Data</span></button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluirData">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Oops...</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					Tem certeza que deseja excluir a data <span id="lblExcluirData"></span>? Essa operação NÃO pode ser desfeita!
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="excluirData()"><i class="fa fa-check"></i> Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var idevento = <%- idevento %>;
+		window.eventoDatas = <%- datas %>;
+		window.eventoDatasPorId = {};
+		if (eventoDatas) {
+			for (var i = 0; i < eventoDatas.length; i++)
+				eventoDatasPorId[eventoDatas[i].id] = eventoDatas[i];
+		}
+
+		var tabela = prepareDataTable("tabela-datas", {
+			order: [],
+			deferRender: true,
+			columns: [
+				{ title: "Ano", "class": "col-25", "type": "num", data: "ano" },
+				{ title: "Mês", "class": "col-25", "type": "num", data: "mes" },
+				{ title: "Dia", "class": "col-25", "type": "num", data: "dia" },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+			],
+			data: eventoDatas
+		});
+
+		var trClicada;
+
+		$("#modalAlterarData").on("shown.bs.modal", function () {
+			$("#txtDataAno").focus();
+		});
+
+		$("#tabela-datas").on("click", "tbody button", function () {
+			if (JsonWebApi.active)
+				return;
+
+			var data = tabela.row(trClicada = this.parentNode.parentNode).data();
+
+			if (this.getAttribute("data-excluir")) {
+				$("#lblExcluirData").text(format2(data.dia) + "/" + format2(data.mes) + "/" + data.ano);
+
+				$("#modalExcluirData").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else {
+				resetForm("#formAlterarData");
+
+				$("#txtDataAno").val(data.ano);
+				$("#txtDataMes").val(data.mes);
+				$("#txtDataDia").val(data.dia);
+
+				$("#lblAlterarData").text("Salvar Alterações");
+
+				$("#modalAlterarData").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			}
+		});
+
+		$("#formAlterarData").validate({
+			rules: {
+				txtDataAno: {
+					required: true,
+					number: true,
+					min: 1,
+					max: 9999
+				},
+				txtDataMes: {
+					required: true,
+					number: true,
+					min: 1,
+					max: 12
+				},
+				txtDataDia: {
+					required: true,
+					number: true,
+					min: 1,
+					max: 31,
+					anomesdia: true
+				}
+			},
+			submitHandler: function (form) {
+				if (JsonWebApi.active)
+					return;
+
+				$("#modalAlterarData").modal("hide");
+
+				var data, d = {
+					idevento: idevento,
+					ano: parseInt($("#txtDataAno").val()),
+					mes: parseInt($("#txtDataMes").val()),
+					dia: parseInt($("#txtDataDia").val())
+				};
+
+				Notification.wait();
+
+				if (trClicada && (data = tabela.row(trClicada).data())) {
+					d.id = data.id;
+
+					JsonWebApi.post("/api/data/alterar", d, function (response) {
+						if (response.success) {
+							data.ano = d.ano;
+							data.mes = d.mes;
+							data.dia = d.dia;
+							Notification.success("Data alterada com sucesso! \uD83D\uDE04");
+							tabela.row(trClicada).invalidate().draw();
+						} else {
+							Notification.error(response.value, true);
+						}
+						trClicada = null;
+					});
+				} else {
+					JsonWebApi.post("/api/data/criar", d, function (response) {
+						if (response.success) {
+							d.id = parseInt(response.value);
+							eventoDatasPorId[d.id] = d;
+							eventoDatas.push(d);
+							Notification.success("Data criada com sucesso! \uD83D\uDE04");
+							tabela.row.add(d).draw();
+						} else {
+							Notification.error(response.value, true);
+						}
+						trClicada = null;
+					});
+				}
+			}
+		});
+
+		window.criarData = function () {
+			if (JsonWebApi.active)
+				return;
+
+			trClicada = null;
+
+			resetForm("#formAlterarData");
+
+			if (!$("#txtDataAno").val() &&
+				!$("#txtDataMes").val() &&
+				!$("#txtDataDia").val()) {
+				var d = new Date();
+				$("#txtDataAno").val(d.getFullYear());
+				$("#txtDataMes").val(d.getMonth() + 1);
+				$("#txtDataDia").val(d.getDate());
+			}
+
+			$("#lblAlterarData").text("Criar Data");
+
+			$("#modalAlterarData").modal({
+				backdrop: "static",
+				keyboard: true
+			});
+		};
+
+		window.excluirData = function () {
+			if (JsonWebApi.active || !trClicada)
+				return;
+
+			$("#modalExcluirData").modal("hide");
+
+			var data = tabela.row(trClicada).data();
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/data/excluir", function (response) {
+				if (response.success) {
+					delete eventoDatasPorId[data.id];
+					for (var i = eventoDatas.length - 1; i >= 0; i--) {
+						if (eventoDatas[i].id === data.id) {
+							eventoDatas.splice(i, 1);
+							break;
+						}
+					}
+					Notification.success("Data excluída com sucesso! \uD83D\uDE04");
+					tabela.row(trClicada).remove().draw();
+				} else {
+					Notification.error(response.value, true);
+				}
+				trClicada = null;
+			}, "id", data.id);
+		};
+	});
+
+	//]]>
+</script>

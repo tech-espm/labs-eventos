@@ -1,0 +1,243 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body dataTable_wrapper">
+				<div class="col-xs-space-bottom">
+					<button class="btn btn-primary" type="button" onclick="criarHorario()"><i class="fa fa-plus"></i> Criar Horário...</button>
+				</div>
+				<table class="table table-striped table-hover" id="tabela-horarios"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAlterarHorario">
+	<div class="modal-dialog" role="document">
+		<form class="modal-content" id="formAlterarHorario" method="post">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Horário das Sessões</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-xs-2">
+						<div class="form-group">
+							<label for="txtHorarioOrdem">Ordem</label>
+							<input id="txtHorarioOrdem" name="txtHorarioOrdem" class="form-control" type="number" />
+						</div>
+					</div>
+					<div class="col-xs-5">
+						<div class="form-group">
+							<label for="txtHorarioInicio">Início</label>
+							<input id="txtHorarioInicio" name="txtHorarioInicio" class="form-control upper" type="text" maxlength="50" />
+						</div>
+					</div>
+					<div class="col-xs-5">
+						<div class="form-group">
+							<label for="txtHorarioTermino">Término</label>
+							<input id="txtHorarioTermino" name="txtHorarioTermino" class="form-control upper" type="text" maxlength="50" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <span id="lblAlterarHorario">Criar Horário</span></button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluirHorario">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Oops...</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					Tem certeza que deseja excluir o horário <span id="lblExcluirHorario"></span>? Essa operação NÃO pode ser desfeita!
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="excluirHorario()"><i class="fa fa-check"></i> Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var idevento = <%- idevento %>;
+		window.eventoHorarios = <%- horarios %>;
+		window.eventoHorariosPorId = {};
+		if (eventoHorarios) {
+			for (var i = 0; i < eventoHorarios.length; i++)
+				eventoHorariosPorId[eventoHorarios[i].id] = eventoHorarios[i];
+		}
+
+		var tabela = prepareDataTable("tabela-horarios", {
+			order: [[0, "asc"]],
+			deferRender: true,
+			columns: [
+				{ title: "Ordem", "class": "col-min", "type": "num", data: "ordem" },
+				{ title: "Início", "class": "col-50", render: encode, data: "inicio" },
+				{ title: "Término", "class": "col-50", render: encode, data: "termino" },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+			],
+			data: eventoHorarios
+		});
+
+		var trClicada;
+
+		$("#modalAlterarHorario").on("shown.bs.modal", function () {
+			$("#txtHorarioOrdem").focus();
+		});
+
+		$("#tabela-horarios").on("click", "tbody button", function () {
+			if (JsonWebApi.active)
+				return;
+
+			var horario = tabela.row(trClicada = this.parentNode.parentNode).data();
+
+			if (this.getAttribute("data-excluir")) {
+				$("#lblExcluirHorario").text(horario.inicio + (horario.termino ? " - " + horario.termino : ""));
+
+				$("#modalExcluirHorario").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else {
+				resetForm("#formAlterarHorario");
+
+				$("#txtHorarioOrdem").val(horario.ordem);
+				$("#txtHorarioInicio").val(horario.inicio);
+				$("#txtHorarioTermino").val(horario.termino);
+
+				$("#lblAlterarHorario").text("Salvar Alterações");
+
+				$("#modalAlterarHorario").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			}
+		});
+
+		$("#formAlterarHorario").validate({
+			rules: {
+				txtHorarioOrdem: {
+					required: true,
+					number: true
+				},
+				txtHorarioInicio: {
+					required: true,
+					minlength: 3,
+					maxlength: 50
+				},
+				txtHorarioTermino: {
+					maxlength: 50
+				}
+			},
+			submitHandler: function (form) {
+				if (JsonWebApi.active)
+					return;
+
+				$("#modalAlterarHorario").modal("hide");
+
+				var horario, h = {
+					idevento: idevento,
+					ordem: parseInt($("#txtHorarioOrdem").val()),
+					inicio: trim($("#txtHorarioInicio").val()).toUpperCase(),
+					termino: trim($("#txtHorarioTermino").val()).toUpperCase()
+				};
+
+				Notification.wait();
+
+				if (trClicada && (horario = tabela.row(trClicada).data())) {
+					h.id = horario.id;
+
+					JsonWebApi.post("/api/horario/alterar", h, function (response) {
+						if (response.success) {
+							horario.ordem = h.ordem;
+							horario.inicio = h.inicio;
+							horario.termino = h.termino;
+							Notification.success("Horário alterado com sucesso! \uD83D\uDE04");
+							tabela.row(trClicada).invalidate().draw();
+						} else {
+							Notification.error(response.value, true);
+						}
+						trClicada = null;
+					});
+				} else {
+					JsonWebApi.post("/api/horario/criar", h, function (response) {
+						if (response.success) {
+							h.id = parseInt(response.value);
+							eventoHorariosPorId[h.id] = h;
+							eventoHorarios.push(h);
+							Notification.success("Horário criado com sucesso! \uD83D\uDE04");
+							tabela.row.add(h).draw();
+						} else {
+							Notification.error(response.value, true);
+						}
+						trClicada = null;
+					});
+				}
+			}
+		});
+
+		window.criarHorario = function () {
+			if (JsonWebApi.active)
+				return;
+
+			trClicada = null;
+
+			resetForm("#formAlterarHorario");
+
+			$("#lblAlterarHorario").text("Criar Horário");
+
+			$("#modalAlterarHorario").modal({
+				backdrop: "static",
+				keyboard: true
+			});
+		};
+
+		window.excluirHorario = function () {
+			if (JsonWebApi.active || !trClicada)
+				return;
+
+			$("#modalExcluirHorario").modal("hide");
+
+			var horario = tabela.row(trClicada).data();
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/horario/excluir", function (response) {
+				if (response.success) {
+					delete eventoHorariosPorId[horario.id];
+					for (var i = eventoHorarios.length - 1; i >= 0; i--) {
+						if (eventoHorarios[i].id === horario.id) {
+							eventoHorarios.splice(i, 1);
+							break;
+						}
+					}
+					Notification.success("Horário excluído com sucesso! \uD83D\uDE04");
+					tabela.row(trClicada).remove().draw();
+				} else {
+					Notification.error(response.value, true);
+				}
+				trClicada = null;
+			}, "id", horario.id);
+		};
+	});
+
+	//]]>
+</script>

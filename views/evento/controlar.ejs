@@ -1,0 +1,201 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<ul class="nav nav-pills text-center" role="tablist">
+			<li role="presentation" class="active"><a id="a-basica" href="#tab-basica" role="tab" data-toggle="pill" aria-controls="tab-basica" aria-expanded="true"><i class="fa fa-edit"></i> Informações Básicas</a></li>
+			<% if (usuario.admin) { %>
+			<li role="presentation"><a id="a-usuarios" href="#tab-usuarios" role="tab" data-toggle="pill" aria-controls="tab-usuarios" aria-expanded="false"><i class="fa fa-user"></i> Usuários</a></li>
+			<% } %>
+			<li role="presentation"><a id="a-locais" href="#tab-locais" role="tab" data-toggle="pill" aria-controls="tab-locais" aria-expanded="false"><i class="fa fa-map-marker"></i> Locais</a></li>
+			<li role="presentation"><a id="a-datas" href="#tab-datas" role="tab" data-toggle="pill" aria-controls="tab-datas" aria-expanded="false"><i class="fa fa-calendar-o"></i> Datas</a></li>
+			<li role="presentation"><a id="a-horarios" href="#tab-horarios" role="tab" data-toggle="pill" aria-controls="tab-horarios" aria-expanded="false"><i class="fa fa-clock-o"></i> Horários</a></li>
+			<li role="presentation"><a id="a-empresas" href="#tab-empresas" role="tab" data-toggle="pill" aria-controls="tab-empresas" aria-expanded="false"><i class="fa fa-industry"></i> Empresas</a></li>
+			<li role="presentation"><a id="a-palestrantes" href="#tab-palestrantes" role="tab" data-toggle="pill" aria-controls="tab-palestrantes" aria-expanded="false"><i class="fa fa-microphone"></i> Palestrantes</a></li>
+			<li role="presentation"><a id="a-arquivos" href="#tab-arquivos" role="tab" data-toggle="pill" aria-controls="tab-arquivos" aria-expanded="false"><i class="fa fa-folder-open-o"></i> Arquivos</a></li>
+			<li role="presentation"><a id="a-landing-page" href="#tab-landing-page" role="tab" data-toggle="pill" aria-controls="tab-landing-page" aria-expanded="false"><i class="fa fa-folder-open-o"></i> Landing Page</a></li>
+		</ul>
+		<hr style="border-color: #aaa;" />
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade in active" id="tab-basica">
+				<%- include("alterar") %>
+			</div>
+			<% if (usuario.admin) { %>
+			<div role="tabpanel" class="tab-pane fade" id="tab-usuarios"></div>
+			<% } %>
+			<div role="tabpanel" class="tab-pane fade" id="tab-locais"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-datas"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-horarios"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-empresas"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-palestrantes"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-arquivos"></div>
+			<div role="tabpanel" class="tab-pane fade" id="tab-landing-page"></div>
+		</div>
+	</div>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.nav-pills > li, .nav-pills > li + li {
+		margin: 2px 0;
+		float: none;
+	    display: inline-block;
+	}
+
+	.nav-pills > li:not(.active) > a:not(:hover) {
+		background-color: #fff;
+		color: #333;
+	}
+
+	tr:not(.col-h2) .btn-evento-local-capacidade {
+		visibility: hidden;
+	}
+
+	tr:not(.col-h2) .btn-evento-desassociar {
+		visibility: hidden;
+	}
+
+	tr.col-h2 .btn-evento-associar {
+		visibility: hidden;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+
+	// Métodos de validação especial para arquivos
+	$.validator.addMethod("suporteArquivoAvancado", function (value, element, param) {
+		return (window.File && window.FileReader && window.FormData);
+	}, $.validator.format("O browser não suporta tratamento avançado de arquivos (você deve utilizar o Firefox 13+ ou Google Chrome 21+)"));
+
+	$.validator.addMethod("tamanhoArquivoMinimoBytes", function (value, element, param) {
+		if (!element.files)
+			return false;
+		return (!value.length || !element.files.length || !element.files[0] || element.files[0].size >= param);
+	}, $.validator.format("O arquivo deve ter pelo menos {0} bytes"));
+
+	$.validator.addMethod("tamanhoArquivoMaximoKiB", function (value, element, param) {
+		if (!element.files)
+			return false;
+		return (!value.length || !element.files.length || !element.files[0] || element.files[0].size <= (param << 10));
+	}, $.validator.format("O arquivo deve ter no máximo {0} KB"));
+
+	$.validator.addMethod("extensaoArquivo", function (value, element, param) {
+		if (!element.files)
+			return false;
+		// Não estamos utilizando str.endsWith() porque tem browsers que não suportam...
+		if (!value.length || !element.files.length || !element.files[0])
+			return true;
+		var ext = element.files[0].name.toLowerCase(), i;
+		if ((typeof param === "string"))
+			return endsWith(ext, param);
+		for (var i = param.length - 1; i >= 0; i--) {
+			if (endsWith(ext, param[i]))
+				return true;
+		}
+		return false;
+	}, $.validator.format("O arquivo deve ter a extensão {0}"));
+
+	var tabArquivosVisivel = false,
+		tabLandingPageVisivel = false;
+
+	if ($ && $.validator) {
+		$.validator.addMethod("nomearquivo", function (value, element) {
+			return !(value = trim(value)) ||
+				(value.indexOf("\\") < 0 &&
+					value.indexOf("/") < 0 &&
+					value.charAt(0) != "." &&
+					value.indexOf("..") < 0 &&
+					value.indexOf("*") < 0 &&
+					value.indexOf("?") < 0);
+		}, "Nome de arquivo inválido.");
+		$.validator.addMethod("anomesdia", function (value, element) {
+			var ano = parseInt($("#txtDataAno").val()),
+				mes = parseInt($("#txtDataMes").val()),
+				dia = parseInt(value);
+			if (isNaN(ano) || isNaN(mes) || isNaN(dia) ||
+				ano < 1 || ano > 9999 ||
+				mes < 1 || mes > 12 ||
+				dia < 1 || dia > 31)
+				return true;
+			if (dia < 1)
+				return false;
+			switch (mes) {
+				case 2:
+					if (!(ano % 4) && ((ano % 100) || !(ano % 400))) {
+						if (dia > 29)
+							return false;
+					} else {
+						if (dia > 28)
+							return false;
+					}
+					break;
+				case 4:
+				case 6:
+				case 9:
+				case 11:
+					if (dia > 30)
+						return false;
+					break;
+			}
+			return true;
+		}, "Dia inválido para o mês.");
+	}
+
+	function prepararAba(idA, idTab, url) {
+		var a = $(idA),
+			tab = $(idTab),
+			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
+			htmlErro = "<div class=\"alert alert-danger\">Algo deu errado durante o carregamento. Por favor, tente novamente em alguns instantes.</div>";
+
+		a[0].setAttribute("data-aba-ok", "");
+		tab.html(htmlAguarde);
+
+		a.on("show.bs.tab", function () {
+			if (a[0].getAttribute("data-aba-ok"))
+				return;
+
+			// Para sumir com a mensagem de erro, caso precise tentar novamente...
+			tab.html(htmlAguarde);
+		});
+
+		a.on("shown.bs.tab", function () {
+			tabArquivosVisivel = (idTab === "#tab-arquivos");
+			tabLandingPageVisivel = (idTab === "#tab-landing-page");
+
+			if (a[0].getAttribute("data-aba-ok"))
+				return;
+
+			a[0].setAttribute("data-aba-ok", "1");
+
+			$.ajax({
+				url: url,
+				method: "get",
+				cache: false,
+				success: function (data) {
+					a[0].setAttribute("data-aba-ok", "2");
+					tab.html(data);
+				},
+				error: function () {
+					a[0].setAttribute("data-aba-ok", "");
+					tab.html(htmlErro);
+				}
+			});
+		});
+	}
+
+	//<% if (usuario.admin) { %>
+	prepararAba("#a-usuarios", "#tab-usuarios", "/evento/controlar-usuarios");
+	//<% } %>
+	prepararAba("#a-locais", "#tab-locais", "/evento/controlar-locais");
+	prepararAba("#a-datas", "#tab-datas", "/evento/controlar-datas");
+	prepararAba("#a-horarios", "#tab-horarios", "/evento/controlar-horarios");
+	prepararAba("#a-empresas", "#tab-empresas", "/evento/controlar-empresas");
+	prepararAba("#a-palestrantes", "#tab-palestrantes", "/evento/controlar-palestrantes");
+	prepararAba("#a-arquivos", "#tab-arquivos", "/evento/controlar-arquivos");
+	prepararAba("#a-landing-page", "#tab-landing-page", "/evento/controlar-landing-page");
+</script>

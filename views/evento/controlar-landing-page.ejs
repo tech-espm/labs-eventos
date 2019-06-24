@@ -1,0 +1,241 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Para referenciar os arquivos na landing page, utilize o prefixo "<%=caminhoAbsolutoExterno %>" nas URL's, como nos exemplos abaixo:
+				<br />
+				<br />
+				HTML:<br />&lt;img alt="Foto" src="<%=caminhoAbsolutoExterno %>/foto.jpg" /&gt;
+				<br />&lt;link rel="stylesheet" href="<%=caminhoAbsolutoExterno %>/estilo.css" /&gt;
+				<br />&lt;script type="text/javascript" src="<%=caminhoAbsolutoExterno %>/script.js"&gt;&lt;/script&gt;
+				<br />
+				<br />
+				CSS:<br />background: url(<%=caminhoAbsolutoExterno %>/foto.jpg);
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Para enviar um novo arquivo da landing page, clique no botão abaixo, ou arraste-o até aqui (o arquivo deve ter até 1 MiB).
+				<br />
+				<br />
+				<button class="btn btn-primary" type="button" id="btnArquivoLandingPage" onclick="escolherArquivoLandingPage()"><i class="fa fa-folder-open-o"></i> Enviar landing page...</button>
+				<div id="divArquivoLandingPage" style="width: 0; display: inline-block; overflow: hidden; position: absolute;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				O arquivo da landing page deve ser criado utilizando HTML + EJS. Para mais informações sobre EJS, acesse <a target="_blank" href="https://ejs.co">ejs.co <i class="fa fa-nomargin fa-external-link"></i></a>.
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row" id="divLandingPageOK" <%-(landingPageExiste ? "" : "style=\"display: none;\"")%>>
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				<a id="aLandingPage" target="_blank" href="/<%=evento.url %>">Acesse a landing page agora <i class="fa fa-nomargin fa-external-link"></i></a>, ou <a id="aLandingPageDownload" href="/api/evento/landingPageDownload" target="_blank" download="landingPage-<%=evento.url %>.ejs">baixe o arquivo EJS atual <i class="fa fa-nomargin fa-download"></i></a>.
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row" id="divLandingPageVazia" <%-(landingPageExiste ? "style=\"display: none;\"" : "")%>>
+	<div class="col-lg-12">
+		<div class="alert alert-danger">
+			O arquivo da landing page ainda não foi enviado!
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var divArquivoLandingPage = document.getElementById("divArquivoLandingPage"), txtArquivoLandingPage,
+			mensagemDrag = false, timeoutDrag = 0;
+
+		window.eventoUrlListener = function (urlNova) {
+			document.getElementById("aLandingPage").setAttribute("href", "/" + urlNova);
+			document.getElementById("aLandingPageDownload").setAttribute("download", "landingPage-" + urlNova + ".ejs");
+		};
+
+		function enviarArquivoLandingPage(e, files) {
+			var dt = (e ? e.dataTransfer : null);
+
+			function enviarProximo(proximoIndice) {
+				var i, file, nomeReal, nome;
+
+				if (files) {
+					if (proximoIndice >= 1) {
+						Notification.success("Arquivo da landing page enviado com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = files[proximoIndice];
+					if (!file) {
+						Notification.error("Não há arquivos para enviar");
+						return;
+					}
+				} else if (dt.items) {
+					if (proximoIndice >= 1) {
+						Notification.success("Arquivo da landing page enviado com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = dt.items[proximoIndice];
+					if (!file || file.kind != "file") {
+						Notification.error("Não há arquivos para enviar");
+						return;
+					}
+					file = file.getAsFile();
+				} else {
+					if (proximoIndice >= dt.files.length) {
+						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = dt.files[proximoIndice];
+					if (!file) {
+						enviarProximo(proximoIndice + 1);
+						return;
+					}
+				}
+
+				nomeReal = file.name;
+				if ((i = nomeReal.lastIndexOf("/")) >= 0)
+					nomeReal = nomeReal.substr(i + 1);
+				if ((i = nomeReal.lastIndexOf("\\")) >= 0)
+					nomeReal = nomeReal.substr(i + 1);
+				if (!(nome = trim(nomeReal))) {
+					Notification.error("O nome do arquivo não é válido");
+					return;
+				}
+				if (nome.length > 100) {
+					Notification.error("O nome do arquivo deve ter até 100 caracteres");
+					return;
+				}
+				if (file.size < 1) {
+					Notification.error("O tamanho do arquivo " + nomeReal + " é muito pequeno");
+					return;
+				}
+				if (file.size > (1 * 1024 * 1024)) {
+					Notification.error("O tamanho do arquivo " + nomeReal + " é de " + formatSize(file.size, true) + " (o tamanho limite é de 1.048.576 bytes)");
+					return;
+				}
+
+				var formData = new FormData();
+				formData.append("arquivo", file, nome);
+
+				// Para prevenir problemas com browsers estranhos, vamos enviar o nome via query string, também...
+				JsonWebApi.postFormData("/api/evento/atualizarLandingPage", formData, function (response) {
+					if (response.success) {
+						$("#divLandingPageOK").show();
+						$("#divLandingPageVazia").hide();
+
+						enviarProximo(proximoIndice + 1);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+
+				Notification.wait();
+			}
+
+			enviarProximo(0);
+
+			return cancelEvent(e);
+		}
+
+		function prepararTxtArquivoLandingPage() {
+			while (divArquivoLandingPage.firstChild)
+				divArquivoLandingPage.removeChild(divArquivoLandingPage.firstChild);
+			txtArquivoLandingPage = document.createElement("input");
+			txtArquivoLandingPage.setAttribute("type", "file");
+			txtArquivoLandingPage.setAttribute("tabindex", "-1");
+			txtArquivoLandingPage.onchange = function () {
+				if (!txtArquivoLandingPage.files || !txtArquivoLandingPage.files.length)
+					return;
+
+				if (!tabLandingPageVisivel || JsonWebApi.active || $.active) {
+					prepararTxtArquivoLandingPage();
+					return;
+				}
+
+				enviarArquivoLandingPage(null, txtArquivoLandingPage.files);
+
+				prepararTxtArquivoLandingPage();
+			};
+			divArquivoLandingPage.appendChild(txtArquivoLandingPage);
+		}
+
+		window.escolherArquivoLandingPage = function () {
+			if (!tabLandingPageVisivel || JsonWebApi.active || $.active)
+				return;
+
+			txtArquivoLandingPage.click();
+		};
+
+		window.addEventListener("dragover", function (e) {
+			if (tabLandingPageVisivel && !JsonWebApi.active && !$.active) {
+				if (timeoutDrag) {
+					clearTimeout(timeoutDrag);
+					timeoutDrag = 0;
+				}
+				if (!mensagemDrag) {
+					mensagemDrag = true;
+					Notification.show("Solte o arquivo da landing page aqui para enviá-lo", "info", -1);
+				}
+			}
+			return cancelEvent(e);
+		}, true);
+
+		window.addEventListener("dragleave", function (e) {
+			if (mensagemDrag) {
+				if (timeoutDrag)
+					clearTimeout(timeoutDrag);
+				timeoutDrag = setTimeout(function () {
+					mensagemDrag = false;
+					timeoutDrag = 0;
+					Notification.hide();
+				}, 500);
+			}
+			return cancelEvent(e);
+		}, true);
+
+		window.addEventListener("drop", function (e) {
+			if (timeoutDrag) {
+				clearTimeout(timeoutDrag);
+				timeoutDrag = 0;
+			}
+			if (mensagemDrag) {
+				mensagemDrag = false;
+				Notification.hide();
+			}
+
+			if (!tabLandingPageVisivel)
+				return;
+
+			if (JsonWebApi.active || $.active)
+				return cancelEvent(e);
+
+			return enviarArquivoLandingPage(e, null);
+		}, true);
+
+		prepararTxtArquivoLandingPage();
+	});
+
+	//]]>
+</script>

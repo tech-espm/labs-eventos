@@ -1,0 +1,419 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Cuidado ao sobrescrever arquivos existentes, caso o evento já tenha começado, pois pode ser que o arquivo já esteja no cache do browser do visitante.
+				<br />
+				Quando um arquivo precisar ser sobrescrito, é recomendável renomear o arquivo utilizando alguma versão, como foto-1.jpg, por exemplo.
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Para referenciar os arquivos na landing page, utilize o prefixo "<%=caminhoAbsolutoExterno %>" nas URL's, como nos exemplos abaixo:
+				<br />
+				<br />
+				HTML:<br />&lt;img alt="Foto" src="<%=caminhoAbsolutoExterno %>/foto.jpg" /&gt;
+				<br />&lt;link rel="stylesheet" href="<%=caminhoAbsolutoExterno %>/estilo.css" /&gt;
+				<br />&lt;script type="text/javascript" src="<%=caminhoAbsolutoExterno %>/script.js"&gt;&lt;/script&gt;
+				<br />
+				<br />
+				CSS:<br />background: url(<%=caminhoAbsolutoExterno %>/foto.jpg);
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Para enviar arquivos, clique no botão abaixo, ou arraste-os até aqui (os arquivos devem ter até 5 MiB).
+				<br />
+				<br />
+				<button class="btn btn-primary" type="button" id="btnArquivos" onclick="escolherArquivos()"><i class="fa fa-folder-open-o"></i> Enviar arquivos...</button>
+				<div id="divArquivos" style="width: 0; display: inline-block; overflow: hidden; position: absolute;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body dataTable_wrapper">
+				<table class="table table-striped table-hover" id="tabela-arquivos"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalRenomearArquivo">
+	<div class="modal-dialog" role="document">
+		<form id="formRenomearArquivo" class="modal-content" method="post" action="#">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Renomear</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="txtArquivoNomeNovo">Novo nome</label>
+					<input id="txtArquivoNomeNovo" name="txtArquivoNomeNovo" class="form-control lower" type="text" spellcheck="false" maxlength="100" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Renomear</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluirArquivo">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Oops...</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					Tem certeza que deseja excluir o arquivo <span id="lblNomeArquivo"></span>? Essa operação NÃO pode ser desfeita!
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="excluirArquivo()"><i class="fa fa-check"></i> Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var arquivos = <%- arquivos %>;
+		var tabela = prepareDataTable("tabela-arquivos", {
+			order: [[0, "asc"]],
+			deferRender: true,
+			columns: [
+				{ title: "Nome", render: encode, data: "nome" },
+				{ title: "Tamanho", "class": "col-min text-right", data: "tamanho", orderData: 2, render: function (v, type, row) { return formatSize(row.tamanho); } },
+				{ title: "TamanhoInt", visible: false, searchable: false, data: "tamanho", "type": "num" },
+				{ title: "Modificação", "class": "col-min text-right", render: encode, data: "modificacao", orderData: 4 },
+				{ title: "ModificaçãoInt", visible: false, searchable: false, "type": "num", data: "modificacaoMs" },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "nome", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Baixar arquivo\" href=\"<%=caminhoAbsolutoExterno %>/" + row.nome + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-external-link\"></i></a> <button title=\"Renomear\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+			],
+			data: arquivos,
+			rowCallback: function (row, data) {
+				data.row = row;
+			}
+		});
+
+		var trClicada, regA = /[áàäâã]/g, regE = /[éèëê]/g, regI = /[íìïî]/g, regO = /[óòöôõ]/g, regU = /[úùüû]/g, regC = /ç/g, regY = /ÿ/g;
+
+		function normalizarNome(nome) {
+			return trim(nome).toLowerCase().replace(regA, "a").replace(regE, "e").replace(regI, "i").replace(regO, "o").replace(regU, "u").replace(regC, "c").replace(regY, "y");
+		}
+
+		$("#modalRenomearArquivo").on("shown.bs.modal", function () {
+			$("#txtArquivoNomeNovo").focus();
+		});
+
+		$("#tabela-arquivos").on("click", "tbody button", function () {
+			if (JsonWebApi.active)
+				return;
+
+			var arquivo = tabela.row(trClicada = this.parentNode.parentNode).data();
+
+			if (this.getAttribute("data-excluir")) {
+				$("#lblNomeArquivo").text(arquivo.nome);
+
+				$("#modalExcluirArquivo").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else {
+				$("#txtArquivoNomeNovo").val(arquivo.nome);
+
+				$("#modalRenomearArquivo").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			}
+		});
+
+		function renomearArquivo() {
+			if (JsonWebApi.active || !trClicada)
+				return;
+
+			var arquivo = tabela.row(trClicada).data();
+
+			var nomeNovo = normalizarNome($("#txtArquivoNomeNovo").val());
+
+			//if (!nomeNovo ||
+			//	nomeNovo.indexOf("\\") >= 0 ||
+			//	nomeNovo.indexOf("/") >= 0 ||
+			//	nomeNovo.indexOf("..") >= 0 ||
+			//	nomeNovo.indexOf("*") >= 0 ||
+			//	nomeNovo.indexOf("?") >= 0) {
+			//	Notification.error("Nome de arquivo inválido", true);
+			//	return;
+			//}
+
+			$("#modalRenomearArquivo").modal("hide");
+
+			if (nomeNovo === arquivo.nome.toLowerCase())
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/renomearArquivo", function (response) {
+				if (response.success) {
+					Notification.success("Arquivo renomeado com sucesso! \uD83D\uDE04");
+					arquivo.nome = nomeNovo;
+					tabela.row(trClicada).invalidate().draw();
+				} else {
+					Notification.error(response.value, true);
+				}
+				trClicada = null;
+			}, "nomeAtual", arquivo.nome, "nomeNovo", nomeNovo);
+		};
+
+		$("#formRenomearArquivo").validate({
+			rules: {
+				txtArquivoNomeNovo: {
+					required: true,
+					maxlength: 100,
+					nomearquivo: true
+				}
+			},
+			submitHandler: function (form) {
+				renomearArquivo();
+				resetForm("#formRenomearArquivo");
+			}
+		});
+
+		window.excluirArquivo = function () {
+			if (JsonWebApi.active || !trClicada)
+				return;
+
+			$("#modalExcluirArquivo").modal("hide");
+
+			var arquivo = tabela.row(trClicada).data();
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/excluirArquivo", function (response) {
+				if (response.success) {
+					Notification.success("Arquivo excluído com sucesso! \uD83D\uDE04");
+					tabela.row(trClicada).remove().draw();
+				} else {
+					Notification.error(response.value, true);
+				}
+				trClicada = null;
+			}, "nome", arquivo.nome);
+		};
+
+		var divArquivos = document.getElementById("divArquivos"), txtArquivos,
+			mensagemDrag = false, timeoutDrag = 0;
+
+		function enviarArquivos(e, files) {
+			var dt = (e ? e.dataTransfer : null);
+
+			function enviarProximo(proximoIndice) {
+				var i, file, nomeReal, nome;
+
+				if (files) {
+					if (proximoIndice >= files.length) {
+						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = files[proximoIndice];
+					if (!file) {
+						enviarProximo(proximoIndice + 1);
+						return;
+					}
+				} else if (dt.items) {
+					if (proximoIndice >= dt.items.length) {
+						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = dt.items[proximoIndice];
+					if (!file || file.kind != "file") {
+						enviarProximo(proximoIndice + 1);
+						return;
+					}
+					file = file.getAsFile();
+				} else {
+					if (proximoIndice >= dt.files.length) {
+						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+						return;
+					}
+					file = dt.files[proximoIndice];
+					if (!file) {
+						enviarProximo(proximoIndice + 1);
+						return;
+					}
+				}
+
+				nomeReal = file.name;
+				if ((i = nomeReal.lastIndexOf("/")) >= 0)
+					nomeReal = nomeReal.substr(i + 1);
+				if ((i = nomeReal.lastIndexOf("\\")) >= 0)
+					nomeReal = nomeReal.substr(i + 1);
+				if (!(nome = normalizarNome(nomeReal))) {
+					Notification.error("O nome do arquivo não é válido");
+					return;
+				}
+				if (nome.length > 100) {
+					Notification.error("O nome do arquivo deve ter até 100 caracteres");
+					return;
+				}
+				if (file.size < 1) {
+					Notification.error("O tamanho do arquivo " + nomeReal + " é muito pequeno");
+					return;
+				}
+				if (file.size > (5 * 1024 * 1024)) {
+					Notification.error("O tamanho do arquivo " + nomeReal + " é de " + formatSize(file.size, true) + " (o tamanho limite é de 5.242.880 bytes)");
+					return;
+				}
+
+				var novo = {
+					nome: nome,
+					tamanho: file.size,
+					modificacao: "Agora",
+					modificacaoMs: (new Date()).getTime()
+				};
+
+				var formData = new FormData();
+				formData.append("arquivo", file, nome);
+
+				// Para prevenir problemas com browsers estranhos, vamos enviar o nome via query string, também...
+				JsonWebApi.postFormData("/api/evento/criarArquivo?nome=" + encodeURIComponent(nome), formData, function (response) {
+					if (response.success) {
+						var i, a, ok = false;
+
+						for (i = arquivos.length - 1; i >= 0; i--) {
+							a = arquivos[i];
+							if (a.nome == novo.nome) {
+								ok = true;
+								a.tamanho = novo.tamanho;
+								a.modificacao = novo.modificacao;
+								a.modificacaoMs = novo.modificacaoMs;
+								if (a.row)
+									tabela.row(a.row).invalidate().draw();
+								break;
+							}
+						}
+
+						if (!ok) {
+							arquivos.push(novo);
+							tabela.row.add(novo).draw();
+						}
+
+						enviarProximo(proximoIndice + 1);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+
+				Notification.wait();
+			}
+
+			enviarProximo(0);
+
+			return cancelEvent(e);
+		}
+
+		function prepararTxtArquivos() {
+			while (divArquivos.firstChild)
+				divArquivos.removeChild(divArquivos.firstChild);
+			txtArquivos = document.createElement("input");
+			txtArquivos.setAttribute("type", "file");
+			txtArquivos.setAttribute("tabindex", "-1");
+			txtArquivos.setAttribute("multiple", "multiple");
+			txtArquivos.onchange = function () {
+				if (!txtArquivos.files || !txtArquivos.files.length)
+					return;
+
+				if (!tabArquivosVisivel || JsonWebApi.active || $.active) {
+					prepararTxtArquivos();
+					return;
+				}
+
+				enviarArquivos(null, txtArquivos.files);
+
+				prepararTxtArquivos();
+			};
+			divArquivos.appendChild(txtArquivos);
+		}
+
+		window.escolherArquivos = function () {
+			if (!tabArquivosVisivel || JsonWebApi.active || $.active)
+				return;
+
+			txtArquivos.click();
+		};
+
+		window.addEventListener("dragover", function (e) {
+			if (tabArquivosVisivel && !JsonWebApi.active && !$.active) {
+				if (timeoutDrag) {
+					clearTimeout(timeoutDrag);
+					timeoutDrag = 0;
+				}
+				if (!mensagemDrag) {
+					mensagemDrag = true;
+					Notification.show("Solte os arquivos para enviá-los", "info", -1);
+				}
+			}
+			return cancelEvent(e);
+		}, true);
+
+		window.addEventListener("dragleave", function (e) {
+			if (mensagemDrag) {
+				if (timeoutDrag)
+					clearTimeout(timeoutDrag);
+				timeoutDrag = setTimeout(function () {
+					mensagemDrag = false;
+					timeoutDrag = 0;
+					Notification.hide();
+				}, 500);
+			}
+			return cancelEvent(e);
+		}, true);
+
+		window.addEventListener("drop", function (e) {
+			if (timeoutDrag) {
+				clearTimeout(timeoutDrag);
+				timeoutDrag = 0;
+			}
+			if (mensagemDrag) {
+				mensagemDrag = false;
+				Notification.hide();
+			}
+
+			if (!tabArquivosVisivel)
+				return;
+
+			if (JsonWebApi.active || $.active)
+				return cancelEvent(e);
+
+			return enviarArquivos(e, null);
+		}, true);
+
+		prepararTxtArquivos();
+	});
+
+	//]]>
+</script>

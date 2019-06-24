@@ -1,0 +1,440 @@
+﻿
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body dataTable_wrapper">
+				<div class="col-xs-space-bottom">
+					<button class="btn btn-primary" type="button" onclick="criarPalestrante()"><i class="fa fa-plus"></i> Criar Palestrante...</button>
+				</div>
+				<table class="table table-striped table-hover" id="tabela-palestrantes"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAlterarPalestrante">
+	<div class="modal-dialog" role="document">
+		<form class="modal-content" id="formAlterarPalestrante" method="post">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Palestrante</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="txtPalestranteNome">Nome</label>
+					<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteNomeCurto">Nome Curto</label>
+					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="cbPalestranteEmpresa">Empresa</label>
+					<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteCargo">Cargo</label>
+					<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteBio">Biografia</label>
+					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" spellcheck="false"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteBioCurta">Biografia Curta</label>
+					<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" spellcheck="false"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteImagem">Imagem</label>
+					<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <span id="lblAlterarPalestrante">Criar Palestrante</span></button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluirPalestrante">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Oops...</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					Tem certeza que deseja excluir o palestrante <span id="lblExcluirPalestrante"></span>? Essa operação NÃO pode ser desfeita!
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="excluirPalestrante()"><i class="fa fa-check"></i> Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var idevento = <%- idevento %>;
+		var extensaoImagem = "<%- extensaoImagem %>";
+		var caminhoAbsolutoPastaExterno = "<%- caminhoAbsolutoPastaExterno %>";
+
+		window.eventoEmpresas = <%- empresas %>;
+		window.eventoEmpresasPorId = {};
+		if (eventoEmpresas) {
+			for (var i = 0; i < eventoEmpresas.length; i++)
+				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
+		}
+
+		window.eventoPalestrantes = <%- palestrantes %>;
+		window.eventoPalestrantesPorId = {};
+		if (eventoPalestrantes) {
+			for (var i = 0; i < eventoPalestrantes.length; i++)
+				eventoPalestrantesPorId[eventoPalestrantes[i].id] = eventoPalestrantes[i];
+		}
+
+		var tabela = prepareDataTable("tabela-palestrantes", {
+			order: [[1, "asc"]],
+			deferRender: true,
+			columns: [
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
+				{ title: "Nome", data: "nome" },
+				{ title: "Nome Curto", data: "nome_curto" },
+				{ title: "Empresa", data: "nome_empresa" },
+				{ title: "Cargo", data: "cargo" },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+			],
+			data: eventoPalestrantes
+		});
+
+		var trClicada, preparandoImagem = false;
+
+		prepareCbSearch(_("cbPalestranteEmpresa"));
+
+		$("#modalAlterarPalestrante").on("show.bs.modal", function () {
+			var parent = $("#txtPalestranteImagem").parent();
+			$("#txtPalestranteImagem").remove();
+			parent.append("<input id=\"txtPalestranteImagem\" name=\"txtPalestranteImagem\" class=\"form-control\" type=\"file\" accept=\"image/*\" />");
+
+			var cbPalestranteEmpresa = $("#cbPalestranteEmpresa");
+			cbPalestranteEmpresa.empty();
+			cbPalestranteEmpresa.append("<option value=\"\">SELECIONE...</option>");
+			for (var i = 0; i < eventoEmpresas.length; i++) {
+				var e = eventoEmpresas[i];
+				cbPalestranteEmpresa.append("<option value=\"" + e.id + "\">" + encode(e.nome) + "</option>");
+			}
+
+			setCbSearch(_("cbPalestranteEmpresa"), trClicada ? tabela.row(trClicada).data().idempresa : "0");
+		});
+
+		$("#modalAlterarPalestrante").on("shown.bs.modal", function () {
+			$("#txtPalestranteNome").focus();
+		});
+
+		$("#tabela-palestrantes").on("click", "tbody button", function () {
+			if (JsonWebApi.active)
+				return;
+
+			var palestrante = tabela.row(trClicada = this.parentNode.parentNode).data();
+
+			if (this.getAttribute("data-excluir")) {
+				$("#lblExcluirPalestrante").text(palestrante.nome);
+
+				$("#modalExcluirPalestrante").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else {
+				resetForm("#formAlterarPalestrante");
+
+				$("#txtPalestranteNome").val(palestrante.nome);
+				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
+				$("#txtPalestranteCargo").val(palestrante.cargo);
+				$("#txtPalestranteBio").val(palestrante.bio);
+				$("#txtPalestranteBioCurta").val(palestrante.bio_curta);
+
+				$("#lblAlterarPalestrante").text("Salvar Alterações");
+
+				$("#modalAlterarPalestrante").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			}
+		});
+
+		$("#formAlterarPalestrante").validate({
+			rules: {
+				txtPalestranteNome: {
+					required: true,
+					maxlength: 100
+				},
+				txtPalestranteNomeCurto: {
+					required: true,
+					maxlength: 45
+				},
+				cbPalestranteEmpresa: {
+					required: true,
+
+				},
+				txtPalestranteCargo: {
+					required: true,
+					maxlength: 45
+				},
+				txtPalestranteBio: {
+					maxlength: 1000
+				},
+				txtPalestranteBioCurta: {
+					maxlength: 200
+				},
+				txtPalestranteImagem: {
+					required: function () { return !trClicada; },
+					suporteArquivoAvancado: true,
+					tamanhoArquivoMinimoBytes: 128,
+					//tamanhoArquivoMaximoKiB: 512,
+					extensaoArquivo: [".png", ".jpg", ".jpeg"]
+				}
+			},
+			submitHandler: function (form) {
+				if (JsonWebApi.active || preparandoImagem)
+					return;
+
+				$("#modalAlterarPalestrante").modal("hide");
+
+				var palestrante, p = {
+					idevento: idevento,
+					idempresa: parseInt($("#cbPalestranteEmpresa").val()),
+					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).toUpperCase(),
+					nome: trim($("#txtPalestranteNome").val()).toUpperCase(),
+					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
+					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
+					bio: trim($("#txtPalestranteBio").val()).toUpperCase(),
+					bio_curta: trim($("#txtPalestranteBioCurta").val()).toUpperCase(),
+					versao: 0
+				};
+
+				Notification.wait();
+
+				var formData = new FormData();
+				formData.append("idevento", p.idevento);
+				formData.append("idempresa", p.idempresa);
+				formData.append("nome", p.nome);
+				formData.append("nome_curto", p.nome_curto);
+				formData.append("cargo", p.cargo);
+				formData.append("bio", p.bio);
+				formData.append("bio_curta", p.bio_curta);
+
+				function terminar(atualizarVersao) {
+					preparandoImagem = false;
+
+					if (trClicada && (palestrante = tabela.row(trClicada).data())) {
+						p.id = palestrante.id;
+						p.versao = (atualizarVersao ? palestrante.versao + 1: palestrante.versao);
+						formData.append("id", p.id);
+						formData.append("versao", p.versao);
+
+						JsonWebApi.postFormData("/api/palestrante/alterar", formData, function (response) {
+							if (response.success) {
+								palestrante.idempresa = p.idempresa;
+								palestrante.nome_empresa = p.nome_empresa;
+								palestrante.nome = p.nome;
+								palestrante.nome_curto = p.nome_curto;
+								palestrante.cargo = p.cargo;
+								palestrante.bio = p.bio;
+								palestrante.bio_curta = p.bio_curta;
+								palestrante.versao = p.versao;
+								Notification.success("Palestrante alterado com sucesso! \uD83D\uDE04");
+								tabela.row(trClicada).invalidate().draw();
+							} else {
+								Notification.error(response.value, true);
+							}
+							trClicada = null;
+						});
+					} else {
+						formData.append("versao", p.versao);
+
+						JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
+							if (response.success) {
+								p.id = parseInt(response.value);
+								eventoPalestrantesPorId[p.id] = p;
+								eventoPalestrantes.push(p);
+								Notification.success("Palestrante criada com sucesso! \uD83D\uDE04");
+								tabela.row.add(p).draw();
+							} else {
+								Notification.error(response.value, true);
+							}
+							trClicada = null;
+						});
+					}
+				}
+
+				function erroImagem() {
+					preparandoImagem = false;
+					Notification.error("Ocorreu um erro durante o processamento da imagem \uD83D\uDE22", true);
+				}
+
+				function prepararImagem(arquivo) {
+					preparandoImagem = true;
+
+					var reader = new FileReader();
+					reader.onload = function () {
+						var image = new Image();
+						image.onload = function () {
+							var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
+
+							// Inicialmente ajusta o tamanho do canvas com base
+							// no aspect ratio desejado, caso exista algum
+							var aspectratiopalestrante = $("#aspectratiopalestrantevalido").val();
+							if (aspectratiopalestrante) {
+								var rw = aspectratiopalestrante.split(":"), rh;
+								if (rw.length === 2 &&
+									!isNaN(rh = parseInt(rw[1])) &&
+									!isNaN(rw = parseInt(rw[0])) &&
+									rh > 0 &&
+									rw > 0) {
+									if (Math.abs((cw / ch) - (rw / rh)) > 0.07) {
+										bordas = true;
+										// Preserva a maior dimensão
+										if ((cw / rw) >= (ch / rh))
+											ch = (cw * rh) / rw;
+										else
+											cw = (ch * rw) / rh;
+									}
+								}
+							}
+
+							// Não podemos ter imagens muito grandes
+							if (cw >= ch) {
+								if (cw > 600) {
+									ch = ch * (600 / cw);
+									cw = 600;
+								}
+							} else {
+								if (ch > 600) {
+									cw = cw * (600 / ch);
+									ch = 600;
+								}
+							}
+
+							cw = (cw + 0.5) | 0;
+							ch = (ch + 0.5) | 0;
+
+							var canvas = document.createElement("canvas");
+							canvas.width = cw;
+							canvas.height = ch;
+
+							var context = canvas.getContext("2d", { alpha: false });
+							if (bordas) {
+								// Preenche o fundo de preto (as novas bordas da imagem)
+								context.fillStyle = "#000";
+								context.fillRect(0, 0, cw, ch);
+
+								// Redimensiona e centraliza a imagem dentro do canvas
+								if ((cw / ch) > (w / h)) {
+									// Bordas verticais nas laterais
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								} else {
+									// Bordas horizontais acima e abaixo
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								}
+
+								context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
+							} else {
+								// Apenas redimensiona (não precisa de bordas)
+								context.drawImage(image, 0, 0, cw, ch);
+							}
+
+							var mime = endsWith(arquivo.name.toLowerCase(), ".png") ? "image/png" : "image/jpeg";
+
+							if (!HTMLCanvasElement.prototype.toBlob) {
+								var data = canvas.toDataURL(mime, 1);
+
+								// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
+								var binStr = atob(data.split(",")[1]),
+									len = binStr.length,
+									arr = new Uint8Array(len);
+								for (var i = 0; i < len; i++)
+									arr[i] = binStr.charCodeAt(i);
+
+								formData.append("imagem", new Blob([arr], { type: mime }));
+								terminar(true);
+							} else {
+								canvas.toBlob(function (blob) {
+									formData.append("imagem", blob);
+									terminar(true);
+								}, mime, 1);
+							}
+						};
+						image.onerror = erroImagem;
+						image.src = reader.result;
+					};
+					reader.onerror = erroImagem;
+					reader.readAsDataURL(arquivo);
+				}
+
+				var txtPalestranteImagem = _("txtPalestranteImagem");
+				if (txtPalestranteImagem.files && txtPalestranteImagem.files[0])
+					prepararImagem(txtPalestranteImagem.files[0]);
+				else
+					terminar(false);
+			}
+		});
+
+		window.criarPalestrante = function () {
+			if (JsonWebApi.active)
+				return;
+
+			trClicada = null;
+
+			resetForm("#formAlterarPalestrante");
+
+			$("#lblAlterarPalestrante").text("Criar Palestrante");
+
+			$("#modalAlterarPalestrante").modal({
+				backdrop: "static",
+				keyboard: true
+			});
+		};
+
+		window.excluirPalestrante = function () {
+			if (JsonWebApi.active || !trClicada)
+				return;
+
+			$("#modalExcluirPalestrante").modal("hide");
+
+			var palestrante = tabela.row(trClicada).data();
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/palestrante/excluir", function (response) {
+				if (response.success) {
+					delete eventoPalestrantesPorId[palestrante.id];
+					for (var i = eventoPalestrantes.length - 1; i >= 0; i--) {
+						if (eventoPalestrantes[i].id === palestrante.id) {
+							eventoPalestrantes.splice(i, 1);
+							break;
+						}
+					}
+					Notification.success("Palestrante excluído com sucesso! \uD83D\uDE04");
+					tabela.row(trClicada).remove().draw();
+				} else {
+					Notification.error(response.value, true);
+				}
+				trClicada = null;
+			}, "id", palestrante.id);
+		};
+	});
+
+	//]]>
+</script>
