@@ -5,19 +5,19 @@
 	if (sideMenu && sideMenu.length)
 		sideMenu.metisMenu();
 
-	if (navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") > -1) {
-		$(function () {
-			var sidebarFakeBg = _("sidebar-fake-bg"), l = 0;
-			_("sidebar").className = "sidebar-safari sidebar";
-			$(window).bind("load scroll", function () {
-				var n = (window.pageYOffset <= 10 ? 125 : 0);
-				if (l !== n) {
-					l = n;
-					sidebarFakeBg.style.top = n + "px";
-				}
-			});
-		});
-	}
+	//if (navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") > -1) {
+	//	$(function () {
+	//		var sidebarFakeBg = _("sidebar-fake-bg"), l = 0;
+	//		_("sidebar").className = "sidebar-safari sidebar";
+	//		$(window).bind("load scroll", function () {
+	//			var n = (window.pageYOffset <= 10 ? 125 : 0);
+	//			if (l !== n) {
+	//				l = n;
+	//				sidebarFakeBg.style.top = n + "px";
+	//			}
+	//		});
+	//	});
+	//}
 
 	var originalModal = $.fn.modal;
 	$.fn.modal = function () {

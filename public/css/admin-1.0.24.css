@@ -187,14 +187,8 @@
 			border-radius: 0 0 4px 4px;
 		}
 
-@media(max-width:767px) {
-	.sidebar-fake-bg {
-		display: none;
-	}
-
-	.sidebar {
-		background: #333;
-	}
+.sidebar {
+	background: #333;
 }
 
 @media(min-width:768px) {
@@ -203,21 +197,7 @@
 		position: absolute;
 		width: 250px;
 		margin-top: 50px;
-		min-height: 100px;
-	}
-
-	.sidebar-safari {
-		background: #333;
-	}
-
-	.sidebar-fake-bg {
-		z-index: 0;
-		position: fixed;
-		width: 250px;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		background: #333;
+		min-height: calc(100vh - 50px);
 	}
 }
 
