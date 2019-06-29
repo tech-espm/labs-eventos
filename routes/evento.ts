@@ -7,6 +7,7 @@ import Local = require("../models/local");
 import Data = require("../models/data");
 import Horario = require("../models/horario");
 import Empresa = require("../models/empresa");
+import TipoEmpresa = require("../models/tipoEmpresa");
 import Palestrante = require("../models/palestrante");
 
 const router = express.Router();
@@ -165,6 +166,7 @@ router.get("/controlar-empresas", wrap(async (req: express.Request, res: express
 			idevento: u.idevento_logado,
 			extensaoImagem: Empresa.extensaoImagem,
 			caminhoAbsolutoPastaExterno: Empresa.caminhoAbsolutoPastaExterno(u.idevento_logado),
+			tipoEmpresas: await TipoEmpresa.listar(),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado))
 		});
 	}

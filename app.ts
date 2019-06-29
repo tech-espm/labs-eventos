@@ -98,6 +98,7 @@ Evento.nomesReservados.push(
 	"local",
 	"profissao",
 	"tipoSessao",
+	"tipoEmpresa",
 	"unidade",
 	"usuario",
 	"vertical",
@@ -118,6 +119,7 @@ app.use("/instrucao", require("./routes/instrucao"));
 app.use("/local", require("./routes/local"));
 app.use("/profissao", require("./routes/profissao"));
 app.use("/tipoSessao", require("./routes/tipoSessao"));
+app.use("/tipoEmpresa", require("./routes/tipoEmpresa"));
 app.use("/unidade", require("./routes/unidade"));
 app.use("/usuario", require("./routes/usuario"));
 app.use("/vertical", require("./routes/vertical"));
@@ -129,6 +131,7 @@ app.use("/api/instrucao", require("./routes/api/instrucao"));
 app.use("/api/local", require("./routes/api/local"));
 app.use("/api/profissao", require("./routes/api/profissao"));
 app.use("/api/tipoSessao", require("./routes/api/tipoSessao"));
+app.use("/api/tipoEmpresa", require("./routes/api/tipoEmpresa"));
 app.use("/api/unidade", require("./routes/api/unidade"));
 app.use("/api/usuario", require("./routes/api/usuario"));
 app.use("/api/vertical", require("./routes/api/vertical"));

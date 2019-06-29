@@ -9,6 +9,7 @@ export = class Empresa {
 
 	public id: number;
 	public idevento: number;
+	public idtipo: number;
 	public nome: string;
 	public nome_curto: string;
 	public versao: number;
@@ -32,6 +33,8 @@ export = class Empresa {
 	private static validar(e: Empresa): string {
 		if (isNaN(e.idevento) || e.idevento <= 0)
 			return "Evento inválido";
+		if (isNaN(e.idtipo) || e.idtipo <= 0)
+			return "Tipo inválido";
 		e.nome = (e.nome || "").trim().toUpperCase();
 		if (e.nome.length < 3 || e.nome.length > 100)
 			return "Nome inválido";
@@ -47,7 +50,7 @@ export = class Empresa {
 		let lista: Empresa[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, idevento, nome, nome_curto, versao from eventoempresa where idevento = ? order by nome asc", [idevento]) as Empresa[];
+			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.idevento = ? order by e.nome asc", [idevento]) as Empresa[];
 		});
 
 		return (lista || []);
@@ -57,7 +60,7 @@ export = class Empresa {
 		let lista: Empresa[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, idevento, nome, nome_curto, versao from eventoempresa where id = ? and idevento = ?", [id, idevento]) as Empresa[];
+			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.id = ? and e.idevento = ?", [id, idevento]) as Empresa[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -72,7 +75,7 @@ export = class Empresa {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("insert into eventoempresa (idevento, nome, nome_curto, versao) values (?, ?, ?, ?)", [e.idevento, e.nome, e.nome_curto, e.versao]);
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, versao) values (?, ?, ?, ?, ?)", [e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao]);
 				e.id = await sql.scalar("select last_insert_id()") as number;
 
 				// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -116,7 +119,7 @@ export = class Empresa {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("update eventoempresa set nome = ?, nome_curto = ?, versao = ? where id = ? and idevento = ?", [e.nome, e.nome_curto, e.versao, e.id, e.idevento]);
+				await sql.query("update eventoempresa set idtipo = ?, nome = ?, nome_curto = ?, versao = ? where id = ? and idevento = ?", [e.idtipo, e.nome, e.nome_curto, e.versao, e.id, e.idevento]);
 
 				if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
 					// Chegando aqui, significa que a inclusão foi bem sucedida.

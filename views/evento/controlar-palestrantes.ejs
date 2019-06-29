@@ -37,6 +37,22 @@
 					<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
 				</div>
 				<div class="form-group">
+					<label for="txtPalestranteUrlSite">URL do Site</label>
+					<input id="txtPalestranteUrlSite" name="txtPalestranteUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteUrlTwitter">URL do Twitter</label>
+					<input id="txtPalestranteUrlTwitter" name="txtPalestranteUrlTwitter" class="form-control" type="url" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteUrlFacebook">URL do Facebook</label>
+					<input id="txtPalestranteUrlFacebook" name="txtPalestranteUrlFacebook" class="form-control" type="url" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
+					<label for="txtPalestranteUrlLinkedIn">URL do LinkedIn</label>
+					<input id="txtPalestranteUrlLinkedIn" name="txtPalestranteUrlLinkedIn" class="form-control" type="url" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
 					<label for="txtPalestranteBio">Biografia</label>
 					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" spellcheck="false"></textarea>
 				</div>
@@ -167,6 +183,10 @@
 				$("#txtPalestranteNome").val(palestrante.nome);
 				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
 				$("#txtPalestranteCargo").val(palestrante.cargo);
+				$("#txtPalestranteUrlSite").val(palestrante.url_site);
+				$("#txtPalestranteUrlTwitter").val(palestrante.url_twitter);
+				$("#txtPalestranteUrlFacebook").val(palestrante.url_facebook);
+				$("#txtPalestranteUrlLinkedIn").val(palestrante.url_linkedin);
 				$("#txtPalestranteBio").val(palestrante.bio);
 				$("#txtPalestranteBioCurta").val(palestrante.bio_curta);
 
@@ -191,11 +211,26 @@
 				},
 				cbPalestranteEmpresa: {
 					required: true,
-
 				},
 				txtPalestranteCargo: {
 					required: true,
 					maxlength: 45
+				},
+				txtPalestranteUrlSite: {
+					url: true,
+					maxlength: 100
+				},
+				txtPalestranteUrlTwitter: {
+					url: true,
+					maxlength: 100
+				},
+				txtPalestranteUrlFacebook: {
+					url: true,
+					maxlength: 100
+				},
+				txtPalestranteUrlLinkedIn: {
+					url: true,
+					maxlength: 100
 				},
 				txtPalestranteBio: {
 					maxlength: 1000
@@ -224,6 +259,11 @@
 					nome: trim($("#txtPalestranteNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
 					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
+					url_site: trim($("#txtPalestranteUrlSite").val()),
+					url_twitter: trim($("#txtPalestranteUrlTwitter").val()),
+					url_facebook: trim($("#txtPalestranteUrlFacebook").val()),
+					url_linkedin: trim($("#txtPalestranteUrlLinkedIn").val()),
+					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
 					bio: trim($("#txtPalestranteBio").val()).toUpperCase(),
 					bio_curta: trim($("#txtPalestranteBioCurta").val()).toUpperCase(),
 					versao: 0
@@ -237,6 +277,10 @@
 				formData.append("nome", p.nome);
 				formData.append("nome_curto", p.nome_curto);
 				formData.append("cargo", p.cargo);
+				formData.append("url_site", p.url_site);
+				formData.append("url_twitter", p.url_twitter);
+				formData.append("url_facebook", p.url_facebook);
+				formData.append("url_linkedin", p.url_linkedin);
 				formData.append("bio", p.bio);
 				formData.append("bio_curta", p.bio_curta);
 
@@ -256,9 +300,14 @@
 								palestrante.nome = p.nome;
 								palestrante.nome_curto = p.nome_curto;
 								palestrante.cargo = p.cargo;
+								palestrante.url_site = p.url_site;
+								palestrante.url_twitter = p.url_twitter;
+								palestrante.url_facebook = p.url_facebook;
+								palestrante.url_linkedin = p.url_linkedin;
 								palestrante.bio = p.bio;
 								palestrante.bio_curta = p.bio_curta;
 								palestrante.versao = p.versao;
+								eventoPalestrantes.sort(comparadorNome);
 								Notification.success("Palestrante alterado com sucesso! \uD83D\uDE04");
 								tabela.row(trClicada).invalidate().draw();
 							} else {
@@ -274,7 +323,8 @@
 								p.id = parseInt(response.value);
 								eventoPalestrantesPorId[p.id] = p;
 								eventoPalestrantes.push(p);
-								Notification.success("Palestrante criada com sucesso! \uD83D\uDE04");
+								eventoPalestrantes.sort(comparadorNome);
+								Notification.success("Palestrante criado com sucesso! \uD83D\uDE04");
 								tabela.row.add(p).draw();
 							} else {
 								Notification.error(response.value, true);

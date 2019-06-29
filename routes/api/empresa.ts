@@ -29,6 +29,7 @@ router.post("/criar", multer().single("imagem"), wrap(async (req: express.Reques
 	let e = req.body as Empresa;
 	if (e) {
 		e.idevento = u.idevento_logado;
+		e.idtipo = parseInt(req.body.idtipo);
 		e.versao = parseInt(req.body.versao);
 	}
 	jsonRes(res, 400, e && req["file"] && req["file"].buffer && req["file"].size && req["file"].size <= Empresa.tamanhoMaximoImagemEmBytes ? await Empresa.criar(e, req["file"]) : "Dados inválidos!");
@@ -42,6 +43,7 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 	if (e) {
 		e.id = parseInt(req.body.id);
 		e.idevento = u.idevento_logado;
+		e.idtipo = parseInt(req.body.idtipo);
 		e.versao = parseInt(req.body.versao);
 	}
 	jsonRes(res, 400, (e && !isNaN(e.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Empresa.tamanhoMaximoImagemEmBytes)) ? await Empresa.alterar(e, req["file"]) : "Dados inválidos!");

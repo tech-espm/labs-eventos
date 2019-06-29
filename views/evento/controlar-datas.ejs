@@ -177,6 +177,7 @@
 							data.ano = d.ano;
 							data.mes = d.mes;
 							data.dia = d.dia;
+							eventoDatas.sort(comparadorAnoMesDia);
 							Notification.success("Data alterada com sucesso! \uD83D\uDE04");
 							tabela.row(trClicada).invalidate().draw();
 						} else {
@@ -190,6 +191,7 @@
 							d.id = parseInt(response.value);
 							eventoDatasPorId[d.id] = d;
 							eventoDatas.push(d);
+							eventoDatas.sort(comparadorAnoMesDia);
 							Notification.success("Data criada com sucesso! \uD83D\uDE04");
 							tabela.row.add(d).draw();
 						} else {

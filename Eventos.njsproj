@@ -96,6 +96,8 @@
     <Content Include="views\shared\erro.ejs" />
     <Content Include="views\profissao\alterar.ejs" />
     <Content Include="views\profissao\listar.ejs" />
+    <Content Include="views\tipoEmpresa\alterar.ejs" />
+    <Content Include="views\tipoEmpresa\listar.ejs" />
     <Content Include="views\tipoSessao\alterar.ejs" />
     <Content Include="views\tipoSessao\listar.ejs" />
     <Content Include="views\usuario\alterar.ejs" />
@@ -124,6 +126,7 @@
     <TypeScriptCompile Include="models\instrucao.ts" />
     <TypeScriptCompile Include="models\industria.ts" />
     <TypeScriptCompile Include="models\data.ts" />
+    <TypeScriptCompile Include="models\tipoEmpresa.ts" />
     <TypeScriptCompile Include="models\tipoSessao.ts" />
     <TypeScriptCompile Include="models\unidade.ts" />
     <TypeScriptCompile Include="models\vertical.ts" />
@@ -139,6 +142,7 @@
     <TypeScriptCompile Include="routes\api\instrucao.ts" />
     <TypeScriptCompile Include="routes\api\industria.ts" />
     <TypeScriptCompile Include="routes\api\data.ts" />
+    <TypeScriptCompile Include="routes\api\tipoEmpresa.ts" />
     <TypeScriptCompile Include="routes\api\tipoSessao.ts" />
     <TypeScriptCompile Include="routes\api\unidade.ts" />
     <TypeScriptCompile Include="routes\api\vertical.ts" />
@@ -151,6 +155,7 @@
     <TypeScriptCompile Include="routes\formato.ts" />
     <TypeScriptCompile Include="routes\curso.ts" />
     <TypeScriptCompile Include="routes\profissao.ts" />
+    <TypeScriptCompile Include="routes\tipoEmpresa.ts" />
     <TypeScriptCompile Include="routes\tipoSessao.ts" />
     <TypeScriptCompile Include="routes\unidade.ts" />
     <TypeScriptCompile Include="routes\vertical.ts" />
@@ -208,6 +213,7 @@
     <Folder Include="views\curso\" />
     <Folder Include="views\evt\" />
     <Folder Include="views\profissao\" />
+    <Folder Include="views\tipoEmpresa\" />
     <Folder Include="views\tipoSessao\" />
     <Folder Include="views\usuario\" />
     <Folder Include="views\shared\" />

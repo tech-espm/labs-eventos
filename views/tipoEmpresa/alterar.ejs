@@ -1,0 +1,73 @@
+﻿
+<div class="row">
+	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+		<form id="form" class="panel panel-default" action="#">
+			<div class="panel-heading">Informações Básicas do Tipo de Empresa</div>
+			<div class="panel-body no-bottom">
+				<input type="hidden" id="id" name="id" value="<%=(item ? item.id : 0) %>" />
+				<div class="form-group">
+					<label for="nome">Nome</label>
+					<input id="nome" name="nome" maxlength="40" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
+				</div>
+				<div class="form-group">
+					<label for="nome_site">Nome no Site</label>
+					<input id="nome_site" name="nome_site" maxlength="40" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.nome_site : '') %>" />
+				</div>
+			</div>
+			<div class="panel-footer">
+				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Tipo de Empresa') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
+			</div>
+		</form>
+	</div>
+</div>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	$("#form").validate({
+		rules: {
+			nome: {
+				required: true,
+				minlength: 3,
+				maxlength: 40
+			},
+			nome_site: {
+				required: true,
+				minlength: 3,
+				maxlength: 40
+			}
+		},
+
+		submitHandler: function (form) {
+			if (JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			//<% if (item) { %>
+
+			JsonWebApi.postFormData("/api/tipoEmpresa/alterar", form, function (response) {
+				if (response.success)
+					Notification.success("Tipo de empresa alterado com sucesso! \uD83D\uDE04");
+				else
+					Notification.error(response.value, true);
+			});
+
+			//<% } else { %>
+
+			JsonWebApi.postFormData("/api/tipoEmpresa/criar", form, function (response) {
+				if (response.success) {
+					resetForm("#form");
+					Notification.success("Tipo de empresa criado com sucesso! \uD83D\uDE04");
+				} else {
+					Notification.error(response.value, true);
+				}
+			});
+
+			//<% } %>
+		}
+	});
+	//]]>
+</script>

@@ -66,6 +66,15 @@ CREATE TABLE tiposessao (
   UNIQUE KEY nome_UNIQUE (nome)
 );
 
+-- DROP TABLE IF EXISTS tipoempresa;
+CREATE TABLE tipoempresa (
+  id int NOT NULL AUTO_INCREMENT,
+  nome varchar(40) NOT NULL,
+  nome_site varchar(40) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY nome_UNIQUE (nome)
+);
+
 -- DROP TABLE IF EXISTS vertical;
 CREATE TABLE vertical (
   id int NOT NULL AUTO_INCREMENT,
@@ -130,13 +139,15 @@ CREATE TABLE eventodata (
 CREATE TABLE eventoempresa (
   id int NOT NULL AUTO_INCREMENT,
   idevento int NOT NULL,
+  idtipo int NOT NULL,
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
   versao int NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_eventoempresa_UN (nome) /*!80000 INVISIBLE */,
   KEY idevento_eventoempresa_FK_idx (idevento),
-  CONSTRAINT idevento_eventoempresa_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
+  CONSTRAINT idevento_eventoempresa_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT idtipo_eventoempresa_FK FOREIGN KEY (idtipo) REFERENCES tipoempresa (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- DROP TABLE IF EXISTS eventohorario;
@@ -173,6 +184,10 @@ CREATE TABLE eventopalestrante (
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
   cargo varchar(45) NOT NULL,
+  url_site varchar(100) NOT NULL,
+  url_twitter varchar(100) NOT NULL,
+  url_facebook varchar(100) NOT NULL,
+  url_linkedin varchar(100) NOT NULL,
   bio varchar(1000) NOT NULL,
   bio_curta varchar(200) NOT NULL,
   versao int NOT NULL,

@@ -170,6 +170,7 @@
 							horario.ordem = h.ordem;
 							horario.inicio = h.inicio;
 							horario.termino = h.termino;
+							eventoHorarios.sort(comparadorOrdem);
 							Notification.success("Horário alterado com sucesso! \uD83D\uDE04");
 							tabela.row(trClicada).invalidate().draw();
 						} else {
@@ -183,6 +184,7 @@
 							h.id = parseInt(response.value);
 							eventoHorariosPorId[h.id] = h;
 							eventoHorarios.push(h);
+							eventoHorarios.sort(comparadorOrdem);
 							Notification.success("Horário criado com sucesso! \uD83D\uDE04");
 							tabela.row.add(h).draw();
 						} else {
