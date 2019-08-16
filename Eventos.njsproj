@@ -37,6 +37,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="public\css\admin-1.0.24.css" />
+    <Content Include="public\favicons\browserconfig.xml" />
+    <Content Include="public\favicons\manifest.json" />
     <Content Include="public\imagens\loading-grey-t.gif" />
     <Content Include="public\imagens\loading-grey.gif" />
     <Content Include="public\imagens\loading-white.gif" />
@@ -47,7 +49,6 @@
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
     <Content Include="scripts_sql\script.sql" />
     <Content Include="utils\geradorHash.ts" />
-    <Content Include="public\favicon.ico" />
     <Content Include="public\lib\bootstrap-datepicker\css\bootstrap-datepicker-1.0.0.min.css" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.svg" />
@@ -176,6 +177,7 @@
     <Folder Include="public\lib\metis-menu\css\" />
     <Folder Include="public\lib\metis-menu\js\" />
     <Folder Include="public\evt\" />
+    <Folder Include="public\favicons\" />
     <Folder Include="scripts_sql\" />
     <Folder Include="utils\" />
     <Folder Include="public\" />

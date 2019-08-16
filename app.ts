@@ -91,14 +91,21 @@ import Evento = require("./models/evento");
 Evento.nomesReservados.push(
 	"api",
 
+	"css",
+	"evt",
+	"favicons",
+	"imagens",
+	"js",
+	"lib",
+
 	"curso",
 	"formato",
 	"industria",
 	"instrucao",
 	"local",
 	"profissao",
-	"tipoSessao",
 	"tipoEmpresa",
+	"tipoSessao",
 	"unidade",
 	"usuario",
 	"vertical",
@@ -208,6 +215,6 @@ app.set("port", process.env.PORT || 3000);
 
 Evento.atualizarIdsPorUrl();
 
-const server = app.listen(app.get("port"), () => {
+const server = app.listen(app.get("port"), process.env.IP || "127.0.0.1", () => {
 	debug("Express server listening on port " + server.address()["port"]);
 });
