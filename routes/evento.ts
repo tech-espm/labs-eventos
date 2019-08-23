@@ -3,12 +3,17 @@ import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../utils/jsonRes");
 import Usuario = require("../models/usuario");
 import Evento = require("../models/evento");
-import Local = require("../models/local");
 import Data = require("../models/data");
-import Horario = require("../models/horario");
-import Empresa = require("../models/empresa");
 import TipoEmpresa = require("../models/tipoEmpresa");
+import Empresa = require("../models/empresa");
+import Horario = require("../models/horario");
+import Local = require("../models/local");
 import Palestrante = require("../models/palestrante");
+import Curso = require("../models/curso");
+import Formato = require("../models/formato");
+import TipoSessao = require("../models/tipoSessao");
+import Vertical = require("../models/vertical");
+import Sessao = require("../models/sessao");
 
 const router = express.Router();
 
@@ -64,40 +69,6 @@ router.get("/", wrap(async (req: express.Request, res: express.Response) => {
 	}
 }));
 
-router.get("/controlar-usuarios", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.admin || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		let usuarios: Usuario[] = (u.admin ? await Usuario.listar() : null);
-		let eventoUsuarios: Usuario[] = (u.admin ? await Usuario.eventoListar(u.idevento_logado) : null);
-
-		res.render("evento/controlar-usuarios", {
-			layout: "layout-vazio",
-			usuario: u,
-			usuarios: JSON.stringify(usuarios),
-			eventoUsuarios: JSON.stringify(eventoUsuarios),
-		});
-	}
-}));
-
-router.get("/controlar-locais", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		let locais: Local[] = await Local.listar();
-		let eventoLocais: Local[] = await Local.eventoListar(u.idevento_logado);
-
-		res.render("evento/controlar-locais", {
-			layout: "layout-vazio",
-			usuario: u,
-			locais: JSON.stringify(locais),
-			eventoLocais: JSON.stringify(eventoLocais)
-		});
-	}
-}));
-
 router.get("/controlar-arquivos", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
@@ -112,21 +83,6 @@ router.get("/controlar-arquivos", wrap(async (req: express.Request, res: express
 	}
 }));
 
-router.get("/controlar-landing-page", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		res.render("evento/controlar-landing-page", {
-			layout: "layout-vazio",
-			usuario: u,
-			evento: await Evento.obter(u.idevento_logado),
-			caminhoAbsolutoExterno: Evento.caminhoAbsolutoExterno(u.idevento_logado),
-			landingPageExiste: await Evento.landingPageExiste(u.idevento_logado)
-		});
-	}
-}));
-
 router.get("/controlar-datas", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
@@ -137,20 +93,6 @@ router.get("/controlar-datas", wrap(async (req: express.Request, res: express.Re
 			usuario: u,
 			idevento: u.idevento_logado,
 			datas: JSON.stringify(await Data.listar(u.idevento_logado))
-		});
-	}
-}));
-
-router.get("/controlar-horarios", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		res.render("evento/controlar-horarios", {
-			layout: "layout-vazio",
-			usuario: u,
-			idevento: u.idevento_logado,
-			horarios: JSON.stringify(await Horario.listar(u.idevento_logado))
 		});
 	}
 }));
@@ -172,6 +114,49 @@ router.get("/controlar-empresas", wrap(async (req: express.Request, res: express
 	}
 }));
 
+router.get("/controlar-horarios", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
+		jsonRes(res, 400, "Sem acesso!");
+	} else {
+		res.render("evento/controlar-horarios", {
+			layout: "layout-vazio",
+			usuario: u,
+			idevento: u.idevento_logado,
+			horarios: JSON.stringify(await Horario.listar(u.idevento_logado))
+		});
+	}
+}));
+
+router.get("/controlar-landing-page", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
+		jsonRes(res, 400, "Sem acesso!");
+	} else {
+		res.render("evento/controlar-landing-page", {
+			layout: "layout-vazio",
+			usuario: u,
+			evento: await Evento.obter(u.idevento_logado),
+			caminhoAbsolutoExterno: Evento.caminhoAbsolutoExterno(u.idevento_logado),
+			landingPageExiste: await Evento.landingPageExiste(u.idevento_logado)
+		});
+	}
+}));
+
+router.get("/controlar-locais", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
+		jsonRes(res, 400, "Sem acesso!");
+	} else {
+		res.render("evento/controlar-locais", {
+			layout: "layout-vazio",
+			usuario: u,
+			locais: JSON.stringify(await Local.listar()),
+			eventoLocais: JSON.stringify(await Local.eventoListar(u.idevento_logado))
+		});
+	}
+}));
+
 router.get("/controlar-palestrantes", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
@@ -185,6 +170,47 @@ router.get("/controlar-palestrantes", wrap(async (req: express.Request, res: exp
 			caminhoAbsolutoPastaExterno: Palestrante.caminhoAbsolutoPastaExterno(u.idevento_logado),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
 			palestrantes: JSON.stringify(await Palestrante.listar(u.idevento_logado))
+		});
+	}
+}));
+
+router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
+		jsonRes(res, 400, "Sem acesso!");
+	} else {
+		res.render("evento/controlar-sessoes", {
+			layout: "layout-vazio",
+			usuario: u,
+			idevento: u.idevento_logado,
+			datas: JSON.stringify(await Data.listar(u.idevento_logado)),
+			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
+			horarios: JSON.stringify(await Horario.listar(u.idevento_logado)),
+			locais: JSON.stringify(await Local.listar()),
+			eventoLocais: JSON.stringify(await Local.eventoListar(u.idevento_logado)),
+			palestrantes: JSON.stringify(await Palestrante.listar(u.idevento_logado)),
+			cursos: JSON.stringify(await Curso.listar()),
+			formatos: JSON.stringify(await Formato.listar()),
+			tipoSessoes: JSON.stringify(await TipoSessao.listar()),
+			verticais: JSON.stringify(await Vertical.listar()),
+			sessoes: JSON.stringify(await Sessao.listar(u.idevento_logado))
+		});
+	}
+}));
+
+router.get("/controlar-usuarios", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u || !u.admin || !u.idevento_logado || !u.nomeevento_logado) {
+		jsonRes(res, 400, "Sem acesso!");
+	} else {
+		let usuarios: Usuario[] = (u.admin ? await Usuario.listar() : null);
+		let eventoUsuarios: Usuario[] = (u.admin ? await Usuario.eventoListar(u.idevento_logado) : null);
+
+		res.render("evento/controlar-usuarios", {
+			layout: "layout-vazio",
+			usuario: u,
+			usuarios: JSON.stringify(usuarios),
+			eventoUsuarios: JSON.stringify(eventoUsuarios),
 		});
 	}
 }));

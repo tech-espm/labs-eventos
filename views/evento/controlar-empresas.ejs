@@ -88,13 +88,7 @@
 		var idevento = <%- idevento %>;
 		var extensaoImagem = "<%- extensaoImagem %>";
 		var caminhoAbsolutoPastaExterno = "<%- caminhoAbsolutoPastaExterno %>";
-
-		window.eventoEmpresas = <%- empresas %>;
-		window.eventoEmpresasPorId = {};
-		if (eventoEmpresas) {
-			for (var i = 0; i < eventoEmpresas.length; i++)
-				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
-		}
+		carregarEmpresas(<%- empresas %>);
 
 		var tabela = prepareDataTable("tabela-empresas", {
 			order: [[1, "asc"]],

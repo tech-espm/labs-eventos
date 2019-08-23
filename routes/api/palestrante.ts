@@ -23,7 +23,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 }));
 
 router.post("/criar", multer().single("imagem"), wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req, res, true);
+	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
 	let p = req.body as Palestrante;
@@ -36,7 +36,7 @@ router.post("/criar", multer().single("imagem"), wrap(async (req: express.Reques
 }));
 
 router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req, res, true);
+	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
 	let p = req.body as Palestrante;
@@ -50,7 +50,7 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 }));
 
 router.get("/excluir", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req, res, true);
+	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
 	let id = parseInt(req.query["id"]);

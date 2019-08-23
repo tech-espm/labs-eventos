@@ -113,7 +113,7 @@ export = class Local {
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
 				if (e.code && (e.code === "ER_ROW_IS_REFERENCED" || e.code === "ER_ROW_IS_REFERENCED_2"))
-					res = "O local é referenciado por uma ou mais sessões";
+					res = "O local é referenciado por um ou mais eventos";
 				else
 					throw e;
 			}
@@ -210,9 +210,20 @@ export = class Local {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			let lidsstr = idslocal.join(",");
-			await sql.query("delete from eventolocal where idevento = " + idevento + " and idlocal in (" + lidsstr + ")");
-			res = sql.linhasAfetadas.toString();
+			try {
+				await sql.beginTransaction();
+
+				let lidsstr = idslocal.join(",");
+				await sql.query("delete from eventolocal where idevento = " + idevento + " and idlocal in (" + lidsstr + ")");
+				res = sql.linhasAfetadas.toString();
+
+				await sql.commit();
+			} catch (e) {
+				if (e.code && (e.code === "ER_ROW_IS_REFERENCED" || e.code === "ER_ROW_IS_REFERENCED_2"))
+					res = "O local é referenciado por uma ou mais sessões";
+				else
+					throw e;
+			}
 		});
 
 		return res;

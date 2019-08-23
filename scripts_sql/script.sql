@@ -11,8 +11,8 @@ CREATE TABLE usuario (
   token char(32) DEFAULT NULL,
   idevento_logado int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY login_UNIQUE (login)
-)
+  UNIQUE KEY login_UN (login)
+);
 
 INSERT INTO usuario (login, nome, tipo, senha, token, idevento_logado) VALUES ('ADMIN', 'ADMINISTRADOR', 1, 'peTcC99vkvvLqGQL7mdhGuJZIvL2iMEqvCNvZw3475PJ:JVyo1Pg2HyDyw9aSOd3gNPT30KdEyiUYCjs7RUzSoYGN', NULL, 0);
 
@@ -21,7 +21,7 @@ CREATE TABLE curso (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(50) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS formato;
@@ -29,7 +29,7 @@ CREATE TABLE formato (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(50) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS industria;
@@ -37,7 +37,7 @@ CREATE TABLE industria (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS instrucao;
@@ -46,7 +46,7 @@ CREATE TABLE instrucao (
   nome varchar(100) NOT NULL,
   ordem int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome),
+  UNIQUE KEY nome_UN (nome),
   KEY ordem_INDEX (ordem)
 );
 
@@ -55,7 +55,7 @@ CREATE TABLE profissao (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS tiposessao;
@@ -63,7 +63,7 @@ CREATE TABLE tiposessao (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS tipoempresa;
@@ -72,7 +72,7 @@ CREATE TABLE tipoempresa (
   nome varchar(40) NOT NULL,
   nome_site varchar(40) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS vertical;
@@ -81,7 +81,7 @@ CREATE TABLE vertical (
   nome varchar(50) NOT NULL,
   descricao varchar(100) DEFAULT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS unidade;
@@ -90,8 +90,8 @@ CREATE TABLE unidade (
   nome varchar(100) NOT NULL,
   sigla varchar(50) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UNIQUE (nome),
-  UNIQUE KEY sigla_UNIQUE (sigla)
+  UNIQUE KEY nome_UN (nome),
+  UNIQUE KEY sigla_UN (sigla)
 );
 
 -- DROP TABLE IF EXISTS local;
@@ -101,7 +101,7 @@ CREATE TABLE local (
   idunidade int NOT NULL,
   capacidade_real int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nomeidunidade_UNIQUE (nome,idunidade),
+  UNIQUE KEY nomeidunidade_UN (nome,idunidade),
   KEY idunidade_FK_idx (idunidade),
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
@@ -119,7 +119,7 @@ CREATE TABLE evento (
   permitefuncionario tinyint(4) NOT NULL,
   permiteexterno tinyint(4) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_INDEX (nome)
+  UNIQUE KEY nome_UN (nome)
 );
 
 -- DROP TABLE IF EXISTS eventodata;
@@ -130,8 +130,7 @@ CREATE TABLE eventodata (
   mes int NOT NULL,
   dia int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY ano_mes_dia_eventodata_UN (ano,mes,dia),
-  KEY idevento_eventodata_FK_idx (idevento),
+  UNIQUE KEY idevento_ano_mes_dia_eventodata_UN (idevento,ano,mes,dia),
   CONSTRAINT idevento_eventodata_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
@@ -144,8 +143,8 @@ CREATE TABLE eventoempresa (
   nome_curto varchar(45) NOT NULL,
   versao int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_eventoempresa_UN (nome) /*!80000 INVISIBLE */,
-  KEY idevento_eventoempresa_FK_idx (idevento),
+  UNIQUE KEY idevento_nome_eventoempresa_UN (idevento,nome),
+  KEY idtipo_eventoempresa_FK_idx (idtipo),
   CONSTRAINT idevento_eventoempresa_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idtipo_eventoempresa_FK FOREIGN KEY (idtipo) REFERENCES tipoempresa (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
@@ -158,8 +157,7 @@ CREATE TABLE eventohorario (
   termino varchar(50) NOT NULL,
   ordem int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY inicio_termino_eventohorario_FK (inicio,termino),
-  KEY idevento_eventohorario_FK_idx (idevento),
+  UNIQUE KEY idevento_inicio_termino_eventohorario_UN (idevento,inicio,termino),
   CONSTRAINT idevento_eventohorario_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
@@ -170,7 +168,7 @@ CREATE TABLE eventolocal (
   idlocal int NOT NULL,
   capacidade int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY eventolocal_UNIQUE (idevento,idlocal),
+  UNIQUE KEY idevento_idlocal_eventolocal_UN (idevento,idlocal),
   KEY idlocal_FK_idx (idlocal),
   CONSTRAINT idevento_eventolocal_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idlocal_eventolocal_FK FOREIGN KEY (idlocal) REFERENCES local (id) ON DELETE RESTRICT ON UPDATE RESTRICT
@@ -192,11 +190,58 @@ CREATE TABLE eventopalestrante (
   bio_curta varchar(200) NOT NULL,
   versao int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_eventopalestrante_UN (nome),
-  KEY idevento_eventopalestrante_FK_idx (idevento),
+  UNIQUE KEY idevento_nome_eventopalestrante_UN (idevento,nome),
   KEY idempresa_eventopalestrante_FK_idx (idempresa),
   CONSTRAINT idempresa_eventopalestrante_FK FOREIGN KEY (idempresa) REFERENCES eventoempresa (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idevento_eventopalestrante_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+-- DROP TABLE IF EXISTS eventosessao;
+CREATE TABLE eventosessao (
+  id int NOT NULL AUTO_INCREMENT,
+  idcurso int NOT NULL,
+  idevento int NOT NULL,
+  ideventodata int NOT NULL,
+  ideventohorario int NOT NULL,
+  ideventolocal int NOT NULL,
+  idformato int NOT NULL,
+  idtiposessao int NOT NULL,
+  idvertical int NOT NULL,
+  nome varchar(100) NOT NULL,
+  nome_curto varchar(45) NOT NULL,
+  publico_alvo varchar(100) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY ideventodatahorariolocal_eventosessao_UN (idevento,ideventodata,ideventohorario,ideventolocal),
+  KEY idcurso_eventosessao_FK_idx (idcurso),
+  KEY ideventodata_eventosessao_FK_idx (ideventodata),
+  KEY ideventohorario_eventosessao_FK_idx (ideventohorario),
+  KEY ideventolocal_eventosessao_FK_idx (ideventolocal),
+  KEY idformato_eventosessao_FK_idx (idformato),
+  KEY idtiposessao_eventosessao_FK_idx (idtiposessao),
+  KEY idvertical_eventosessao_FK_idx (idvertical),
+  CONSTRAINT idcurso_eventosessao_FK FOREIGN KEY (idcurso) REFERENCES curso (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idevento_eventosessao_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT ideventodata_eventosessao_FK FOREIGN KEY (ideventodata) REFERENCES eventodata (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT ideventohorario_eventosessao_FK FOREIGN KEY (ideventohorario) REFERENCES eventohorario (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT ideventolocal_eventosessao_FK FOREIGN KEY (ideventolocal) REFERENCES eventolocal (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idformato_eventosessao_FK FOREIGN KEY (idformato) REFERENCES formato (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idtiposessao_eventosessao_FK FOREIGN KEY (idtiposessao) REFERENCES tiposessao (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idvertical_eventosessao_FK FOREIGN KEY (idvertical) REFERENCES vertical (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+-- DROP TABLE IF EXISTS eventosessaopalestrante;
+CREATE TABLE eventosessaopalestrante (
+  id int NOT NULL AUTO_INCREMENT,
+  idevento int NOT NULL,
+  ideventosessao int NOT NULL,
+  ideventopalestrante int NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY ideventosessaopalestrante_eventosessaopalestrante_UN (idevento,ideventosessao,ideventopalestrante),
+  KEY ideventosessao_eventosessaopalestrante_FK_idx (ideventosessao),
+  KEY ideventopalestrante_eventosessaopalestrante_FK_idx (ideventopalestrante),
+  CONSTRAINT idevento_eventosessaopalestrante_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT ideventosessao_eventosessaopalestrante_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT ideventopalestrante_eventosessaopalestrante_FK FOREIGN KEY (ideventopalestrante) REFERENCES eventopalestrante (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 -- DROP TABLE IF EXISTS eventousuario;
@@ -205,7 +250,7 @@ CREATE TABLE eventousuario (
   idevento int NOT NULL,
   idusuario int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY eventousuario_UNIQUE (idevento,idusuario),
+  UNIQUE KEY idevento_idusuario_eventousuario_UN (idevento,idusuario),
   KEY idusuario_FK_idx (idusuario),
   CONSTRAINT idevento_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idusuario_FK FOREIGN KEY (idusuario) REFERENCES usuario (id) ON DELETE CASCADE ON UPDATE RESTRICT

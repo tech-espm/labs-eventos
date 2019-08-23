@@ -17,20 +17,7 @@
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
-		var eventoLocais = <%- eventoLocais %>;
-		var locais = <%- locais %>;
-		var locaisSelecionados = {};
-		if (eventoLocais) {
-			for (var i = 0; i < eventoLocais.length; i++)
-				locaisSelecionados[eventoLocais[i].id] = eventoLocais[i];
-		}
-		if (locais) {
-			for (var i = 0; i < locais.length; i++) {
-				var local = locais[i];
-				var localSelecionado = locaisSelecionados[local.id];
-				local.capacidade = (localSelecionado ? localSelecionado.capacidade : local.capacidade_real);
-			}
-		}
+		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 
 		var tabela = prepareDataTable("tabela-locais", {
 			order: [[0, "asc"]],

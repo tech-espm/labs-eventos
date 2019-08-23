@@ -78,12 +78,7 @@
 	// função apenas quando o documento estiver ok
 	$(function () {
 		var idevento = <%- idevento %>;
-		window.eventoHorarios = <%- horarios %>;
-		window.eventoHorariosPorId = {};
-		if (eventoHorarios) {
-			for (var i = 0; i < eventoHorarios.length; i++)
-				eventoHorariosPorId[eventoHorarios[i].id] = eventoHorarios[i];
-		}
+		carregarHorarios(<%- carregarHorarios %>);
 
 		var tabela = prepareDataTable("tabela-horarios", {
 			order: [[0, "asc"]],

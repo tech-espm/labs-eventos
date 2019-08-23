@@ -99,18 +99,19 @@ Evento.nomesReservados.push(
 	"lib",
 
 	"curso",
+	"evento",
 	"formato",
+	"home",
 	"industria",
 	"instrucao",
 	"local",
 	"profissao",
+	"sessao",
 	"tipoEmpresa",
 	"tipoSessao",
 	"unidade",
 	"usuario",
-	"vertical",
-
-	"evento"
+	"vertical"
 );
 
 // *****************************************************************************
@@ -151,6 +152,7 @@ app.use("/api/data", require("./routes/api/data"));
 app.use("/api/horario", require("./routes/api/horario"));
 app.use("/api/empresa", require("./routes/api/empresa"));
 app.use("/api/palestrante", require("./routes/api/palestrante"));
+app.use("/api/sessao", require("./routes/api/sessao"));
 
 // Depois de registrados todos os caminhos das rotas e seus
 // tratadores, registramos os tratadores que serão chamados

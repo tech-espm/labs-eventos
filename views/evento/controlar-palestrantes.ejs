@@ -111,20 +111,8 @@
 		var idevento = <%- idevento %>;
 		var extensaoImagem = "<%- extensaoImagem %>";
 		var caminhoAbsolutoPastaExterno = "<%- caminhoAbsolutoPastaExterno %>";
-
-		window.eventoEmpresas = <%- empresas %>;
-		window.eventoEmpresasPorId = {};
-		if (eventoEmpresas) {
-			for (var i = 0; i < eventoEmpresas.length; i++)
-				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
-		}
-
-		window.eventoPalestrantes = <%- palestrantes %>;
-		window.eventoPalestrantesPorId = {};
-		if (eventoPalestrantes) {
-			for (var i = 0; i < eventoPalestrantes.length; i++)
-				eventoPalestrantesPorId[eventoPalestrantes[i].id] = eventoPalestrantes[i];
-		}
+		carregarEmpresas(<%- empresas %>);
+		carregarPalestrantes(<%- palestrantes %>);
 
 		var tabela = prepareDataTable("tabela-palestrantes", {
 			order: [[1, "asc"]],

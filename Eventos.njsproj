@@ -62,6 +62,7 @@
     <Content Include="public\lib\font-awesome\fonts\fontawesome-webfont.woff" />
     <Content Include="public\lib\font-awesome\fonts\fontawesome-webfont.woff2" />
     <Content Include="utils\jsonRes.ts" />
+    <Content Include="views\evento\controlar-sessoes.ejs" />
     <Content Include="views\evento\controlar-palestrantes.ejs" />
     <Content Include="views\evento\controlar-empresas.ejs" />
     <Content Include="views\evento\controlar-horarios.ejs" />
@@ -117,6 +118,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="infra\sqlPool.ts" />
     <TypeScriptCompile Include="infra\upload.ts" />
+    <TypeScriptCompile Include="models\sessao.ts" />
     <TypeScriptCompile Include="models\palestrante.ts" />
     <TypeScriptCompile Include="models\empresa.ts" />
     <TypeScriptCompile Include="models\horario.ts" />
@@ -133,6 +135,7 @@
     <TypeScriptCompile Include="models\vertical.ts" />
     <TypeScriptCompile Include="models\profissao.ts" />
     <TypeScriptCompile Include="models\usuario.ts" />
+    <TypeScriptCompile Include="routes\api\sessao.ts" />
     <TypeScriptCompile Include="routes\api\palestrante.ts" />
     <TypeScriptCompile Include="routes\api\empresa.ts" />
     <TypeScriptCompile Include="routes\api\horario.ts" />

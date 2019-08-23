@@ -202,6 +202,104 @@
 		return ((a.ano === b.ano) ? ((a.mes === b.mes) ? (a.dia - b.dia) : (a.mes - b.mes)) : (a.ano - b.ano));
 	}
 
+	function carregarDatas(datas) {
+		window.eventoDatas = datas;
+		window.eventoDatasPorId = {};
+		if (eventoDatas) {
+			for (var i = 0; i < eventoDatas.length; i++)
+				eventoDatasPorId[eventoDatas[i].id] = eventoDatas[i];
+		}
+	}
+
+	function carregarEmpresas(empresas) {
+		window.eventoEmpresas = empresas;
+		window.eventoEmpresasPorId = {};
+		if (eventoEmpresas) {
+			for (var i = 0; i < eventoEmpresas.length; i++)
+				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
+		}
+	}
+
+	function carregarHorarios(horarios) {
+		window.eventoHorarios = horarios;
+		window.eventoHorariosPorId = {};
+		if (eventoHorarios) {
+			for (var i = 0; i < eventoHorarios.length; i++)
+				eventoHorariosPorId[eventoHorarios[i].id] = eventoHorarios[i];
+		}
+	}
+
+	function carregarLocais(eventoLocais, locais) {
+		window.eventoLocais = eventoLocais;
+		window.locais = locais;
+		window.locaisSelecionados = {};
+		if (eventoLocais) {
+			for (var i = 0; i < eventoLocais.length; i++)
+				locaisSelecionados[eventoLocais[i].id] = eventoLocais[i];
+		}
+		if (locais) {
+			for (var i = 0; i < locais.length; i++) {
+				var local = locais[i];
+				var localSelecionado = locaisSelecionados[local.id];
+				local.capacidade = (localSelecionado ? localSelecionado.capacidade : local.capacidade_real);
+			}
+		}
+	}
+
+	function carregarPalestrantes(palestrantes) {
+		window.eventoPalestrantes = palestrantes;
+		window.eventoPalestrantesPorId = {};
+		if (eventoPalestrantes) {
+			for (var i = 0; i < eventoPalestrantes.length; i++)
+				eventoPalestrantesPorId[eventoPalestrantes[i].id] = eventoPalestrantes[i];
+		}
+	}
+
+	function carregarCursos(cursos) {
+		window.eventoCursos = cursos;
+		window.eventoCursosPorId = {};
+		if (eventoCursos) {
+			for (var i = 0; i < eventoCursos.length; i++)
+				eventoCursosPorId[eventoCursos[i].id] = eventoCursos[i];
+		}
+	}
+
+	function carregarFormatos(formatos) {
+		window.eventoFormatos = formatos;
+		window.eventoFormatosPorId = {};
+		if (eventoFormatos) {
+			for (var i = 0; i < eventoFormatos.length; i++)
+				eventoFormatosPorId[eventoFormatos[i].id] = eventoFormatos[i];
+		}
+	}
+
+	function carregarTipoSessoes(tipoSessoes) {
+		window.eventoTipoSessoes = tipoSessoes;
+		window.eventoTipoSessoesPorId = {};
+		if (eventoTipoSessoes) {
+			for (var i = 0; i < eventoTipoSessoes.length; i++)
+				eventoTipoSessoesPorId[eventoTipoSessoes[i].id] = eventoTipoSessoes[i];
+		}
+	}
+
+	function carregarVerticais(verticais) {
+		window.eventoVerticais = verticais;
+		window.eventoVerticaisPorId = {};
+		if (eventoVerticais) {
+			for (var i = 0; i < eventoVerticais.length; i++)
+				eventoVerticaisPorId[eventoVerticais[i].id] = eventoVerticais[i];
+		}
+	}
+
+	function carregarSessoes(sessoes) {
+		window.eventoSessoes = sessoes;
+		window.eventoSessoesPorId = {};
+		if (eventoSessoes) {
+			for (var i = 0; i < eventoSessoes.length; i++)
+				eventoSessoesPorId[eventoSessoes[i].id] = eventoSessoes[i];
+		}
+	}
+
 	//<% if (usuario.admin) { %>
 	prepararAba("#a-usuarios", "#tab-usuarios", "/evento/controlar-usuarios");
 	//<% } %>
