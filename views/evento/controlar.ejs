@@ -64,10 +64,25 @@
 	tr.col-h2 .btn-evento-associar {
 		visibility: hidden;
 	}
+
+	.content-section {
+		counter-reset: content-section;
+	}
+
+	.content-enum::before {
+		counter-increment: content-section;
+		content: counter(content-section);
+	}
 </style>
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
+
+	$.fn.dataTable.ext.type.order["customtime-pre"] = function (d) {
+		if (!d)
+			return -2147483648;
+		return parseInt(d.replace(":", ""));
+	};
 
 	// Métodos de validação especial para arquivos
 	$.validator.addMethod("suporteArquivoAvancado", function (value, element, param) {
@@ -229,8 +244,20 @@
 		}
 	}
 
+	function atualizarEventoLocais() {
+		window.eventoLocais = [];
+		window.eventoLocaisPorIdEventoLocal = {};
+		for (var id in locaisSelecionados) {
+			var local = locaisSelecionados[id];
+			eventoLocais.push(local);
+			eventoLocaisPorIdEventoLocal[local.ideventolocal] = local;
+		}
+		eventoLocais.sort(function (a, b) {
+			return ((a.nome === b.nome) ? ((a.sigla_unidade < b.sigla_unidade) ? -1 : 1) : ((a.nome < b.nome) ? -1 : 1));
+		});
+	}
+
 	function carregarLocais(eventoLocais, locais) {
-		window.eventoLocais = eventoLocais;
 		window.locais = locais;
 		window.locaisSelecionados = {};
 		if (eventoLocais) {
@@ -241,9 +268,17 @@
 			for (var i = 0; i < locais.length; i++) {
 				var local = locais[i];
 				var localSelecionado = locaisSelecionados[local.id];
-				local.capacidade = (localSelecionado ? localSelecionado.capacidade : local.capacidade_real);
+				if (localSelecionado) {
+					local.ideventolocal = localSelecionado.ideventolocal;
+					local.capacidade = localSelecionado.capacidade;
+					locaisSelecionados[local.id] = local;
+				} else {
+					local.ideventolocal = 0;
+					local.capacidade = local.capacidade_real;
+				}
 			}
 		}
+		atualizarEventoLocais();
 	}
 
 	function carregarPalestrantes(palestrantes) {
@@ -295,9 +330,32 @@
 		window.eventoSessoes = sessoes;
 		window.eventoSessoesPorId = {};
 		if (eventoSessoes) {
-			for (var i = 0; i < eventoSessoes.length; i++)
-				eventoSessoesPorId[eventoSessoes[i].id] = eventoSessoes[i];
+			for (var i = 0; i < eventoSessoes.length; i++) {
+				var sessao = eventoSessoes[i];
+				eventoSessoesPorId[sessao.id] = sessao;
+				if (!sessao.idspalestrante) {
+					sessao.idspalestrante = [];
+				} else {
+					sessao.idspalestrante = sessao.idspalestrante.split(",");
+					for (var j = 0; j < sessao.idspalestrante.length; j++)
+						sessao.idspalestrante[j] = parseInt(sessao.idspalestrante[j]);
+				}
+			}
 		}
+	}
+
+	function preencherCb(cb, array, valor, formatador, id) {
+		if (!id)
+			id = "id";
+		var $cb = $(cb);
+		$cb.empty();
+		$cb.append("<option value=\"\">SELECIONE...</option>");
+		for (var i = 0; i < array.length; i++) {
+			var e = array[i];
+			$cb.append("<option value=\"" + e[id] + "\">" + (formatador ? formatador(e) : encode(e.nome)) + "</option>");
+		}
+
+		setCbSearch(cb, valor);
 	}
 
 	//<% if (usuario.admin) { %>

@@ -89,7 +89,7 @@
 			</div>
 			<div class="modal-body">
 				<p>
-					Tem certeza que deseja excluir o palestrante <span id="lblExcluirPalestrante"></span>? Essa operação NÃO pode ser desfeita!
+					Tem certeza que deseja excluir o palestrante <span id="lblExcluirPalestrante"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
 				</p>
 			</div>
 			<div class="modal-footer">
@@ -137,15 +137,7 @@
 			$("#txtPalestranteImagem").remove();
 			parent.append("<input id=\"txtPalestranteImagem\" name=\"txtPalestranteImagem\" class=\"form-control\" type=\"file\" accept=\"image/*\" />");
 
-			var cbPalestranteEmpresa = $("#cbPalestranteEmpresa");
-			cbPalestranteEmpresa.empty();
-			cbPalestranteEmpresa.append("<option value=\"\">SELECIONE...</option>");
-			for (var i = 0; i < eventoEmpresas.length; i++) {
-				var e = eventoEmpresas[i];
-				cbPalestranteEmpresa.append("<option value=\"" + e.id + "\">" + encode(e.nome) + "</option>");
-			}
-
-			setCbSearch(_("cbPalestranteEmpresa"), trClicada ? tabela.row(trClicada).data().idempresa : "0");
+			preencherCb(_("cbPalestranteEmpresa"), eventoEmpresas, trClicada ? tabela.row(trClicada).data().idempresa : "0");
 		});
 
 		$("#modalAlterarPalestrante").on("shown.bs.modal", function () {

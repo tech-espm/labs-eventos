@@ -183,6 +183,7 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			layout: "layout-vazio",
 			usuario: u,
 			idevento: u.idevento_logado,
+			extensaoImagem: Palestrante.extensaoImagem,
 			datas: JSON.stringify(await Data.listar(u.idevento_logado)),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
 			horarios: JSON.stringify(await Horario.listar(u.idevento_logado)),

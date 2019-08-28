@@ -98,28 +98,17 @@ router.post("/eventoDesassociar", wrap(async (req: express.Request, res: express
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let idslocal: number[] = [];
-	let ids = req.body.idslocal as [];
-	if (ids && ids.length) {
-		for (let i = 0; i < ids.length; i++) {
-			let idlocal = parseInt(ids[i]);
-			if (isNaN(idlocal)) {
-				jsonRes(res, 400, "Dados inválidos!");
-				return;
-			}
-			idslocal.push(idlocal);
-		}
-	}
-	jsonRes(res, 400, !idslocal.length ? "Dados inválidos!" : await Local.eventoDesassociar(u.idevento_logado, idslocal));
+	let ideventolocal = parseInt(req.body.ideventolocal);
+	jsonRes(res, 400, isNaN(ideventolocal) ? "Dados inválidos!" : await Local.eventoDesassociar(u.idevento_logado, ideventolocal));
 }));
 
 router.post("/eventoAlterarCapacidade", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let idlocal = parseInt(req.body.idlocal);
+	let ideventolocal = parseInt(req.body.ideventolocal);
 	let capacidade = parseInt(req.body.capacidade);
-	jsonRes(res, 400, (isNaN(idlocal) || isNaN(capacidade)) ? "Dados inválidos!" : await Local.eventoAlterarCapacidade(u.idevento_logado, idlocal, capacidade));
+	jsonRes(res, 400, (isNaN(ideventolocal) || isNaN(capacidade)) ? "Dados inválidos!" : await Local.eventoAlterarCapacidade(u.idevento_logado, ideventolocal, capacidade));
 }));
 
 export = router;

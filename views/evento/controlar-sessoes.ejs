@@ -13,7 +13,7 @@
 </div>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="modalAlterarSessao">
-	<div class="modal-dialog" role="document">
+	<div class="modal-dialog modal-lg" role="document">
 		<form class="modal-content" id="formAlterarSessao" method="post">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
@@ -21,22 +21,91 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-xs-4">
+					<div class="col-xs-6">
 						<div class="form-group">
-							<label for="txtDataAno">Ano</label>
-							<input id="txtDataAno" name="txtDataAno" class="form-control" type="number" min="1" max="9999" />
+							<label for="cbSessaoData">Data</label>
+							<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 						</div>
 					</div>
-					<div class="col-xs-4">
+					<div class="col-xs-6">
 						<div class="form-group">
-							<label for="txtDataMes">Mês</label>
-							<input id="txtDataMes" name="txtDataMes" class="form-control" type="number" min="1" max="12" />
+							<label for="cbSessaoHorario">Horário</label>
+							<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 						</div>
 					</div>
-					<div class="col-xs-4">
+				</div>
+				<div class="form-group">
+					<label for="cbSessaoLocal">Local</label>
+					<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+				<div class="form-group">
+					<label for="txtSessaoNome">Nome</label>
+					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control upper" maxlength="100" />
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
 						<div class="form-group">
-							<label for="txtDataDia">Dia</label>
-							<input id="txtDataDia" name="txtDataDia" class="form-control" type="number" min="1" max="31" />
+							<label for="txtSessaoNomeCurto">Nome Curto</label>
+							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control upper" maxlength="45" />
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="cbSessaoCurso">Curso Âncora</label>
+							<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="cbSessaoFormato">Formato</label>
+							<select id="cbSessaoFormato" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="cbSessaoTipo">Tipo de Sessão</label>
+							<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="cbSessaoVertical">Vertical</label>
+							<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
+					<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control upper" maxlength="100" />
+				</div>
+				<div class="panel panel-default no-margin-bottom">
+					<div class="panel-heading">
+						Palestrantes
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-sm-6 col-sm-space-bottom">
+								<button class="btn btn-primary btn-block" type="button" onclick="adicionarPalestrante()"><i class="fa fa-plus"></i> Adicionar</button>
+							</div>
+							<div class="col-sm-6">
+								<select id="cbSessaoPalestrante" name="cbSessaoPalestrante" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+							</div>
+						</div>
+						<div class="table-responsive">
+							<table id="tabelaSessaoPalestrante" class="table table-striped table-hover no-margin-bottom" style="display: none;">
+								<thead>
+									<tr>
+										<th></th>
+										<th></th>
+										<th class="col-50">Nome</th>
+										<th class="col-50">Empresa</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="tabelaSessaoPalestranteBody" class="content-section"></tbody>
+							</table>
 						</div>
 					</div>
 				</div>
@@ -58,7 +127,7 @@
 			</div>
 			<div class="modal-body">
 				<p>
-					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Essa operação NÃO pode ser desfeita!
+					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Essa operação <b class="col-h">NÃO</b> pode ser desfeita!
 				</p>
 			</div>
 			<div class="modal-footer">
@@ -78,32 +147,110 @@
 	// função apenas quando o documento estiver ok
 	$(function () {
 		var idevento = <%- idevento %>;
+		var extensaoImagem = "<%- extensaoImagem %>";
 		carregarDatas(<%- datas %>);
 		carregarEmpresas(<%- empresas %>);
-		carregarHorarios(<%- carregarHorarios %>);
+		carregarHorarios(<%- horarios %>);
 		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 		carregarPalestrantes(<%- palestrantes %>);
 		carregarCursos(<%- cursos %>);
 		carregarFormatos(<%- formatos %>);
 		carregarTipoSessoes(<%- tipoSessoes %>);
-		carregarSessoes(<% - sessoes %>);
+		carregarVerticais(<%- verticais %>);
+		carregarSessoes(<%- sessoes %>);
 
 		var tabela = prepareDataTable("tabela-sessoes", {
-			order: [[2, "asc"]],
+			order: [],
 			deferRender: true,
 			columns: [
-				{ title: "Ano", "class": "col-25", "type": "num", data: "ano" },
-				{ title: "Mês", "class": "col-25", "type": "num", data: "mes" },
-				{ title: "Dia", "class": "col-25", "type": "num", data: "dia" },
+				{ title: "Data", "class": "col-min", "type": "customdate", data: "data" },
+				{ title: "Início", "class": "col-min", "type": "customtime", render: encode, data: "inicio" },
+				{ title: "Término", "class": "col-min", "type": "customtime", render: encode, data: "termino" },
+				{ title: "Local", render: encode, data: "nome_local" },
+				{ title: "Unidade", render: encode, data: "sigla_unidade" },
+				{ title: "Nome", render: encode, data: "nome" },
+				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+				{ title: "Formato", render: encode, data: "nome_formato" },
+				{ title: "Tipo", render: encode, data: "nome_tipo" },
+				{ title: "Vertical", render: encode, data: "nome_vertical" },
+				{ title: "Público-Alvo", render: encode, data: "publico_alvo" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
-			data: eventoDatas
+			data: eventoSessoes
 		});
+
+		window.adicionarPalestrante = function (id) {
+			if (JsonWebApi.active)
+				return;
+
+			if (!id)
+				id = parseInt($("#cbSessaoPalestrante").val());
+
+			var palestrante = eventoPalestrantesPorId[id];
+
+			if (!palestrante || $("#tabelaSessaoPalestranteBody [data-id=" + id + "]").length)
+				return;
+
+			$("#tabelaSessaoPalestranteBody").append(
+				'<tr class="ui-sortable-handle" data-id="' + id + '">' +
+				'<td class="col-min content-enum"></td>' +
+				'<td class="col-min"><img alt="Imagem da Palestrante" style="max-width: 100px; max-height: 75px;" src="/evt/' + idevento + '/palestrantes/' + id + '.' + extensaoImagem + '?v=' + palestrante.versao + '"></td>' +
+				'<td class="col-50">' + encode(palestrante.nome) + '</td>' +
+				'<td class="col-50">' + encode(palestrante.nome_empresa) + '</td>' +
+				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerPalestrante(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
+				'</tr>');
+
+			$("#tabelaSessaoPalestrante").show();
+		};
+
+		window.removerPalestrante = function (btn) {
+			if (JsonWebApi.active)
+				return;
+
+			var tr = btn.parentNode.parentNode,
+				tabelaSessaoPalestranteBody = tr.parentNode;
+
+			tabelaSessaoPalestranteBody.removeChild(tr);
+
+			if (!tabelaSessaoPalestranteBody.childNodes.length)
+				$("#tabelaSessaoPalestrante").hide();
+		};
 
 		var trClicada;
 
-		$("#modalAlterarData").on("shown.bs.modal", function () {
-			$("#txtDataAno").focus();
+		prepareCbSearch(_("cbSessaoData"));
+		prepareCbSearch(_("cbSessaoHorario"));
+		prepareCbSearch(_("cbSessaoLocal"));
+		prepareCbSearch(_("cbSessaoCurso"));
+		prepareCbSearch(_("cbSessaoFormato"));
+		prepareCbSearch(_("cbSessaoTipo"));
+		prepareCbSearch(_("cbSessaoVertical"));
+		prepareCbSearch(_("cbSessaoPalestrante"));
+		$("#tabelaSessaoPalestranteBody").sortable().disableSelection();
+
+		$("#modalAlterarSessao").on("show.bs.modal", function () {
+			var i, sessao = (trClicada ? tabela.row(trClicada).data() : null);
+			preencherCb(_("cbSessaoData"), eventoDatas, sessao ? sessao.ideventodata : "0", function (e) { return format2(e.dia) + "/" + format2(e.mes) + "/" + e.ano; });
+			preencherCb(_("cbSessaoHorario"), eventoHorarios, sessao ? sessao.ideventohorario : "0", function (e) { return e.inicio + " - " + e.termino; });
+			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
+			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
+			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
+			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
+			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
+			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
+			preencherCb(_("cbSessaoVertical"), eventoVerticais, sessao ? sessao.idvertical : "0");
+			$("#txtSessaoPublicoAlvo").val(sessao ? sessao.publico_alvo : "");
+			preencherCb(_("cbSessaoPalestrante"), eventoPalestrantes, "0");
+			$("#tabelaSessaoPalestranteBody").empty();
+			$("#tabelaSessaoPalestrante").hide();
+			if (sessao) {
+				for (i = 0; i < sessao.idspalestrante.length; i++)
+					adicionarPalestrante(sessao.idspalestrante[i]);
+			}
+		});
+
+		$("#modalAlterarSessao").on("shown.bs.modal", function () {
+			$("#cbSessaoData").focus();
 		});
 
 		$("#tabela-sessoes").on("click", "tbody button", function () {
@@ -113,75 +260,124 @@
 			var data = tabela.row(trClicada = this.parentNode.parentNode).data();
 
 			if (this.getAttribute("data-excluir")) {
-				$("#lblExcluirData").text(format2(data.dia) + "/" + format2(data.mes) + "/" + data.ano);
+				$("#lblExcluirSessao").text(data.nome);
 
-				$("#modalExcluirData").modal({
+				$("#modalExcluirSessao").modal({
 					backdrop: "static",
 					keyboard: true
 				});
 			} else {
-				resetForm("#formAlterarData");
+				resetForm("#formAlterarSessao");
 
-				$("#txtDataAno").val(data.ano);
-				$("#txtDataMes").val(data.mes);
-				$("#txtDataDia").val(data.dia);
+				$("#lblAlterarSessao").text("Salvar Alterações");
 
-				$("#lblAlterarData").text("Salvar Alterações");
-
-				$("#modalAlterarData").modal({
+				$("#modalAlterarSessao").modal({
 					backdrop: "static",
 					keyboard: true
 				});
 			}
 		});
 
-		$("#formAlterarData").validate({
+		function preencherDadosSessao(s) {
+			var tmp = eventoDatasPorId[s.ideventodata];
+			s.data = format2(tmp.dia) + "/" + format2(tmp.mes) + "/" + tmp.ano;
+			tmp = eventoHorariosPorId[s.ideventohorario];
+			s.inicio = tmp.inicio;
+			s.termino = tmp.termino;
+			tmp = eventoLocaisPorIdEventoLocal[s.ideventolocal];
+			s.idlocal = tmp.id;
+			s.nome_local = tmp.nome;
+			s.sigla_unidade = tmp.sigla_unidade;
+			tmp = eventoCursosPorId[s.idcurso];
+			s.nome_curso = tmp.nome;
+			tmp = eventoFormatosPorId[s.idformato];
+			s.nome_formato = tmp.nome;
+			tmp = eventoTipoSessoesPorId[s.idtiposessao];
+			s.nome_tipo = tmp.nome;
+			tmp = eventoVerticaisPorId[s.idvertical];
+			s.nome_vertical = tmp.nome;
+		}
+
+		$("#formAlterarSessao").validate({
 			rules: {
-				txtDataAno: {
-					required: true,
-					number: true,
-					min: 1,
-					max: 9999
+				cbSessaoData: {
+					required: true
 				},
-				txtDataMes: {
-					required: true,
-					number: true,
-					min: 1,
-					max: 12
+				cbSessaoHorario: {
+					required: true
 				},
-				txtDataDia: {
+				cbSessaoLocal: {
+					required: true
+				},
+				txtSessaoNome: {
 					required: true,
-					number: true,
-					min: 1,
-					max: 31,
-					anomesdia: true
+					minlength: 3,
+					maxlength: 100
+				},
+				txtSessaoNomeCurto: {
+					required: true,
+					minlength: 3,
+					maxlength: 45
+				},
+				cbSessaoCurso: {
+					required: true
+				},
+				cbSessaoFormato: {
+					required: true
+				},
+				cbSessaoTipo: {
+					required: true
+				},
+				cbSessaoVertical: {
+					required: true
+				},
+				txtSessaoPublicoAlvo: {
+					maxlength: 100
 				}
 			},
 			submitHandler: function (form) {
 				if (JsonWebApi.active)
 					return;
 
-				$("#modalAlterarData").modal("hide");
+				$("#modalAlterarSessao").modal("hide");
 
-				var data, d = {
+				var sessao, s = {
 					idevento: idevento,
-					ano: parseInt($("#txtDataAno").val()),
-					mes: parseInt($("#txtDataMes").val()),
-					dia: parseInt($("#txtDataDia").val())
+					ideventodata: parseInt($("#cbSessaoData").val()),
+					ideventohorario: parseInt($("#cbSessaoHorario").val()),
+					ideventolocal: parseInt($("#cbSessaoLocal").val()),
+					nome: trim($("#txtSessaoNome").val()).toUpperCase(),
+					nome_curto: trim($("#txtSessaoNomeCurto").val()).toUpperCase(),
+					idcurso: parseInt($("#cbSessaoCurso").val()),
+					idformato: parseInt($("#cbSessaoFormato").val()),
+					idtiposessao: parseInt($("#cbSessaoTipo").val()),
+					idvertical: parseInt($("#cbSessaoVertical").val()),
+					publico_alvo: trim($("#txtSessaoPublicoAlvo").val()).toUpperCase(),
+					idspalestrante: []
 				};
+
+				$("#tabelaSessaoPalestranteBody>tr").each(function (i, tr) { s.idspalestrante.push(parseInt(tr.getAttribute("data-id"))); });
 
 				Notification.wait();
 
-				if (trClicada && (data = tabela.row(trClicada).data())) {
-					d.id = data.id;
+				if (trClicada && (sessao = tabela.row(trClicada).data())) {
+					s.id = sessao.id;
 
-					JsonWebApi.post("/api/data/alterar", d, function (response) {
+					JsonWebApi.post("/api/sessao/alterar", s, function (response) {
 						if (response.success) {
-							data.ano = d.ano;
-							data.mes = d.mes;
-							data.dia = d.dia;
-							eventoDatas.sort(comparadorAnoMesDia);
-							Notification.success("Data alterada com sucesso! \uD83D\uDE04");
+							sessao.ideventodata = s.ideventodata;
+							sessao.ideventohorario = s.ideventohorario;
+							sessao.ideventolocal = s.ideventolocal;
+							sessao.nome = s.nome;
+							sessao.nome_curto = s.nome_curto;
+							sessao.idcurso = s.idcurso;
+							sessao.idformato = s.idformato;
+							sessao.idtiposessao = s.idtiposessao;
+							sessao.idvertical = s.idvertical;
+							sessao.publico_alvo = s.publico_alvo;
+							sessao.idspalestrante = s.idspalestrante;
+							preencherDadosSessao(sessao);
+							Notification.success("Sessão alterada com sucesso! \uD83D\uDE04");
 							tabela.row(trClicada).invalidate().draw();
 						} else {
 							Notification.error(response.value, true);
@@ -189,14 +385,14 @@
 						trClicada = null;
 					});
 				} else {
-					JsonWebApi.post("/api/data/criar", d, function (response) {
+					JsonWebApi.post("/api/sessao/criar", s, function (response) {
 						if (response.success) {
-							d.id = parseInt(response.value);
-							eventoDatasPorId[d.id] = d;
-							eventoDatas.push(d);
-							eventoDatas.sort(comparadorAnoMesDia);
-							Notification.success("Data criada com sucesso! \uD83D\uDE04");
-							tabela.row.add(d).draw();
+							s.id = parseInt(response.value);
+							preencherDadosSessao(s);
+							eventoSessoesPorId[s.id] = s;
+							eventoSessoes.push(s);
+							Notification.success("Sessão criada com sucesso! \uD83D\uDE04");
+							tabela.row.add(s).draw();
 						} else {
 							Notification.error(response.value, true);
 						}
@@ -206,51 +402,42 @@
 			}
 		});
 
-		window.criarData = function () {
+		window.criarSessao = function () {
 			if (JsonWebApi.active)
 				return;
 
 			trClicada = null;
 
-			resetForm("#formAlterarData");
+			resetForm("#formAlterarSessao");
 
-			if (!$("#txtDataAno").val() &&
-				!$("#txtDataMes").val() &&
-				!$("#txtDataDia").val()) {
-				var d = new Date();
-				$("#txtDataAno").val(d.getFullYear());
-				$("#txtDataMes").val(d.getMonth() + 1);
-				$("#txtDataDia").val(d.getDate());
-			}
+			$("#lblAlterarSessao").text("Criar Sessão");
 
-			$("#lblAlterarData").text("Criar Data");
-
-			$("#modalAlterarData").modal({
+			$("#modalAlterarSessao").modal({
 				backdrop: "static",
 				keyboard: true
 			});
 		};
 
-		window.excluirData = function () {
+		window.excluirSessao = function () {
 			if (JsonWebApi.active || !trClicada)
 				return;
 
-			$("#modalExcluirData").modal("hide");
+			$("#modalExcluirSessao").modal("hide");
 
 			var data = tabela.row(trClicada).data();
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/data/excluir", function (response) {
+			JsonWebApi.get("/api/sessao/excluir", function (response) {
 				if (response.success) {
-					delete eventoDatasPorId[data.id];
-					for (var i = eventoDatas.length - 1; i >= 0; i--) {
-						if (eventoDatas[i].id === data.id) {
-							eventoDatas.splice(i, 1);
+					delete eventoSessoesPorId[data.id];
+					for (var i = eventoSessoes.length - 1; i >= 0; i--) {
+						if (eventoSessoes[i].id === data.id) {
+							eventoSessoes.splice(i, 1);
 							break;
 						}
 					}
-					Notification.success("Data excluída com sucesso! \uD83D\uDE04");
+					Notification.success("Sessão excluída com sucesso! \uD83D\uDE04");
 					tabela.row(trClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);

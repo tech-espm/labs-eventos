@@ -58,7 +58,7 @@
 			</div>
 			<div class="modal-body">
 				<p>
-					Tem certeza que deseja excluir o horário <span id="lblExcluirHorario"></span>? Essa operação NÃO pode ser desfeita!
+					Tem certeza que deseja excluir o horário <span id="lblExcluirHorario"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
 				</p>
 			</div>
 			<div class="modal-footer">
@@ -78,15 +78,15 @@
 	// função apenas quando o documento estiver ok
 	$(function () {
 		var idevento = <%- idevento %>;
-		carregarHorarios(<%- carregarHorarios %>);
+		carregarHorarios(<%- horarios %>);
 
 		var tabela = prepareDataTable("tabela-horarios", {
 			order: [[0, "asc"]],
 			deferRender: true,
 			columns: [
 				{ title: "Ordem", "class": "col-min", "type": "num", data: "ordem" },
-				{ title: "Início", "class": "col-50", render: encode, data: "inicio" },
-				{ title: "Término", "class": "col-50", render: encode, data: "termino" },
+				{ title: "Início", "class": "col-50", "type": "customtime", render: encode, data: "inicio" },
+				{ title: "Término", "class": "col-50", "type": "customtime", render: encode, data: "termino" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
 			data: eventoHorarios

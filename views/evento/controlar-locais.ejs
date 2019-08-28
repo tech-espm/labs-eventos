@@ -48,9 +48,11 @@
 			if (this.getAttribute("data-excluir")) {
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoDesassociar", { idslocal: [local.id] }, function (response) {
+				JsonWebApi.post("/api/local/eventoDesassociar", { ideventolocal: local.ideventolocal }, function (response) {
 					if (response.success) {
+						local.ideventolocal = 0;
 						delete locaisSelecionados[local.id];
+						atualizarEventoLocais();
 						Notification.success("Local desassociado do evento com sucesso! \uD83D\uDE04");
 						$(trClicada).removeClass("col-h2");
 						tabela.row(trClicada).invalidate().draw();
@@ -76,7 +78,7 @@
 
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoAlterarCapacidade", { idlocal: local.id, capacidade: capacidade }, function (response) {
+				JsonWebApi.post("/api/local/eventoAlterarCapacidade", { ideventolocal: local.ideventolocal, capacidade: capacidade }, function (response) {
 					if (response.success) {
 						if (response.value)
 							Notification.success("Capacidade do local para o evento alterada com sucesso! \uD83D\uDE04");
@@ -88,11 +90,22 @@
 					trClicada = null;
 				});
 			} else {
+				var capacidade = parseInt(trClicada.getElementsByTagName("input")[0].value);
+				if (isNaN(capacidade) || capacidade < 0) {
+					Notification.error("Capacidade inválida", true);
+					trClicada = null;
+					return;
+				}
+
+				local.capacidade = capacidade;
+
 				Notification.wait();
 
 				JsonWebApi.post("/api/local/eventoAssociar", { idlocal: local.id, capacidade: local.capacidade }, function (response) {
 					if (response.success) {
+						local.ideventolocal = parseInt(response.value);
 						locaisSelecionados[local.id] = local;
+						atualizarEventoLocais();
 						Notification.success("Local associado ao evento com sucesso! \uD83D\uDE04");
 						$(trClicada).addClass("col-h2");
 						tabela.row(trClicada).invalidate().draw();

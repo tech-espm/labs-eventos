@@ -38,7 +38,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
-				s.idpalestrantes[i] = parseInt(p[i]);
+				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
 	jsonRes(res, 400, s ? await Sessao.criar(s) : "Dados inválidos!");
@@ -62,7 +62,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
-				s.idpalestrantes[i] = parseInt(p[i]);
+				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
 	jsonRes(res, 400, (s && !isNaN(s.id)) ? await Sessao.alterar(s) : "Dados inválidos!");

@@ -129,7 +129,7 @@ export = class Local {
 		let lista: Local[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select l.id, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade, evl.capacidade from eventolocal evl inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade where evl.idevento = " + idevento + " order by l.nome asc, u.sigla asc") as Local[];
+			lista = await sql.query("select l.id, evl.id ideventolocal, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade, evl.capacidade from eventolocal evl inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade where evl.idevento = " + idevento + " order by l.nome asc, u.sigla asc") as Local[];
 		});
 
 		return (lista || []);
@@ -184,6 +184,8 @@ export = class Local {
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.query("insert into eventolocal (idevento, idlocal, capacidade) values (?, ?, ?)", [idevento, idlocal, capacidade]);
+
+				res = (await sql.scalar("select last_insert_id()") as number).toString();
 			} catch (e) {
 				if (e.code) {
 					switch (e.code) {
@@ -206,15 +208,14 @@ export = class Local {
 		return res;
 	}
 
-	public static async eventoDesassociar(idevento: number, idslocal: number[]): Promise<string> {
+	public static async eventoDesassociar(idevento: number, ideventolocal: number): Promise<string> {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.beginTransaction();
 
-				let lidsstr = idslocal.join(",");
-				await sql.query("delete from eventolocal where idevento = " + idevento + " and idlocal in (" + lidsstr + ")");
+				await sql.query("delete from eventolocal where idevento = " + idevento + " and id = " + ideventolocal);
 				res = sql.linhasAfetadas.toString();
 
 				await sql.commit();
@@ -229,14 +230,14 @@ export = class Local {
 		return res;
 	}
 
-	public static async eventoAlterarCapacidade(idevento: number, idlocal: number, capacidade: number): Promise<string> {
+	public static async eventoAlterarCapacidade(idevento: number, ideventolocal: number, capacidade: number): Promise<string> {
 		if (capacidade < 0)
 			return "Capacidade inválida";
 
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			await sql.query("update eventolocal set capacidade = ? where idevento = ? and idlocal = ?", [capacidade, idevento, idlocal]);
+			await sql.query("update eventolocal set capacidade = ? where idevento = ? and id = ?", [capacidade, idevento, ideventolocal]);
 			res = sql.linhasAfetadas.toString();
 		});
 
