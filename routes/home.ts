@@ -2,6 +2,7 @@
 import wrap = require("express-async-error-wrapper");
 import Evento = require("../models/evento");
 import Usuario = require("../models/usuario");
+import appsettings = require("../appsettings");
 
 const router = express.Router();
 
@@ -13,11 +14,11 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		if (req.body.login || req.body.senha) {
 			[mensagem, u] = await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, res);
 			if (mensagem)
-				res.render("home/login", { layout: "layout-externo", mensagem: mensagem });
+				res.render("home/login", { layout: "layout-externo", mensagem: mensagem, loginUrl: appsettings.loginUrl });
 			else
 				res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });
 		} else {
-			res.render("home/login", { layout: "layout-externo", mensagem: null });
+			res.render("home/login", { layout: "layout-externo", mensagem: null, loginUrl: appsettings.loginUrl });
 		}
 	} else {
 		res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });

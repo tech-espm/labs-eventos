@@ -1,27 +1,54 @@
 ﻿<form method="post" action="./">
-	<div style="max-width: 400px; margin: 5% auto; padding: 15px;">
-		<div class="panel <%= (mensagem ? 'panel-danger' : 'panel-default' ) %>">
-			<div class="panel-heading">
-				<div class="text-center">
-					<img alt="Logo" src="/imagens/logo.png" />
-				</div>
-			</div>
+	<div style="max-width: 400px; margin: 0 auto; padding: 10% 15px;">
+		<div class="panel panel-default no-margin-bottom">
 			<div class="panel-body">
-				<div id="divUser" class="form-group">
-					<label for="login">Usuário</label>
-					<input name="login" type="text" id="login" class="form-control text-uppercase" spellcheck="false" />
+				<a href="<%- loginUrl %>" class="btn btn-primary btn-lg btn-block"><i class="fa fa-lock fa-nomargin"></i><br />Efetuar login com minhas credenciais da ESPM</a>
+				<hr />
+				<button id="btnLogin" onclick="showLogin()" type="button" class="btn btn-default btn-sm btn-block <%= (mensagem ? 'hidden' : '' ) %>">Se preferir, você também pode efetuar login utilizando as credenciais do sistema de credenciamento</button>
+				<div id="divLogin" class="<%= (mensagem ? '' : 'hidden' ) %>">
+					<div id="divUser" class="form-group">
+						<label for="login">Usuário</label>
+						<input name="login" type="text" id="login" class="form-control text-uppercase" spellcheck="false" />
+					</div>
+					<div id="divPass" class="form-group">
+						<label for="senha">Senha</label>
+						<input name="senha" type="password" id="senha" class="form-control" />
+					</div>
+					<% if (mensagem) { %>
+					<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
+					<% } %>
+					<input type="submit" value="Login" class="btn btn-primary btn-block" />
 				</div>
-				<div id="divPass" class="form-group">
-					<label for="senha">Senha</label>
-					<input name="senha" type="password" id="senha" class="form-control" />
-				</div>
-				<% if (mensagem) { %>
-				<div id="lblMessage" class="alert alert-danger no-margin-bottom"><%=mensagem %></div>
-				<% } %>
-			</div>
-			<div class="panel-footer">
-				<input type="submit" value="Login" class="btn btn-primary btn-lg btn-block" />
 			</div>
 		</div>
 	</div>
 </form>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	html {
+		min-height: 100%;
+		height: 100%;
+	}
+	body {
+		background-image: url(/imagens/loginbg.jpg);
+		background-size: cover;
+		background-repeat: no-repeat;
+		min-height: 100%;
+	}
+	.panel {
+		-webkit-box-shadow: 0 2px 8px rgba(0,0,0,.5);
+		box-shadow: 0 2px 8px rgba(0,0,0,.5);
+	}
+	.btn {
+		white-space: normal;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+	function showLogin() {
+		document.getElementById("btnLogin").className = "hidden";
+		document.getElementById("divLogin").className = "";
+	}
+</script>

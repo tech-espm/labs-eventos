@@ -332,5 +332,8 @@ ASALocalRun/
 
 app.js
 config.js
+appsettings.ts
+appsettings.js
 *.js.map
 deploy/
+_misc/

@@ -39,25 +39,6 @@
 
 				<li class="sidebar-spacer"></li>
 
-				<% if (usuario.admin) { %>
-
-				<li>
-					<a href="#"><i class="fa fa-pencil fa-fw"></i>Cursos<span class="fa arrow"></span></a>
-					<ul class="nav nav-second-level collapse">
-
-						<li>
-							<a href="/curso/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
-						</li>
-
-						<li>
-							<a href="/curso/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
-						</li>
-
-					</ul>
-				</li>
-
-				<% } %>
-
 				<li>
 					<a href="#"><i class="fa fa-bullhorn fa-fw"></i>Eventos<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level collapse">
@@ -96,6 +77,23 @@
 				</li>
 
 				<% if (usuario.admin) { %>
+
+				<li class="sidebar-spacer"></li>
+
+				<li>
+					<a href="#"><i class="fa fa-pencil fa-fw"></i>Cursos<span class="fa arrow"></span></a>
+					<ul class="nav nav-second-level collapse">
+
+						<li>
+							<a href="/curso/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+						</li>
+
+						<li>
+							<a href="/curso/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+						</li>
+
+					</ul>
+				</li>
 
 				<li>
 					<a href="#"><i class="fa fa-cubes fa-fw"></i>Formatos<span class="fa arrow"></span></a>

@@ -4,6 +4,7 @@ import express = require("express");
 import lru = require("lru-cache");
 import Sql = require("../infra/sql");
 import GeradorHash = require("../utils/geradorHash");
+import appsettings = require("../appsettings");
 
 export = class Usuario {
 	private static readonly cacheUsuarioLogados = lru(100);
@@ -243,7 +244,7 @@ export = class Usuario {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into usuario (login, nome, tipo, senha, idevento_logado) values (?, ?, ?, '" + Usuario.HashSenhaPadrao + "', 0)", [u.login, u.nome, u.tipo]);
+				await sql.query("insert into usuario (login, nome, tipo, senha, idevento_logado) values (?, ?, ?, '" + (u.login.endsWith("@ESPM.BR") ? appsettings.hashSenhaPadraoUsuariosIntegracaoCAS : Usuario.HashSenhaPadrao) + "', 0)", [u.login, u.nome, u.tipo]);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "O login \"" + u.login + "\" já está em uso";

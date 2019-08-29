@@ -98,6 +98,11 @@ Evento.nomesReservados.push(
 	"js",
 	"lib",
 
+	"acesso",
+	"perfil",
+	"logout",
+
+	"cas",
 	"curso",
 	"evento",
 	"formato",
@@ -120,6 +125,7 @@ Evento.nomesReservados.push(
 
 // Cadastros simples
 app.use("/", require("./routes/home"));
+app.use("/cas", require("./routes/cas"));
 app.use("/curso", require("./routes/curso"));
 app.use("/formato", require("./routes/formato"));
 app.use("/industria", require("./routes/industria"));

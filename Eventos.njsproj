@@ -118,7 +118,10 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="infra\sqlPool.ts" />
     <TypeScriptCompile Include="infra\upload.ts" />
-    <TypeScriptCompile Include="models\sessao.ts" />
+    <TypeScriptCompile Include="models\cas.ts" />
+    <TypeScriptCompile Include="models\sessao.ts">
+      <Publish>False</Publish>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="models\palestrante.ts" />
     <TypeScriptCompile Include="models\empresa.ts" />
     <TypeScriptCompile Include="models\horario.ts" />
@@ -152,6 +155,7 @@
     <TypeScriptCompile Include="routes\api\vertical.ts" />
     <TypeScriptCompile Include="routes\api\usuario.ts" />
     <TypeScriptCompile Include="routes\api\profissao.ts" />
+    <TypeScriptCompile Include="routes\cas.ts" />
     <TypeScriptCompile Include="routes\evento.ts" />
     <TypeScriptCompile Include="routes\local.ts" />
     <TypeScriptCompile Include="routes\instrucao.ts" />
@@ -168,6 +172,7 @@
     <None Include="Local.pubxml" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
+    <TypeScriptCompile Include="appsettings.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="models\" />
