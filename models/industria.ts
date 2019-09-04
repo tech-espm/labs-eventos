@@ -5,7 +5,7 @@ export = class Industria {
 	public nome: string;
 
 	private static validar(i: Industria): string {
-		i.nome = (i.nome || "").trim().toUpperCase();
+		i.nome = (i.nome || "").normalize().trim().toUpperCase();
 		if (i.nome.length < 3 || i.nome.length > 100)
 			return "Nome inválido";
 		return null;

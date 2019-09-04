@@ -16,10 +16,14 @@ router.all("/login", wrap(async (req: express.Request, res: express.Response) =>
 		mensagem = (ex.message || ex.toString());
 	}
 	if (cas) {
-		// Valida se o usuário existe no banco e fazer o login
-		res.render("home/login", { layout: "layout-externo", mensagem: `O usuário ${cas.email} não está cadstrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
+		let u: Usuario;
+		[mensagem, u] = await Usuario.efetuarLogin(null, null, cas, res);
+		if (mensagem)
+			res.render("home/login", { layout: "layout-externo", mensagem: `O usuário ${cas.emailAcademico.toLowerCase()} não está cadstrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
+		else
+			res.redirect("/");
 	} else {
-		res.render("home/login", { layout: "layout-externo", mensagem: ((mensagem || "Falha no servidor de login.") + " Por favor, tente novamente mais tarde."), loginUrl: appsettings.loginUrl });
+		res.render("home/login", { layout: "layout-externo", mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), loginUrl: appsettings.loginUrl });
 	}
 }));
 

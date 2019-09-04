@@ -10,10 +10,10 @@ export = class Horario {
 	private static validar(h: Horario): string {
 		if (isNaN(h.idevento) || h.idevento <= 0)
 			return "Evento inválido";
-		h.inicio = (h.inicio || "").trim().toUpperCase();
+		h.inicio = (h.inicio || "").normalize().trim().toUpperCase();
 		if (h.inicio.length < 3 || h.inicio.length > 50)
 			return "Início inválido";
-		h.termino = (h.termino || "").trim().toUpperCase();
+		h.termino = (h.termino || "").normalize().trim().toUpperCase();
 		if (h.termino.length > 50)
 			return "Término inválido";
 		if (isNaN(h.ordem))

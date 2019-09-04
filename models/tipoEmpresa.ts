@@ -6,9 +6,10 @@ export = class TipoEmpresa {
 	public nome_site: string;
 
 	private static validar(t: TipoEmpresa): string {
-		t.nome = (t.nome || "").trim().toUpperCase();
+		t.nome = (t.nome || "").normalize().trim().toUpperCase();
 		if (t.nome.length < 3 || t.nome.length > 40)
 			return "Nome inválido";
+		t.nome_site = (t.nome_site || "").normalize().trim();
 		if (t.nome_site.length < 3 || t.nome_site.length > 40)
 			return "Nome no site inválido";
 		return null;

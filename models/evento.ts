@@ -30,23 +30,23 @@ export = class Evento {
 	}
 
 	private static validar(ev: Evento): string {
-		ev.nome = (ev.nome || "").trim().toUpperCase();
+		ev.nome = (ev.nome || "").normalize().trim().toUpperCase();
 		if (ev.nome.length < 3 || ev.nome.length > 100)
 			return "Nome inválido";
-		ev.url = (ev.url || "").trim().toLowerCase();
+		ev.url = (ev.url || "").normalize().trim().toLowerCase();
 		if (ev.url.length < 2 || ev.url.length > 50 || Evento.urlRegExp.test(ev.url))
 			return "URL inválida";
 		for (let i = Evento.nomesReservados.length - 1; i >= 0; i--) {
 			if (ev.url == Evento.nomesReservados[i])
 				return "A URL \"" + ev.url + "\" é reservada para o sistema";
 		}
-		ev.descricao = (ev.descricao || "").trim().toUpperCase();
+		ev.descricao = (ev.descricao || "").normalize().trim().toUpperCase();
 		if (ev.descricao.length > 250)
 			return "Descrição inválida";
-		ev.aspectratioempresa = (ev.aspectratioempresa || "").trim().toUpperCase();
+		ev.aspectratioempresa = (ev.aspectratioempresa || "").normalize().trim().toUpperCase();
 		if (ev.aspectratioempresa && (ev.aspectratioempresa.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratioempresa)))
 			return "O aspect ratio das imagens das empresas é inválido";
-		ev.aspectratiopalestrante = (ev.aspectratiopalestrante || "").trim().toUpperCase();
+		ev.aspectratiopalestrante = (ev.aspectratiopalestrante || "").normalize().trim().toUpperCase();
 		if (ev.aspectratiopalestrante && (ev.aspectratiopalestrante.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratiopalestrante)))
 			return "O aspect ratio das imagens dos palestrantes é inválido";
 		ev.permitealuno = ((ev.permitealuno && !isNaN(ev.permitealuno)) ? 1 : 0);

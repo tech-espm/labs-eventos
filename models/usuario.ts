@@ -3,6 +3,7 @@ import express = require("express");
 // https://www.npmjs.com/package/lru-cache
 import lru = require("lru-cache");
 import Sql = require("../infra/sql");
+import Cas = require("../models/cas");
 import GeradorHash = require("../utils/geradorHash");
 import appsettings = require("../appsettings");
 
@@ -29,6 +30,7 @@ export = class Usuario {
 	public nomeevento_logado: string;
 	public idevento_logado: number;
 	public admin: boolean;
+	public cas: boolean;
 
 	public static removerDoCache(id: number): void {
 		Usuario.cacheUsuarioLogados.del(id);
@@ -83,6 +85,7 @@ export = class Usuario {
 					u.idevento_logado = idevento_logado;
 					u.nomeevento_logado = (nomeevento_logado || null);
 					u.admin = (u.tipo === Usuario.TipoAdmin);
+					u.cas = u.login.endsWith("@ESPM.BR");
 
 					Usuario.cacheUsuarioLogados.set(id, u);
 
@@ -106,8 +109,13 @@ export = class Usuario {
 		let cookieStr = idStr.substring(idStr.length - 8) + idEventoLogadoStr.substring(idEventoLogadoStr.length - 8) + token;
 		return [token, cookieStr];
 	}
-	
-	public static async efetuarLogin(login: string, senha: string, res: express.Response): Promise<[string, Usuario]> {
+
+	public static async efetuarLogin(login: string, senha: string, cas: Cas, res: express.Response): Promise<[string, Usuario]> {
+		if (cas) {
+			login = cas.emailAcademico;
+			senha = appsettings.senhaPadraoUsuariosIntegracaoCAS;
+		}
+
 		if (!login || !senha)
 			return ["Usuário ou senha inválidos", null];
 
@@ -115,13 +123,13 @@ export = class Usuario {
 		let u: Usuario = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			login = login.trim().toUpperCase();
+			login = login.normalize().trim().toUpperCase();
 
 			let rows = await sql.query("select id, nome, tipo, senha from usuario where login = ?", [login]);
 			let row;
 			let ok: boolean;
 
-			if (!rows || !rows.length || !(row = rows[0]) || !(ok = await GeradorHash.validarSenha(senha, row.senha))) {
+			if (!rows || !rows.length || !(row = rows[0]) || !(ok = await GeradorHash.validarSenha(senha.normalize(), row.senha))) {
 				r = "Usuário ou senha inválidos";
 				return;
 			}
@@ -139,6 +147,7 @@ export = class Usuario {
 			u.idevento_logado = 0;
 			u.nomeevento_logado = null;
 			u.admin = (u.tipo === Usuario.TipoAdmin);
+			u.cas = !!cas;
 
 			Usuario.cacheUsuarioLogados.set(row.id, u);
 
@@ -164,7 +173,7 @@ export = class Usuario {
 	}
 
 	public async alterarPerfil(res: express.Response, nome: string, senhaAtual: string, novaSenha: string): Promise<string> {
-		nome = (nome || "").trim().toUpperCase();
+		nome = (nome || "").normalize().trim().toUpperCase();
 		if (nome.length < 3 || nome.length > 100)
 			return "Nome inválido";
 
@@ -176,12 +185,12 @@ export = class Usuario {
 		await Sql.conectar(async (sql: Sql) => {
 			if (senhaAtual) {
 				let hash = await sql.scalar("select senha from usuario where id = " + this.id) as string;
-				if (!await GeradorHash.validarSenha(senhaAtual, hash)) {
+				if (this.cas || !await GeradorHash.validarSenha(senhaAtual.normalize(), hash)) {
 					r = "Senha atual não confere";
 					return;
 				}
 
-				hash = await GeradorHash.criarHash(novaSenha);
+				hash = await GeradorHash.criarHash(novaSenha.normalize());
 
 				let [token, cookieStr] = Usuario.gerarTokenCookie(this.id, this.idevento_logado);
 
@@ -202,8 +211,12 @@ export = class Usuario {
 		return r;
 	}
 
+	private static hashSenhaPadraoDeLogin(login: string): string {
+		return (login.endsWith("@ESPM.BR") ? appsettings.hashSenhaPadraoUsuariosIntegracaoCAS : Usuario.HashSenhaPadrao);
+	}
+
 	private static validar(u: Usuario): string {
-		u.nome = (u.nome || "").trim().toUpperCase();
+		u.nome = (u.nome || "").normalize().trim().toUpperCase();
 		if (u.nome.length < 3 || u.nome.length > 100)
 			return "Nome inválido";
 
@@ -238,13 +251,13 @@ export = class Usuario {
 		if ((res = Usuario.validar(u)))
 			return res;
 
-		u.login = (u.login || "").trim().toUpperCase();
+		u.login = (u.login || "").normalize().trim().toUpperCase();
 		if (u.login.length < 3 || u.login.length > 50)
 			return "Login inválido";
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into usuario (login, nome, tipo, senha, idevento_logado) values (?, ?, ?, '" + (u.login.endsWith("@ESPM.BR") ? appsettings.hashSenhaPadraoUsuariosIntegracaoCAS : Usuario.HashSenhaPadrao) + "', 0)", [u.login, u.nome, u.tipo]);
+				await sql.query("insert into usuario (login, nome, tipo, senha, idevento_logado) values (?, ?, ?, '" + Usuario.hashSenhaPadraoDeLogin(u.login) + "', 0)", [u.login, u.nome, u.tipo]);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "O login \"" + u.login + "\" já está em uso";
@@ -264,7 +277,7 @@ export = class Usuario {
 		await Sql.conectar(async (sql: Sql) => {
 			await sql.query("update usuario set nome = ?, tipo = ? where id = " + u.id, [u.nome, u.tipo]);
 			res = sql.linhasAfetadas.toString();
-			if (res)
+			if (sql.linhasAfetadas)
 				Usuario.cacheUsuarioLogados.del(u.id);
 		});
 
@@ -277,7 +290,7 @@ export = class Usuario {
 		await Sql.conectar(async (sql: Sql) => {
 			await sql.query("delete from usuario where id = " + id);
 			res = sql.linhasAfetadas.toString();
-			if (res)
+			if (sql.linhasAfetadas)
 				Usuario.cacheUsuarioLogados.del(id);
 		});
 
@@ -288,10 +301,15 @@ export = class Usuario {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			await sql.query("update usuario set token = null, idevento_logado = 0, senha = '" + this.HashSenhaPadrao + "' where id = " + id);
-			res = sql.linhasAfetadas.toString();
-			if (res)
-				Usuario.cacheUsuarioLogados.del(id);
+			let login = await sql.scalar("select login from usuario where id = " + id) as string;
+			if (!login) {
+				res = "0";
+			} else {
+				await sql.query("update usuario set token = null, idevento_logado = 0, senha = '" + Usuario.hashSenhaPadraoDeLogin(login) + "' where id = " + id);
+				res = sql.linhasAfetadas.toString();
+				if (sql.linhasAfetadas)
+					Usuario.cacheUsuarioLogados.del(id);
+			}
 		});
 
 		return res;
@@ -347,7 +365,7 @@ export = class Usuario {
 
 	public static async eventoAssociar(idevento: number, login: string): Promise<string> {
 		let res: string = null;
-		if (!login || !(login = login.trim().toUpperCase()))
+		if (!login || !(login = login.normalize().trim().toUpperCase()))
 			return "Login inválido";
 
 		await Sql.conectar(async (sql: Sql) => {

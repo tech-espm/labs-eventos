@@ -11,7 +11,7 @@ export = class Local {
 	public sigla_unidade: string;
 
 	private static validar(l: Local): string {
-		l.nome = (l.nome || "").trim().toUpperCase();
+		l.nome = (l.nome || "").normalize().trim().toUpperCase();
 		if (l.nome.length < 3 || l.nome.length > 100)
 			return "Nome inválido";
 		if (isNaN(l.idunidade) || l.idunidade < 0)

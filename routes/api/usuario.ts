@@ -9,7 +9,7 @@ const router = express.Router();
 // dentro da função async não serão tratadas!!!
 router.post("/login", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
-	jsonRes(res, 403, u ? null : await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, res)[0]);
+	jsonRes(res, 403, u ? null : await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, null, res)[0]);
 }));
 
 router.get("/logout", wrap(async (req: express.Request, res: express.Response) => {

@@ -6,10 +6,10 @@ export = class Unidade {
 	public sigla: string;
 
 	private static validar(u: Unidade): string {
-		u.nome = (u.nome || "").trim().toUpperCase();
+		u.nome = (u.nome || "").normalize().trim().toUpperCase();
 		if (u.nome.length < 3 || u.nome.length > 100)
 			return "Nome inválido";
-		u.sigla = (u.sigla || "").trim().toUpperCase();
+		u.sigla = (u.sigla || "").normalize().trim().toUpperCase();
 		if (u.sigla.length < 1 || u.sigla.length > 50)
 			return "Sigla inválida";
 		return null;

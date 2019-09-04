@@ -35,10 +35,10 @@ export = class Empresa {
 			return "Evento inválido";
 		if (isNaN(e.idtipo) || e.idtipo <= 0)
 			return "Tipo inválido";
-		e.nome = (e.nome || "").trim().toUpperCase();
+		e.nome = (e.nome || "").normalize().trim().toUpperCase();
 		if (e.nome.length < 3 || e.nome.length > 100)
 			return "Nome inválido";
-		e.nome_curto = (e.nome_curto || "").trim().toUpperCase();
+		e.nome_curto = (e.nome_curto || "").normalize().trim().toUpperCase();
 		if (e.nome_curto.length < 1 || e.nome_curto.length > 45)
 			return "Nome curto inválido";
 		if (isNaN(e.versao) || e.versao < 0)

@@ -6,10 +6,10 @@ export = class Vertical {
 	public descricao: string;
 
 	private static validar(v: Vertical): string {
-		v.nome = (v.nome || "").trim().toUpperCase();
+		v.nome = (v.nome || "").normalize().trim().toUpperCase();
 		if (v.nome.length < 3 || v.nome.length > 50)
 			return "Nome inválido";
-		v.descricao = (v.descricao || "").trim().toUpperCase();
+		v.descricao = (v.descricao || "").normalize().trim().toUpperCase();
 		return null;
 	}
 

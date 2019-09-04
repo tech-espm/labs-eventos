@@ -6,7 +6,7 @@ export = class Instrucao {
 	public ordem: number;
 
 	private static validar(i: Instrucao): string {
-		i.nome = (i.nome || "").trim().toUpperCase();
+		i.nome = (i.nome || "").normalize().trim().toUpperCase();
 		if (i.nome.length < 3 || i.nome.length > 100)
 			return "Nome inválido";
 		if (isNaN(i.ordem))

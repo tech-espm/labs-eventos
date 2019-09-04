@@ -12,7 +12,7 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		let mensagem: string = null;
 
 		if (req.body.login || req.body.senha) {
-			[mensagem, u] = await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, res);
+			[mensagem, u] = await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, null, res);
 			if (mensagem)
 				res.render("home/login", { layout: "layout-externo", mensagem: mensagem, loginUrl: appsettings.loginUrl });
 			else

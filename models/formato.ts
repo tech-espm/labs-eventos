@@ -5,7 +5,7 @@ export = class Formato {
 	public nome: string;
 
 	private static validar(f: Formato): string {
-		f.nome = (f.nome || "").trim().toUpperCase();
+		f.nome = (f.nome || "").normalize().trim().toUpperCase();
 		if (f.nome.length < 3 || f.nome.length > 50)
 			return "Nome inválido";
 		return null;

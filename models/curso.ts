@@ -5,7 +5,7 @@ export = class Curso {
 	public nome: string;
 
 	private static validar(c: Curso): string {
-		c.nome = (c.nome || "").trim().toUpperCase();
+		c.nome = (c.nome || "").normalize().trim().toUpperCase();
 		if (c.nome.length < 3 || c.nome.length > 50)
 			return "Nome inválido";
 		return null;
