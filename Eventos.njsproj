@@ -127,6 +127,7 @@
     <Content Include="views\shared\erro.ejs" />
     <Content Include="views\profissao\alterar.ejs" />
     <Content Include="views\profissao\listar.ejs" />
+    <Content Include="views\shared\erro-fundo.ejs" />
     <Content Include="views\tipoEmpresa\alterar.ejs" />
     <Content Include="views\tipoEmpresa\listar.ejs" />
     <Content Include="views\tipoSessao\alterar.ejs" />

@@ -54,7 +54,7 @@
 						<% if (usuario.idevento_logado && usuario.nomeevento_logado) { %>
 
 						<li>
-							<a href="/evento/"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
+							<a href="/evento"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
 						</li>
 
 						<% } else if (!usuario.admin) { %>
@@ -216,21 +216,6 @@
 				</li>
 
 				<li>
-					<a href="#"><i class="fa fa-user fa-fw"></i>Usuários<span class="fa arrow"></span></a>
-					<ul class="nav nav-second-level collapse">
-
-						<li>
-							<a href="/usuario/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
-						</li>
-
-						<li>
-							<a href="/usuario/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
-						</li>
-
-					</ul>
-				</li>
-
-				<li>
 					<a href="#"><i class="fa fa-trello fa-fw"></i>Verticais<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level collapse">
 
@@ -240,6 +225,23 @@
 
 						<li>
 							<a href="/vertical/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+						</li>
+
+					</ul>
+				</li>
+
+				<li class="sidebar-spacer"></li>
+
+				<li>
+					<a href="#"><i class="fa fa-user fa-fw"></i>Usuários<span class="fa arrow"></span></a>
+					<ul class="nav nav-second-level collapse">
+
+						<li>
+							<a href="/usuario/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+						</li>
+
+						<li>
+							<a href="/usuario/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>

@@ -175,9 +175,24 @@ app.use((req: express.Request, res: express.Response, next) => {
 
 	try {
 		let evento = Evento.idsPorUrl[req.path];
-		if (evento && evento.id && evento.habilitado) {
-			// @@@ render...
-			return;
+		if (evento && evento.id) {
+			if (evento.habilitado) {
+				res.render("evt/" + evento.id, { layout: "layout-vazio" });
+				return;
+			} else {
+				res.render("shared/erro-fundo", {
+					layout: "layout-externo",
+					titulo: "Evento desabilitado",
+					mensagem: "A página do evento está atualmente desabilitada"
+				});
+			}
+		} else if (req.path.endsWith("/")) {
+			let url = req.path.substr(0, req.path.length - 1);
+			evento = Evento.idsPorUrl[url];
+			if (evento && evento.id) {
+				res.redirect(url);
+				return;
+			}
 		}
 	} catch (e) {
 		err = e;
@@ -197,13 +212,20 @@ app.use((req: express.Request, res: express.Response, next) => {
 //if (app.get("env") === "development") {
 	app.use((err: any, req: express.Request, res: express.Response, next) => {
 		res.status(err.status || 500);
-		res.render("shared/erro", {
-			layout: "layout-externo",
-			mensagem: err.message,
-			// Como é um ambiente de desenvolvimento, deixa o objeto do erro
-			// ir para a página, que possivelmente exibirá suas informações
-			erro: err
-		});
+		if (err.status == 404) {
+			res.render("shared/erro-fundo", {
+				layout: "layout-externo",
+				titulo: "Não encontrado"
+			});
+		} else {
+			res.render("shared/erro", {
+				layout: "layout-externo",
+				mensagem: err.message,
+				// Como é um ambiente de desenvolvimento, deixa o objeto do erro
+				// ir para a página, que possivelmente exibirá suas informações
+				erro: err
+			});
+		}
 
 		// Como não estamos chamando next(err) aqui, o tratador
 		// abaixo não será executado

@@ -119,7 +119,8 @@ CREATE TABLE evento (
   permitefuncionario tinyint(4) NOT NULL,
   permiteexterno tinyint(4) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY nome_UN (nome)
+  UNIQUE KEY nome_UN (nome),
+  UNIQUE KEY url_UN (url)
 );
 
 -- DROP TABLE IF EXISTS eventodata;
