@@ -30,7 +30,7 @@ export = class Evento {
 	}
 
 	private static validar(ev: Evento): string {
-		ev.nome = (ev.nome || "").normalize().trim().toUpperCase();
+		ev.nome = (ev.nome || "").normalize().trim();
 		if (ev.nome.length < 3 || ev.nome.length > 100)
 			return "Nome inválido";
 		ev.url = (ev.url || "").normalize().trim().toLowerCase();

@@ -256,3 +256,25 @@ CREATE TABLE eventousuario (
   CONSTRAINT idevento_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idusuario_FK FOREIGN KEY (idusuario) REFERENCES usuario (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
+
+-- DROP TABLE IF EXISTS participante;
+CREATE TABLE participante (
+  id int NOT NULL AUTO_INCREMENT,
+  nome varchar(100) NOT NULL,
+  login varchar(50) DEFAULT NULL,
+  email varchar(100) NOT NULL,
+  tipo tinyint(4) NOT NULL,
+  idindustria int DEFAULT NULL,
+  idinstrucao int DEFAULT NULL,
+  idprofissao int DEFAULT NULL,
+  senha varchar(100) NOT NULL,
+  token char(32) DEFAULT NULL,
+  data_criacao datetime NOT NULL,
+  data_reset_senha datetime DEFAULT NULL,
+  token_reset_senha char(64) DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY email_UN (email),
+  CONSTRAINT idindustria_FK FOREIGN KEY (idindustria) REFERENCES industria (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idinstrucao_FK FOREIGN KEY (idinstrucao) REFERENCES instrucao (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT idprofissao_FK FOREIGN KEY (idprofissao) REFERENCES profissao (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+);

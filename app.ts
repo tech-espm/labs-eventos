@@ -23,6 +23,7 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import Participante = require("./models/participante");
 
 // @@@ Configura o cache, para armazenar as 200 últimas páginas
 // já processadas, por ordem de uso
@@ -110,6 +111,7 @@ Evento.nomesReservados.push(
 	"industria",
 	"instrucao",
 	"local",
+	"participante",
 	"profissao",
 	"sessao",
 	"tipoEmpresa",
@@ -131,6 +133,7 @@ app.use("/formato", require("./routes/formato"));
 app.use("/industria", require("./routes/industria"));
 app.use("/instrucao", require("./routes/instrucao"));
 app.use("/local", require("./routes/local"));
+app.use("/participante", require("./routes/participante"));
 app.use("/profissao", require("./routes/profissao"));
 app.use("/tipoSessao", require("./routes/tipoSessao"));
 app.use("/tipoEmpresa", require("./routes/tipoEmpresa"));
@@ -143,6 +146,7 @@ app.use("/api/formato", require("./routes/api/formato"));
 app.use("/api/industria", require("./routes/api/industria"));
 app.use("/api/instrucao", require("./routes/api/instrucao"));
 app.use("/api/local", require("./routes/api/local"));
+app.use("/api/participante", require("./routes/api/participante"));
 app.use("/api/profissao", require("./routes/api/profissao"));
 app.use("/api/tipoSessao", require("./routes/api/tipoSessao"));
 app.use("/api/tipoEmpresa", require("./routes/api/tipoEmpresa"));
@@ -170,14 +174,17 @@ app.use("/api/sessao", require("./routes/api/sessao"));
 //
 // Isso é possível, porque em JavaScript, f.length retorna a quantidade
 // de parâmetros declarados na função f!!!
-app.use((req: express.Request, res: express.Response, next) => {
+app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 	let err = null;
 
 	try {
 		let evento = Evento.idsPorUrl[req.path];
 		if (evento && evento.id) {
 			if (evento.habilitado) {
-				res.render("evt/" + evento.id, { layout: "layout-vazio" });
+				res.render("evt/" + evento.id, {
+					layout: "layout-vazio",
+					participante: await Participante.cookie(req)
+				});
 				return;
 			} else {
 				res.render("shared/erro-fundo", {
@@ -206,7 +213,7 @@ app.use((req: express.Request, res: express.Response, next) => {
 	// Executa o próximo tratador na sequência (que no nosso caso
 	// será um dos dois tratadores abaixo)
 	next(err);
-});
+}));
 
 // Registra os tratadores de erro
 //if (app.get("env") === "development") {

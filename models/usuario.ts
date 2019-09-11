@@ -177,7 +177,7 @@ export = class Usuario {
 		if (nome.length < 3 || nome.length > 100)
 			return "Nome inválido";
 
-		if (!!senhaAtual !== !!novaSenha || (novaSenha && novaSenha.length > 20))
+		if (!!senhaAtual !== !!novaSenha || (novaSenha && novaSenha.length > 40))
 			return "Senha inválida";
 
 		let r: string = null;

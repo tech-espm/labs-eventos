@@ -9,6 +9,8 @@ const router = express.Router();
 router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u) {
+		res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
+
 		let mensagem: string = null;
 
 		if (req.body.login || req.body.senha) {

@@ -1,0 +1,117 @@
+﻿<form method="post" id="form">
+	<div style="max-width: 600px; margin: 0 auto; padding: 10% 15px;">
+		<div class="panel panel-default no-margin-bottom">
+			<div class="panel-body">
+				<% if (mensagem) { %>
+				<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
+				<% } %>
+				<div class="row">
+					<div class="col-sm-6 text-center">
+						Ainda não se cadastrou no sistema de eventos da ESPM?
+						<br />
+						<br />
+						<a href="#" onclick="mostrarModalCadastro(); return false;">Clique aqui e cadastre-se agora mesmo! 😊</a>
+						<br />
+						<br />
+						Já possui cadastro? Basta digitar suas informações para entrar!
+						<br />
+						<br />
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="email">E-mail</label>
+							<input name="email" type="email" id="email" class="form-control text-uppercase" spellcheck="false" />
+						</div>
+						<div class="form-group">
+							<label for="senha">Senha</label>
+							<input name="senha" type="password" id="senha" class="form-control" />
+						</div>
+						<input type="submit" value="Entrar" class="btn btn-primary btn-block" />
+						<hr />
+						<a href="<%- loginUrl %>" class="btn btn-outline btn-primary btn-block"><i class="fa fa-lock fa-nomargin"></i>
+							<br />
+							Entrar com as credenciais da ESPM (alunos e funcionários)</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	html {
+		min-height: 100%;
+		height: 100%;
+	}
+
+	body {
+		background-image: url(/imagens/loginbg.jpg);
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-attachment: fixed;
+		min-height: 100%;
+	}
+
+	.panel {
+		-webkit-box-shadow: 0 2px 8px rgba(0,0,0,.5);
+		box-shadow: 0 2px 8px rgba(0,0,0,.5);
+	}
+
+	.btn {
+		white-space: normal;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+	$("#form").validate({
+		rules: {
+			email: {
+				required: true,
+				email: true
+			},
+			senha: {
+				required: true
+			}
+		}
+	});
+
+	var modalCadastro = null;
+
+	function mostrarModalCadastro() {
+		if ($.active)
+			return;
+
+		if (!modalCadastro) {
+			Notification.wait();
+
+			$.ajax({
+				url: "/participante/modal",
+				success: function (data) {
+					Notification.hide();
+
+					$(document.body).append(data);
+					modalCadastro = $("#modalCadastro");
+
+					modalCadastro.modal({
+						keyboard: false,
+						backdrop: "static"
+					});
+				},
+				error: function () {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+
+			return;
+		}
+
+
+		modalCadastro.modal({
+			keyboard: false,
+			backdrop: "static"
+		});
+	}
+</script>

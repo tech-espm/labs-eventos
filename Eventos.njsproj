@@ -36,7 +36,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="public\css\admin-1.0.24.css" />
+    <Content Include="public\css\admin-1.0.25.css" />
     <Content Include="public\favicons\apple-icon-114x114.png" />
     <Content Include="public\favicons\apple-icon-120x120.png" />
     <Content Include="public\favicons\apple-icon-144x144.png" />
@@ -72,7 +72,7 @@
     <Content Include="public\imagens\loading-white.gif" />
     <Content Include="public\imagens\loginbg.jpg" />
     <Content Include="public\imagens\user.png" />
-    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.19.min.css" />
+    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.20.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
@@ -123,6 +123,8 @@
     <Content Include="views\formato\listar.ejs" />
     <Content Include="views\curso\alterar.ejs" />
     <Content Include="views\curso\listar.ejs" />
+    <Content Include="views\participante\modal.ejs" />
+    <Content Include="views\participante\login.ejs" />
     <Content Include="views\rodape.ejs" />
     <Content Include="views\shared\erro.ejs" />
     <Content Include="views\profissao\alterar.ejs" />
@@ -165,6 +167,7 @@
     <TypeScriptCompile Include="models\tipoEmpresa.ts" />
     <TypeScriptCompile Include="models\tipoSessao.ts" />
     <TypeScriptCompile Include="models\unidade.ts" />
+    <TypeScriptCompile Include="models\participante.ts" />
     <TypeScriptCompile Include="models\vertical.ts" />
     <TypeScriptCompile Include="models\profissao.ts" />
     <TypeScriptCompile Include="models\usuario.ts" />
@@ -182,6 +185,7 @@
     <TypeScriptCompile Include="routes\api\tipoEmpresa.ts" />
     <TypeScriptCompile Include="routes\api\tipoSessao.ts" />
     <TypeScriptCompile Include="routes\api\unidade.ts" />
+    <TypeScriptCompile Include="routes\api\participante.ts" />
     <TypeScriptCompile Include="routes\api\vertical.ts" />
     <TypeScriptCompile Include="routes\api\usuario.ts" />
     <TypeScriptCompile Include="routes\api\profissao.ts" />
@@ -196,6 +200,7 @@
     <TypeScriptCompile Include="routes\tipoEmpresa.ts" />
     <TypeScriptCompile Include="routes\tipoSessao.ts" />
     <TypeScriptCompile Include="routes\unidade.ts" />
+    <TypeScriptCompile Include="routes\participante.ts" />
     <TypeScriptCompile Include="routes\vertical.ts" />
     <TypeScriptCompile Include="routes\usuario.ts" />
     <TypeScriptCompile Include="routes\home.ts" />
@@ -252,6 +257,7 @@
     <Folder Include="views\formato\" />
     <Folder Include="views\curso\" />
     <Folder Include="views\evt\" />
+    <Folder Include="views\participante\" />
     <Folder Include="views\profissao\" />
     <Folder Include="views\tipoEmpresa\" />
     <Folder Include="views\tipoSessao\" />
