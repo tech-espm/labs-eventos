@@ -26,7 +26,12 @@
 							<label for="senha">Senha</label>
 							<input name="senha" type="password" id="senha" class="form-control" />
 						</div>
-						<input type="submit" value="Entrar" class="btn btn-primary btn-block" />
+						<div class="form-group">
+							<input type="submit" value="Entrar" class="btn btn-primary btn-block" />
+						</div>
+						<div>
+							<button type="button" class="btn btn-outline btn-primary btn-block btn-sm" onclick="esqueciMinhaSenha()">Esqueci minha senha</button>
+						</div>
 						<hr />
 						<a href="<%- loginUrl %>" class="btn btn-outline btn-primary btn-block"><i class="fa fa-lock fa-nomargin"></i>
 							<br />
@@ -108,10 +113,16 @@
 			return;
 		}
 
-
 		modalCadastro.modal({
 			keyboard: false,
 			backdrop: "static"
 		});
+	}
+
+	function esqueciMinhaSenha() {
+		if ($.active)
+			return;
+
+
 	}
 </script>

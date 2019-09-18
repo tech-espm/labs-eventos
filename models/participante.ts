@@ -192,7 +192,7 @@ export = class Participante {
 				if (e.code) {
 					switch (e.code) {
 						case "ER_DUP_ENTRY":
-							r = "Já existe um cadastro com o e-mail \"" + p.email + "\". Se tiver esquecido sua senha, basta clicar em \"Esqueci minha senha\".";
+							r = "Já existe um cadastro com o e-mail \"" + p.email + "\" \uD83D\uDE22. Se tiver esquecido sua senha, basta clicar em \"Esqueci minha senha\".";
 							break;
 						case "ER_NO_REFERENCED_ROW":
 						case "ER_NO_REFERENCED_ROW_2":
