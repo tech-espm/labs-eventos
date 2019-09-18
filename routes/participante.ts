@@ -35,7 +35,7 @@ router.all("/login/:e", wrap(async (req: express.Request, res: express.Response)
 }));
 
 router.all("/modal", wrap(async (req: express.Request, res: express.Response) => {
-	res.render("participante/modal", { layout: "layout-vazio", industrias: JSON.stringify(await Industria.listar()), instrucoes: JSON.stringify(await Instrucao.listar()), profissoes: JSON.stringify(await Profissao.listar()) });
+	res.render("participante/modal", { layout: "layout-vazio", industrias: await Industria.listar(), instrucoes: await Instrucao.listar(), profissoes: await Profissao.listar() });
 }));
 
 router.all("/home", wrap(async (req: express.Request, res: express.Response) => {
