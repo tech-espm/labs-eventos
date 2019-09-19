@@ -7,15 +7,15 @@
 					<input name="email" type="email" id="email" class="form-control text-uppercase" spellcheck="false" value="<%=email %>" />
 				</div>
 				<div class="form-group">
-					<label for="token">Chave de Segurança</label>
+					<label for="token">Chave de segurança</label>
 					<input name="token" type="text" id="token" class="form-control text-uppercase" spellcheck="false" autocomplete="off" value="<%=token %>" />
 				</div>
 				<div class="form-group">
-					<label for="senha">Senha</label>
+					<label for="senha">Nova senha</label>
 					<input name="senha" type="password" id="senha" maxlength="40" class="form-control" />
 				</div>
 				<div class="form-group">
-					<label for="senha2">Senha</label>
+					<label for="senha2">Confirme a nova senha</label>
 					<input name="senha2" type="password" id="senha2" maxlength="40" class="form-control" />
 				</div>
 				<input type="submit" value="Redefinir Senha" class="btn btn-primary btn-block" />
@@ -56,6 +56,8 @@
 			JsonWebApi.postFormData("/api/participante/definirSenha", form, function (response) {
 				if (response.success) {
 					resetForm(form);
+					$("#email").val("");
+					$("#token").val("");
 					Notification.success("Senha redefinida com sucesso! Agora você pode acessar o sistema utilizando sua nova senha! \uD83D\uDE04");
 				} else {
 					Notification.error(response.value, true);

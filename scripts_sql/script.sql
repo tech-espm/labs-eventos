@@ -278,3 +278,15 @@ CREATE TABLE participante (
   CONSTRAINT idinstrucao_FK FOREIGN KEY (idinstrucao) REFERENCES instrucao (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idprofissao_FK FOREIGN KEY (idprofissao) REFERENCES profissao (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
+
+-- DROP TABLE IF EXISTS eventosessaoparticipante;
+CREATE TABLE eventosessaoparticipante (
+  id int NOT NULL AUTO_INCREMENT,
+  ideventosessao int NOT NULL,
+  idparticipante int NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (ideventosessao,idparticipante),
+  KEY idparticipante_FK_idx (idparticipante),
+  CONSTRAINT ideventosessao_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT idparticipante_FK FOREIGN KEY (idparticipante) REFERENCES participante (id) ON DELETE CASCADE ON UPDATE RESTRICT
+);

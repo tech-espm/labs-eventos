@@ -187,12 +187,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 				});
 				return;
 			} else {
-				res.render("shared/erro-fundo", {
-					layout: "layout-externo",
-					imagemFundo: true,
-					titulo: "Evento desabilitado",
-					mensagem: "A página do evento está atualmente desabilitada"
-				});
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Evento desabilitado", mensagem: "A página do evento está atualmente desabilitada" });
 			}
 		} else if (req.path.endsWith("/")) {
 			let url = req.path.substr(0, req.path.length - 1);
@@ -221,19 +216,11 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 	app.use((err: any, req: express.Request, res: express.Response, next) => {
 		res.status(err.status || 500);
 		if (err.status == 404) {
-			res.render("shared/erro-fundo", {
-				layout: "layout-externo",
-				imagemFundo: true,
-				titulo: "Não encontrado"
-			});
+			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Não encontrado" });
 		} else {
-			res.render("shared/erro", {
-				layout: "layout-externo",
-				mensagem: err.message,
-				// Como é um ambiente de desenvolvimento, deixa o objeto do erro
-				// ir para a página, que possivelmente exibirá suas informações
-				erro: err
-			});
+			// Como é um ambiente de desenvolvimento, deixa o objeto do erro
+			// ir para a página, que possivelmente exibirá suas informações
+			res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: err });
 		}
 
 		// Como não estamos chamando next(err) aqui, o tratador
@@ -242,12 +229,8 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 //}
 //app.use((err: any, req: express.Request, res: express.Response, next) => {
 //	res.status(err.status || 500);
-//	res.render("shared/erro", {
-//		layout: "layout-externo",
-//		mensagem: err.message,
-//		// Não envia o objeto do erro para a página
-//		erro: {}
-//	});
+//	// Não envia o objeto do erro para a página
+//	res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: {} });
 //});
 
 app.set("port", process.env.PORT || 3000);

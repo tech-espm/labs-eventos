@@ -1,6 +1,7 @@
 ﻿import Arquivo = require("../infra/arquivo");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
+import Participante = require("./participante");
 import Usuario = require("./usuario");
 
 export = class Evento {
@@ -97,6 +98,44 @@ export = class Evento {
 
 	public static async listarDeUsuarioPorTipo(idusuario: number, admin: boolean): Promise<Evento[]> {
 		return (admin ? Evento.listar() : Evento.listarDeUsuario(idusuario));
+	}
+
+	public static permiteParticipante(ev: Evento, tipoParticipante: number): string {
+		switch (tipoParticipante) {
+			case Participante.TipoAluno:
+				if (ev.permitealuno)
+					return null;
+				break;
+			case Participante.TipoFuncionario:
+				if (ev.permitefuncionario)
+					return null;
+				break;
+			case Participante.TipoExterno:
+				if (ev.permiteexterno)
+					return null;
+				break;
+		}
+
+		let t: string[] = [];
+		if (ev.permitealuno)
+			t.push("alunos");
+
+		if (ev.permitefuncionario)
+			t.push("funcionários");
+
+		if (ev.permiteexterno)
+			t.push("participantes externos");
+
+		let res = "O evento permite apenas ";
+
+		if (t.length === 1)
+			res += t[0];
+		else if (t.length === 2)
+			res += t[0] + " e " + t[1];
+		else
+			res += t[0] + ", " + t[1] + " e " + t[2];
+
+		return res;
 	}
 
 	public static async obter(id: number, idusuario: number = 0, apenasDoUsuario: boolean = false): Promise<Evento> {

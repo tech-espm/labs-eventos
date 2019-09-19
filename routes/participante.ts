@@ -1,18 +1,21 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
+import Evento = require("../models/evento");
 import Industria = require("../models/industria");
 import Instrucao = require("../models/instrucao");
 import Participante = require("../models/participante");
 import Profissao = require("../models/profissao");
+import Sessao = require("../models/sessao");
 import appsettings = require("../appsettings");
 
 const router = express.Router();
 
-router.all("/login/:e", wrap(async (req: express.Request, res: express.Response) => {
+router.all("/login/:e/:s?", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
-	let evt = (req.params["e"] as string || "");
+	let e = req.params["e"] as string;
+	let s = req.params["s"] as string;
 	if (p) {
-		res.redirect("/" + evt);
+		res.redirect((s && parseInt(s)) ? ("/participante/inscricao/" + e + "/" + s) : ("/" + e));
 	} else if (req.body.email || req.body.senha) {
 		let mensagem: string = null;
 
@@ -23,14 +26,46 @@ router.all("/login/:e", wrap(async (req: express.Request, res: express.Response)
 			res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 			// Quando o evento for "home", deve redirecionar o usuário para
 			// a tela de gerenciamento de inscrições e certificados
-			if (evt === "home")
+			if (e === "home")
 				res.redirect("/participante/home");
 			else
-				res.redirect("/" + evt);
+				res.redirect((s && parseInt(s)) ? ("/participante/inscricao/" + e + "/" + s) : ("/" + e));
 		}
 	} else {
-		res.cookie("participanteEvt", evt, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
-		res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, evento: evt, loginUrl: appsettings.loginUrl });
+		res.cookie("participanteEvt", e, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
+		res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, evento: e, loginUrl: appsettings.loginUrl });
+	}
+}));
+
+router.all("/inscricao/:e/:s", wrap(async (req: express.Request, res: express.Response) => {
+	let p = await Participante.cookie(req);
+	let e = req.params["e"] as string;
+	let s = req.params["s"] as string;
+	if (p) {
+		let evt = Evento.idsPorUrl["/" + e];
+		let sid = parseInt(s);
+		let evento: Evento;
+		if (evt && evt.habilitado && sid && sid > 0 &&
+			(evento = await Evento.obter(evt.id))) {
+
+			let r = Evento.permiteParticipante(evento, p.tipo);
+
+			if (r) {
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, mensagem: r });
+				return;
+			}
+
+			r = await Sessao.inscrever(sid, p.id);
+
+			if (r)
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, mensagem: r });
+			else
+				res.render("shared/sucesso-fundo", { layout: "layout-externo", imagemFundo: true, mensagem: "Inscrição efetuada com sucesso" });
+		} else {
+			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, mensagem: "Não foi possível encontrar o evento selecionado" });
+		}
+	} else {
+		res.redirect("/participante/login/" + e + "/" + s);
 	}
 }));
 
@@ -47,7 +82,7 @@ router.all("/home", wrap(async (req: express.Request, res: express.Response) => 
 	if (!p) {
 		res.redirect("/participante/login/home");
 	} else {
-		res.render("participante/home", { participante: p });
+		res.render("participante/home", { layout: "layout-externo", imagemFundo: true, participante: p });
 	}
 }));
 

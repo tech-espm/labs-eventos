@@ -127,6 +127,7 @@
     <Content Include="views\participante\modal.ejs" />
     <Content Include="views\participante\login.ejs" />
     <Content Include="views\rodape.ejs" />
+    <Content Include="views\shared\sucesso-fundo.ejs" />
     <Content Include="views\shared\erro.ejs" />
     <Content Include="views\profissao\alterar.ejs" />
     <Content Include="views\profissao\listar.ejs" />

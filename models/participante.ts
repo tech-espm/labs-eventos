@@ -2,6 +2,7 @@
 import express = require("express");
 // https://www.npmjs.com/package/lru-cache
 import lru = require("lru-cache");
+import nodemailer = require("nodemailer");
 import Sql = require("../infra/sql");
 import Cas = require("../models/cas");
 import GeradorHash = require("../utils/geradorHash");
@@ -234,6 +235,24 @@ export = class Participante {
 			if (!sql.linhasAfetadas)
 				r = "Não foi possível localizar um cadastro com o e-mail fornecido \uD83D\uDE22";
 		});
+
+		if (!r) {
+			let transporter = nodemailer.createTransport(appsettings.mailConfig);
+
+			let link = `https://credenciamento.espm.br/participante/redefinirSenha?e=${encodeURIComponent(email)}&t=${token}`;
+
+			try {
+				await transporter.sendMail({
+					from: appsettings.mailFromRedefinicao,
+					to: email.toLowerCase(),
+					subject: "Redefinição de Senha - Credenciamento ESPM",
+					text: `Olá!\n\nVocê está recebendo essa mensagem porque pediu para redefinir sua senha.\n\nPara isso, por favor, basta acessar o endereço abaixo a partir de seu browser:\n\n${link}\n\nCaso não tenha pedido para redefinir sua senha, por favor, desconsidere essa mensagem.\n\nAté breve!\n\nTenha um excelente evento :)`,
+					html: `<p>Olá!</p><p>Você está recebendo essa mensagem porque pediu para redefinir sua senha.</p><p>Para isso, por favor, basta acessar o endereço abaixo a partir de seu browser:</p><p><a target="_blank" href="${link}">${link}</a></p><p>Caso não tenha pedido para redefinir sua senha, por favor, desconsidere essa mensagem.</p><p>Até breve!</p><p>Tenha um excelente evento :)</p>`
+				});
+			} catch (ex) {
+				r = "Falha ao enviar o e-mail com as instruções de redefinição de senha. Por favor, tente novamente mais tarde \uD83D\uDE22";
+			}
+		}
 
 		return r;
 	}
