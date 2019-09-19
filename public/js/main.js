@@ -3,6 +3,14 @@
 window.isEmpty = function (x) {
 	return (x === undefined || x === null);
 };
+window.isEmail = function (x) {
+	var email = trim(x),
+		at = email.indexOf('@'),
+		at2 = email.lastIndexOf('@'),
+		dot = email.lastIndexOf('.');
+
+	return (at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
+};
 window.seal$ = function (obj) {
 	if (Object.seal)
 		Object.seal(obj);

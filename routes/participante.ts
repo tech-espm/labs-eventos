@@ -18,7 +18,7 @@ router.all("/login/:e", wrap(async (req: express.Request, res: express.Response)
 
 		[mensagem, p] = await Participante.efetuarLogin(req.body.email as string, req.body.senha as string, null, res);
 		if (mensagem) {
-			res.render("participante/login", { layout: "layout-externo", mensagem: mensagem, loginUrl: appsettings.loginUrl });
+			res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginUrl });
 		} else {
 			res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 			// Quando o evento for "home", deve redirecionar o usuário para
@@ -30,8 +30,12 @@ router.all("/login/:e", wrap(async (req: express.Request, res: express.Response)
 		}
 	} else {
 		res.cookie("participanteEvt", evt, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
-		res.render("participante/login", { layout: "layout-externo", mensagem: null, evento: evt, loginUrl: appsettings.loginUrl });
+		res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, evento: evt, loginUrl: appsettings.loginUrl });
 	}
+}));
+
+router.all("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {
+	res.render("participante/redefinirSenha", { layout: "layout-externo", imagemFundo: true, email: (req.query["e"] || ""), token: (req.query["t"] || "") });
 }));
 
 router.all("/modal", wrap(async (req: express.Request, res: express.Response) => {

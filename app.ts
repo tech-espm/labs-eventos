@@ -189,6 +189,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 			} else {
 				res.render("shared/erro-fundo", {
 					layout: "layout-externo",
+					imagemFundo: true,
 					titulo: "Evento desabilitado",
 					mensagem: "A página do evento está atualmente desabilitada"
 				});
@@ -222,6 +223,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 		if (err.status == 404) {
 			res.render("shared/erro-fundo", {
 				layout: "layout-externo",
+				imagemFundo: true,
 				titulo: "Não encontrado"
 			});
 		} else {

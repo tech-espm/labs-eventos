@@ -27,4 +27,16 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	jsonRes(res, 400, p ? await Participante.criar(p, null, res) : "Dados inválidos");
 }));
 
+router.get("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {
+	let email = req.query["email"];
+	jsonRes(res, 400, email ? await Participante.redefinirSenha(email) : "Dados inválidos");
+}));
+
+router.post("/definirSenha", wrap(async (req: express.Request, res: express.Response) => {
+	let email = req.body["email"];
+	let token = req.body["token"];
+	let senha = req.body["senha"];
+	jsonRes(res, 400, (email && token && senha) ? await Participante.definirSenha(email, token, senha) : "Dados inválidos");
+}));
+
 export = router;

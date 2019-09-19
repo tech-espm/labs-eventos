@@ -123,6 +123,7 @@
     <Content Include="views\formato\listar.ejs" />
     <Content Include="views\curso\alterar.ejs" />
     <Content Include="views\curso\listar.ejs" />
+    <Content Include="views\participante\redefinirSenha.ejs" />
     <Content Include="views\participante\modal.ejs" />
     <Content Include="views\participante\login.ejs" />
     <Content Include="views\rodape.ejs" />

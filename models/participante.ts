@@ -218,4 +218,47 @@ export = class Participante {
 
 		return r;
 	}
+
+	public static async redefinirSenha(email: string): Promise<string> {
+		if (!(email = (email || "").normalize().trim().toUpperCase()))
+			return "E-mail inválido";
+
+		if (email.endsWith("@ESPM.BR") || email.endsWith("@ACAD.ESPM.BR"))
+			return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
+
+		let r: string = null;
+		let token = randomBytes(32).toString("hex").toUpperCase();
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update participante set data_reset_senha = now(), token_reset_senha = ? where email = ?", [token, email]);
+			if (!sql.linhasAfetadas)
+				r = "Não foi possível localizar um cadastro com o e-mail fornecido \uD83D\uDE22";
+		});
+
+		return r;
+	}
+
+	public static async definirSenha(email: string, token: string, senha: string): Promise<string> {
+		if (!(email = (email || "").normalize().trim().toUpperCase()))
+			return "E-mail inválido";
+		if (!(token = (token || "").normalize().trim().toUpperCase()) ||
+			token.length !== 64)
+			return "Chave de segurança inválida";
+		senha = (senha || "").normalize();
+		if (senha.length < 4 || senha.length > 40)
+			return "Senha inválida";
+
+		if (email.endsWith("@ESPM.BR") || email.endsWith("@ACAD.ESPM.BR"))
+			return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
+
+		let r: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update participante set data_reset_senha = null, token_reset_senha = null, token = null, senha = ? where email = ? and token_reset_senha = ?", [await GeradorHash.criarHash(senha), email, token]);
+			if (!sql.linhasAfetadas)
+				r = "E-mail ou chave de segurança inválidos \uD83D\uDE22";
+		});
+
+		return r;
+	}
 }

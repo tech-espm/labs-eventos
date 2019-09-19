@@ -77,6 +77,8 @@
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
+	//<![CDATA[
+	"use strict";
 
 	$.fn.dataTable.ext.type.order["customtime-pre"] = function (d) {
 		if (!d)
@@ -369,4 +371,6 @@
 	prepararAba("#a-sessoes", "#tab-sessoes", "/evento/controlar-sessoes");
 	prepararAba("#a-arquivos", "#tab-arquivos", "/evento/controlar-arquivos");
 	prepararAba("#a-landing-page", "#tab-landing-page", "/evento/controlar-landing-page");
+
+	//]]>
 </script>

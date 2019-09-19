@@ -22,7 +22,7 @@ router.all("/login", wrap(async (req: express.Request, res: express.Response) =>
 			let p: Participante;
 			[mensagem, p] = await Participante.efetuarLogin(null, null, cas, res);
 			if (mensagem) {
-				res.render("participante/login", { layout: "layout-externo", mensagem: `Ocorreu um erro ao tentar cadastrar o usuário ${cas.emailAcademico.toUpperCase()} como participante no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, evento: evt, loginUrl: appsettings.loginUrl + evt });
+				res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: `Ocorreu um erro ao tentar cadastrar o usuário ${cas.emailAcademico.toUpperCase()} como participante no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, evento: evt, loginUrl: appsettings.loginUrl + evt });
 			} else {
 				res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 				// Quando o evento for "home", deve redirecionar o usuário para
@@ -33,18 +33,18 @@ router.all("/login", wrap(async (req: express.Request, res: express.Response) =>
 					res.redirect("/" + evt);
 			}
 		} else {
-			res.render("participante/login", { layout: "layout-externo", mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), evento: evt, loginUrl: appsettings.loginUrl + evt });
+			res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), evento: evt, loginUrl: appsettings.loginUrl + evt });
 		}
 	} else {
 		if (cas) {
 			let u: Usuario;
 			[mensagem, u] = await Usuario.efetuarLogin(null, null, cas, res);
 			if (mensagem)
-				res.render("home/login", { layout: "layout-externo", mensagem: `O usuário ${cas.emailAcademico.toUpperCase()} não está cadstrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
+				res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: `O usuário ${cas.emailAcademico.toUpperCase()} não está cadstrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
 			else
 				res.redirect("/");
 		} else {
-			res.render("home/login", { layout: "layout-externo", mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), loginUrl: appsettings.loginUrl });
+			res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), loginUrl: appsettings.loginUrl });
 		}
 	}
 }));

@@ -43,34 +43,13 @@
 	</div>
 </form>
 
-<%- contentFor("styles") %>
-<style type="text/css">
-	html {
-		min-height: 100%;
-		height: 100%;
-	}
-
-	body {
-		background-image: url(/imagens/loginbg.jpg);
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center;
-		background-attachment: fixed;
-		min-height: 100%;
-	}
-
-	.panel {
-		-webkit-box-shadow: 0 2px 8px rgba(0,0,0,.5);
-		box-shadow: 0 2px 8px rgba(0,0,0,.5);
-	}
-
-	.btn {
-		white-space: normal;
-	}
-</style>
-
 <%- contentFor("scripts") %>
 <script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	var formSubmit = false;
+
 	$("#form").validate({
 		rules: {
 			email: {
@@ -80,13 +59,23 @@
 			senha: {
 				required: true
 			}
+		},
+		submitHandler: function (form) {
+			if (formSubmit || $.active || JsonWebApi.active)
+				return;
+
+			formSubmit = true;
+
+			Notification.wait();
+
+			form.submit();
 		}
 	});
 
 	var modalCadastro = null;
 
 	function mostrarModalCadastro() {
-		if ($.active)
+		if (formSubmit || $.active || JsonWebApi.active)
 			return;
 
 		if (!modalCadastro) {
@@ -120,9 +109,24 @@
 	}
 
 	function esqueciMinhaSenha() {
-		if ($.active)
+		if (formSubmit || $.active || JsonWebApi.active)
 			return;
 
+		var email;
+		if (!isEmail(email = $("#email").val())) {
+			Notification.error("Por favor, insira um e-mail válido para prosseguir \uD83D\uDE22", true);
+			return;
+		}
 
+		Notification.wait();
+
+		JsonWebApi.get("/api/participante/redefinirSenha", function (response) {
+			if (response.success)
+				Notification.success("As instruções para redefinir sua senha foram encaminhadas para seu e-mail! \uD83D\uDE04");
+			else
+				Notification.error(response.value, true);
+		}, "email", email);
 	}
+
+	//]]>
 </script>
