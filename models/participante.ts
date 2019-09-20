@@ -220,6 +220,16 @@ export = class Participante {
 		return r;
 	}
 
+	public static async listarEventos(p: Participante): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, (select ((d.ano * 100) + d.mes) data from eventodata d where d.idevento = e.id limit 1) data from (select distinct s.idevento from eventosessaoparticipante p inner join eventosessao s on s.id = p.ideventosessao where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
+		});
+
+		return (lista || []);
+	}
+
 	public static async redefinirSenha(email: string): Promise<string> {
 		if (!(email = (email || "").normalize().trim().toUpperCase()))
 			return "E-mail inválido";

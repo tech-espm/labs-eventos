@@ -1,0 +1,24 @@
+﻿<div class="row">
+	<div class="col-lg-12" id="content">
+		<div class="painel-msg">
+			<div class="panel panel-default no-margin-bottom">
+				<div class="panel-body">
+					<h1>
+						<%=((typeof mensagem === "undefined" || !mensagem) ? "A página que você está tentando acessar não foi encontrada" : mensagem) %>
+						<%=((typeof sucesso === "undefined" || !sucesso) ? "\uD83D\uDE22" : "\uD83D\uDE04") %>
+					</h1>
+					<% if (typeof ocultarBotao === "undefined" || !ocultarBotao) { %>
+					<a href="/participante" class="btn btn-outline btn-default btn-lg"><i class="fa fa-bullhorn"></i> Meus Eventos</a>
+					<% } %>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.panel {
+		background-color: rgba(255,255,255,0.85);
+	}
+</style>

@@ -106,7 +106,9 @@
     <Content Include="views\home\acesso.ejs" />
     <Content Include="views\evento\alterar.ejs" />
     <Content Include="views\evento\listar.ejs" />
+    <Content Include="views\layout-participante.ejs" />
     <Content Include="views\layout-vazio.ejs" />
+    <Content Include="views\navbar-participante.ejs" />
     <Content Include="views\navbar.ejs" />
     <Content Include="views\cabecalho.ejs" />
     <Content Include="views\home\login.ejs" />
@@ -123,6 +125,9 @@
     <Content Include="views\formato\listar.ejs" />
     <Content Include="views\curso\alterar.ejs" />
     <Content Include="views\curso\listar.ejs" />
+    <Content Include="views\participante\qr.ejs" />
+    <Content Include="views\participante\mensagem.ejs" />
+    <Content Include="views\participante\home.ejs" />
     <Content Include="views\participante\redefinirSenha.ejs" />
     <Content Include="views\participante\modal.ejs" />
     <Content Include="views\participante\login.ejs" />
@@ -223,6 +228,8 @@
     <Folder Include="public\lib\metis-menu\js\" />
     <Folder Include="public\evt\" />
     <Folder Include="public\favicons\" />
+    <Folder Include="public\lib\qrcodejs\" />
+    <Folder Include="public\lib\qrcodejs\js\" />
     <Folder Include="scripts_sql\" />
     <Folder Include="utils\" />
     <Folder Include="public\" />
@@ -280,6 +287,7 @@
     <Compile Include="public\lib\jquery-validate\js\messages_pt_BR.min.js" />
     <Compile Include="public\lib\jquery\js\jquery-1.0.1.min.js" />
     <Compile Include="public\lib\metis-menu\js\metis-menu-1.0.1.min.js" />
+    <Compile Include="public\lib\qrcodejs\js\qrcode-1.0.0.min.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

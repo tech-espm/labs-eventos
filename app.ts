@@ -185,10 +185,10 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 					layout: "layout-vazio",
 					participante: await Participante.cookie(req)
 				});
-				return;
 			} else {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Evento desabilitado", mensagem: "A página do evento está atualmente desabilitada" });
 			}
+			return;
 		} else if (req.path.endsWith("/")) {
 			let url = req.path.substr(0, req.path.length - 1);
 			evento = Evento.idsPorUrl[url];

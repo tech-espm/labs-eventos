@@ -128,7 +128,16 @@
 			<div class="modal-body">
 				<p>
 					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Essa operação <b class="col-h">NÃO</b> pode ser desfeita!
+					<br />
+					<b class="col-h">Se houverem inscritos na sessão, suas inscrições também serão excluídas!</b>
 				</p>
+				<p>
+					Para confirmar a exclusão, por favor, digite abaixo o nome da sessão conforme exibido acima:
+				</p>
+				<div class="form-group">
+					<label for="txtModalExcluirSessao">Nome da sessão</label>
+					<input type="text" class="form-control upper" spellcheck="false" autocomplete="off" id="txtModalExcluirSessao" />
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" onclick="excluirSessao()"><i class="fa fa-check"></i> Excluir</button>
@@ -257,10 +266,12 @@
 			if (JsonWebApi.active)
 				return;
 
-			var data = tabela.row(trClicada = this.parentNode.parentNode).data();
+			var sessao = tabela.row(trClicada = this.parentNode.parentNode).data();
 
 			if (this.getAttribute("data-excluir")) {
-				$("#lblExcluirSessao").text(data.nome);
+				$("#lblExcluirSessao").text(sessao.nome);
+
+				$("#txtModalExcluirSessao").val("");
 
 				$("#modalExcluirSessao").modal({
 					backdrop: "static",
@@ -422,17 +433,23 @@
 			if (JsonWebApi.active || !trClicada)
 				return;
 
-			$("#modalExcluirSessao").modal("hide");
+			var sessao = tabela.row(trClicada).data();
 
-			var data = tabela.row(trClicada).data();
+			var nome = $("#txtModalExcluirSessao").val().toUpperCase();
+			if (nome !== sessao.nome.toUpperCase()) {
+				Notification.error("O nome da sessão não confere", true);
+				return;
+			}
+
+			$("#modalExcluirSessao").modal("hide");
 
 			Notification.wait();
 
 			JsonWebApi.get("/api/sessao/excluir", function (response) {
 				if (response.success) {
-					delete eventoSessoesPorId[data.id];
+					delete eventoSessoesPorId[sessao.id];
 					for (var i = eventoSessoes.length - 1; i >= 0; i--) {
-						if (eventoSessoes[i].id === data.id) {
+						if (eventoSessoes[i].id === sessao.id) {
 							eventoSessoes.splice(i, 1);
 							break;
 						}
@@ -443,7 +460,7 @@
 					Notification.error(response.value, true);
 				}
 				trClicada = null;
-			}, "id", data.id);
+			}, "id", sessao.id);
 		};
 	});
 

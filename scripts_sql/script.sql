@@ -284,6 +284,7 @@ CREATE TABLE eventosessaoparticipante (
   id int NOT NULL AUTO_INCREMENT,
   ideventosessao int NOT NULL,
   idparticipante int NOT NULL,
+  presente tinyint(4) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (ideventosessao,idparticipante),
   KEY idparticipante_FK_idx (idparticipante),

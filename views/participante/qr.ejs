@@ -1,0 +1,39 @@
+﻿
+<div class="text-center">
+	<h1>Credenciamento ESPM</h1>
+	<div id="qrcode"></div>
+	<h2>Apresente este código para acessar as sessões dos eventos.</h2>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	body {
+		background-color: #fff;
+	}
+
+	#qrcode > img {
+		display: block;
+		margin: 30px auto 30px;
+		width: 250px;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript" src="/lib/qrcodejs/js/qrcode-1.0.0.min.js"></script>
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	new QRCode("qrcode", {
+		text: "<%- participante.id %>",
+		width: 500,
+		height: 500,
+		colorDark: "#000000",
+		colorLight: "#ffffff",
+		correctLevel: QRCode.CorrectLevel.H
+	});
+
+	$("#qrcode").attr("title", "");
+
+	//]]>
+</script>
