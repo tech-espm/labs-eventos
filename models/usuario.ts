@@ -6,6 +6,7 @@ import Sql = require("../infra/sql");
 import Cas = require("../models/cas");
 import GeradorHash = require("../utils/geradorHash");
 import appsettings = require("../appsettings");
+import intToHex = require("../utils/intToHex");
 
 export = class Usuario {
 	private static readonly cacheUsuarioLogados = lru(100);
@@ -103,10 +104,10 @@ export = class Usuario {
 	}
 
 	private static gerarTokenCookie(id: number, idevento_logado: number): [string, string] {
-		let idStr = "0000000" + (id ^ Usuario.HashId).toString(16);
-		let idEventoLogadoStr = "0000000" + (idevento_logado ^ Usuario.HashIdEvento).toString(16);
+		let idStr = intToHex(id ^ Usuario.HashId);
+		let idEventoLogadoStr = intToHex(idevento_logado ^ Usuario.HashIdEvento);
 		let token = randomBytes(16).toString("hex");
-		let cookieStr = idStr.substring(idStr.length - 8) + idEventoLogadoStr.substring(idEventoLogadoStr.length - 8) + token;
+		let cookieStr = idStr + idEventoLogadoStr + token;
 		return [token, cookieStr];
 	}
 

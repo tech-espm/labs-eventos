@@ -71,6 +71,7 @@
     <Content Include="public\imagens\loading-grey.gif" />
     <Content Include="public\imagens\loading-white.gif" />
     <Content Include="public\imagens\loginbg.jpg" />
+    <Content Include="public\imagens\logo.png" />
     <Content Include="public\imagens\user.png" />
     <Content Include="public\lib\bootstrap\css\bootstrap-1.0.20.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
@@ -125,6 +126,7 @@
     <Content Include="views\formato\listar.ejs" />
     <Content Include="views\curso\alterar.ejs" />
     <Content Include="views\curso\listar.ejs" />
+    <Content Include="views\participante\certificado.ejs" />
     <Content Include="views\participante\qr.ejs" />
     <Content Include="views\participante\mensagem.ejs" />
     <Content Include="views\participante\home.ejs" />
@@ -215,6 +217,7 @@
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="appsettings.ts" />
+    <TypeScriptCompile Include="utils\intToHex.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="models\" />

@@ -97,6 +97,30 @@ router.all("/qr", wrap(async (req: express.Request, res: express.Response) => {
 		res.render("participante/qr", { layout: "layout-externo", titulo: "Código QR", participante: p });
 }));
 
+router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let idcertificado = req.params["i"] as string;
+	let ids = Participante.idCertificadoParaIdParticipante(idcertificado);
+	if (!ids) {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Código de certificado inválido" });
+	} else {
+		let participante = await Participante.obter(ids[0]);
+		if (!participante) {
+			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Participante não encontrado" });
+		} else {
+			let evento = await Evento.obter(ids[1]);
+			if (!evento) {
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Evento não encontrado" });
+			} else {
+				let presencas = await Participante.listarPresencas(ids[0], ids[1]);
+				if (!presencas || !presencas.length)
+					res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "O participante não possui presenças no evento " + evento.nome });
+				else
+					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: true, titulo: "Certificado de Participação", participante: participante, evento: evento, idcertificado: idcertificado, presencas: JSON.stringify(presencas) });
+			}
+		}
+	}
+}));
+
 router.all("/logout", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
 	if (p)

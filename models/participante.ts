@@ -7,10 +7,13 @@ import Sql = require("../infra/sql");
 import Cas = require("../models/cas");
 import GeradorHash = require("../utils/geradorHash");
 import appsettings = require("../appsettings");
+import intToHex = require("../utils/intToHex");
 
 export = class Participante {
 	// Não utilizar números > 0x7FFFFFFF, pois os XOR resultarão em -1
 	private static readonly HashId = 0x1a4ed863;
+	private static readonly HashIdParticipante = 0x397ef9ef;
+	private static readonly HashIdEvento = 0x2e6f23e2;
 
 	public static readonly TipoAluno = 1;
 	public static readonly TipoFuncionario = 2;
@@ -27,6 +30,22 @@ export = class Participante {
 
 	// Utilizado apenas durante a criação
 	public senha: string;
+
+	public static idParticipanteParaIdCertificado(idparticipante: number, idevento: number): string {
+		return intToHex(idparticipante ^ Participante.HashIdParticipante) +
+			intToHex(idevento ^ Participante.HashIdEvento);
+	}
+
+	public static idCertificadoParaIdParticipante(idcertificado: string): [number, number] {
+		if (!idcertificado || idcertificado.length !== 16)
+			return null;
+		let idparticipante = parseInt(idcertificado.substring(0, 8), 16);
+		let idevento = parseInt(idcertificado.substring(8), 16);
+		if (isNaN(idparticipante) || idparticipante < 0 ||
+			isNaN(idevento) || idevento < 0)
+			return null;
+		return [idparticipante ^ Participante.HashIdParticipante, idevento ^ Participante.HashIdEvento];
+	}
 
 	public static async cookie(req: express.Request, res: express.Response = null): Promise<Participante> {
 		let cookieStr = req.cookies["participante"] as string;
@@ -64,9 +83,9 @@ export = class Participante {
 	}
 
 	private static gerarTokenCookie(id: number): [string, string] {
-		let idStr = "0000000" + (id ^ Participante.HashId).toString(16);
+		let idStr = intToHex(id ^ Participante.HashId);
 		let token = randomBytes(16).toString("hex");
-		let cookieStr = idStr.substring(idStr.length - 8) + token;
+		let cookieStr = idStr + token;
 		return [token, cookieStr];
 	}
 
@@ -173,6 +192,16 @@ export = class Participante {
 		return null;
 	}
 
+	public static async obter(id: number): Promise<Participante> {
+		let lista: Participante[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select id, nome, login, email, tipo, idindustria, idinstrucao, idprofissao from participante where id = " + id) as Participante[];
+		});
+
+		return ((lista && lista[0]) || null);
+	}
+
 	public static async criar(p: Participante, cas: Cas, res: express.Response = null): Promise<string> {
 		let r: string;
 		if (cas) {
@@ -225,6 +254,19 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, (select ((d.ano * 100) + d.mes) data from eventodata d where d.idevento = e.id limit 1) data from (select distinct s.idevento from eventosessaoparticipante p inner join eventosessao s on s.id = p.ideventosessao where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
+
+			for (let i = lista.length - 1; i >= 0; i--)
+				lista[i].idcertificado = Participante.idParticipanteParaIdCertificado(p.id, lista[i].id);
+		});
+
+		return (lista || []);
+	}
+
+	public static async listarPresencas(idparticipante: number, idevento: number): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select s.nome, d.ano, d.mes, d.dia, h.inicio, h.termino, h.ordem from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.presente = 1");
 		});
 
 		return (lista || []);
