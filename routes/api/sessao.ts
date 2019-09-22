@@ -35,6 +35,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		s.idformato = parseInt(req.body.idformato);
 		s.idtiposessao = parseInt(req.body.idtiposessao);
 		s.idvertical = parseInt(req.body.idvertical);
+		s.ocultar = parseInt(req.body.ocultar);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
@@ -59,6 +60,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		s.idformato = parseInt(req.body.idformato);
 		s.idtiposessao = parseInt(req.body.idtiposessao);
 		s.idvertical = parseInt(req.body.idvertical);
+		s.ocultar = parseInt(req.body.ocultar);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)

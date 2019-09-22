@@ -28,6 +28,20 @@
 					<label for="txtPalestranteNomeCurto">Nome Curto</label>
 					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
 				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label for="cbPalestranteOcultar">Ocultar</label>
+							<select id="cbPalestranteOcultar" name="cbPalestranteOcultar" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label for="txtPalestrantePrioridade">Prioridade</label>
+							<input id="txtPalestrantePrioridade" name="txtPalestrantePrioridade" class="form-control upper" type="number" min="-100" max="100" />
+						</div>
+					</div>
+				</div>
 				<div class="form-group">
 					<label for="cbPalestranteEmpresa">Empresa</label>
 					<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
@@ -121,6 +135,8 @@
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome Curto", data: "nome_curto" },
+				{ title: "Ocultar", "class": "col-min text-center", data: "ocultar", render: function (v, type, row) { return (v ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
@@ -162,6 +178,8 @@
 
 				$("#txtPalestranteNome").val(palestrante.nome);
 				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
+				$("#cbPalestranteOcultar").val(palestrante.ocultar);
+				$("#txtPalestrantePrioridade").val(palestrante.prioridade);
 				$("#txtPalestranteCargo").val(palestrante.cargo);
 				$("#txtPalestranteUrlSite").val(palestrante.url_site);
 				$("#txtPalestranteUrlTwitter").val(palestrante.url_twitter);
@@ -188,6 +206,14 @@
 				txtPalestranteNomeCurto: {
 					required: true,
 					maxlength: 45
+				},
+				cbPalestranteOcultar: {
+					required: true
+				},
+				txtPalestrantePrioridade: {
+					number: true,
+					min: -100,
+					max: 100
 				},
 				cbPalestranteEmpresa: {
 					required: true,
@@ -238,6 +264,8 @@
 					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).toUpperCase(),
 					nome: trim($("#txtPalestranteNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
+					ocultar: parseInt($("#cbPalestranteOcultar").val()),
+					prioridade: (parseInt($("#txtPalestrantePrioridade").val()) || 0),
 					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
 					url_site: trim($("#txtPalestranteUrlSite").val()),
 					url_twitter: trim($("#txtPalestranteUrlTwitter").val()),
@@ -256,6 +284,8 @@
 				formData.append("idempresa", p.idempresa);
 				formData.append("nome", p.nome);
 				formData.append("nome_curto", p.nome_curto);
+				formData.append("ocultar", p.ocultar);
+				formData.append("prioridade", p.prioridade);
 				formData.append("cargo", p.cargo);
 				formData.append("url_site", p.url_site);
 				formData.append("url_twitter", p.url_twitter);
@@ -279,6 +309,8 @@
 								palestrante.nome_empresa = p.nome_empresa;
 								palestrante.nome = p.nome;
 								palestrante.nome_curto = p.nome_curto;
+								palestrante.ocultar = p.ocultar;
+								palestrante.prioridade = p.prioridade;
 								palestrante.cargo = p.cargo;
 								palestrante.url_site = p.url_site;
 								palestrante.url_twitter = p.url_twitter;

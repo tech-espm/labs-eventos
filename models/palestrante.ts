@@ -12,6 +12,8 @@ export = class Palestrante {
 	public idempresa: number;
 	public nome: string;
 	public nome_curto: string;
+	public ocultar: number;
+	public prioridade: number;
 	public cargo: string;
 	public url_site: string;
 	public url_twitter: string;
@@ -48,6 +50,14 @@ export = class Palestrante {
 		p.nome_curto = (p.nome_curto || "").normalize().trim().toUpperCase();
 		if (p.nome_curto.length < 1 || p.nome_curto.length > 45)
 			return "Nome curto inválido";
+		if (isNaN(p.ocultar) || p.ocultar < 0 || p.ocultar > 1)
+			p.ocultar = 0;
+		if (isNaN(p.prioridade))
+			p.prioridade = 0;
+		else if (p.prioridade < -100)
+			p.prioridade = -100;
+		else if (p.prioridade > 100)
+			p.prioridade = 100;
 		p.cargo = (p.cargo || "").normalize().trim().toUpperCase();
 		if (p.cargo.length < 1 || p.cargo.length > 45)
 			return "Cargo inválido";
@@ -78,7 +88,7 @@ export = class Palestrante {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.ocultar, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
 		});
 
 		return (lista || []);
@@ -88,7 +98,7 @@ export = class Palestrante {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.ocultar, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -103,7 +113,7 @@ export = class Palestrante {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
+				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, ocultar, prioridade, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.ocultar, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 
 				// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -147,7 +157,7 @@ export = class Palestrante {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
+				await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, ocultar = ?, prioridade = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.ocultar, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
 
 				if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
 					// Chegando aqui, significa que a inclusão foi bem sucedida.

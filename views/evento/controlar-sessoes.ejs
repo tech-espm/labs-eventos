@@ -43,13 +43,19 @@
 					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control upper" maxlength="100" />
 				</div>
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="txtSessaoNomeCurto">Nome Curto</label>
 							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control upper" maxlength="45" />
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="cbSessaoOcultar">Ocultar</label>
+							<select id="cbSessaoOcultar" name="cbSessaoOcultar" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+						</div>
+					</div>
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="cbSessaoCurso">Curso Âncora</label>
 							<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
@@ -178,6 +184,7 @@
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
 				{ title: "Nome", render: encode, data: "nome" },
+				{ title: "Ocultar", "class": "col-min text-center", data: "ocultar", render: function (v, type, row) { return (v ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
@@ -244,6 +251,7 @@
 			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
+			$("#cbSessaoOcultar").val(sessao ? sessao.ocultar : "0");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
 			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
@@ -330,6 +338,9 @@
 					minlength: 3,
 					maxlength: 45
 				},
+				cbSessaoOcultar: {
+					required: true
+				},
 				cbSessaoCurso: {
 					required: true
 				},
@@ -359,6 +370,7 @@
 					ideventolocal: parseInt($("#cbSessaoLocal").val()),
 					nome: trim($("#txtSessaoNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtSessaoNomeCurto").val()).toUpperCase(),
+					ocultar: parseInt($("#cbSessaoOcultar").val()),
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
@@ -381,6 +393,7 @@
 							sessao.ideventolocal = s.ideventolocal;
 							sessao.nome = s.nome;
 							sessao.nome_curto = s.nome_curto;
+							sessao.ocultar = s.ocultar;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;
 							sessao.idtiposessao = s.idtiposessao;

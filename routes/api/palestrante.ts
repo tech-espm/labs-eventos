@@ -29,6 +29,8 @@ router.post("/criar", multer().single("imagem"), wrap(async (req: express.Reques
 	let p = req.body as Palestrante;
 	if (p) {
 		p.idevento = u.idevento_logado;
+		p.ocultar = parseInt(req.body.ocultar);
+		p.prioridade = parseInt(req.body.prioridade);
 		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
 	}
@@ -42,6 +44,8 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 	let p = req.body as Palestrante;
 	if (p) {
 		p.id = parseInt(req.body.id);
+		p.ocultar = parseInt(req.body.ocultar);
+		p.prioridade = parseInt(req.body.prioridade);
 		p.idevento = u.idevento_logado;
 		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
