@@ -7,7 +7,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="btnModalFechar"><span aria-hidden="true">&times;</span></button>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">Código QR</h4>
 			</div>
 			<div class="modal-body text-center">
@@ -23,6 +23,21 @@
 	</div>
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalInscricoes">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Minhas Inscrições</h4>
+			</div>
+			<div class="modal-body" id="contentInscricoes"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <%- contentFor("styles") %>
 <style type="text/css">
 	.panel {
@@ -30,7 +45,13 @@
 	}
 
 	.panel-body {
+		border-radius: 4px;
 		background-color: #fff;
+	}
+
+	.panel-body-titulo {
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
 	}
 
 	.panel-default > .panel-heading {
@@ -42,11 +63,24 @@
 			font-size: 40px;
 		}
 
+	.titulo-inscricao {
+		font-size: 20px;
+		margin: 0 0 15px;
+	}
+
+		.titulo-inscricao::first-letter {
+			font-size: 30px;
+		}
+
 	#qrcode > img {
 		display: block;
 		margin: 15px auto 30px;
 		width: 100%;
 		max-width: 200px;
+	}
+
+	#contentInscricoes hr {
+		margin: 40px 0;
 	}
 </style>
 
@@ -59,6 +93,9 @@
 	var eventos = <%- eventos %>, qrcode = null;
 
 	function mostrarQR() {
+		if (JsonWebApi.active)
+			return;
+
 		if (!qrcode) {
 			qrcode = new QRCode("qrcode", {
 				text: "<%- participante.id %>",
@@ -77,6 +114,63 @@
 		});
 	}
 
+	function mostrarEvento(idevento) {
+		if (JsonWebApi.active)
+			return;
+
+		Notification.wait();
+
+		JsonWebApi.get("/api/participante/listarInscricoes", function (response) {
+			if (response.success) {
+				Notification.hide();
+
+				var i, inscricao, inscricoes = response.value, html = "";
+
+				if (!inscricoes || !inscricoes.length) {
+					html = '<div class="text-center">Não foram encontradas inscrições para esse evento \uD83D\uDE22</div>';
+				} else {
+					inscricoes.sort(function (a, b) {
+						if (a.ano !== b.ano)
+							return a.ano - b.ano;
+						if (a.mes !== b.mes)
+							return a.mes - b.mes;
+						if (a.dia !== b.dia)
+							return a.dia - b.dia;
+						if (a.ordem !== b.ordem)
+							return a.ordem - b.ordem;
+						return ((a.nome < b.nome) ? -1 : 1);
+					});
+
+					for (i = 0; i < inscricoes.length; i++) {
+						inscricao = inscricoes[i];
+
+						if (i)
+							html += "<hr />";
+
+						if (inscricao.presente)
+							html += '<h3 class="col-h2 titulo-inscricao">' + inscricao.nome + ' <small class="col-h2">(<i>Presença Marcada</i> <i class="fa fa-check fa-nomargin"></i>)</small></h3>';
+						else
+							html += '<h3 class="titulo-inscricao">' + inscricao.nome + '</h3>';
+
+						html += '<p class="text-right"><i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
+						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
+						html += '<div><i class="fa fa-map-marker"></i>Sala/Auditório: ' + inscricao.nome_local + '</div>';
+
+					}
+				}
+
+				$("#contentInscricoes").html(html);
+
+				$("#modalInscricoes").modal({
+					backdrop: "static",
+					keyboard: false
+				});
+			} else {
+				Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+			}
+		}, "idevento", idevento);
+	}
+
 	(function () {
 		var i, evento, html = '<div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-body"><button type="button" onclick="mostrarQR()" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-qrcode"></i> Código QR para presença</button></div></div></div></div>';
 
@@ -93,8 +187,8 @@
 			html += '<div class="';
 			// A última coluna de uma lista com quantidade ímpar deve ocupar todo o espaço
 			html += ((i === (eventos.length - 1) && (eventos.length & 1)) ? "col-lg-12" : "col-sm-6");
-			html += '"><div class="panel panel-default"><div class="panel-heading">' + encode(evento.nome) + '</div><div class="panel-body no-bottom">';
-			html += '<h4 class="text-right"><i class="fa fa-calendar"></i> ' + evento.data + '</h4>';
+			html += '"><div class="panel panel-default"><div class="panel-heading">' + encode(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
+			html += '<h4 class="text-right"><i class="fa fa-calendar"></i>' + evento.data + '</h4>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i> Certificado</a></div>';
 			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i> Minhas inscrições</button></div>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/' + evento.url + '" target="_blank"><i class="fa fa-external-link"></i> Página do evento</a></div>';

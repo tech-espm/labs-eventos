@@ -27,6 +27,15 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	jsonRes(res, 400, p ? await Participante.criar(p, null, res) : "Dados inválidos");
 }));
 
+router.get("/listarInscricoes", wrap(async (req: express.Request, res: express.Response) => {
+	let p = await Participante.cookie(req);
+	let idevento = parseInt(req.query["idevento"]);
+	if (p && (idevento > 0))
+		res.json(await Participante.listarInscricoes(p.id, idevento));
+	else
+		jsonRes(res, 400, "Dados inválidos");
+}));
+
 router.get("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {
 	let email = req.query["email"];
 	jsonRes(res, 400, email ? await Participante.redefinirSenha(email) : "Dados inválidos");

@@ -26,6 +26,7 @@ import path = require("path");
 import Data = require("./models/data");
 import Empresa = require("./models/empresa");
 import Horario = require("./models/horario");
+import Local = require("./models/local");
 import Sessao = require("./models/sessao");
 import Palestrante = require("./models/palestrante");
 import Participante = require("./models/participante");
@@ -193,6 +194,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 					datas: await Data.listar(evento.id),
 					empresas: await Empresa.listar(evento.id),
 					horarios: await Horario.listar(evento.id),
+					locais: await Local.eventoListar(evento.id),
 					sessoes: await Sessao.listar(evento.id),
 					palestrantes: await Palestrante.listar(evento.id)
 				});

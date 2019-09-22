@@ -262,6 +262,16 @@ export = class Participante {
 		return (lista || []);
 	}
 
+	public static async listarInscricoes(idparticipante: number, idevento: number): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select s.nome, d.ano, d.mes, d.dia, h.inicio, h.termino, h.ordem, l.nome nome_local, u.nome nome_unidade, p.presente from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
+		});
+
+		return (lista || []);
+	}
+
 	public static async listarPresencas(idparticipante: number, idevento: number): Promise<any[]> {
 		let lista: any[] = null;
 
