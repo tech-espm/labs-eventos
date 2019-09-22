@@ -23,6 +23,11 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import Data = require("./models/data");
+import Empresa = require("./models/empresa");
+import Horario = require("./models/horario");
+import Sessao = require("./models/sessao");
+import Palestrante = require("./models/palestrante");
 import Participante = require("./models/participante");
 
 // @@@ Configura o cache, para armazenar as 200 últimas páginas
@@ -183,7 +188,13 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 			if (evento.habilitado) {
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
-					participante: await Participante.cookie(req)
+					url: req.path,
+					participante: await Participante.cookie(req),
+					datas: await Data.listar(evento.id),
+					empresas: await Empresa.listar(evento.id),
+					horarios: await Horario.listar(evento.id),
+					sessoes: await Sessao.listar(evento.id),
+					palestrantes: await Palestrante.listar(evento.id)
 				});
 			} else {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Evento desabilitado", mensagem: "A página do evento está atualmente desabilitada" });

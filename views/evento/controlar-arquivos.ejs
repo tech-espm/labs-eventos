@@ -115,6 +115,7 @@
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "nome", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Baixar arquivo\" href=\"<%=caminhoAbsolutoExterno %>/" + row.nome + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-external-link\"></i></a> <button title=\"Renomear\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
 			data: arquivos,
+			export: { title: "Arquivos do Evento" },
 			rowCallback: function (row, data) {
 				data.row = row;
 			}

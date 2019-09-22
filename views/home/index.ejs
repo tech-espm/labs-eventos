@@ -43,6 +43,7 @@
 			{ title: "Externos?", "class": "col-min", data: function (row, type, set, meta) { return row.permiteexterno ? "SIM" : "NÃO"; } }
 		],
 		data: <%- listaEventos %>,
+		export: { title: "Meus Eventos" },
 		rowCallback: function (row, data) {
 			if (data.id === <%=usuario.idevento_logado %>)
 				$(row).addClass("col-h2");

@@ -31,6 +31,7 @@
 				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
 			data: locais,
+			export: { title: "Locais do Evento" },
 			rowCallback: function (row, data) {
 				if (locaisSelecionados[data.id])
 					$(row).addClass("col-h2");

@@ -43,7 +43,8 @@
 			{ title: "Unidade", "class": "col-25", render: encode, data: "sigla_unidade" },
 			{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Editar\" href=\"/local/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 		],
-		data: <%- lista %>
+		data: <%- lista %>,
+		export: { title: "Locais" }
 	});
 
 	var trClicada;

@@ -31,7 +31,7 @@
 				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
-							<label for="cbPalestranteOcultar">Ocultar</label>
+							<label for="cbPalestranteOcultar">Ocultar?</label>
 							<select id="cbPalestranteOcultar" name="cbPalestranteOcultar" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 						</div>
 					</div>
@@ -135,13 +135,14 @@
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome Curto", data: "nome_curto" },
-				{ title: "Ocultar", "class": "col-min text-center", data: "ocultar", render: function (v, type, row) { return (v ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Ocultar?", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.ocultar ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
-			data: eventoPalestrantes
+			data: eventoPalestrantes,
+			export: { title: "Palestrantes do Evento" }
 		});
 
 		var trClicada, preparandoImagem = false;

@@ -89,7 +89,8 @@
 				{ title: "Dia", "class": "col-25", "type": "num", data: "dia" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
-			data: eventoDatas
+			data: eventoDatas,
+			export: { title: "Datas do Evento" }
 		});
 
 		var trClicada;

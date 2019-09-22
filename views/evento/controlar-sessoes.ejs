@@ -51,7 +51,7 @@
 					</div>
 					<div class="col-sm-4">
 						<div class="form-group">
-							<label for="cbSessaoOcultar">Ocultar</label>
+							<label for="cbSessaoOcultar">Ocultar?</label>
 							<select id="cbSessaoOcultar" name="cbSessaoOcultar" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 						</div>
 					</div>
@@ -184,7 +184,7 @@
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
 				{ title: "Nome", render: encode, data: "nome" },
-				{ title: "Ocultar", "class": "col-min text-center", data: "ocultar", render: function (v, type, row) { return (v ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Ocultar?", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.ocultar ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
@@ -192,7 +192,8 @@
 				{ title: "Público-Alvo", render: encode, data: "publico_alvo" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
-			data: eventoSessoes
+			data: eventoSessoes,
+			export: { title: "Sessões do Evento" }
 		});
 
 		window.adicionarPalestrante = function (id) {

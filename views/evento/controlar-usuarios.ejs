@@ -35,6 +35,7 @@
 				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tipo === "ADMIN" ? "" : "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"); } },
 			],
 			data: <%- usuarios %>,
+			export: { title: "Usuários do Evento" },
 			rowCallback: function (row, data) {
 				if (usuariosSelecionados[data.id] || data.tipo === "ADMIN")
 					$(row).addClass("col-h2");
