@@ -54,7 +54,7 @@ router.all("/inscricao/:e/:s", wrap(async (req: express.Request, res: express.Re
 				return;
 			}
 
-			r = await Sessao.inscrever(sid, p.id);
+			r = await Sessao.inscrever(sid, evento.id, p.id);
 
 			if (r)
 				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: r, participante: p });

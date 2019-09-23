@@ -253,7 +253,7 @@ export = class Participante {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, (select ((d.ano * 100) + d.mes) data from eventodata d where d.idevento = e.id limit 1) data from (select distinct s.idevento from eventosessaoparticipante p inner join eventosessao s on s.id = p.ideventosessao where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
+			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, (select ((d.ano * 100) + d.mes) from eventodata d where d.idevento = e.id limit 1) data from (select distinct p.idevento from eventosessaoparticipante p where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
 
 			for (let i = lista.length - 1; i >= 0; i--)
 				lista[i].idcertificado = Participante.idParticipanteParaIdCertificado(p.id, lista[i].id);
