@@ -194,7 +194,8 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			formatos: JSON.stringify(await Formato.listar()),
 			tipoSessoes: JSON.stringify(await TipoSessao.listar()),
 			verticais: JSON.stringify(await Vertical.listar()),
-			sessoes: JSON.stringify(await Sessao.listar(u.idevento_logado))
+			sessoes: JSON.stringify(await Sessao.listar(u.idevento_logado)),
+			presencas: JSON.stringify(await Evento.listarInscricoesEPresencas(u.idevento_logado))
 		});
 	}
 }));

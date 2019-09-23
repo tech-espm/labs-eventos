@@ -5,7 +5,9 @@
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
 					<button class="btn btn-primary" type="button" onclick="criarSessao()"><i class="fa fa-plus"></i> Criar Sessão...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="listarInscricoesEPresencas()"><i class="fa fa-refresh"></i> Atualizar Inscrições e Presenças...</button>
 				</div>
+				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
 				<table class="table table-striped table-hover" id="tabela-sessoes"></table>
 			</div>
 		</div>
@@ -172,18 +174,20 @@
 		carregarFormatos(<%- formatos %>);
 		carregarTipoSessoes(<%- tipoSessoes %>);
 		carregarVerticais(<%- verticais %>);
-		carregarSessoes(<%- sessoes %>);
+		var totalIP = carregarSessoes(<%- sessoes %>, <%- presencas %>);
 
 		var tabela = prepareDataTable("tabela-sessoes", {
 			order: [],
 			deferRender: true,
 			columns: [
+				{ title: "Nome", render: encode, data: "nome" },
+				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
+				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Data", "class": "col-min", "type": "customdate", data: "data" },
 				{ title: "Início", "class": "col-min", "type": "customtime", render: encode, data: "inicio" },
 				{ title: "Término", "class": "col-min", "type": "customtime", render: encode, data: "termino" },
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
-				{ title: "Nome", render: encode, data: "nome" },
 				{ title: "Ocultar?", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.ocultar ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 				{ title: "Formato", render: encode, data: "nome_formato" },
@@ -196,8 +200,27 @@
 			export: { title: "Sessões do Evento" }
 		});
 
+		window.listarInscricoesEPresencas = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/listarInscricoesEPresencas", function (response) {
+				if (response.success) {
+					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
+
+					atualizarInscricoesEPresencas(response.value);
+
+					tabela.rows().invalidate().draw();
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+		};
+
 		window.adicionarPalestrante = function (id) {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			if (!id)
@@ -221,7 +244,7 @@
 		};
 
 		window.removerPalestrante = function (btn) {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var tr = btn.parentNode.parentNode,
@@ -272,7 +295,7 @@
 		});
 
 		$("#tabela-sessoes").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var sessao = tabela.row(trClicada = this.parentNode.parentNode).data();
@@ -359,7 +382,7 @@
 				}
 			},
 			submitHandler: function (form) {
-				if (JsonWebApi.active)
+				if ($.active || JsonWebApi.active)
 					return;
 
 				$("#modalAlterarSessao").modal("hide");
@@ -413,6 +436,8 @@
 					JsonWebApi.post("/api/sessao/criar", s, function (response) {
 						if (response.success) {
 							s.id = parseInt(response.value);
+							s.inscritos = 0;
+							s.presentes = 0;
 							preencherDadosSessao(s);
 							eventoSessoesPorId[s.id] = s;
 							eventoSessoes.push(s);
@@ -428,7 +453,7 @@
 		});
 
 		window.criarSessao = function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			trClicada = null;
@@ -444,7 +469,7 @@
 		};
 
 		window.excluirSessao = function () {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			var sessao = tabela.row(trClicada).data();

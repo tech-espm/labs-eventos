@@ -41,7 +41,7 @@
 		var trClicada;
 
 		$("#tabela-locais").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var local = tabela.row(trClicada = this.parentNode.parentNode).data();

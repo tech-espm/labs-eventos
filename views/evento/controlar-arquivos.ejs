@@ -132,7 +132,7 @@
 		});
 
 		$("#tabela-arquivos").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var arquivo = tabela.row(trClicada = this.parentNode.parentNode).data();
@@ -155,7 +155,7 @@
 		});
 
 		function renomearArquivo() {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			var arquivo = tabela.row(trClicada).data();
@@ -206,7 +206,7 @@
 		});
 
 		window.excluirArquivo = function () {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			$("#modalExcluirArquivo").modal("hide");
@@ -348,7 +348,7 @@
 				if (!txtArquivos.files || !txtArquivos.files.length)
 					return;
 
-				if (!tabArquivosVisivel || JsonWebApi.active || $.active) {
+				if (!tabArquivosVisivel || $.active || JsonWebApi.active) {
 					prepararTxtArquivos();
 					return;
 				}
@@ -361,14 +361,14 @@
 		}
 
 		window.escolherArquivos = function () {
-			if (!tabArquivosVisivel || JsonWebApi.active || $.active)
+			if (!tabArquivosVisivel || $.active || JsonWebApi.active)
 				return;
 
 			txtArquivos.click();
 		};
 
 		window.addEventListener("dragover", function (e) {
-			if (tabArquivosVisivel && !JsonWebApi.active && !$.active) {
+			if (tabArquivosVisivel && !$.active && !JsonWebApi.active) {
 				if (timeoutDrag) {
 					clearTimeout(timeoutDrag);
 					timeoutDrag = 0;
@@ -407,7 +407,7 @@
 			if (!tabArquivosVisivel)
 				return;
 
-			if (JsonWebApi.active || $.active)
+			if ($.active || JsonWebApi.active)
 				return cancelEvent(e);
 
 			return enviarArquivos(e, null);

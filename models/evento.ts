@@ -254,4 +254,14 @@ export = class Evento {
 	public static async landingPageExiste(id: number): Promise<boolean> {
 		return await FS.existeArquivo("views/evt/" + id + ".ejs");
 	}
+
+	public static async listarInscricoesEPresencas(id: number): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select ideventosessao, count(*) inscritos, sum(presente) presentes from eventosessaoparticipante where idevento = " + id + " group by ideventosessao");
+		});
+
+		return (lista || []);
+	}
 }

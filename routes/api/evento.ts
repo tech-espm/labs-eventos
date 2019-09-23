@@ -212,4 +212,15 @@ router.get("/landingPageDownload", wrap(async (req: express.Request, res: expres
 	res.download(Evento.caminhoLandingPage(u.idevento_logado), "landingPage-" + e.url + ".ejs");
 }));
 
+router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	res.json(await Evento.listarInscricoesEPresencas(u.idevento_logado));
+}));
+
 export = router;

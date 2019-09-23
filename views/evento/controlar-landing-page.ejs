@@ -169,7 +169,7 @@
 				if (!txtArquivoLandingPage.files || !txtArquivoLandingPage.files.length)
 					return;
 
-				if (!tabLandingPageVisivel || JsonWebApi.active || $.active) {
+				if (!tabLandingPageVisivel || $.active || JsonWebApi.active) {
 					prepararTxtArquivoLandingPage();
 					return;
 				}
@@ -182,14 +182,14 @@
 		}
 
 		window.escolherArquivoLandingPage = function () {
-			if (!tabLandingPageVisivel || JsonWebApi.active || $.active)
+			if (!tabLandingPageVisivel || $.active || JsonWebApi.active)
 				return;
 
 			txtArquivoLandingPage.click();
 		};
 
 		window.addEventListener("dragover", function (e) {
-			if (tabLandingPageVisivel && !JsonWebApi.active && !$.active) {
+			if (tabLandingPageVisivel && !$.active && !JsonWebApi.active) {
 				if (timeoutDrag) {
 					clearTimeout(timeoutDrag);
 					timeoutDrag = 0;
@@ -228,7 +228,7 @@
 			if (!tabLandingPageVisivel)
 				return;
 
-			if (JsonWebApi.active || $.active)
+			if ($.active || JsonWebApi.active)
 				return cancelEvent(e);
 
 			return enviarArquivoLandingPage(e, null);

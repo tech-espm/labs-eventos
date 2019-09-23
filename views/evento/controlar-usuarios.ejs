@@ -45,7 +45,7 @@
 		var trClicada;
 
 		$("#tabela-usuarios").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var usuario = tabela.row(trClicada = this.parentNode.parentNode).data();

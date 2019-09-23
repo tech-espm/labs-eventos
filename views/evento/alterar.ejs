@@ -104,7 +104,7 @@
 			},
 
 			submitHandler: function (form) {
-				if (JsonWebApi.active)
+				if ($.active || JsonWebApi.active)
 					return;
 
 				Notification.wait();

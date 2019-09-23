@@ -162,7 +162,7 @@
 		});
 
 		$("#tabela-palestrantes").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var palestrante = tabela.row(trClicada = this.parentNode.parentNode).data();
@@ -254,7 +254,7 @@
 				}
 			},
 			submitHandler: function (form) {
-				if (JsonWebApi.active || preparandoImagem)
+				if ($.active || JsonWebApi.active || preparandoImagem)
 					return;
 
 				$("#modalAlterarPalestrante").modal("hide");
@@ -475,7 +475,7 @@
 		});
 
 		window.criarPalestrante = function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			trClicada = null;
@@ -491,7 +491,7 @@
 		};
 
 		window.excluirPalestrante = function () {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			$("#modalExcluirPalestrante").modal("hide");

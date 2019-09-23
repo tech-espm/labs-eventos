@@ -328,12 +328,38 @@
 		}
 	}
 
-	function carregarSessoes(sessoes) {
+	function atualizarInscricoesEPresencas(presencas) {
+		var totalI = 0, totalP = 0;
+		if (eventoSessoesPorId) {
+			var i, sessao;
+			for (i = 0; i < eventoSessoes.length; i++) {
+				sessao = eventoSessoes[i];
+				sessao.inscritos = 0;
+				sessao.presentes = 0;
+			}
+			if (presencas) {
+				for (i = 0; i < presencas.length; i++) {
+					var presenca = presencas[i];
+					if ((sessao = eventoSessoesPorId[presenca.ideventosessao])) {
+						totalI += presenca.inscritos;
+						totalP += presenca.presentes;
+						sessao.inscritos = presenca.inscritos;
+						sessao.presentes = presenca.presentes;
+					}
+				}
+			}
+		}
+		$("#lblInscricoesEPresencas").html("Total de Inscrições: " + totalI + "<br />Total de Presenças: " + totalP);
+	}
+
+	function carregarSessoes(sessoes, presencas) {
 		window.eventoSessoes = sessoes;
 		window.eventoSessoesPorId = {};
 		if (eventoSessoes) {
 			for (var i = 0; i < eventoSessoes.length; i++) {
 				var sessao = eventoSessoes[i];
+				sessao.inscritos = 0;
+				sessao.presentes = 0;
 				eventoSessoesPorId[sessao.id] = sessao;
 				if (!sessao.idspalestrante) {
 					sessao.idspalestrante = [];
@@ -344,6 +370,7 @@
 				}
 			}
 		}
+		atualizarInscricoesEPresencas(presencas);
 	}
 
 	function preencherCb(cb, array, valor, formatador, id) {

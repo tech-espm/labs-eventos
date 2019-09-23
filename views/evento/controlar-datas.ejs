@@ -100,7 +100,7 @@
 		});
 
 		$("#tabela-datas").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var data = tabela.row(trClicada = this.parentNode.parentNode).data();
@@ -151,7 +151,7 @@
 				}
 			},
 			submitHandler: function (form) {
-				if (JsonWebApi.active)
+				if ($.active || JsonWebApi.active)
 					return;
 
 				$("#modalAlterarData").modal("hide");
@@ -200,7 +200,7 @@
 		});
 
 		window.criarData = function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			trClicada = null;
@@ -225,7 +225,7 @@
 		};
 
 		window.excluirData = function () {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			$("#modalExcluirData").modal("hide");

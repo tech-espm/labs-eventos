@@ -100,7 +100,7 @@
 		});
 
 		$("#tabela-horarios").on("click", "tbody button", function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			var horario = tabela.row(trClicada = this.parentNode.parentNode).data();
@@ -144,7 +144,7 @@
 				}
 			},
 			submitHandler: function (form) {
-				if (JsonWebApi.active)
+				if ($.active || JsonWebApi.active)
 					return;
 
 				$("#modalAlterarHorario").modal("hide");
@@ -193,7 +193,7 @@
 		});
 
 		window.criarHorario = function () {
-			if (JsonWebApi.active)
+			if ($.active || JsonWebApi.active)
 				return;
 
 			trClicada = null;
@@ -209,7 +209,7 @@
 		};
 
 		window.excluirHorario = function () {
-			if (JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trClicada)
 				return;
 
 			$("#modalExcluirHorario").modal("hide");
