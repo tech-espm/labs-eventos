@@ -97,7 +97,7 @@
 			}
 
 			html += '<tr><td class="text-left">' + encode(presenca.nome) + '</td>';
-			html += '<td class="col-min text-center">' + format2(presenca.dia) + months[presenca.mes] + presenca.ano + '</td>';
+			html += '<td class="col-min text-center">' + format2(presenca.dia) + months[presenca.mes - 1] + presenca.ano + '</td>';
 			html += '<td class="col-min text-center">' + presenca.inicio + '</td>';
 			html += '<td class="col-min text-center">' + presenca.termino + '</td>';
 			html += '<td class="col-min text-center">' + duracao.toFixed(1).replace(".", ",") + '</td></tr>';

@@ -17,7 +17,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal">Fechar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
 			</div>
 		</div>
 	</div>
@@ -32,9 +32,34 @@
 			</div>
 			<div class="modal-body" id="contentInscricoes"></div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal">Fechar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
 			</div>
 		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAvaliacao">
+	<div class="modal-dialog" role="document">
+		<form class="modal-content" id="formAvaliacao" method="get">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Minhas Inscrições</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="txtAvaliacao">Nota <small>(1 a 5)</small></label>
+					<input id="txtAvaliacao" name="txtAvaliacao" type="number" class="form-control" min="1" max="5" />
+				</div>
+				<div class="form-group no-margin-bottom">
+					<label for="txtComentario">Comentário <small>(Opcional)</small></label>
+					<input id="txtComentario" name="txtComentario" type="text" class="form-control upper" maxlength="100" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Avaliar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+			</div>
+		</form>
 	</div>
 </div>
 
@@ -90,7 +115,7 @@
 	//<![CDATA[
 	"use strict";
 
-	var eventos = <%- eventos %>, qrcode = null;
+	var eventos = <%- eventos %>, qrcode = null, idParaAvaliar = 0;
 
 	function mostrarQR() {
 		if (JsonWebApi.active)
@@ -114,9 +139,49 @@
 		});
 	}
 
+	function avaliar(id) {
+		if (JsonWebApi.active)
+			return;
+
+		idParaAvaliar = id;
+
+		$("#modalInscricoes").modal("hide");
+	}
+
+	$("#formAvaliacao").validate({
+		rules: {
+			txtAvaliacao: {
+				required: true,
+				min: 1,
+				max: 5,
+				number: true
+			},
+			txtComentario: {
+				maxlength: 100
+			}
+		},
+		submitHandler: function (form) {
+			if (JsonWebApi.active || !idParaAvaliar)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/participante/avaliarSessao", function (response) {
+				if (response.success) {
+					Notification.success("Avaliação realizada cm sucesso! \uD83D\uDE04");
+					$("#modalAvaliacao").modal("hide");
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			}, "id", idParaAvaliar, "avaliacao", $("#txtAvaliacao").val(), "comentario", trim($("#txtComentario").val()));
+		}
+	});
+
 	function mostrarEvento(idevento) {
 		if (JsonWebApi.active)
 			return;
+
+		idParaAvaliar = 0;
 
 		Notification.wait();
 
@@ -141,18 +206,41 @@
 						return ((a.nome < b.nome) ? -1 : 1);
 					});
 
+					var agora = (new Date()).getTime();
+
 					for (i = 0; i < inscricoes.length; i++) {
 						inscricao = inscricoes[i];
 
 						if (i)
 							html += "<hr />";
 
-						if (inscricao.presente)
-							html += '<h3 class="col-h2 titulo-inscricao">' + inscricao.nome + ' <small class="col-h2">(<i>Presença Marcada</i> <i class="fa fa-check fa-nomargin"></i>)</small></h3>';
-						else
-							html += '<h3 class="titulo-inscricao">' + inscricao.nome + '</h3>';
+						var partes = inscricao.termino.split(":");
+						var terminoEvento = (new Date(inscricao.ano, inscricao.mes - 1, inscricao.dia, parseInt(partes[0]), parseInt(partes[1]), 0, 0)).getTime();
+						// Libera as avaliações por 10 dias, a partir de 10 minutos antes do final do evento
+						terminoEvento -= (10 * 60 * 1000);
+						terminoEvento = agora - terminoEvento;
 
-						html += '<p class="text-right"><i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
+						if (inscricao.presente) {
+							html += '<h3 class="col-h2 titulo-inscricao">' + inscricao.nome + '<br /><small class="col-h2"><i>Presença marcada</i> <i class="fa fa-check fa-nomargin"></i></small><br />';
+							if (inscricao.avaliacao) {
+								html += '<small class="col-h2"><i>Avaliação realizada</i> <i class="fa fa-check fa-nomargin"></i></small>';
+							} else {
+								if (terminoEvento > (10 * 24 * 60 * 60 * 1000))
+									html += '<small><i>Período de avaliação encerrado</i></small>';
+								else if (terminoEvento < 0)
+									html += '<small><i>Avaliação disponível a partir de dez minutos antes do término da sessão</i></small>';
+								else
+									html += '<br /><button type="button" class="btn btn-primary" onclick="avaliar(' + inscricao.id + ')"><i class="fa fa-star"></i> Avaliar</button><br /><small><i>Você pode realizar a avaliação até dez dias depois do evento</i></small>';
+							}
+						} else {
+							html += '<h3 class="titulo-inscricao">' + inscricao.nome + '<br /><small><i>Sem presença<br />';
+							if (terminoEvento > (10 * 24 * 60 * 60 * 1000))
+								html += 'Período de avaliação encerrado</i></small>';
+							else
+								html += 'Avaliação indisponível</i></small>';
+						}
+						html += '</h3>';
+						html += '<p class="text-right"><i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes - 1] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
 						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
 						html += '<div><i class="fa fa-map-marker"></i>Sala/Auditório: ' + inscricao.nome_local + '</div>';
 					}
@@ -178,7 +266,7 @@
 		for (i = 0; i < eventos.length; i++) {
 			evento = eventos[i];
 
-			evento.data = months[evento.data % 100].substr(1) + ((evento.data / 100) | 0);
+			evento.data = months[(evento.data % 100) - 1].substr(1) + ((evento.data / 100) | 0);
 
 			if (!(i & 1))
 				html += (i ? '</div><div class="row">' : '<div class="row">');
@@ -189,7 +277,7 @@
 			html += '"><div class="panel panel-default"><div class="panel-heading">' + encode(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
 			html += '<h4 class="text-right"><i class="fa fa-calendar"></i>' + evento.data + '</h4>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i> Certificado</a></div>';
-			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i> Minhas inscrições</button></div>';
+			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i> Inscrições e avaliações</button></div>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/' + evento.url + '" target="_blank"><i class="fa fa-external-link"></i> Página do evento</a></div>';
 			html += '</div></div></div>';
 		}
@@ -197,6 +285,17 @@
 		html += '</div>';
 
 		$("#content").html(html);
+
+		$("#modalInscricoes").on("hidden.bs.modal", function () {
+			if (idParaAvaliar) {
+				resetForm("#formAvaliacao");
+
+				$("#modalAvaliacao").modal({
+					backdrop: "static",
+					keyboard: false
+				});
+			}
+		});
 	})();
 
 	//]]>

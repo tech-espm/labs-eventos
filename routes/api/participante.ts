@@ -30,8 +30,19 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 router.get("/listarInscricoes", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
 	let idevento = parseInt(req.query["idevento"]);
-	if (p && (idevento > 0))
+	if (p && idevento > 0)
 		res.json(await Participante.listarInscricoes(p.id, idevento));
+	else
+		jsonRes(res, 400, "Dados inválidos");
+}));
+
+router.get("/avaliarSessao", wrap(async (req: express.Request, res: express.Response) => {
+	let p = await Participante.cookie(req);
+	let ideventosessaoparticipante = parseInt(req.query["id"]);
+	let avaliacao = parseInt(req.query["avaliacao"]);
+	let comentario = req.query["comentario"];
+	if (p && ideventosessaoparticipante > 0 && avaliacao >= 1 && avaliacao <= 5)
+		res.json(await Participante.avaliarSessao(p.id, ideventosessaoparticipante, avaliacao, comentario));
 	else
 		jsonRes(res, 400, "Dados inválidos");
 }));

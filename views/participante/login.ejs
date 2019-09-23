@@ -1,12 +1,12 @@
 ﻿<form method="post" id="form">
-	<div style="max-width: 600px; margin: 0 auto; padding: 10% 15px;">
+	<div class="painel-msg">
 		<div class="panel panel-default no-margin-bottom">
 			<div class="panel-body">
 				<% if (mensagem) { %>
 				<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
 				<% } %>
 				<div class="row">
-					<div class="col-sm-6 text-center">
+					<div class="col-sm-6">
 						<img alt="ESPM" src="/imagens/logo.png" width="100" />
 						<br />
 						<br />
@@ -20,7 +20,7 @@
 						<br />
 						<br />
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-6 text-left">
 						<div class="form-group">
 							<label for="email">E-mail</label>
 							<input name="email" type="email" id="email" class="form-control text-uppercase" spellcheck="false" />

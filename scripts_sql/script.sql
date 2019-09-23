@@ -284,15 +284,28 @@ CREATE TABLE participante (
 
 -- DROP TABLE IF EXISTS eventosessaoparticipante;
 CREATE TABLE eventosessaoparticipante (
-  id int NOT NULL AUTO_INCREMENT,
+  id bigint NOT NULL AUTO_INCREMENT,
   idevento int NOT NULL, -- Para acelerar as buscas e contagens, sem utilizar JOIN's
   ideventosessao int NOT NULL,
   idparticipante int NOT NULL,
   presente tinyint(4) NOT NULL,
+  data_inscricao datetime NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (idevento,ideventosessao,idparticipante),
   KEY ideventosessao_FK_idx (ideventosessao),
   KEY idparticipante_FK_idx (idparticipante),
   CONSTRAINT ideventosessao_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idparticipante_FK FOREIGN KEY (idparticipante) REFERENCES participante (id) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+-- DROP TABLE IF EXISTS eventosessaoavaliacao;
+CREATE TABLE eventosessaoavaliacao (
+  id bigint NOT NULL AUTO_INCREMENT,
+  ideventosessaoparticipante bigint NOT NULL,
+  avaliacao tinyint(4) NOT NULL,
+  comentario varchar(100) NOT NULL,
+  data_avaliacao datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY ideventosessaoparticipante_eventosessaoavaliacao_UN (ideventosessaoparticipante),
+  CONSTRAINT ideventosessaoparticipante_FK FOREIGN KEY (ideventosessaoparticipante) REFERENCES eventosessaoparticipante (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );

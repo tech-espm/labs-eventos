@@ -163,7 +163,7 @@ export = class Sessao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, presente) select ?, ?, ?, 0 from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.ocultar = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);
+				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, presente, data_inscricao) select ?, ?, ?, 0, now() from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.ocultar = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);
 
 				if (!sql.linhasAfetadas)
 					res = "A sessão está esgotada";
