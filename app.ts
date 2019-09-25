@@ -196,7 +196,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 					horarios: await Horario.listar(evento.id),
 					locais: await Local.eventoListar(evento.id),
 					sessoes: await Sessao.listar(evento.id),
-					palestrantes: await Palestrante.listar(evento.id)
+					palestrantes: await Palestrante.listar(evento.id, true)
 				});
 			} else {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Evento desabilitado", mensagem: "A página do evento está atualmente desabilitada" });

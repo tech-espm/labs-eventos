@@ -1,11 +1,18 @@
 ﻿import express = require("express");
 import https = require("https");
+import nodemailer = require("nodemailer");
+import { URL } from "url";
 import Sql = require("../infra/sql");
 import FS = require("../infra/fs");
 import Upload = require("../infra/upload");
-import { URL } from "url";
+import GeradorHash = require("../utils/geradorHash");
+import appsettings = require("../appsettings");
+import intToHex = require("../utils/intToHex");
 
 export = class Palestrante {
+	// Não utilizar números > 0x7FFFFFFF, pois os XOR resultarão em -1
+	private static readonly HashId = 0x34d7687e;
+
 	public static readonly tamanhoMaximoImagemEmKiB = 512;
 	public static readonly tamanhoMaximoImagemEmBytes = Palestrante.tamanhoMaximoImagemEmKiB << 10;
 	public static readonly extensaoImagem = "png";
@@ -15,6 +22,7 @@ export = class Palestrante {
 	public idempresa: number;
 	public nome: string;
 	public nome_curto: string;
+	public email: string;
 	public oculto: number;
 	public liberado: number;
 	public prioridade: number;
@@ -54,6 +62,9 @@ export = class Palestrante {
 		p.nome_curto = (p.nome_curto || "").normalize().trim().toUpperCase();
 		if (p.nome_curto.length < 1 || p.nome_curto.length > 45)
 			return "Nome curto inválido";
+		p.email = (p.email || "").normalize().trim().toUpperCase();
+		if (p.email.length > 100)
+			return "E-mail inválido";
 		if (isNaN(p.oculto) || p.oculto < 0 || p.oculto > 1)
 			p.oculto = 0;
 		if (isNaN(p.liberado) || p.liberado < 0 || p.liberado > 1)
@@ -90,11 +101,11 @@ export = class Palestrante {
 		return null;
 	}
 
-	public static async listar(idevento: number): Promise<Palestrante[]> {
+	public static async listar(idevento: number, externo: boolean = false): Promise<Palestrante[]> {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, " + (externo ? "" : "p.email, ") + "p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
 		});
 
 		return (lista || []);
@@ -104,7 +115,7 @@ export = class Palestrante {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.email, p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -115,11 +126,13 @@ export = class Palestrante {
 		if ((res = Palestrante.validar(p)))
 			return res;
 
+		let enviarEmail = false;
+
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, oculto, liberado, prioridade, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
+				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, email, oculto, liberado, prioridade, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 
 				// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -132,6 +145,8 @@ export = class Palestrante {
 				res = p.id.toString();
 
 				await sql.commit();
+
+				enviarEmail = true;
 			} catch (e) {
 				if (e.code) {
 					switch (e.code) {
@@ -151,6 +166,9 @@ export = class Palestrante {
 			}
 		});
 
+		if (enviarEmail && p.email)
+			res = await Palestrante.enviarEmailLiberacao(p);
+
 		return res;
 	}
 
@@ -163,7 +181,7 @@ export = class Palestrante {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, oculto = ?, prioridade = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
+				await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, email = ?, oculto = ?, prioridade = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
 
 				if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
 					// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -296,5 +314,59 @@ export = class Palestrante {
 			});
 		});
 		httpreq.end();
+	}
+
+	public static async gerarLinkLiberacao(id: number): Promise<string> {
+		let sid = intToHex(id ^ Palestrante.HashId).toLowerCase();
+		return "https://credenciamento.espm.br/evento/termo/" + sid + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
+	}
+
+	public static async liberar(hash: string): Promise<boolean> {
+		if (!hash || hash.length <= 8)
+			return false;
+
+		let sid = hash.substr(0, 8).toLowerCase();
+		let id = parseInt(sid, 16);
+		if (isNaN(id) || id <= 0)
+			return false;
+
+		id ^= Palestrante.HashId;
+
+		if (!(await GeradorHash.validarSenha(sid, hash.substr(8).replace(/\_/g, ":").replace(/\-/g, "/").replace(/@/g, "+").replace(/\[/g, "="))))
+			return false;
+
+		let res = false;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update eventopalestrante set liberado = 1 where id = " + id);
+
+			res = !!sql.linhasAfetadas;
+		});
+
+		return res;
+	}
+
+	private static async enviarEmailLiberacao(p: Palestrante): Promise<string> {
+		let res: string = null;
+
+		let link = await Palestrante.gerarLinkLiberacao(p.id);
+
+		try {
+			let transporter = nodemailer.createTransport(appsettings.mailConfig);
+
+			await transporter.sendMail({
+				from: appsettings.mailFromRedefinicao,
+				to: p.email.toLowerCase(),
+				subject: "Termo de Aceite do Uso de Imagem",
+				text: `Olá!\n\nVocê está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.\n\nComo respeitamos muito sua imagem e sua privacidade, sua imagem e suas informações só serão exibidas no site do evento mediante seu aceite.\n\nPara dar esse aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:\n\n${link}\n\nCaso desconheça sua participação no evento, por favor, desconsidere essa mensagem.\n\nAté breve!\n\nTenha um excelente evento :)`,
+				html: `<p>Olá!</p><p>Você está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.</p><p>Como respeitamos muito sua imagem e sua privacidade, sua imagem e suas informações só serão exibidas no site do evento mediante seu aceite</p><p>Para dar esse aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:</p><p><a target="_blank" href="${link}">${link}</a></p><p>Caso desconheça sua participação no evento, por favor, desconsidere essa mensagem.</p><p>Até breve!</p><p>Tenha um excelente evento :)</p>`
+			});
+
+			res = p.id.toString();
+		} catch (ex) {
+			res = "O palestrante foi criado com sucesso! Porém houve uma falha ao enviar o e-mail com o link para o termo de aceite do uso de imagem. Por favor, envie o link manualmente \uD83D\uDE22";
+		}
+
+		return res;
 	}
 }

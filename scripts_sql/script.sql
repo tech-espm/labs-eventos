@@ -182,6 +182,7 @@ CREATE TABLE eventopalestrante (
   idempresa int NOT NULL,
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
+  email varchar(100) NOT NULL,
   oculto tinyint(4) NOT NULL,
   liberado tinyint(4) NOT NULL,
   prioridade tinyint(4) NOT NULL,

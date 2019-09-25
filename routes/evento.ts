@@ -217,4 +217,12 @@ router.get("/controlar-usuarios", wrap(async (req: express.Request, res: express
 	}
 }));
 
+router.get("/termo/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let i = req.params["i"] as string;
+	if (i && await Palestrante.liberar(i))
+		res.render("shared/sucesso-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Aceite do Uso de Imagem", mensagem: "Muito obrigado por confirmar o aceite do uso de imagem" });
+	else
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Aceite do Uso de Imagem", mensagem: "Não foi possível confirmar o aceite do uso de imagem. Por favor, tente novamente mais tarde" });
+}));
+
 export = router;

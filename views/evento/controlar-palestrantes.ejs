@@ -28,6 +28,10 @@
 					<label for="txtPalestranteNomeCurto">Nome Curto</label>
 					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
 				</div>
+				<div class="form-group">
+					<label for="txtPalestranteEmail">E-mail</label>
+					<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" />
+				</div>
 				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
@@ -138,7 +142,7 @@
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome Curto", data: "nome_curto" },
 				{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
-				{ title: "Liberado", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.liberado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
+				{ title: "Aceito", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.liberado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
 				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
@@ -182,6 +186,7 @@
 
 				$("#txtPalestranteNome").val(palestrante.nome);
 				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
+				$("#txtPalestranteEmail").val(palestrante.email);
 				$("#cbPalestranteOculto").val(palestrante.oculto);
 				$("#txtPalestrantePrioridade").val(palestrante.prioridade);
 				$("#txtPalestranteCargo").val(palestrante.cargo);
@@ -213,6 +218,10 @@
 				txtPalestranteNomeCurto: {
 					required: true,
 					maxlength: 45
+				},
+				txtPalestranteEmail: {
+					email: true,
+					maxlength: 100
 				},
 				cbPalestranteOculto: {
 					required: true
@@ -263,14 +272,13 @@
 				if ($.active || JsonWebApi.active || preparandoImagem)
 					return;
 
-				$("#modalAlterarPalestrante").modal("hide");
-
 				var palestrante, p = {
 					idevento: idevento,
 					idempresa: parseInt($("#cbPalestranteEmpresa").val()),
 					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).toUpperCase(),
 					nome: trim($("#txtPalestranteNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
+					email: trim($("#txtPalestranteEmail").val()).toUpperCase(),
 					oculto: parseInt($("#cbPalestranteOculto").val()),
 					prioridade: (parseInt($("#txtPalestrantePrioridade").val()) || 0),
 					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
@@ -291,6 +299,7 @@
 				formData.append("idempresa", p.idempresa);
 				formData.append("nome", p.nome);
 				formData.append("nome_curto", p.nome_curto);
+				formData.append("email", p.email);
 				formData.append("oculto", p.oculto);
 				formData.append("prioridade", p.prioridade);
 				formData.append("cargo", p.cargo);
@@ -317,10 +326,13 @@
 
 						JsonWebApi.postFormData("/api/palestrante/alterar", formData, function (response) {
 							if (response.success) {
+								$("#modalAlterarPalestrante").modal("hide");
+
 								palestrante.idempresa = p.idempresa;
 								palestrante.nome_empresa = p.nome_empresa;
 								palestrante.nome = p.nome;
 								palestrante.nome_curto = p.nome_curto;
+								palestrante.email = p.email;
 								palestrante.oculto = p.oculto;
 								palestrante.prioridade = p.prioridade;
 								palestrante.cargo = p.cargo;
@@ -344,6 +356,8 @@
 
 						JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
 							if (response.success) {
+								$("#modalAlterarPalestrante").modal("hide");
+
 								p.id = parseInt(response.value);
 								p.liberado = 0;
 								eventoPalestrantesPorId[p.id] = p;
@@ -474,8 +488,6 @@
 						image.src = src;
 					}
 
-					debugger;
-
 					if (imagemTwitter) {
 						if (urlImagemTwitter)
 							URL.revokeObjectURL(urlImagemTwitter);
@@ -587,7 +599,6 @@
 				};
 
 				xhr.onload = function () {
-					debugger;
 					preparandoImagem = false;
 					imagemTwitter = xhr.response;
 					$("#lblPalestranteImagemTwitter").show();

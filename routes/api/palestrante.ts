@@ -81,4 +81,18 @@ router.get("/obterImagemTwitter", wrap(async (req: express.Request, res: express
 	Palestrante.obterImagemTwitter(url, res);
 }));
 
+router.get("/gerarLinkLiberacao", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let id = parseInt(req.query["id"]);
+	if (isNaN(id) || id <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+
+	res.json(await Palestrante.gerarLinkLiberacao(id));
+}));
+
 export = router;

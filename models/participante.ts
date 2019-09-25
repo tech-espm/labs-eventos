@@ -326,11 +326,11 @@ export = class Participante {
 		});
 
 		if (!r) {
-			let transporter = nodemailer.createTransport(appsettings.mailConfig);
-
-			let link = `https://credenciamento.espm.br/participante/redefinirSenha?e=${encodeURIComponent(email)}&t=${token}`;
-
 			try {
+				let transporter = nodemailer.createTransport(appsettings.mailConfig);
+
+				let link = `https://credenciamento.espm.br/participante/redefinirSenha?e=${encodeURIComponent(email)}&t=${token}`;
+
 				await transporter.sendMail({
 					from: appsettings.mailFromRedefinicao,
 					to: email.toLowerCase(),
