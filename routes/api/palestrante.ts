@@ -29,7 +29,7 @@ router.post("/criar", multer().single("imagem"), wrap(async (req: express.Reques
 	let p = req.body as Palestrante;
 	if (p) {
 		p.idevento = u.idevento_logado;
-		p.ocultar = parseInt(req.body.ocultar);
+		p.oculto = parseInt(req.body.oculto);
 		p.prioridade = parseInt(req.body.prioridade);
 		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
@@ -44,7 +44,7 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 	let p = req.body as Palestrante;
 	if (p) {
 		p.id = parseInt(req.body.id);
-		p.ocultar = parseInt(req.body.ocultar);
+		p.oculto = parseInt(req.body.oculto);
 		p.prioridade = parseInt(req.body.prioridade);
 		p.idevento = u.idevento_logado;
 		p.idempresa = parseInt(req.body.idempresa);
@@ -59,6 +59,26 @@ router.get("/excluir", wrap(async (req: express.Request, res: express.Response) 
 		return;
 	let id = parseInt(req.query["id"]);
 	jsonRes(res, 400, isNaN(id) ? "Dados inválidos!" : await Palestrante.excluir(id, u.idevento_logado));
+}));
+
+router.get("/obterImagemTwitter", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let url = (req.query["url"] as string || "").trim().toLowerCase();
+	if (!u.idevento_logado || !url) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+	if (url.startsWith("http://")) {
+		url = "https://" + url.substr(7);
+	} else if (!url.startsWith("https://")) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+
+	Palestrante.obterImagemTwitter(url, res);
 }));
 
 export = router;

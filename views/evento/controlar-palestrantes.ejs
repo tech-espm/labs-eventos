@@ -4,7 +4,7 @@
 		<div class="panel panel-default">
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
-					<button class="btn btn-primary" type="button" onclick="criarPalestrante()"><i class="fa fa-plus"></i> Criar Palestrante...</button>
+					<button class="btn btn-primary" type="button" onclick="criarPalestrante()"><i class="fa fa-plus"></i>Criar Palestrante...</button>
 				</div>
 				<table class="table table-striped table-hover" id="tabela-palestrantes"></table>
 			</div>
@@ -31,8 +31,8 @@
 				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
-							<label for="cbPalestranteOcultar">Ocultar?</label>
-							<select id="cbPalestranteOcultar" name="cbPalestranteOcultar" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+							<label for="cbPalestranteOculto">Oculto</label>
+							<select id="cbPalestranteOculto" name="cbPalestranteOculto" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 						</div>
 					</div>
 					<div class="col-xs-6">
@@ -76,6 +76,8 @@
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteImagem">Imagem</label>
+					<button type="button" class="btn btn-outline btn-primary btn-sm" onclick="downloadTwitter()"><i class="fa fa-twitter"></i>Buscar Imagem do Twitter</button>
+					<div id="lblPalestranteImagemTwitter" style="display: none"><label class="col-h2">Utilizando imagem do Twitter <i class="fa fa-check fa-nomargin"></i></label></div>
 					<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
 				</div>
 				<div class="form-group">
@@ -87,8 +89,8 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> <span id="lblAlterarPalestrante">Criar Palestrante</span></button>
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i><span id="lblAlterarPalestrante">Criar Palestrante</span></button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
 			</div>
 		</form>
 	</div>
@@ -107,8 +109,8 @@
 				</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" onclick="excluirPalestrante()"><i class="fa fa-check"></i> Excluir</button>";liu7
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+				<button type="button" class="btn btn-danger" onclick="excluirPalestrante()"><i class="fa fa-check"></i>Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
 			</div>
 		</div>
 	</div>
@@ -135,7 +137,8 @@
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome Curto", data: "nome_curto" },
-				{ title: "Ocultar?", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.ocultar ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Liberado", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.liberado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
 				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
@@ -145,7 +148,7 @@
 			export: { title: "Palestrantes do Evento" }
 		});
 
-		var trClicada, preparandoImagem = false;
+		var trClicada, preparandoImagem = false, imagemTwitter = null, urlImagemTwitter = null;
 
 		prepareCbSearch(_("cbPalestranteEmpresa"));
 
@@ -179,7 +182,7 @@
 
 				$("#txtPalestranteNome").val(palestrante.nome);
 				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
-				$("#cbPalestranteOcultar").val(palestrante.ocultar);
+				$("#cbPalestranteOculto").val(palestrante.oculto);
 				$("#txtPalestrantePrioridade").val(palestrante.prioridade);
 				$("#txtPalestranteCargo").val(palestrante.cargo);
 				$("#txtPalestranteUrlSite").val(palestrante.url_site);
@@ -190,6 +193,9 @@
 				$("#txtPalestranteBioCurta").val(palestrante.bio_curta);
 
 				$("#lblAlterarPalestrante").text("Salvar Alterações");
+
+				imagemTwitter = null;
+				$("#lblPalestranteImagemTwitter").hide();
 
 				$("#modalAlterarPalestrante").modal({
 					backdrop: "static",
@@ -208,7 +214,7 @@
 					required: true,
 					maxlength: 45
 				},
-				cbPalestranteOcultar: {
+				cbPalestranteOculto: {
 					required: true
 				},
 				txtPalestrantePrioridade: {
@@ -265,7 +271,7 @@
 					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).toUpperCase(),
 					nome: trim($("#txtPalestranteNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
-					ocultar: parseInt($("#cbPalestranteOcultar").val()),
+					oculto: parseInt($("#cbPalestranteOculto").val()),
 					prioridade: (parseInt($("#txtPalestrantePrioridade").val()) || 0),
 					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
 					url_site: trim($("#txtPalestranteUrlSite").val()),
@@ -285,7 +291,7 @@
 				formData.append("idempresa", p.idempresa);
 				formData.append("nome", p.nome);
 				formData.append("nome_curto", p.nome_curto);
-				formData.append("ocultar", p.ocultar);
+				formData.append("oculto", p.oculto);
 				formData.append("prioridade", p.prioridade);
 				formData.append("cargo", p.cargo);
 				formData.append("url_site", p.url_site);
@@ -298,9 +304,14 @@
 				function terminar(atualizarVersao) {
 					preparandoImagem = false;
 
+					if (urlImagemTwitter) {
+						URL.revokeObjectURL(urlImagemTwitter);
+						urlImagemTwitter = null;
+					}
+
 					if (trClicada && (palestrante = tabela.row(trClicada).data())) {
 						p.id = palestrante.id;
-						p.versao = (atualizarVersao ? palestrante.versao + 1: palestrante.versao);
+						p.versao = (atualizarVersao ? palestrante.versao + 1 : palestrante.versao);
 						formData.append("id", p.id);
 						formData.append("versao", p.versao);
 
@@ -310,7 +321,7 @@
 								palestrante.nome_empresa = p.nome_empresa;
 								palestrante.nome = p.nome;
 								palestrante.nome_curto = p.nome_curto;
-								palestrante.ocultar = p.ocultar;
+								palestrante.oculto = p.oculto;
 								palestrante.prioridade = p.prioridade;
 								palestrante.cargo = p.cargo;
 								palestrante.url_site = p.url_site;
@@ -334,6 +345,7 @@
 						JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
 							if (response.success) {
 								p.id = parseInt(response.value);
+								p.liberado = 0;
 								eventoPalestrantesPorId[p.id] = p;
 								eventoPalestrantes.push(p);
 								eventoPalestrantes.sort(comparadorNome);
@@ -355,8 +367,7 @@
 				function prepararImagem(arquivo) {
 					preparandoImagem = true;
 
-					var reader = new FileReader();
-					reader.onload = function () {
+					function terminarImagem(src) {
 						var image = new Image();
 						image.onload = function () {
 							var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
@@ -438,7 +449,7 @@
 								context.drawImage(image, 0, 0, cw, ch);
 							}
 
-							var mime = endsWith(arquivo.name.toLowerCase(), ".png") ? "image/png" : "image/jpeg";
+							var mime = (!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
 								var data = canvas.toDataURL(mime, 1);
@@ -460,15 +471,30 @@
 							}
 						};
 						image.onerror = erroImagem;
-						image.src = reader.result;
-					};
-					reader.onerror = erroImagem;
-					reader.readAsDataURL(arquivo);
+						image.src = src;
+					}
+
+					debugger;
+
+					if (imagemTwitter) {
+						if (urlImagemTwitter)
+							URL.revokeObjectURL(urlImagemTwitter);
+						urlImagemTwitter = URL.createObjectURL(new Blob([imagemTwitter], { type: "image/jpeg" }));
+						imagemTwitter = null;
+						terminarImagem(urlImagemTwitter);
+					} else {
+						var reader = new FileReader();
+						reader.onload = function () {
+							terminarImagem(reader.result);
+						};
+						reader.onerror = erroImagem;
+						reader.readAsDataURL(arquivo);
+					}
 				}
 
 				var txtPalestranteImagem = _("txtPalestranteImagem");
-				if (txtPalestranteImagem.files && txtPalestranteImagem.files[0])
-					prepararImagem(txtPalestranteImagem.files[0]);
+				if (imagemTwitter || (txtPalestranteImagem.files && txtPalestranteImagem.files[0]))
+					prepararImagem(imagemTwitter ? null : txtPalestranteImagem.files[0]);
 				else
 					terminar(false);
 			}
@@ -483,6 +509,9 @@
 			resetForm("#formAlterarPalestrante");
 
 			$("#lblAlterarPalestrante").text("Criar Palestrante");
+
+			imagemTwitter = null;
+			$("#lblPalestranteImagemTwitter").hide();
 
 			$("#modalAlterarPalestrante").modal({
 				backdrop: "static",
@@ -516,6 +545,59 @@
 				}
 				trClicada = null;
 			}, "id", palestrante.id);
+		};
+
+		function exibirErroTwitter(mensagem) {
+			preparandoImagem = false;
+			Notification.error((mensagem || "Algo saiu errado! Por favor, tente novamente mais tarde") + " \uD83D\uDE22", true);
+		}
+
+		window.downloadTwitter = function () {
+			if ($.active || JsonWebApi.active || preparandoImagem || imagemTwitter)
+				return;
+
+			if (!("URL" in window) || !("createObjectURL" in window.URL)) {
+				BlobDownloader.alertNotSupported();
+				return;
+			}
+
+			var url = trim($("#txtPalestranteUrlTwitter").val());
+			if (url.indexOf("http://") && url.indexOf("https://")) {
+				Notification.error("URL do Twitter inválida \uD83D\uDE22", true);
+				return;
+			}
+
+			imagemTwitter = null;
+			$("#lblPalestranteImagemTwitter").hide();
+
+			Notification.wait();
+
+			preparandoImagem = true;
+
+			try {
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET", "/api/palestrante/obterImagemTwitter?url=" + encodeURIComponent(url), true);
+				xhr.responseType = "arraybuffer";
+
+				xhr.onerror = function () {
+					if (xhr.status >= 500)
+						exibirErroTwitter();
+					else
+						exibirErroTwitter("Imagem do Twitter não disponível para o usuário");
+				};
+
+				xhr.onload = function () {
+					debugger;
+					preparandoImagem = false;
+					imagemTwitter = xhr.response;
+					$("#lblPalestranteImagemTwitter").show();
+					Notification.success("Imagem obtida com sucesso! \uD83D\uDE04");
+				};
+
+				xhr.send();
+			} catch (ex) {
+				exibirErroTwitter();
+			}
 		};
 	});
 

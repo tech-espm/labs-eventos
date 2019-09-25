@@ -13,11 +13,11 @@
 			<div class="modal-body text-center">
 				<div id="qrcode"></div>
 				<div class="form-group">
-					<small>Apresente este código a partir da tela do seu celular para acessar as sessões dos eventos.<br /><br /><a id="linkQR" href="/participante/qr" target="_blank"><i class="fa fa-print"></i> Se preferir, clique aqui para gerar uma versão do código para impressão.</a></small>
+					<small>Apresente este código a partir da tela do seu celular para acessar as sessões dos eventos.<br /><br /><a id="linkQR" href="/participante/qr" target="_blank"><i class="fa fa-print"></i>Se preferir, clique aqui para gerar uma versão do código para impressão.</a></small>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
 			</div>
 		</div>
 	</div>
@@ -32,7 +32,7 @@
 			</div>
 			<div class="modal-body" id="contentInscricoes"></div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
 			</div>
 		</div>
 	</div>
@@ -56,8 +56,8 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Avaliar</button>
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i>Avaliar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
 			</div>
 		</form>
 	</div>
@@ -230,7 +230,7 @@
 								else if (terminoEvento < 0)
 									html += '<small><i>Avaliação disponível a partir de dez minutos antes do término da sessão</i></small>';
 								else
-									html += '<br /><button type="button" class="btn btn-primary" onclick="avaliar(' + inscricao.id + ')"><i class="fa fa-star"></i> Avaliar</button><br /><small><i>Você pode realizar a avaliação até dez dias depois do evento</i></small>';
+									html += '<br /><button type="button" class="btn btn-primary" onclick="avaliar(' + inscricao.id + ')"><i class="fa fa-star"></i>Avaliar</button><br /><small><i>Você pode realizar a avaliação até dez dias depois do evento</i></small>';
 							}
 						} else {
 							html += '<h3 class="titulo-inscricao">' + inscricao.nome + '<br /><small><i>Sem presença<br />';
@@ -259,7 +259,7 @@
 	}
 
 	(function () {
-		var i, evento, html = '<div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-body"><button type="button" onclick="mostrarQR()" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-qrcode"></i> Código QR para presença</button></div></div></div></div>';
+		var i, evento, html = '<div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-body"><button type="button" onclick="mostrarQR()" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-qrcode"></i>Código QR para presença</button></div></div></div></div>';
 
 		eventos.sort(function (a, b) { return b.data - a.data; });
 
@@ -276,9 +276,9 @@
 			html += ((i === (eventos.length - 1) && (eventos.length & 1)) ? "col-lg-12" : "col-sm-6");
 			html += '"><div class="panel panel-default"><div class="panel-heading">' + encode(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
 			html += '<h4 class="text-right"><i class="fa fa-calendar"></i>' + evento.data + '</h4>';
-			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i> Certificado</a></div>';
-			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i> Inscrições e avaliações</button></div>';
-			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/' + evento.url + '" target="_blank"><i class="fa fa-external-link"></i> Página do evento</a></div>';
+			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a></div>';
+			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i>Inscrições e avaliações</button></div>';
+			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/' + evento.url + '" target="_blank"><i class="fa fa-external-link"></i>Página do evento</a></div>';
 			html += '</div></div></div>';
 		}
 
