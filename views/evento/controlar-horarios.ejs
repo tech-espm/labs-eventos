@@ -30,13 +30,13 @@
 					<div class="col-xs-5">
 						<div class="form-group">
 							<label for="txtHorarioInicio">Início</label>
-							<input id="txtHorarioInicio" name="txtHorarioInicio" class="form-control upper" type="text" maxlength="50" />
+							<input id="txtHorarioInicio" name="txtHorarioInicio" class="form-control upper" type="text" maxlength="5" />
 						</div>
 					</div>
 					<div class="col-xs-5">
 						<div class="form-group">
 							<label for="txtHorarioTermino">Término</label>
-							<input id="txtHorarioTermino" name="txtHorarioTermino" class="form-control upper" type="text" maxlength="50" />
+							<input id="txtHorarioTermino" name="txtHorarioTermino" class="form-control upper" type="text" maxlength="5" />
 						</div>
 					</div>
 				</div>
@@ -77,6 +77,15 @@
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
+		$("#txtHorarioInicio").mask("00:00");
+		$("#txtHorarioTermino").mask("00:00");
+
+		var expHorario = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+		$.validator.addMethod("eventoHorario", function (value) {
+			return (!value || expHorario.test(value));
+		}, "O horário deve estar entre 00:00 e 23:59.");
+
 		var idevento = <%- idevento %>;
 		carregarHorarios(<%- horarios %>);
 
@@ -136,11 +145,15 @@
 				},
 				txtHorarioInicio: {
 					required: true,
-					minlength: 3,
-					maxlength: 50
+					eventoHorario: true,
+					minlength: 5,
+					maxlength: 5
 				},
 				txtHorarioTermino: {
-					maxlength: 50
+					required: true,
+					eventoHorario: true,
+					minlength: 5,
+					maxlength: 5
 				}
 			},
 			submitHandler: function (form) {

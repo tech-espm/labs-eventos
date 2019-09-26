@@ -71,9 +71,10 @@
     <Content Include="public\imagens\loading-grey.gif" />
     <Content Include="public\imagens\loading-white.gif" />
     <Content Include="public\imagens\loginbg.jpg" />
+    <Content Include="public\imagens\logo-cabecalho.png" />
     <Content Include="public\imagens\logo.png" />
     <Content Include="public\imagens\user.png" />
-    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.20.min.css" />
+    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.21.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />

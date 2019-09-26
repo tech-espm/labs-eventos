@@ -14,7 +14,7 @@ CREATE TABLE usuario (
   UNIQUE KEY login_UN (login)
 );
 
-INSERT INTO usuario (login, nome, tipo, senha, token, idevento_logado) VALUES ('ADMIN', 'ADMINISTRADOR', 1, 'peTcC99vkvvLqGQL7mdhGuJZIvL2iMEqvCNvZw3475PJ:JVyo1Pg2HyDyw9aSOd3gNPT30KdEyiUYCjs7RUzSoYGN', NULL, 0);
+INSERT INTO usuario (login, nome, tipo, senha, token, idevento_logado) VALUES ('ADMIN', 'ADMINISTRADOR', 0, 'peTcC99vkvvLqGQL7mdhGuJZIvL2iMEqvCNvZw3475PJ:JVyo1Pg2HyDyw9aSOd3gNPT30KdEyiUYCjs7RUzSoYGN', NULL, 0);
 
 -- DROP TABLE IF EXISTS curso;
 CREATE TABLE curso (

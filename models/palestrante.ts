@@ -166,8 +166,8 @@ export = class Palestrante {
 			}
 		});
 
-		if (enviarEmail && p.email)
-			res = await Palestrante.enviarEmailLiberacao(p);
+		//if (enviarEmail && p.email)
+		//	res = await Palestrante.enviarEmailLiberacao(p);
 
 		return res;
 	}

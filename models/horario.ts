@@ -8,13 +8,14 @@ export = class Horario {
 	public ordem: number;
 
 	private static validar(h: Horario): string {
+		let expHorario = /^([01]\d|2[0-3]):[0-5]\d$/;
 		if (isNaN(h.idevento) || h.idevento <= 0)
 			return "Evento inválido";
 		h.inicio = (h.inicio || "").normalize().trim().toUpperCase();
-		if (h.inicio.length < 3 || h.inicio.length > 50)
+		if (h.inicio.length !== 5 || !expHorario.test(h.inicio))
 			return "Início inválido";
 		h.termino = (h.termino || "").normalize().trim().toUpperCase();
-		if (h.termino.length > 50)
+		if (h.termino.length !== 5 || !expHorario.test(h.termino))
 			return "Término inválido";
 		if (isNaN(h.ordem))
 			return "Ordem inválida";
