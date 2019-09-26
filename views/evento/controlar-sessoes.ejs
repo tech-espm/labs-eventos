@@ -5,6 +5,7 @@
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
 					<button class="btn btn-primary" type="button" onclick="criarSessao()"><i class="fa fa-plus"></i>Criar Sessão...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="listarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
@@ -150,6 +151,21 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" onclick="excluirSessao()"><i class="fa fa-check"></i>Excluir</button>
 				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalGridData">
+	<div class="modal-dialog modal-flex" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Grade de Alocações</h4>
+			</div>
+			<div class="modal-body" id="modalGridDataBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
 			</div>
 		</div>
 	</div>
@@ -500,6 +516,122 @@
 				}
 				trClicada = null;
 			}, "id", sessao.id);
+		};
+
+		function criarGridData(data) {
+			var div, html, i, j, k, s, h, tr, local, ideventodata = data.id, ideventohorario, ideventolocal;
+
+			div = document.createElement("div");
+			div.className = "table-responsive";
+			div.style.paddingTop = "15px";
+
+			html = '<table id="gridData' + ideventodata + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
+			for (i = 0; i < eventoHorarios.length; i++) {
+				h = eventoHorarios[i];
+				html += '<th>' + h.inicio + ' - ' + h.termino + '</th>';
+			}
+			html += '</tr></thead><tbody>'
+
+			for (i = 0; i < eventoLocais.length; i++) {
+				local = eventoLocais[i];
+				ideventolocal = local.ideventolocal;
+
+				tr = '<tr><td class="left">' + encode(local.nome) + '</td>';
+
+				for (j = 0; j < eventoHorarios.length; j++) {
+					tr += '<td>';
+
+					ideventohorario = eventoHorarios[j].id;
+
+					for (k = 0; k < eventoSessoes.length; k++) {
+						s = eventoSessoes[k];
+
+						if (s.ideventodata !== ideventodata ||
+							s.ideventohorario !== ideventohorario ||
+							s.ideventolocal !== ideventolocal)
+							continue;
+
+						tr += encode(s.nome_curto || s.nome);
+						break;
+					}
+
+					tr += '</td>';
+				}
+
+				tr += '</tr>';
+
+				html += tr;
+			}
+
+			html += '</tbody></table>';
+
+			$(div).html(html);
+
+			return div;
+		}
+
+		window.mostrarGridData = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			var i, html, data, tabContent, tabPanel, $modalGridDataBody = $("#modalGridDataBody");
+
+			html = '<ul class="nav nav-pills text-center" role="tablist">';
+
+			for (i = 0; i < eventoDatas.length; i++) {
+				data = eventoDatas[i];
+
+				if (i)
+					html += ' ';
+
+				html += '<li role="presentation"';
+
+				if (!i)
+					html += ' class="active"';
+
+				html += '><a id="a-gridData' + data.id + '" href="#tab-gridData' + data.id + '" role="tab" data-toggle="pill" aria-controls="tab-gridData' + data.id + '"';
+
+				html += (i ? ' aria-expanded="false"' : ' aria-expanded="true"');
+
+				html += '><i class="fa fa-calendar-o"></i>' + format2(data.dia) + '/' + format2(data.mes) + '</a></li>';
+			}
+
+			html += '</ul>';
+
+			$modalGridDataBody.html(html);
+
+			tabContent = document.createElement("div");
+			tabContent.className = "tab-content";
+
+			for (i = 0; i < eventoDatas.length; i++) {
+				data = eventoDatas[i];
+
+				tabPanel = document.createElement("div");
+				tabPanel.className = (i ? "tab-pane" : "tab-pane active");
+				tabPanel.setAttribute("id", "tab-gridData" + data.id);
+				tabPanel.setAttribute("role", "tabpanel");
+
+				tabPanel.appendChild(criarGridData(data));
+
+				tabContent.appendChild(tabPanel);
+			}
+
+			$modalGridDataBody.append(tabContent);
+
+			for (i = 0; i < eventoDatas.length; i++) {
+				data = eventoDatas[i];
+
+				prepareDataTable("gridData" + data.id, {
+					order: [[0, "asc"]],
+					deferRender: false,
+					export: { title: "Sessões de " + format2(data.dia) + "-" + format2(data.mes) }
+				});
+			}
+
+			$("#modalGridData").modal({
+				backdrop: "static",
+				keyboard: true
+			});
 		};
 	});
 

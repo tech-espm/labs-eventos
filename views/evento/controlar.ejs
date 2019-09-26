@@ -65,6 +65,18 @@
 		visibility: hidden;
 	}
 
+	.grid-data th, .grid-data td {
+		text-align: center;
+	}
+
+		.grid-data th:not(:last-child), .grid-data td:not(:last-child) {
+			border-right: 1px solid #ddd;
+		}
+
+		.grid-data th.left, .grid-data td.left {
+			text-align: left;
+		}
+
 	.content-section {
 		counter-reset: content-section;
 	}
