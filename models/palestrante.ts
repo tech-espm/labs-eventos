@@ -6,6 +6,7 @@ import Sql = require("../infra/sql");
 import FS = require("../infra/fs");
 import Upload = require("../infra/upload");
 import GeradorHash = require("../utils/geradorHash");
+import emailValido = require("../utils/emailValido");
 import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
 
@@ -24,7 +25,6 @@ export = class Palestrante {
 	public nome_curto: string;
 	public email: string;
 	public oculto: number;
-	public liberado: number;
 	public prioridade: number;
 	public cargo: string;
 	public url_site: string;
@@ -61,14 +61,12 @@ export = class Palestrante {
 			return "Nome inválido";
 		p.nome_curto = (p.nome_curto || "").normalize().trim().toUpperCase();
 		if (p.nome_curto.length < 1 || p.nome_curto.length > 45)
-			return "Nome curto inválido";
+			return "Nome para divulgação inválido";
 		p.email = (p.email || "").normalize().trim().toUpperCase();
-		if (p.email.length > 100)
+		if (p.email.length < 5 || p.email.length > 100 || !emailValido(p.email))
 			return "E-mail inválido";
 		if (isNaN(p.oculto) || p.oculto < 0 || p.oculto > 1)
 			p.oculto = 0;
-		if (isNaN(p.liberado) || p.liberado < 0 || p.liberado > 1)
-			p.liberado = 0;
 		if (isNaN(p.prioridade))
 			p.prioridade = 0;
 		else if (p.prioridade < -100)
@@ -76,7 +74,7 @@ export = class Palestrante {
 		else if (p.prioridade > 100)
 			p.prioridade = 100;
 		p.cargo = (p.cargo || "").normalize().trim().toUpperCase();
-		if (p.cargo.length < 1 || p.cargo.length > 45)
+		if (p.cargo.length > 45)
 			return "Cargo inválido";
 		p.url_site = (p.url_site || "").trim();
 		if (p.url_site.length > 100)
@@ -105,7 +103,7 @@ export = class Palestrante {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, " + (externo ? "" : "p.email, ") + "p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, " + (externo ? "" : "p.email, ") + "p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.idevento = ? order by p.nome asc", [idevento]) as Palestrante[];
 		});
 
 		return (lista || []);
@@ -115,7 +113,7 @@ export = class Palestrante {
 		let lista: Palestrante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.email, p.oculto, p.liberado, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
+			lista = await sql.query("select p.id, p.idevento, p.idempresa, e.nome nome_empresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao from eventopalestrante p inner join eventoempresa e on e.id = p.idempresa where p.id = ? and p.idevento = ?", [id, idevento]) as Palestrante[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -132,7 +130,7 @@ export = class Palestrante {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, email, oculto, liberado, prioridade, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
+				await sql.query("insert into eventopalestrante (idevento, idempresa, nome, nome_curto, email, oculto, prioridade, cargo, url_site, url_twitter, url_facebook, url_linkedin, bio, bio_curta, versao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [p.idevento, p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 
 				// Chegando aqui, significa que a inclusão foi bem sucedida.

@@ -25,7 +25,7 @@
 					<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" />
 				</div>
 				<div class="form-group">
-					<label for="txtPalestranteNomeCurto">Nome Curto</label>
+					<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
 					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
 				</div>
 				<div class="form-group">
@@ -72,11 +72,11 @@
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteBio">Biografia</label>
-					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" spellcheck="false"></textarea>
+					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000"></textarea>
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteBioCurta">Biografia Curta</label>
-					<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" spellcheck="false"></textarea>
+					<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200"></textarea>
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteImagem">Imagem</label>
@@ -84,11 +84,11 @@
 					<div id="lblPalestranteImagemTwitter" style="display: none"><label class="col-h2">Utilizando imagem do Twitter <i class="fa fa-check fa-nomargin"></i></label></div>
 					<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
 				</div>
-				<div class="form-group">
+				<div class="form-group hidden">
 					<label for="cbPalestranteImagemModo">Modo de Ajuste da Imagem</label>
 					<select id="cbPalestranteImagemModo" name="cbPalestranteImagemModo" class="form-control upper" size="1">
-						<option value="" selected="selected">AMPLIAR (SEM BORDAS PRETAS)</option>
-						<option value="1">REDUZIR PARA CABER (COM BORDAS PRETAS)</option>
+						<option value="" selected="selected">AMPLIAR (SEM BORDAS)</option>
+						<option value="1">REDUZIR PARA CABER (COM BORDAS)</option>
 					</select>
 				</div>
 			</div>
@@ -140,9 +140,8 @@
 			columns: [
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
-				{ title: "Nome Curto", data: "nome_curto" },
+				{ title: "Nome para Divulgação", data: "nome_curto" },
 				{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
-				{ title: "Aceito", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.liberado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
 				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
@@ -156,12 +155,28 @@
 
 		prepareCbSearch(_("cbPalestranteEmpresa"));
 
+		function ajustarTxtURL(id) {
+			var txt = _(id);
+			txt.onblur = function () {
+				var url = trim(txt.value);
+				if (!url)
+					return;
+				if (url.indexOf("http://") && url.indexOf("https://"))
+					txt.value = "http://" + url;
+			};
+		}
+
+		ajustarTxtURL("txtPalestranteUrlSite");
+		ajustarTxtURL("txtPalestranteUrlTwitter");
+		ajustarTxtURL("txtPalestranteUrlFacebook");
+		ajustarTxtURL("txtPalestranteUrlLinkedIn");
+
 		$("#modalAlterarPalestrante").on("show.bs.modal", function () {
 			var parent = $("#txtPalestranteImagem").parent();
 			$("#txtPalestranteImagem").remove();
 			parent.append("<input id=\"txtPalestranteImagem\" name=\"txtPalestranteImagem\" class=\"form-control\" type=\"file\" accept=\"image/*\" />");
 
-			preencherCb(_("cbPalestranteEmpresa"), eventoEmpresas, trClicada ? tabela.row(trClicada).data().idempresa : "0");
+			preencherCb(_("cbPalestranteEmpresa"), eventoEmpresas, trClicada ? tabela.row(trClicada).data().idempresa : idempresapadrao.toString());
 		});
 
 		$("#modalAlterarPalestrante").on("shown.bs.modal", function () {
@@ -216,10 +231,10 @@
 					maxlength: 100
 				},
 				txtPalestranteNomeCurto: {
-					required: true,
 					maxlength: 45
 				},
 				txtPalestranteEmail: {
+					required: true,
 					email: true,
 					maxlength: 100
 				},
@@ -235,7 +250,6 @@
 					required: true,
 				},
 				txtPalestranteCargo: {
-					required: true,
 					maxlength: 45
 				},
 				txtPalestranteUrlSite: {
@@ -261,7 +275,6 @@
 					maxlength: 200
 				},
 				txtPalestranteImagem: {
-					required: function () { return !trClicada; },
 					suporteArquivoAvancado: true,
 					tamanhoArquivoMinimoBytes: 128,
 					//tamanhoArquivoMaximoKiB: 512,
@@ -291,6 +304,9 @@
 					bio_curta: trim($("#txtPalestranteBioCurta").val()).toUpperCase(),
 					versao: 0
 				};
+
+				if (!p.nome_curto)
+					p.nome_curto = (p.nome.length <= 45 ? p.nome : p.nome.substr(0, 45));
 
 				Notification.wait();
 
@@ -359,7 +375,6 @@
 								$("#modalAlterarPalestrante").modal("hide");
 
 								p.id = parseInt(response.value);
-								p.liberado = 0;
 								eventoPalestrantesPorId[p.id] = p;
 								eventoPalestrantes.push(p);
 								eventoPalestrantes.sort(comparadorNome);
@@ -463,7 +478,7 @@
 								context.drawImage(image, 0, 0, cw, ch);
 							}
 
-							var mime = (!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
+							var mime = "image/jpeg"; //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
 								var data = canvas.toDataURL(mime, 1);
@@ -505,6 +520,9 @@
 				}
 
 				var txtPalestranteImagem = _("txtPalestranteImagem");
+				// Ao criar um palestrante, se nenhuma imagem foi fornecida, coloca uma imagem em branco
+				if (!trClicada && !txtPalestranteImagem.value)
+					imagemTwitter = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82]);
 				if (imagemTwitter || (txtPalestranteImagem.files && txtPalestranteImagem.files[0]))
 					prepararImagem(imagemTwitter ? null : txtPalestranteImagem.files[0]);
 				else

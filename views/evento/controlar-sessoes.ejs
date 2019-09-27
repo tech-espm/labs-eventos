@@ -65,11 +65,15 @@
 						</div>
 					</div>
 				</div>
+				<div class="form-group">
+					<label for="txtSessaoDescricao">Descrição</label>
+					<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control upper" maxlength="200" rows="4"></textarea>
+				</div>
 				<div class="row">
 					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="cbSessaoFormato">Formato</label>
-							<select id="cbSessaoFormato" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+							<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 						</div>
 					</div>
 					<div class="col-sm-4">
@@ -296,6 +300,7 @@
 			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
+			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
@@ -384,6 +389,9 @@
 					minlength: 3,
 					maxlength: 45
 				},
+				txtSessaoDescricao: {
+					maxlength: 200
+				},
 				cbSessaoOculta: {
 					required: true
 				},
@@ -419,6 +427,7 @@
 					ideventolocal: parseInt($("#cbSessaoLocal").val()),
 					nome: trim($("#txtSessaoNome").val()).toUpperCase(),
 					nome_curto: trim($("#txtSessaoNomeCurto").val()).toUpperCase(),
+					descricao: trim($("#txtSessaoDescricao").val()).toUpperCase(),
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
@@ -453,6 +462,7 @@
 							sessao.ideventolocal = s.ideventolocal;
 							sessao.nome = s.nome;
 							sessao.nome_curto = s.nome_curto;
+							sessao.descricao = s.descricao;
 							sessao.oculta = s.oculta;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;

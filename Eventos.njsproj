@@ -218,6 +218,7 @@
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="appsettings.ts" />
+    <TypeScriptCompile Include="utils\emailValido.ts" />
     <TypeScriptCompile Include="utils\intToHex.ts" />
   </ItemGroup>
   <ItemGroup>

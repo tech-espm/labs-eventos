@@ -60,7 +60,7 @@
 
 		JsonWebApi.get("/api/usuario/eventoSelecionar", function (response) {
 			if (response.success)
-				location.reload(true);
+				location.href = "/evento";
 			else
 				Notification.error(response.value, true);
 		}, "idevento", evento.id);

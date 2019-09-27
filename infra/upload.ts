@@ -96,6 +96,36 @@ export = class Upload {
 		});
 	}
 
+	public static async criarArquivo(caminhoRelativoPasta: string, nomeArquivo: string, conteudo: Uint8Array): Promise<void> {
+		return new Promise<void>((resolve, reject) => {
+			let caminhoAbsolutoArquivo;
+			try {
+				caminhoAbsolutoArquivo = FS.gerarCaminhoAbsolutoArquivo(caminhoRelativoPasta, nomeArquivo);
+			} catch (e) {
+				reject("Caminho inválido!");
+				return;
+			}
+
+			try {
+				fs.exists(caminhoAbsolutoArquivo, (exists) => {
+					if (exists) {
+						reject("Arquivo já existe!");
+						return;
+					}
+
+					fs.writeFile(caminhoAbsolutoArquivo, conteudo, (err) => {
+						if (err)
+							reject(err);
+						else
+							resolve();
+					});
+				});
+			} catch (e) {
+				reject(e);
+			}
+		});
+	}
+
 	public static async adicionarAoFinalDoArquivo(arquivo: any, caminhoRelativoPasta: string, nomeArquivo: string): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			let caminhoAbsolutoArquivo;

@@ -148,6 +148,13 @@ export = class Empresa {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
+			let idempresapadrao = await sql.scalar("select idempresapadrao from evento where id = " + idevento) as number;
+
+			if (idempresapadrao === id) {
+				res = "A empresa não pode ser excluída";
+				return;
+			}
+
 			try {
 				await sql.beginTransaction();
 

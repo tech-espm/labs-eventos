@@ -41,11 +41,11 @@
 					<label for="txtEmpresaImagem">Imagem</label>
 					<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
 				</div>
-				<div class="form-group">
+				<div class="form-group hidden">
 					<label for="cbEmpresaImagemModo">Modo de Ajuste da Imagem</label>
 					<select id="cbEmpresaImagemModo" name="cbEmpresaImagemModo" class="form-control upper" size="1">
-						<option value="" selected="selected">AMPLIAR (SEM BORDAS PRETAS)</option>
-						<option value="1">REDUZIR PARA CABER (COM BORDAS PRETAS)</option>
+						<option value="">AMPLIAR (SEM BORDAS)</option>
+						<option value="1" selected="selected">REDUZIR PARA CABER (COM BORDAS)</option>
 					</select>
 				</div>
 			</div>
@@ -289,11 +289,12 @@
 							canvas.width = cw;
 							canvas.height = ch;
 
-							var context = canvas.getContext("2d", { alpha: false });
+							var context = canvas.getContext("2d", { alpha: true });
 							if (bordas) {
-								// Preenche o fundo de preto (as novas bordas da imagem)
-								context.fillStyle = "#000";
-								context.fillRect(0, 0, cw, ch);
+								// Preenche o fundo de transparente (as novas bordas da imagem)
+								//context.fillStyle = "#000";
+								//context.fillRect(0, 0, cw, ch);
+								context.clearRect(0, 0, cw, ch);
 
 								if ($("#cbEmpresaImagemModo").val()) {
 									// Redimensiona e centraliza a imagem dentro do canvas
@@ -325,7 +326,7 @@
 								context.drawImage(image, 0, 0, cw, ch);
 							}
 
-							var mime = endsWith(arquivo.name.toLowerCase(), ".png") ? "image/png" : "image/jpeg";
+							var mime = "image/png"; //endsWith(arquivo.name.toLowerCase(), ".png") ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
 								var data = canvas.toDataURL(mime, 1);

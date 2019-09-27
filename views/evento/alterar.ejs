@@ -63,6 +63,8 @@
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
+		window.idempresapadrao = <%- (item ? item.idempresapadrao : 0) %>;
+
 		$("#aspectratioempresa").mask("09999:09999");
 		$("#aspectratiopalestrante").mask("09999:09999");
 

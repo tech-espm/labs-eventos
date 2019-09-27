@@ -1,6 +1,8 @@
 ﻿import Arquivo = require("../infra/arquivo");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
+import Upload = require("../infra/upload");
+import Empresa = require("./empresa");
 import Participante = require("./participante");
 import Usuario = require("./usuario");
 
@@ -18,6 +20,7 @@ export = class Evento {
 	public permitealuno: number;
 	public permitefuncionario: number;
 	public permiteexterno: number;
+	public idempresapadrao: number;
 
 	private static urlRegExp = /[^a-z0-9_\-]/gi;
 	private static aspectRatioRegExp = /^\d+:\d+$/;
@@ -80,7 +83,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno from evento order by nome asc") as Evento[];
+			lista = await sql.query("select id, nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao from evento order by nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -90,7 +93,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.descricao, ev.habilitado, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
+			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.descricao, ev.habilitado, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -143,7 +146,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			lista = await sql.query(
-				"select id, nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno from evento where id = " + id +
+				"select id, nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao from evento where id = " + id +
 				(apenasDoUsuario ? (" and exists (select 1 from eventousuario where idevento = " + id + " and idusuario = " + idusuario + ")") : "")
 			) as Evento[];
 		});
@@ -162,12 +165,16 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno]);
+				await sql.query("insert into evento (nome, url, descricao, habilitado, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', 0)", [ev.id]);
+				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
+				await sql.query("update evento set idempresapadrao = ? where id = " + ev.id, [ev.idempresapadrao]);
 				let diretorio = Evento.caminhoRelativo(ev.id);
 				await FS.criarDiretorio(diretorio);
 				await FS.criarDiretorio(diretorio + "/empresas");
 				await FS.criarDiretorio(diretorio + "/palestrantes");
+				await Upload.criarArquivo(Empresa.caminhoRelativoPasta(ev.id), ev.idempresapadrao + "." + Empresa.extensaoImagem, Evento.gerarPNGVazio());
 				await sql.commit();
 				await Evento.atualizarIdsPorUrlInterno(sql);
 			} catch (e) {
@@ -263,5 +270,15 @@ export = class Evento {
 		});
 
 		return (lista || []);
+	}
+
+	public static gerarPNGVazio(): Uint8Array {
+		return new Uint8Array([
+			0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+			0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+			0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00,
+			0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+			0xAE, 0x42, 0x60, 0x82
+		]);
 	}
 }
