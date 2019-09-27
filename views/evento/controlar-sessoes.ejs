@@ -385,8 +385,6 @@
 					maxlength: 100
 				},
 				txtSessaoNomeCurto: {
-					required: true,
-					minlength: 3,
 					maxlength: 45
 				},
 				txtSessaoDescricao: {
@@ -418,8 +416,6 @@
 				if ($.active || JsonWebApi.active)
 					return;
 
-				$("#modalAlterarSessao").modal("hide");
-
 				var sessao, i, stags, s = {
 					idevento: idevento,
 					ideventodata: parseInt($("#cbSessaoData").val()),
@@ -437,6 +433,9 @@
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
 					idspalestrante: []
 				};
+
+				if (!s.nome_curto)
+					s.nome_curto = (s.nome.length <= 45 ? s.nome : s.nome.substr(0, 45));
 
 				stags = s.tags.split(",");
 				for (var i = 0; i < stags.length; i++) {
@@ -457,6 +456,7 @@
 
 					JsonWebApi.post("/api/sessao/alterar", s, function (response) {
 						if (response.success) {
+							$("#modalAlterarSessao").modal("hide");
 							sessao.ideventodata = s.ideventodata;
 							sessao.ideventohorario = s.ideventohorario;
 							sessao.ideventolocal = s.ideventolocal;
@@ -482,6 +482,9 @@
 				} else {
 					JsonWebApi.post("/api/sessao/criar", s, function (response) {
 						if (response.success) {
+							resetForm("#formAlterarSessao");
+							$("#tabelaSessaoPalestranteBody").empty();
+							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value);
 							s.inscritos = 0;
 							s.presentes = 0;

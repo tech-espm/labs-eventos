@@ -343,7 +343,6 @@
 						JsonWebApi.postFormData("/api/palestrante/alterar", formData, function (response) {
 							if (response.success) {
 								$("#modalAlterarPalestrante").modal("hide");
-
 								palestrante.idempresa = p.idempresa;
 								palestrante.nome_empresa = p.nome_empresa;
 								palestrante.nome = p.nome;
@@ -372,8 +371,9 @@
 
 						JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
 							if (response.success) {
-								$("#modalAlterarPalestrante").modal("hide");
-
+								resetForm("#formAlterarPalestrante");
+								setCbSearch(_("cbPalestranteEmpresa"), idempresapadrao.toString());
+								$("#lblPalestranteImagemTwitter").hide();
 								p.id = parseInt(response.value);
 								eventoPalestrantesPorId[p.id] = p;
 								eventoPalestrantes.push(p);

@@ -154,7 +154,6 @@
 					maxlength: 100
 				},
 				txtEmpresaNomeCurto: {
-					required: true,
 					maxlength: 45
 				},
 				cbEmpresaTipo: {
@@ -172,8 +171,6 @@
 				if ($.active || JsonWebApi.active || preparandoImagem)
 					return;
 
-				$("#modalAlterarEmpresa").modal("hide");
-
 				var empresa, e = {
 					idevento: idevento,
 					nome: trim($("#txtEmpresaNome").val()).toUpperCase(),
@@ -182,6 +179,9 @@
 					nome_tipo: trim($("#cbEmpresaTipo option:selected").text()).toUpperCase(),
 					versao: 0
 				};
+
+				if (!e.nome_curto)
+					e.nome_curto = (e.nome.length <= 45 ? e.nome : e.nome.substr(0, 45));
 
 				Notification.wait();
 
@@ -202,6 +202,7 @@
 
 						JsonWebApi.postFormData("/api/empresa/alterar", formData, function (response) {
 							if (response.success) {
+								$("#modalAlterarEmpresa").modal("hide");
 								empresa.nome = e.nome;
 								empresa.nome_curto = e.nome_curto;
 								empresa.idtipo = e.idtipo;
@@ -220,6 +221,7 @@
 
 						JsonWebApi.postFormData("/api/empresa/criar", formData, function (response) {
 							if (response.success) {
+								resetForm("#formAlterarEmpresa");
 								e.id = parseInt(response.value);
 								eventoEmpresasPorId[e.id] = e;
 								eventoEmpresas.push(e);

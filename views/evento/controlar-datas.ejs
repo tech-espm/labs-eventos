@@ -154,8 +154,6 @@
 				if ($.active || JsonWebApi.active)
 					return;
 
-				$("#modalAlterarData").modal("hide");
-
 				var data, d = {
 					idevento: idevento,
 					ano: parseInt($("#txtDataAno").val()),
@@ -170,6 +168,7 @@
 
 					JsonWebApi.post("/api/data/alterar", d, function (response) {
 						if (response.success) {
+							$("#modalAlterarData").modal("hide");
 							data.ano = d.ano;
 							data.mes = d.mes;
 							data.dia = d.dia;
@@ -184,6 +183,7 @@
 				} else {
 					JsonWebApi.post("/api/data/criar", d, function (response) {
 						if (response.success) {
+							resetForm("#formAlterarData");
 							d.id = parseInt(response.value);
 							eventoDatasPorId[d.id] = d;
 							eventoDatas.push(d);
