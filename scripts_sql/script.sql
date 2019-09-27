@@ -216,6 +216,7 @@ CREATE TABLE eventosessao (
   nome_curto varchar(45) NOT NULL,
   oculta tinyint(4) NOT NULL,
   publico_alvo varchar(100) NOT NULL,
+  tags varchar(100) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY ideventodatahorariolocal_eventosessao_UN (idevento,ideventodata,ideventohorario,ideventolocal),
   KEY idcurso_eventosessao_FK_idx (idcurso),
