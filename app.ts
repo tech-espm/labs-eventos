@@ -35,13 +35,14 @@ import Participante = require("./models/participante");
 // já processadas, por ordem de uso
 import ejs = require("ejs");
 import lru = require("lru-cache");
-import { NextFunction } from "express";
 ejs.cache = lru(200);
 
 const app = express();
 
 // Não queremos o header X-Powered-By
 app.disable("x-powered-by");
+// Não queremos o header ETag nas views
+app.disable("etag");
 
 app.use(cookieParser());
 
@@ -70,7 +71,7 @@ app.use(require("express-ejs-layouts"));
 
 // Nosso middleware para evitar cache das páginas e api
 // (deixa depois do static, pois os arquivos static devem usar cache e coisas)
-app.use((req: express.Request, res: express.Response, next: NextFunction) => {
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
 	res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
 	res.header("Expires", "-1");
 	res.header("Pragma", "no-cache");
@@ -180,7 +181,7 @@ app.use("/api/sessao", require("./routes/api/sessao"));
 //
 // Isso é possível, porque em JavaScript, f.length retorna a quantidade
 // de parâmetros declarados na função f!!!
-app.use(wrap(async (req: express.Request, res: express.Response, next) => {
+app.use(wrap(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 	let err = null;
 
 	try {
@@ -226,7 +227,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 
 // Registra os tratadores de erro
 //if (app.get("env") === "development") {
-	app.use((err: any, req: express.Request, res: express.Response, next) => {
+	app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 		res.status(err.status || 500);
 		if (err.status == 404) {
 			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Não encontrado" });
@@ -240,7 +241,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next) => {
 		// abaixo não será executado
 	});
 //}
-//app.use((err: any, req: express.Request, res: express.Response, next) => {
+//app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 //	res.status(err.status || 500);
 //	// Não envia o objeto do erro para a página
 //	res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: {} });
