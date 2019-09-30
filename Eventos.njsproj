@@ -78,7 +78,7 @@
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
-    <Content Include="scripts_sql\script.sql" />
+    <None Include="scripts_sql\script.sql" />
     <Content Include="utils\geradorHash.ts" />
     <Content Include="public\lib\bootstrap-datepicker\css\bootstrap-datepicker-1.0.0.min.css" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.eot" />
