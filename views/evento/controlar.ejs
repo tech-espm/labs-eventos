@@ -53,7 +53,7 @@
 		color: #333;
 	}
 
-	tr:not(.col-h2) .btn-evento-local-capacidade {
+	tr:not(.col-h2) .btn-evento-local {
 		visibility: hidden;
 	}
 
@@ -85,6 +85,37 @@
 		counter-increment: content-section;
 		content: counter(content-section);
 	}
+
+	.local-cor-container {
+		overflow-x: hidden;
+		overflow-y: auto;
+		white-space: nowrap;
+		text-align: center;
+	}
+
+	.local-cor {
+		display: inline-block;
+		vertical-align: bottom;
+		padding: 0;
+		margin: 0;
+		width: 40px;
+		height: 40px;
+		line-height: 32px;
+		border: 4px solid #fff;
+		cursor: pointer;
+		border-radius: 8px;
+	}
+		.local-cor.largo {
+			width: 200px;
+		}
+
+		.local-cor.sel {
+			border-color: #000;
+		}
+
+		.local-cor:hover {
+			border-color: #aaa;
+		}
 </style>
 
 <%- contentFor("scripts") %>
@@ -285,10 +316,12 @@
 				if (localSelecionado) {
 					local.ideventolocal = localSelecionado.ideventolocal;
 					local.capacidade = localSelecionado.capacidade;
+					local.cor = localSelecionado.cor;
 					locaisSelecionados[local.id] = local;
 				} else {
 					local.ideventolocal = 0;
 					local.capacidade = local.capacidade_real;
+					local.cor = -1;
 				}
 			}
 		}

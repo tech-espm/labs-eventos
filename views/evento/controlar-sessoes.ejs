@@ -553,7 +553,7 @@
 		};
 
 		function criarGridData(data) {
-			var div, html, i, j, k, s, h, tr, local, ideventodata = data.id, ideventohorario, ideventolocal;
+			var div, html, i, j, k, s, h, tr, local, cor, estilo, ideventodata = data.id, ideventohorario, ideventolocal;
 
 			div = document.createElement("div");
 			div.className = "table-responsive";
@@ -570,7 +570,9 @@
 				local = eventoLocais[i];
 				ideventolocal = local.ideventolocal;
 
-				tr = '<tr><td class="left">' + encode(local.nome) + '</td>';
+				cor = local.cor;
+
+				tr = '<tr><td class="left" ' + (cor < 0 ? '' : ('style="color: ' + textColorForBackground(cor) + '; background-color: ' + intToColor(cor) + ';"')) + '>' + encode(local.nome) + '</td>';
 
 				for (j = 0; j < eventoHorarios.length; j++) {
 					tr += '<td>';

@@ -129,7 +129,7 @@ export = class Local {
 		let lista: Local[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select l.id, evl.id ideventolocal, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade, evl.capacidade from eventolocal evl inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade where evl.idevento = " + idevento + " order by l.nome asc, u.sigla asc") as Local[];
+			lista = await sql.query("select l.id, evl.id ideventolocal, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade, evl.capacidade, evl.cor from eventolocal evl inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade where evl.idevento = " + idevento + " order by l.nome asc, u.sigla asc") as Local[];
 		});
 
 		return (lista || []);
@@ -175,7 +175,7 @@ export = class Local {
 	//	return res;
 	//}
 
-	public static async eventoAssociar(idevento: number, idlocal: number, capacidade: number): Promise<string> {
+	public static async eventoAssociar(idevento: number, idlocal: number, capacidade: number, cor: number): Promise<string> {
 		if (capacidade < 0)
 			return "Capacidade inválida";
 
@@ -183,7 +183,7 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into eventolocal (idevento, idlocal, capacidade) values (?, ?, ?)", [idevento, idlocal, capacidade]);
+				await sql.query("insert into eventolocal (idevento, idlocal, capacidade, cor) values (?, ?, ?, ?)", [idevento, idlocal, capacidade, cor < 0 ? -1 : (cor > 0xffffff ? 0xffffff : cor)]);
 
 				res = (await sql.scalar("select last_insert_id()") as number).toString();
 			} catch (e) {
@@ -238,6 +238,17 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			await sql.query("update eventolocal set capacidade = ? where idevento = ? and id = ?", [capacidade, idevento, ideventolocal]);
+			res = sql.linhasAfetadas.toString();
+		});
+
+		return res;
+	}
+
+	public static async eventoAlterarCor(idevento: number, ideventolocal: number, cor: number): Promise<string> {
+		let res: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update eventolocal set cor = ? where idevento = ? and id = ?", [cor < 0 ? -1 : (cor > 0xffffff ? 0xffffff : cor), idevento, ideventolocal]);
 			res = sql.linhasAfetadas.toString();
 		});
 

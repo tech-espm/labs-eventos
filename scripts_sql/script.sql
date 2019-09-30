@@ -170,6 +170,7 @@ CREATE TABLE eventolocal (
   idevento int NOT NULL,
   idlocal int NOT NULL,
   capacidade int NOT NULL,
+  cor int NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idevento_idlocal_eventolocal_UN (idevento,idlocal),
   KEY idlocal_FK_idx (idlocal),

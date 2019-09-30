@@ -9,6 +9,21 @@
 	</div>
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalLocalCor">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Cor do Local</h4>
+			</div>
+			<div class="modal-body" id="modalLocalCorBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
@@ -26,7 +41,8 @@
 				{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 				{ title: "Capacidade Real", "class": "col-min", data: "capacidade_real" },
 				{ title: "Unidade", "class": "col-25", render: encode, data: "sigla_unidade" },
-				{ title: "Capacidade", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<input type=\"number\" class=\"form-control upper\" value=\"" + row.capacidade + "\" style=\"width: 7em; display: inline-block;\" min=\"0\" max=\"999\" /> <button title=\"Alterar capacidade\" type=\"button\" data-capacidade=\"1\" class=\"btn btn-outline btn-primary btn-evento-local-capacidade\"><i class=\"fa fa-nomargin fa-save\"></i></button>"; } },
+				{ title: "Capacidade", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<input type=\"number\" class=\"form-control upper\" value=\"" + row.capacidade + "\" style=\"width: 7em; display: inline-block;\" min=\"0\" max=\"999\" /> <button title=\"Alterar capacidade\" type=\"button\" data-capacidade=\"1\" class=\"btn btn-outline btn-primary btn-evento-local\"><i class=\"fa fa-nomargin fa-save\"></i></button>"; } },
+				{ title: "Cor", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<button title=\"Alterar cor\" type=\"button\" data-cor=\"1\" class=\"btn btn-outline btn-default btn-force-border btn-evento-local\" style=\"background-color: " + intToColor(row.cor) + "\">&nbsp;&nbsp;</button>"; } },
 				{ title: "Associado", "class": "col-min", data: function (row, type, set, meta) { return (locaisSelecionados[row.id] ? "SIM" : "NÃO"); } },
 				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
@@ -38,7 +54,137 @@
 			}
 		});
 
-		var trClicada;
+		var trClicada, corGerada = false, divCorSel = null;
+
+		function gerarCores() {
+			function hsvToRGBWeb(h, s, v) {
+				h *= 6.0;
+				v *= 255.0;
+				var hi, r, g, b, vi;
+				if (h > 5.999) h = 0;
+				hi = h | 0;
+				h -= hi;
+				r = ((v * (1.0 - s)) + 0.5) | 0;
+				g = ((v * (1.0 - (h * s))) + 0.5) | 0;
+				b = ((v * (1.0 - ((1.0 - h) * s))) + 0.5) | 0;
+				vi = (v + 0.5) | 0;
+				switch (hi) {
+				case 1:
+					b = r;
+					r = g;
+					g = vi;
+					break;
+				case 2:
+					g = vi;
+					break;
+				case 3:
+					b = vi;
+					break;
+				case 4:
+					g = r;
+					r = b;
+					b = vi;
+					break;
+				case 5:
+					b = g;
+					g = r;
+					r = vi;
+					break;
+				default:
+					g = b;
+					b = r;
+					r = vi;
+					break;
+				}
+				if (r >= 255) r = 255;
+				else r = (r & 0xf0) | (r >>> 4);
+				if (g >= 255) g = 255;
+				else g = (g & 0xf0) | (g >>> 4);
+				if (b >= 255) b = 255;
+				else b = (b & 0xf0) | (b >>> 4);
+				return ((r << 16) | (g << 8) | b);
+			}
+
+			function gerarDivCor(i) {
+				if (i < 0)
+					return '<div id="divLocalCor-1" class="local-cor largo">Nenhuma</div>';
+
+				return '<div id="divLocalCor' + i + '" class="local-cor" style="background-color: ' + intToColor(i) + '"></div>'
+			}
+
+			var i, h = 0, s = 0, v = 1.0, html = '<div class="local-cor-container">';
+
+			html += '<div>';
+			html += gerarDivCor(-1);
+			html += '</div><div>';
+			html += gerarDivCor(hsvToRGBWeb(h, s, v));
+			v = 3.0 / 4.0;
+			html += gerarDivCor(hsvToRGBWeb(h, s, v));
+			v = 2.0 / 4.0;
+			html += gerarDivCor(hsvToRGBWeb(h, s, v));
+			v = 1.0 / 4.0;
+			html += gerarDivCor(hsvToRGBWeb(h, s, v));
+			v = 0;
+			html += gerarDivCor(hsvToRGBWeb(h, s, v));
+			html += '</div>';
+			for (i = 0; i < (30 * 5); i += 5) {
+				html += '<div>';
+				h = (i * 12) / (5.0 * 360.0);
+				v = 1.0;
+				s = 1.0 / 3.0;
+				html += gerarDivCor(hsvToRGBWeb(h, s, v));
+				s = 2.0 / 3.0;
+				html += gerarDivCor(hsvToRGBWeb(h, s, v));
+				s = 1.0;
+				html += gerarDivCor(hsvToRGBWeb(h, s, v));
+				v = 2.0 / 3.0;
+				html += gerarDivCor(hsvToRGBWeb(h, s, v));
+				v = 1.0 / 3.0;
+				html += gerarDivCor(hsvToRGBWeb(h, s, v));
+				html += '</div>';
+			}
+
+			html += '</div>';
+
+			$("#modalLocalCorBody").html(html);
+
+			$("#modalLocalCorBody").on("click", "div.local-cor", function () {
+				if ($.active || JsonWebApi.active || !trClicada)
+					return;
+
+				if (divCorSel) {
+					$(divCorSel).removeClass("sel");
+					divCorSel = null;
+				}
+
+				divCorSel = this;
+				$(divCorSel).addClass("sel");
+
+				var local = tabela.row(trClicada).data(), cor = parseInt(this.getAttribute("id").substr(11));
+
+				Notification.wait();
+
+				JsonWebApi.post("/api/local/eventoAlterarCor", { ideventolocal: local.ideventolocal, cor: cor }, function (response) {
+					if (response.success) {
+						if (response.value) {
+							$("#modalLocalCor").modal("hide");
+
+							local.cor = cor;
+							tabela.row(trClicada).invalidate().draw();
+
+							Notification.success("Cor do local para o evento alterada com sucesso! \uD83D\uDE04");
+						} else {
+							Notification.error("O local deve ser associado ao evento para que sua cor possa ser alterada", true);
+						}
+					} else {
+						Notification.error(response.value, true);
+					}
+					trClicada = null;
+				});
+			});
+
+			corGerada = true;
+		}
 
 		$("#tabela-locais").on("click", "tbody button", function () {
 			if ($.active || JsonWebApi.active)
@@ -90,6 +236,26 @@
 					}
 					trClicada = null;
 				});
+			} else if (this.getAttribute("data-cor")) {
+				if (!corGerada)
+					gerarCores();
+
+				var div = _("divLocalCor" + (local.cor < 0 ? -1 : local.cor));
+
+				if (divCorSel) {
+					$(divCorSel).removeClass("sel");
+					divCorSel = null;
+				}
+
+				if (div) {
+					divCorSel = div;
+					$(divCorSel).addClass("sel");
+				}
+
+				$("#modalLocalCor").modal({
+					backdrop: "static",
+					keyboard: true
+				});
 			} else {
 				var capacidade = parseInt(trClicada.getElementsByTagName("input")[0].value);
 				if (isNaN(capacidade) || capacidade < 0) {
@@ -102,7 +268,7 @@
 
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoAssociar", { idlocal: local.id, capacidade: local.capacidade }, function (response) {
+				JsonWebApi.post("/api/local/eventoAssociar", { idlocal: local.id, capacidade: local.capacidade, cor: local.cor }, function (response) {
 					if (response.success) {
 						local.ideventolocal = parseInt(response.value);
 						locaisSelecionados[local.id] = local;
