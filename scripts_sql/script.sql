@@ -118,6 +118,8 @@ CREATE TABLE evento (
   permitealuno tinyint(4) NOT NULL,
   permitefuncionario tinyint(4) NOT NULL,
   permiteexterno tinyint(4) NOT NULL,
+  idempresapadrao int NOT NULL,
+  emailpadrao varchar(100) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_UN (nome),
   UNIQUE KEY url_UN (url)
