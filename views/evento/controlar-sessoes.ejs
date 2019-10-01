@@ -103,10 +103,22 @@
 					</div>
 					<div class="panel-body">
 						<div class="row">
-							<div class="col-sm-6 col-sm-space-bottom">
+							<div class="col-sm-4 col-sm-space-bottom">
+								<button class="btn btn-primary btn-block" type="button" onclick="criarEAdicionarNovoPalestrante()"><i class="fa fa-plus"></i>Criar Novo</button>
+							</div>
+							<div class="col-sm-4 col-sm-space-bottom">
+								<input id="txtSessaoPalestranteNovoNome" name="txtSessaoPalestranteNovoNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" placeholder="NOME" />
+							</div>
+							<div class="col-sm-4">
+								<input id="txtSessaoPalestranteNovoEmail" name="txtSessaoPalestranteNovoEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" placeholder="E-MAIL" />
+							</div>
+						</div>
+						<hr />
+						<div class="row">
+							<div class="col-sm-4 col-sm-space-bottom">
 								<button class="btn btn-primary btn-block" type="button" onclick="adicionarPalestrante()"><i class="fa fa-plus"></i>Adicionar</button>
 							</div>
-							<div class="col-sm-6">
+							<div class="col-sm-8">
 								<select id="cbSessaoPalestrante" name="cbSessaoPalestrante" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 							</div>
 						</div>
@@ -410,6 +422,10 @@
 				},
 				txtSessaoTags: {
 					maxlength: 100
+				},
+				txtSessaoPalestranteNovoEmail: {
+					email: true,
+					maxlength: 100
 				}
 			},
 			submitHandler: function (form) {
@@ -472,7 +488,7 @@
 							sessao.tags = s.tags;
 							sessao.idspalestrante = s.idspalestrante;
 							preencherDadosSessao(sessao);
-							Notification.success("Sessão alterada com sucesso! \uD83D\uDE04");
+							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
 							tabela.row(trClicada).invalidate().draw();
 						} else {
 							Notification.error(response.value, true);
@@ -491,7 +507,7 @@
 							preencherDadosSessao(s);
 							eventoSessoesPorId[s.id] = s;
 							eventoSessoes.push(s);
-							Notification.success("Sessão criada com sucesso! \uD83D\uDE04");
+							Notification.success("Sessão criada com sucesso! " + emoji.happy);
 							tabela.row.add(s).draw();
 						} else {
 							Notification.error(response.value, true);
@@ -669,6 +685,103 @@
 				keyboard: true
 			});
 		};
+
+		var txtSessaoPalestranteNovoNome = _("txtSessaoPalestranteNovoNome"),
+			txtSessaoPalestranteNovoEmail = _("txtSessaoPalestranteNovoEmail");
+
+		window.criarEAdicionarNovoPalestrante = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			var p,
+				nome = trim(txtSessaoPalestranteNovoNome.value).normalize().toUpperCase(),
+				email = trim(txtSessaoPalestranteNovoEmail.value).normalize().toUpperCase();
+
+			if (!nome) {
+				Notification.error("Nome inválido " + emoji.sad, true);
+				return;
+			}
+
+			if (!email || email.indexOf("@") <= 0) {
+				Notification.error("E-mail inválido " + emoji.sad, true);
+				return;
+			}
+
+			p = {
+				idevento: idevento,
+				idempresa: idempresapadrao,
+				nome_empresa: eventoEmpresasPorId[idempresapadrao].nome,
+				nome: nome,
+				nome_curto: (nome.length <= 45 ? nome : nome.substr(0, 45)),
+				email: email,
+				oculto: 0,
+				prioridade: 0,
+				cargo: "",
+				url_site: "",
+				url_twitter: "",
+				url_facebook: "",
+				url_linkedin: "",
+				cargo: "",
+				bio: "",
+				bio_curta: "",
+				versao: 0
+			};
+
+			Notification.wait();
+
+			var formData = new FormData();
+			formData.append("idevento", p.idevento);
+			formData.append("idempresa", p.idempresa);
+			formData.append("nome", p.nome);
+			formData.append("nome_curto", p.nome_curto);
+			formData.append("email", p.email);
+			formData.append("oculto", p.oculto);
+			formData.append("prioridade", p.prioridade);
+			formData.append("cargo", p.cargo);
+			formData.append("url_site", p.url_site);
+			formData.append("url_twitter", p.url_twitter);
+			formData.append("url_facebook", p.url_facebook);
+			formData.append("url_linkedin", p.url_linkedin);
+			formData.append("bio", p.bio);
+			formData.append("bio_curta", p.bio_curta);
+			formData.append("versao", p.versao);
+			formData.append("imagem", new Blob([new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82])], { type: "image/png" }));
+
+			JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
+				if (response.success) {
+					txtSessaoPalestranteNovoNome.value = "";
+					txtSessaoPalestranteNovoEmail.value = "";
+					p.id = parseInt(response.value);
+					eventoPalestrantesPorId[p.id] = p;
+					eventoPalestrantes.push(p);
+					eventoPalestrantes.sort(comparadorNome);
+					$("#cbSessaoPalestrante").append('<option value="' + p.id + '">' + encode(p.nome) + '</option>');
+					setCbSearch(_("cbSessaoPalestrante"), p.id.toString());
+					Notification.success("Palestrante criado com sucesso! " + emoji.happy);
+					var tabela = _("tabela-palestrantes");
+					if (tabela) {
+						tabela = $(tabela).DataTable();
+						tabela.row.add(p).draw();
+					}
+					window.adicionarPalestrante(p.id);
+				} else {
+					Notification.error(response.value, true);
+				}
+			});
+		}
+
+		function keyPalestranteNovo(e) {
+			if (e.key == "Enter" || e.keyCode == 13) {
+				cancelEvent(e);
+				window.criarEAdicionarNovoPalestrante();
+				return false;
+			}
+		}
+
+		txtSessaoPalestranteNovoNome.onkeydown = keyPalestranteNovo;
+		txtSessaoPalestranteNovoNome.onkeyup = keyPalestranteNovo;
+		txtSessaoPalestranteNovoEmail.onkeydown = keyPalestranteNovo;
+		txtSessaoPalestranteNovoEmail.onkeyup = keyPalestranteNovo;
 	});
 
 	//]]>

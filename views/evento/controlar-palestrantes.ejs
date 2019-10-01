@@ -310,7 +310,7 @@
 
 				Notification.wait();
 
-				var formData = new FormData();
+				var formData = new FormData(), imagemVazia = false;
 				formData.append("idevento", p.idevento);
 				formData.append("idempresa", p.idempresa);
 				formData.append("nome", p.nome);
@@ -442,11 +442,15 @@
 							canvas.width = cw;
 							canvas.height = ch;
 
-							var context = canvas.getContext("2d", { alpha: false });
+							var context = canvas.getContext("2d", { alpha: imagemVazia });
 							if (bordas) {
 								// Preenche o fundo de preto (as novas bordas da imagem)
-								context.fillStyle = "#000";
-								context.fillRect(0, 0, cw, ch);
+								if (imagemVazia) {
+									context.clearRect(0, 0, cw, ch);
+								} else {
+									context.fillStyle = "#000";
+									context.fillRect(0, 0, cw, ch);
+								}
 
 								if ($("#cbPalestranteImagemModo").val()) {
 									// Redimensiona e centraliza a imagem dentro do canvas
@@ -478,7 +482,7 @@
 								context.drawImage(image, 0, 0, cw, ch);
 							}
 
-							var mime = "image/jpeg"; //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
+							var mime = (imagemVazia ? "image/png" : "image/jpeg"); //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
 								var data = canvas.toDataURL(mime, 1);
@@ -506,7 +510,7 @@
 					if (imagemTwitter) {
 						if (urlImagemTwitter)
 							URL.revokeObjectURL(urlImagemTwitter);
-						urlImagemTwitter = URL.createObjectURL(new Blob([imagemTwitter], { type: "image/jpeg" }));
+						urlImagemTwitter = URL.createObjectURL(new Blob([imagemTwitter], { type: (imagemVazia ? "image/png" : "image/jpeg") }));
 						imagemTwitter = null;
 						terminarImagem(urlImagemTwitter);
 					} else {
@@ -521,8 +525,10 @@
 
 				var txtPalestranteImagem = _("txtPalestranteImagem");
 				// Ao criar um palestrante, se nenhuma imagem foi fornecida, coloca uma imagem em branco
-				if (!trClicada && !txtPalestranteImagem.value)
-					imagemTwitter = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82]);
+				if (!trClicada && !txtPalestranteImagem.value) {
+					imagemVazia = true;
+					imagemTwitter = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82]);
+				}
 				if (imagemTwitter || (txtPalestranteImagem.files && txtPalestranteImagem.files[0]))
 					prepararImagem(imagemTwitter ? null : txtPalestranteImagem.files[0]);
 				else
