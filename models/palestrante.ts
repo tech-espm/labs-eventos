@@ -149,7 +149,7 @@ export = class Palestrante {
 				if (e.code) {
 					switch (e.code) {
 						case "ER_DUP_ENTRY":
-							res = "O palestrante já existe no evento";
+							res = "Já existe um palestrante com esse e-mail no evento";
 							break;
 						case "ER_NO_REFERENCED_ROW":
 						case "ER_NO_REFERENCED_ROW_2":
@@ -196,7 +196,7 @@ export = class Palestrante {
 			} catch (e) {
 				switch (e.code) {
 					case "ER_DUP_ENTRY":
-						res = "O palestrante já existe no evento";
+						res = "Já existe um palestrante com esse e-mail no evento";
 						break;
 					case "ER_NO_REFERENCED_ROW":
 					case "ER_NO_REFERENCED_ROW_2":

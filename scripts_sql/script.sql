@@ -198,7 +198,7 @@ CREATE TABLE eventopalestrante (
   bio_curta varchar(200) NOT NULL,
   versao int NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY idevento_nome_eventopalestrante_UN (idevento,nome),
+  UNIQUE KEY idevento_email_eventopalestrante_UN (idevento,email),
   KEY idempresa_eventopalestrante_FK_idx (idempresa),
   CONSTRAINT idempresa_eventopalestrante_FK FOREIGN KEY (idempresa) REFERENCES eventoempresa (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idevento_eventopalestrante_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT

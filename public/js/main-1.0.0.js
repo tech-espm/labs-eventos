@@ -1,5 +1,9 @@
 ﻿"use strict";
 
+window.emoji = {
+	happy: "\uD83D\uDE04",
+	sad: "\uD83D\uDE22"
+};
 window.isEmpty = function (x) {
 	return (x === undefined || x === null);
 };
