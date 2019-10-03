@@ -702,7 +702,7 @@
 				return;
 			}
 
-			if (!email || email.indexOf("@") <= 0) {
+			if (!isEmail(email)) {
 				Notification.error("E-mail inválido " + emoji.sad, true);
 				return;
 			}
@@ -770,7 +770,12 @@
 			});
 		}
 
-		function keyPalestranteNovo(e) {
+		function keydownPalestranteNovo(e) {
+			if (e.key == "Enter" || e.keyCode == 13)
+				return cancelEvent(e);
+		}
+
+		function keyupPalestranteNovo(e) {
 			if (e.key == "Enter" || e.keyCode == 13) {
 				cancelEvent(e);
 				window.criarEAdicionarNovoPalestrante();
@@ -778,10 +783,10 @@
 			}
 		}
 
-		txtSessaoPalestranteNovoNome.onkeydown = keyPalestranteNovo;
-		txtSessaoPalestranteNovoNome.onkeyup = keyPalestranteNovo;
-		txtSessaoPalestranteNovoEmail.onkeydown = keyPalestranteNovo;
-		txtSessaoPalestranteNovoEmail.onkeyup = keyPalestranteNovo;
+		txtSessaoPalestranteNovoNome.onkeydown = keydownPalestranteNovo;
+		txtSessaoPalestranteNovoNome.onkeyup = keyupPalestranteNovo;
+		txtSessaoPalestranteNovoEmail.onkeydown = keydownPalestranteNovo;
+		txtSessaoPalestranteNovoEmail.onkeyup = keyupPalestranteNovo;
 	});
 
 	//]]>

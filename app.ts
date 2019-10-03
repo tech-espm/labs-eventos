@@ -190,7 +190,11 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 			if (evento.habilitado) {
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
+					idempresapadrao: evento.idempresapadrao,
 					url: req.path,
+					urlBase: "/evt/" + evento.id + "/",
+					urlInscricao: "/participante/inscricao" + req.path + "/",
+					urlParticipante: "/participante",
 					participante: await Participante.cookie(req),
 					datas: await Data.listar(evento.id),
 					empresas: await Empresa.listar(evento.id),

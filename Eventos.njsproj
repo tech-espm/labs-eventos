@@ -67,6 +67,7 @@
     <Content Include="public\favicons\favicon.png" />
     <Content Include="public\favicons\favicon.svg" />
     <Content Include="public\favicons\manifest.json" />
+    <Content Include="public\imagens\loading-444-t.gif" />
     <Content Include="public\imagens\loading-grey-t.gif" />
     <Content Include="public\imagens\loading-grey.gif" />
     <Content Include="public\imagens\loading-white.gif" />
@@ -282,7 +283,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.5.js" />
-    <Compile Include="public\js\main-1.0.0.js" />
+    <Compile Include="public\js\main-1.0.1.js" />
     <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.3.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.0.min.js" />
     <Compile Include="public\lib\data-tables\js\data-tables-1.0.10.min.js" />
