@@ -211,10 +211,10 @@
 								eventoEmpresas.sort(comparadorNome);
 								Notification.success("Empresa alterada com sucesso! \uD83D\uDE04");
 								tabela.row(trClicada).invalidate().draw();
+								trClicada = null;
 							} else {
 								Notification.error(response.value, true);
 							}
-							trClicada = null;
 						});
 					} else {
 						formData.append("versao", e.versao);

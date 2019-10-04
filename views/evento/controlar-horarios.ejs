@@ -181,10 +181,10 @@
 							eventoHorarios.sort(comparadorOrdem);
 							Notification.success("Horário alterado com sucesso! \uD83D\uDE04");
 							tabela.row(trClicada).invalidate().draw();
+							trClicada = null;
 						} else {
 							Notification.error(response.value, true);
 						}
-						trClicada = null;
 					});
 				} else {
 					JsonWebApi.post("/api/horario/criar", h, function (response) {

@@ -175,10 +175,10 @@
 							eventoDatas.sort(comparadorAnoMesDia);
 							Notification.success("Data alterada com sucesso! \uD83D\uDE04");
 							tabela.row(trClicada).invalidate().draw();
+							trClicada = null;
 						} else {
 							Notification.error(response.value, true);
 						}
-						trClicada = null;
 					});
 				} else {
 					JsonWebApi.post("/api/data/criar", d, function (response) {

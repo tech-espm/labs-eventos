@@ -171,6 +171,7 @@
 
 							local.cor = cor;
 							tabela.row(trClicada).invalidate().draw();
+							trClicada = null;
 
 							Notification.success("Cor do local para o evento alterada com sucesso! \uD83D\uDE04");
 						} else {
@@ -179,7 +180,6 @@
 					} else {
 						Notification.error(response.value, true);
 					}
-					trClicada = null;
 				});
 			});
 
