@@ -885,6 +885,8 @@ window.intToColor = function (i) {
 	return "#" + s.substr(s.length - 6);
 };
 window.relativeLuminance = function (rgb) {
+	if (rgb < 0)
+		return 1;
 	//http://www.w3.org/TR/2007/WD-WCAG20-TECHS-20070517/Overview.html#G18
 	var RsRGB = ((rgb >>> 16) & 0xff) / 255.0,
 		GsRGB = ((rgb >>> 8) & 0xff) / 255.0,
@@ -896,7 +898,7 @@ window.relativeLuminance = function (rgb) {
 	return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
 };
 window.textColorForBackground = function (i) {
-	return (relativeLuminance(i) < 0.5 ? "#fff" : "#000");
+	return (relativeLuminance(i) < 0.4 ? "#fff" : "#000");
 };
 (function () {
 	var fullScreenFrame = null;

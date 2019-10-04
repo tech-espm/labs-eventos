@@ -107,6 +107,10 @@
 	#contentInscricoes hr {
 		margin: 40px 0;
 	}
+
+	.badge-sala {
+		font-size: inherit;
+	}
 </style>
 
 <%- contentFor("scripts") %>
@@ -240,9 +244,18 @@
 								html += 'Avaliação indisponível</i></small>';
 						}
 						html += '</h3>';
-						html += '<p class="text-right"><i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes - 1] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
+						html += '<p class="text-right">';
+
+						var j, tags = (inscricao.tags ? inscricao.tags.split(", ") : null);
+						if (tags && tags.length) {
+							for (j = 0; j < tags.length; j++)
+								html += ' <span class="badge">' + tags[j] + '</span>';
+							html += '<br/>';
+						}
+
+						html += '<i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes - 1] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
 						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
-						html += '<div><i class="fa fa-map-marker"></i>Sala/Auditório: ' + inscricao.nome_local + '</div>';
+						html += '<p><i class="fa fa-map-marker"></i>Sala/Auditório: <span class="badge badge-sala" style="background-color: ' + intToColor(inscricao.cor) + '; color: ' + textColorForBackground(inscricao.cor) + ';">' + inscricao.nome_local + '</p>';
 					}
 				}
 
