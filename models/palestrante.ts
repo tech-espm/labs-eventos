@@ -11,8 +11,7 @@ import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
 
 export = class Palestrante {
-	// Não utilizar números > 0x7FFFFFFF, pois os XOR resultarão em -1
-	private static readonly HashId = 0x34d7687e;
+	private static readonly HashId = appsettings.palestranteHashId;
 
 	public static readonly tamanhoMaximoImagemEmKiB = 512;
 	public static readonly tamanhoMaximoImagemEmBytes = Palestrante.tamanhoMaximoImagemEmKiB << 10;

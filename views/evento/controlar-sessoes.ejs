@@ -363,7 +363,6 @@
 
 				JsonWebApi.get("/api/sessao/listarAceites", function (response) {
 					if (response.success) {
-						debugger;
 						Notification.hide();
 						if (response.value && response.value.length) {
 							aceites = {};

@@ -10,10 +10,9 @@ import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
 
 export = class Participante {
-	// Não utilizar números > 0x7FFFFFFF, pois os XOR resultarão em -1
-	private static readonly HashId = 0x1a4ed863;
-	private static readonly HashIdParticipante = 0x397ef9ef;
-	private static readonly HashIdEvento = 0x2e6f23e2;
+	private static readonly HashId = appsettings.participanteHashId;
+	private static readonly HashIdParticipante = appsettings.participanteHashIdParticipante;
+	private static readonly HashIdEvento = appsettings.participanteHashIdEvento;
 
 	public static readonly TipoAluno = 1;
 	public static readonly TipoFuncionario = 2;

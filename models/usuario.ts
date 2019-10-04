@@ -11,11 +11,9 @@ import intToHex = require("../utils/intToHex");
 export = class Usuario {
 	private static readonly cacheUsuarioLogados = lru(100);
 
-	// A senha padrão é 1234
-	private static readonly HashSenhaPadrao = "peTcC99vkvvLqGQL7mdhGuJZIvL2iMEqvCNvZw3475PJ:JVyo1Pg2HyDyw9aSOd3gNPT30KdEyiUYCjs7RUzSoYGN";
-	// Não utilizar números > 0x7FFFFFFF, pois os XOR resultarão em -1
-	private static readonly HashId = 0x16e7fef4;
-	private static readonly HashIdEvento = 0x1843bfe0;
+	private static readonly HashSenhaPadrao = appsettings.usuarioHashSenhaPadrao;
+	private static readonly HashId = appsettings.usuarioHashId;
+	private static readonly HashIdEvento = appsettings.usuarioHashIdEvento;
 
 	public static readonly TipoAdmin = 0;
 	public static readonly TipoComum = 1;
