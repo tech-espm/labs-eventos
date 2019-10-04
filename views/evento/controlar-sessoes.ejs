@@ -16,7 +16,7 @@
 </div>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="modalAlterarSessao">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-flex" role="document">
 		<form class="modal-content" id="formAlterarSessao" method="post">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
@@ -129,7 +129,9 @@
 										<th></th>
 										<th></th>
 										<th class="col-50">Nome</th>
-										<th class="col-50">Empresa</th>
+										<th class="col-50">E-mail</th>
+										<th class="col-25">Empresa</th>
+										<th class="col-min">Aceite</th>
 										<th></th>
 									</tr>
 								</thead>
@@ -273,7 +275,9 @@
 				'<td class="col-min content-enum"></td>' +
 				'<td class="col-min"><img alt="Imagem da Palestrante" style="max-width: 100px; max-height: 75px;" src="/evt/' + idevento + '/palestrantes/' + id + '.' + extensaoImagem + '?v=' + palestrante.versao + '"></td>' +
 				'<td class="col-50">' + encode(palestrante.nome) + '</td>' +
-				'<td class="col-50">' + encode(palestrante.nome_empresa) + '</td>' +
+				'<td class="col-50">' + encode(palestrante.email) + '</td>' +
+				'<td class="col-25">' + encode(palestrante.nome_empresa) + '</td>' +
+				'<td class="col-min">' + ((aceites && aceites[palestrante.id]) || "-") + "</td>" +
 				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerPalestrante(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
 				'</tr>');
 
@@ -293,7 +297,7 @@
 				$("#tabelaSessaoPalestrante").hide();
 		};
 
-		var trClicada;
+		var trClicada, aceites;
 
 		prepareCbSearch(_("cbSessaoData"));
 		prepareCbSearch(_("cbSessaoHorario"));
@@ -353,10 +357,27 @@
 
 				$("#lblAlterarSessao").text("Salvar Alterações");
 
-				$("#modalAlterarSessao").modal({
-					backdrop: "static",
-					keyboard: true
-				});
+				aceites = null;
+
+				Notification.wait();
+
+				JsonWebApi.get("/api/sessao/listarAceites", function (response) {
+					if (response.success) {
+						debugger;
+						Notification.hide();
+						if (response.value && response.value.length) {
+							aceites = {};
+							for (var i = response.value.length - 1; i >= 0; i--)
+								aceites[response.value[i].ideventopalestrante] = response.value[i].aceite;
+						}
+						$("#modalAlterarSessao").modal({
+							backdrop: "static",
+							keyboard: true
+						});
+					} else {
+						Notification.error("Não foi possível obter o estado de aceite dos palestrantes " + emoji.sad, true);
+					}
+				}, "id", sessao.id);
 			}
 		});
 
@@ -490,10 +511,10 @@
 							preencherDadosSessao(sessao);
 							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
 							tabela.row(trClicada).invalidate().draw();
+							trClicada = null;
 						} else {
 							Notification.error(response.value, true);
 						}
-						trClicada = null;
 					});
 				} else {
 					JsonWebApi.post("/api/sessao/criar", s, function (response) {
@@ -523,6 +544,7 @@
 				return;
 
 			trClicada = null;
+			aceites = null;
 
 			resetForm("#formAlterarSessao");
 

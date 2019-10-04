@@ -245,6 +245,8 @@ CREATE TABLE eventosessaopalestrante (
   idevento int NOT NULL,
   ideventosessao int NOT NULL,
   ideventopalestrante int NOT NULL,
+  ordem tinyint(4) NOT NULL,
+  aceite datetime DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY ideventosessaopalestrante_eventosessaopalestrante_UN (idevento,ideventosessao,ideventopalestrante),
   KEY ideventosessao_eventosessaopalestrante_FK_idx (ideventosessao),

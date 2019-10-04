@@ -74,7 +74,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.descricao, s.oculta, s.publico_alvo, s.tags, (select group_concat(esp.ideventopalestrante order by esp.id) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + " order by d.ano asc, d.mes asc, d.dia asc, h.ordem asc, l.nome asc") as Sessao[];
+			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.descricao, s.oculta, s.publico_alvo, s.tags, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + " order by d.ano asc, d.mes asc, d.dia asc, h.ordem asc, l.nome asc") as Sessao[];
 		});
 
 		return (lista || []);
@@ -84,18 +84,70 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.descricao, s.oculta, s.publico_alvo, s.tags, (select group_concat(esp.ideventopalestrante order by esp.id) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento) as Sessao[];
+			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.descricao, s.oculta, s.publico_alvo, s.tags, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento) as Sessao[];
 		});
 
 		return ((lista && lista[0]) || null);
 	}
 
+	public static async listarAceites(id: number, idevento: number): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select ideventopalestrante, date_format(aceite, '%d/%m/%Y') aceite from eventosessaopalestrante where ideventosessao = " + id + " and idevento = " + idevento) as any[];
+		});
+
+		return (lista || []);
+	}
+
 	public static async inserirPalestrantes(sql: Sql, s: Sessao): Promise<void> {
-		await sql.query("delete from eventosessaopalestrante where idevento = " + s.idevento + " and ideventosessao = " + s.id);
+		let existentes: { id: number, ideventopalestrante: number, ordem: number }[] = await sql.query("select id, ideventopalestrante, ordem from eventosessaopalestrante where ideventosessao = " + s.id + " and idevento = " + s.idevento);
+
+		let excluir: number[] = [];
+		let atualizar: { id: number, ordem: number }[] = [];
+		let adicionar: { ideventopalestrante: number, ordem: number }[] = [];
 
 		if (s.idspalestrante) {
-			for (let i = 0; i < s.idspalestrante.length; i++)
-				await sql.query("insert into eventosessaopalestrante (idevento, ideventosessao, ideventopalestrante) values (?, ?, ?)", [s.idevento, s.id, s.idspalestrante[i]]);
+			for (let i = 0; i < s.idspalestrante.length; i++) {
+				let ideventopalestrante = s.idspalestrante[i];
+				let idJaExistia = false;
+
+				for (let j = existentes.length - 1; j >= 0; j--) {
+					if (existentes[j].ideventopalestrante === ideventopalestrante) {
+						idJaExistia = true;
+						if (existentes[j].ordem !== i) {
+							atualizar.push({
+								id: existentes[j].id,
+								ordem: i
+							});
+						}
+						existentes.splice(j, 1);
+						break;
+					}
+				}
+
+				if (!idJaExistia)
+					adicionar.push({
+						ideventopalestrante: ideventopalestrante,
+						ordem: i
+					});
+			}
+		}
+
+		if (existentes.length) {
+			for (let i = existentes.length - 1; i >= 0; i--)
+				excluir.push(existentes[i].id);
+			await sql.query("delete from eventosessaopalestrante where id in (" + excluir.join(",") + ")");
+		}
+
+		if (atualizar.length) {
+			for (let i = 0; i < atualizar.length; i++)
+				await sql.query("update eventosessaopalestrante set ordem = ? where id = ?", [atualizar[i].ordem, atualizar[i].id]);
+		}
+
+		if (adicionar.length) {
+			for (let i = 0; i < adicionar.length; i++)
+				await sql.query("insert into eventosessaopalestrante (idevento, ideventosessao, ideventopalestrante, ordem) values (?, ?, ?, ?)", [s.idevento, s.id, adicionar[i].ideventopalestrante, adicionar[i].ordem]);
 		}
 	}
 

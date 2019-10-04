@@ -21,6 +21,14 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	res.json(isNaN(id) ? null : await Sessao.obter(id, u.idevento_logado));
 }));
 
+router.get("/listarAceites", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	let id = parseInt(req.query["id"]);
+	res.json(isNaN(id) ? null : await Sessao.listarAceites(id, u.idevento_logado));
+}));
+
 router.post("/criar", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
