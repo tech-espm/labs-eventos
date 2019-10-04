@@ -53,6 +53,22 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"]) : "Dados inválidos!");
 }));
 
+router.post("/alterarExterno/:h", multer().single("imagem"), wrap(async (req: express.Request, res: express.Response) => {
+	let id: number, idevento: number;
+	[id, idevento] = await Palestrante.validarHashExterno(req.params["h"] as string);
+	if (id <= 0 || idevento <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+	let p = req.body as Palestrante;
+	if (p) {
+		p.id = id;
+		p.idevento = idevento;
+		p.versao = parseInt(req.body.versao);
+	}
+	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"], true) : "Dados inválidos!");
+}));
+
 router.get("/excluir", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)

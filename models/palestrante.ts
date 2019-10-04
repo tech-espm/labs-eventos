@@ -12,6 +12,7 @@ import intToHex = require("../utils/intToHex");
 
 export = class Palestrante {
 	private static readonly HashId = appsettings.palestranteHashId;
+	private static readonly HashIdEvento = appsettings.palestranteHashIdEvento;
 
 	public static readonly tamanhoMaximoImagemEmKiB = 512;
 	public static readonly tamanhoMaximoImagemEmBytes = Palestrante.tamanhoMaximoImagemEmKiB << 10;
@@ -169,7 +170,7 @@ export = class Palestrante {
 		return res;
 	}
 
-	public static async alterar(p: Palestrante, arquivo: any): Promise<string> {
+	public static async alterar(p: Palestrante, arquivo: any, externo: boolean = false): Promise<string> {
 		let res: string;
 		if ((res = Palestrante.validar(p)))
 			return res;
@@ -178,7 +179,10 @@ export = class Palestrante {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, email = ?, oculto = ?, prioridade = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
+				if (externo)
+					await sql.query("update eventopalestrante set nome = ?, nome_curto = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.nome, p.nome_curto, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
+				else
+					await sql.query("update eventopalestrante set idempresa = ?, nome = ?, nome_curto = ?, email = ?, oculto = ?, prioridade = ?, cargo = ?, url_site = ?, url_twitter = ?, url_facebook = ?, url_linkedin = ?, bio = ?, bio_curta = ?, versao = ? where id = ? and idevento = ?", [p.idempresa, p.nome, p.nome_curto, p.email, p.oculto, p.prioridade, p.cargo, p.url_site, p.url_twitter, p.url_facebook, p.url_linkedin, p.bio, p.bio_curta, p.versao, p.id, p.idevento]);
 
 				if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
 					// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -313,9 +317,36 @@ export = class Palestrante {
 		httpreq.end();
 	}
 
+	public static async gerarLinkExterno(id: number, idevento: number): Promise<string> {
+		let sid = intToHex(id).toLowerCase() + intToHex(idevento).toLowerCase();
+		let sidHash = intToHex(id ^ Palestrante.HashId).toLowerCase() + intToHex(idevento ^ Palestrante.HashIdEvento).toLowerCase();
+		return "https://credenciamento.espm.br/evento/palestrante/" + sidHash + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
+	}
+
 	public static async gerarLinkLiberacao(id: number): Promise<string> {
-		let sid = intToHex(id ^ Palestrante.HashId).toLowerCase();
-		return "https://credenciamento.espm.br/evento/termo/" + sid + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
+		let sid = intToHex(id).toLowerCase();
+		let sidHash = intToHex(id ^ Palestrante.HashId).toLowerCase();
+		return "https://credenciamento.espm.br/evento/termo/" + sidHash + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
+	}
+
+	public static async validarHashExterno(hash: string): Promise<[number, number]> {
+		if (!hash || hash.length <= 16)
+			return [0, 0];
+
+		let sid = hash.substr(0, 16).toLowerCase();
+		let id = parseInt(sid.substr(0, 8), 16);
+		let idevento = parseInt(sid.substr(8), 16);
+		if (isNaN(id) || id <= 0 || isNaN(idevento) || idevento <= 0)
+			return [0, 0];
+
+		id ^= Palestrante.HashId;
+		idevento ^= Palestrante.HashIdEvento;
+		sid = intToHex(id).toLowerCase() + intToHex(idevento).toLowerCase();
+
+		if (!(await GeradorHash.validarSenha(sid, hash.substr(16).replace(/\_/g, ":").replace(/\-/g, "/").replace(/@/g, "+").replace(/\[/g, "="))))
+			return [0, 0];
+
+		return [id, idevento];
 	}
 
 	public static async liberar(hash: string): Promise<boolean> {
@@ -328,6 +359,7 @@ export = class Palestrante {
 			return false;
 
 		id ^= Palestrante.HashId;
+		sid = intToHex(id).toLowerCase();
 
 		if (!(await GeradorHash.validarSenha(sid, hash.substr(8).replace(/\_/g, ":").replace(/\-/g, "/").replace(/@/g, "+").replace(/\[/g, "="))))
 			return false;
