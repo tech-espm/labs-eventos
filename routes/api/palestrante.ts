@@ -64,6 +64,7 @@ router.post("/alterarExterno/:h", multer().single("imagem"), wrap(async (req: ex
 	if (p) {
 		p.id = id;
 		p.idevento = idevento;
+		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
 	}
 	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"], true) : "Dados inválidos!");
@@ -97,18 +98,18 @@ router.get("/obterImagemTwitter", wrap(async (req: express.Request, res: express
 	Palestrante.obterImagemTwitter(url, res);
 }));
 
-router.get("/gerarLinkLiberacao", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/gerarLinkExterno/:i", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
 
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.params["i"]);
 	if (isNaN(id) || id <= 0) {
 		jsonRes(res, 400, "Dados inválidos!");
 		return;
 	}
 
-	res.json(await Palestrante.gerarLinkLiberacao(id));
+	res.json(await Palestrante.gerarLinkExterno(id, u.idevento_logado));
 }));
 
 export = router;

@@ -104,6 +104,7 @@
     <Content Include="views\evento\controlar-locais.ejs" />
     <Content Include="views\evento\controlar-usuarios.ejs" />
     <Content Include="views\evento\controlar.ejs" />
+    <Content Include="views\evento\palestrante-externo.ejs" />
     <Content Include="views\home\perfil.ejs" />
     <Content Include="views\home\nao-encontrado.ejs" />
     <Content Include="views\home\acesso.ejs" />
@@ -289,7 +290,7 @@
     <Compile Include="public\lib\data-tables\js\data-tables-1.0.10.min.js" />
     <Compile Include="public\lib\jquery-mask\js\jquery-mask-1.0.0.min.js" />
     <Compile Include="public\lib\jquery-ui\js\jquery-ui-1.0.0.min.js" />
-    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.0.min.js" />
+    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.1.min.js" />
     <Compile Include="public\lib\jquery-validate\js\messages_pt_BR.min.js" />
     <Compile Include="public\lib\jquery\js\jquery-1.0.1.min.js" />
     <Compile Include="public\lib\metis-menu\js\metis-menu-1.0.1.min.js" />

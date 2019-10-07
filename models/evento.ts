@@ -10,6 +10,7 @@ import Usuario = require("./usuario");
 export = class Evento {
 	public static readonly nomesReservados: string[] = [];
 	public static idsPorUrl = {};
+	public static eventosPorId = {};
 
 	public id: number;
 	public nome: string;
@@ -74,14 +75,18 @@ export = class Evento {
 
 	private static async atualizarIdsPorUrlInterno(sql: Sql): Promise<void> {
 		let idsPorUrl = {};
+		let eventosPorId = {};
 		let lista = await sql.query("select id, url, idempresapadrao, habilitado from evento") as Evento[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				idsPorUrl["/" + e.url] = { id: e.id, idempresapadrao: e.idempresapadrao, habilitado: e.habilitado };
+				let evt = { id: e.id, url: "/" + e.url, idempresapadrao: e.idempresapadrao, habilitado: e.habilitado };
+				idsPorUrl[evt.url] = evt;
+				eventosPorId[e.id] = evt;
 			}
 		}
 		Evento.idsPorUrl = idsPorUrl;
+		Evento.eventosPorId = eventosPorId;
 	}
 
 	public static async listar(): Promise<Evento[]> {

@@ -72,17 +72,6 @@
 		$("#aspectratioempresa").mask("09999:09999");
 		$("#aspectratiopalestrante").mask("09999:09999");
 
-		var urlRegExp = /[^a-z0-9_\-]/gi;
-		var aspectRatioRegExp = /^\d+:\d+$/;
-
-		$.validator.addMethod("eventoUrl", function (value) {
-			return (!value || !urlRegExp.test(value));
-		}, "A URL deve conter apenas letras, números, e os caracteres \"-\" e \"_\".");
-
-		$.validator.addMethod("eventoAspectRatio", function (value) {
-			return (!value || aspectRatioRegExp.test(value));
-		}, "O aspect ratio deve ter o formato \"999:999\" (16:9, 1:1, 3:4...)");
-
 		$("#form").validate({
 			rules: {
 				nome: {

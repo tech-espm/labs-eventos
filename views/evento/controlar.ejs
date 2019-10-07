@@ -129,84 +129,8 @@
 		return parseInt(d.replace(":", ""));
 	};
 
-	// Métodos de validação especial para arquivos
-	$.validator.addMethod("suporteArquivoAvancado", function (value, element, param) {
-		return (window.File && window.FileReader && window.FormData);
-	}, $.validator.format("O browser não suporta tratamento avançado de arquivos (você deve utilizar o Firefox 13+ ou Google Chrome 21+)"));
-
-	$.validator.addMethod("tamanhoArquivoMinimoBytes", function (value, element, param) {
-		if (!element.files)
-			return false;
-		return (!value.length || !element.files.length || !element.files[0] || element.files[0].size >= param);
-	}, $.validator.format("O arquivo deve ter pelo menos {0} bytes"));
-
-	$.validator.addMethod("tamanhoArquivoMaximoKiB", function (value, element, param) {
-		if (!element.files)
-			return false;
-		return (!value.length || !element.files.length || !element.files[0] || element.files[0].size <= (param << 10));
-	}, $.validator.format("O arquivo deve ter no máximo {0} KB"));
-
-	$.validator.addMethod("extensaoArquivo", function (value, element, param) {
-		if (!element.files)
-			return false;
-		// Não estamos utilizando str.endsWith() porque tem browsers que não suportam...
-		if (!value.length || !element.files.length || !element.files[0])
-			return true;
-		var ext = element.files[0].name.toLowerCase(), i;
-		if ((typeof param === "string"))
-			return endsWith(ext, param);
-		for (var i = param.length - 1; i >= 0; i--) {
-			if (endsWith(ext, param[i]))
-				return true;
-		}
-		return false;
-	}, $.validator.format("O arquivo deve ter a extensão {0}"));
-
 	var tabArquivosVisivel = false,
 		tabLandingPageVisivel = false;
-
-	if ($ && $.validator) {
-		$.validator.addMethod("nomearquivo", function (value, element) {
-			return !(value = trim(value)) ||
-				(value.indexOf("\\") < 0 &&
-					value.indexOf("/") < 0 &&
-					value.charAt(0) != "." &&
-					value.indexOf("..") < 0 &&
-					value.indexOf("*") < 0 &&
-					value.indexOf("?") < 0);
-		}, "Nome de arquivo inválido.");
-		$.validator.addMethod("anomesdia", function (value, element) {
-			var ano = parseInt($("#txtDataAno").val()),
-				mes = parseInt($("#txtDataMes").val()),
-				dia = parseInt(value);
-			if (isNaN(ano) || isNaN(mes) || isNaN(dia) ||
-				ano < 1 || ano > 9999 ||
-				mes < 1 || mes > 12 ||
-				dia < 1 || dia > 31)
-				return true;
-			if (dia < 1)
-				return false;
-			switch (mes) {
-				case 2:
-					if (!(ano % 4) && ((ano % 100) || !(ano % 400))) {
-						if (dia > 29)
-							return false;
-					} else {
-						if (dia > 28)
-							return false;
-					}
-					break;
-				case 4:
-				case 6:
-				case 9:
-				case 11:
-					if (dia > 30)
-						return false;
-					break;
-			}
-			return true;
-		}, "Dia inválido para o mês.");
-	}
 
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),

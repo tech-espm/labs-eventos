@@ -1,0 +1,330 @@
+﻿
+<div class="painel-msg">
+	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
+		<div class="panel-heading clearfix">
+			<div class="pull-left"><span>M</span>INHAS <span>I</span>NFORMAÇÕES</div>
+			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%-url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label for="txtPalestranteNome">Nome</label>
+				<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" value="<%=palestrante.nome %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
+				<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.nome_curto %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteEmail">E-mail</label>
+				<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" value="<%=palestrante.email %>" disabled="disabled" />
+			</div>
+			<div class="form-group">
+				<label for="cbPalestranteEmpresa">Empresa</label>
+				<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control upper" size="1">
+					<option value="">SELECIONE...</option>
+					<% for (var i = 0; i < empresas.length; i++) { %>
+					<option value="<%-empresas[i].id %>"><%=empresas[i].nome %></option>
+					<% } %>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteCargo">Cargo</label>
+				<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.cargo %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
+				<input id="txtPalestranteUrlSite" name="txtPalestranteUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_site %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteUrlTwitter">URL do Twitter <small><i>(http://... ou https://...)</i></small></label>
+				<input id="txtPalestranteUrlTwitter" name="txtPalestranteUrlTwitter" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_twitter %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteUrlFacebook">URL do Facebook <small><i>(http://... ou https://...)</i></small></label>
+				<input id="txtPalestranteUrlFacebook" name="txtPalestranteUrlFacebook" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_facebook %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteUrlLinkedIn">URL do LinkedIn <small><i>(http://... ou https://...)</i></small></label>
+				<input id="txtPalestranteUrlLinkedIn" name="txtPalestranteUrlLinkedIn" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_linkedin %>" />
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteBio">Biografia <small><i>(Até 1000 caracteres)</i></small></label>
+				<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" rows="8"><%=palestrante.bio %></textarea>
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteBioCurta">Biografia Curta <small><i>(Até 200 caracteres)</i></small></label>
+				<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
+			</div>
+			<div class="form-group">
+				<label for="txtPalestranteImagem">Nova Imagem</label>
+				<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
+			</div>
+			<div class="form-group no-margin-bottom">
+				<label for="txtPalestranteImagemAtual">Imagem Atual</label>
+				<br />
+				<img alt="Foto Palestrante" id="txtPalestranteImagemAtual" height="200" src="/evt/<%-idevento %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
+			</div>
+			<div class="form-group hidden">
+				<label for="cbPalestranteImagemModo">Modo de Ajuste da Imagem</label>
+				<select id="cbPalestranteImagemModo" name="cbPalestranteImagemModo" class="form-control upper" size="1">
+					<option value="" selected="selected">AMPLIAR (SEM BORDAS)</option>
+					<option value="1">REDUZIR PARA CABER (COM BORDAS)</option>
+				</select>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
+		</div>
+	</form>
+</div>
+
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.painel-msg {
+		text-align: left;
+		padding-top: 5%;
+		padding-bottom: 5%;
+	}
+
+	.panel-default > .panel-heading {
+		background-color: rgba(255,255,255,0.85);
+		font-size: 25px;
+	}
+
+		.panel-default > .panel-heading span {
+			font-size: 40px;
+		}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	var versao = <%-palestrante.versao %>, preparandoImagem = false;
+
+	prepareCbSearch(_("cbPalestranteEmpresa"));
+	setCbSearch(_("cbPalestranteEmpresa"), "<%-palestrante.idempresa %>");
+
+	$("#form").validate({
+		rules: {
+			txtPalestranteNome: {
+				required: true,
+				maxlength: 100
+			},
+			txtPalestranteNomeCurto: {
+				required: true,
+				maxlength: 45
+			},
+			txtPalestranteEmail: {
+				required: true,
+				email: true,
+				maxlength: 100
+			},
+			cbPalestranteEmpresa: {
+				required: true,
+			},
+			txtPalestranteCargo: {
+				required: true,
+				maxlength: 45
+			},
+			txtPalestranteUrlSite: {
+				url: true,
+				maxlength: 100
+			},
+			txtPalestranteUrlTwitter: {
+				url: true,
+				maxlength: 100
+			},
+			txtPalestranteUrlFacebook: {
+				url: true,
+				maxlength: 100
+			},
+			txtPalestranteUrlLinkedIn: {
+				url: true,
+				maxlength: 100
+			},
+			txtPalestranteBio: {
+				maxlength: 1000
+			},
+			txtPalestranteBioCurta: {
+				maxlength: 200
+			},
+			txtPalestranteImagem: {
+				suporteArquivoAvancado: true,
+				tamanhoArquivoMinimoBytes: 128,
+				//tamanhoArquivoMaximoKiB: 512,
+				extensaoArquivo: [".png", ".jpg", ".jpeg"]
+			}
+		},
+		submitHandler: function (form) {
+			if ($.active || JsonWebApi.active || preparandoImagem)
+				return;
+
+			Notification.wait();
+
+			var formData = new FormData();
+			formData.append("idempresa", parseInt($("#cbPalestranteEmpresa").val()));
+			formData.append("nome", trim($("#txtPalestranteNome").val()).toUpperCase());
+			formData.append("nome_curto", trim($("#txtPalestranteNomeCurto").val()).toUpperCase());
+			formData.append("email", trim($("#txtPalestranteEmail").val()).toUpperCase());
+			formData.append("cargo", trim($("#txtPalestranteCargo").val()).toUpperCase());
+			formData.append("url_site", trim($("#txtPalestranteUrlSite").val()));
+			formData.append("url_twitter", trim($("#txtPalestranteUrlTwitter").val()));
+			formData.append("url_facebook", trim($("#txtPalestranteUrlFacebook").val()));
+			formData.append("url_linkedin", trim($("#txtPalestranteUrlLinkedIn").val()));
+			formData.append("bio", trim($("#txtPalestranteBio").val()).toUpperCase());
+			formData.append("bio_curta", trim($("#txtPalestranteBioCurta").val()).toUpperCase());
+
+			function terminar(atualizarVersao) {
+				preparandoImagem = false;
+
+				if (atualizarVersao)
+					versao++;
+				formData.append("versao", versao);
+
+				JsonWebApi.postFormData("/api/palestrante/alterarExterno/<%-hash %>", formData, function (response) {
+					if (response.success) {
+						txtPalestranteImagem.value = "";
+						if (atualizarVersao)
+							_("txtPalestranteImagemAtual").setAttribute("src", "/evt/<%-idevento %>/palestrantes/<%-palestrante.id %>.png?v=" + versao);
+						Notification.success("Informações alteradas com sucesso! " + emoji.happy);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+			}
+
+			function erroImagem() {
+				preparandoImagem = false;
+				Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
+			}
+
+			function prepararImagem(arquivo) {
+				preparandoImagem = true;
+
+				function terminarImagem(src) {
+					var image = new Image();
+					image.onload = function () {
+						var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
+
+						// Inicialmente ajusta o tamanho do canvas com base
+						// no aspect ratio desejado, caso exista algum
+						var aspectratiopalestrante = $("#aspectratiopalestrantevalido").val();
+						if (aspectratiopalestrante) {
+							var rw = aspectratiopalestrante.split(":"), rh;
+							if (rw.length === 2 &&
+								!isNaN(rh = parseInt(rw[1])) &&
+								!isNaN(rw = parseInt(rw[0])) &&
+								rh > 0 &&
+								rw > 0) {
+								if (Math.abs((cw / ch) - (rw / rh)) > 0.07) {
+									bordas = true;
+									// Preserva a maior dimensão
+									if ((cw / rw) >= (ch / rh))
+										ch = (cw * rh) / rw;
+									else
+										cw = (ch * rw) / rh;
+								}
+							}
+						}
+
+						// Não podemos ter imagens muito grandes
+						if (cw >= ch) {
+							if (cw > 600) {
+								ch = ch * (600 / cw);
+								cw = 600;
+							}
+						} else {
+							if (ch > 600) {
+								cw = cw * (600 / ch);
+								ch = 600;
+							}
+						}
+
+						cw = (cw + 0.5) | 0;
+						ch = (ch + 0.5) | 0;
+
+						var canvas = document.createElement("canvas");
+						canvas.width = cw;
+						canvas.height = ch;
+
+						var context = canvas.getContext("2d", { alpha: false });
+						if (bordas) {
+							// Preenche o fundo de preto (as novas bordas da imagem)
+							context.fillStyle = "#000";
+							context.fillRect(0, 0, cw, ch);
+
+							if ($("#cbPalestranteImagemModo").val()) {
+								// Redimensiona e centraliza a imagem dentro do canvas
+								if ((cw / ch) > (w / h)) {
+									// Bordas verticais nas laterais
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								} else {
+									// Bordas horizontais acima e abaixo
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								}
+							} else {
+								// Amplia cortando o excesso
+								if ((cw / ch) > (w / h)) {
+									// Corta a parte superior e inferior da imagem
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								} else {
+									// Corta as laterais da imagem
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								}
+							}
+
+							context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
+						} else {
+							// Apenas redimensiona (não precisa de bordas)
+							context.drawImage(image, 0, 0, cw, ch);
+						}
+
+						var mime = "image/jpeg"; //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
+
+						if (!HTMLCanvasElement.prototype.toBlob) {
+							var data = canvas.toDataURL(mime, 1);
+
+							// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
+							var binStr = atob(data.split(",")[1]),
+								len = binStr.length,
+								arr = new Uint8Array(len);
+							for (var i = 0; i < len; i++)
+								arr[i] = binStr.charCodeAt(i);
+
+							formData.append("imagem", new Blob([arr], { type: mime }));
+							terminar(true);
+						} else {
+							canvas.toBlob(function (blob) {
+								formData.append("imagem", blob);
+								terminar(true);
+							}, mime, 1);
+						}
+					};
+					image.onerror = erroImagem;
+					image.src = src;
+				}
+
+				var reader = new FileReader();
+				reader.onload = function () {
+					terminarImagem(reader.result);
+				};
+				reader.onerror = erroImagem;
+				reader.readAsDataURL(arquivo);
+			}
+
+			var txtPalestranteImagem = _("txtPalestranteImagem");
+			if (txtPalestranteImagem.files && txtPalestranteImagem.files[0])
+				prepararImagem(txtPalestranteImagem.files[0]);
+			else
+				terminar(false);
+		}
+	});
+	//]]>
+</script>

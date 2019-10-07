@@ -976,9 +976,9 @@ window.textColorForBackground = function (i) {
 	},
 		buildResponse = function (xhr) {
 			try {
-				if (xhr.status === 200) {
+				if (xhr.status === 200 && xhr.responseText) {
 					return { xhr: xhr, success: true, status: 200, value: JSON.parse(xhr.responseText) };
-				} else if (xhr.status > 200 && xhr.status < 299) {
+				} else if (xhr.status >= 200 && xhr.status < 299) {
 					return { xhr: xhr, success: true, status: xhr.status, value: "" };
 				} else {
 					// Errors are handled here (299 is a special value treated as error)

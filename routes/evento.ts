@@ -217,12 +217,28 @@ router.get("/controlar-usuarios", wrap(async (req: express.Request, res: express
 	}
 }));
 
-router.get("/termo/:i", wrap(async (req: express.Request, res: express.Response) => {
-	let i = req.params["i"] as string;
-	if (i && await Palestrante.liberar(i))
-		res.render("shared/sucesso-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Aceite do Uso de Imagem", mensagem: "Muito obrigado por confirmar o aceite do uso de imagem" });
-	else
-		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Aceite do Uso de Imagem", mensagem: "Não foi possível confirmar o aceite do uso de imagem. Por favor, tente novamente mais tarde" });
+router.get("/palestrante/:h", wrap(async (req: express.Request, res: express.Response) => {
+	let hash = req.params["h"] as string;
+	let id: number, idevento: number;
+	[id, idevento] = await Palestrante.validarHashExterno(hash);
+	if (id <= 0 || idevento <= 0) {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Chave", mensagem: "Chave de acesso inválida" });
+		return;
+	}
+
+	let evt = Evento.eventosPorId[idevento];
+	if (!evt || !evt.habilitado) {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro", mensagem: "Não foi possível encontrar um evento com essa chave de acesso" });
+		return;
+	}
+
+	let p = await Palestrante.obter(id, idevento);
+	if (!p) {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro", mensagem: "Não foi possível encontrar um palestrante com essa chave de acesso" });
+		return;
+	}
+
+	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, titulo: "Minhas Informações", palestrante: p, empresas: await Empresa.listar(idevento), idevento: idevento, idempresapadrao: evt.idempresapadrao, url: evt.url, hash: hash });
 }));
 
 export = router;
