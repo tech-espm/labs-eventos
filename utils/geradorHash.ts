@@ -41,4 +41,41 @@ export = class GeradorHash {
 			});
 		});
 	}
+
+	public static async criarHashHex(senha: string): Promise<string> {
+		return new Promise<string>((resolve, reject) => {
+			var salt = randomBytes(GeradorHash.SALT_BYTE_SIZE);
+			pbkdf2(Buffer.from(senha), salt, 1024, GeradorHash.HASH_BYTE_SIZE, "sha512", (err, derivedKey) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				resolve(derivedKey.toString("hex") + salt.toString("hex"));
+			});
+		});
+	}
+
+	public static async validarSenhaHex(senha: string, hash: string): Promise<boolean> {
+		return new Promise<boolean>((resolve, reject) => {
+			if (!senha || !hash || hash.length != (33 * 2 * 2)) {
+				resolve(false);
+				return;
+			}
+			var senhaHash = hash.substring(0, 33 * 2);
+			var saltHash = hash.substring(33 * 2);
+			if (!senhaHash || !saltHash) {
+				resolve(false);
+				return;
+			}
+			pbkdf2(Buffer.from(senha), Buffer.from(saltHash, "hex"), 1024, GeradorHash.HASH_BYTE_SIZE, "sha512", (err, derivedKey) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				resolve(derivedKey.toString("hex") === senhaHash);
+			});
+		});
+	}
 }

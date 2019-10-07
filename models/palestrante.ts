@@ -35,6 +35,22 @@ export = class Palestrante {
 	public bio_curta: string;
 	public versao: number;
 
+	public static idPalestranteParaIdCertificado(idpalestrante: number, idevento: number): string {
+		return intToHex(idpalestrante ^ Palestrante.HashId) +
+			intToHex(idevento ^ Palestrante.HashIdEvento);
+	}
+
+	public static idCertificadoParaIdPalestrante(idcertificado: string): [number, number] {
+		if (!idcertificado || idcertificado.length !== 16)
+			return null;
+		let idpalestrante = parseInt(idcertificado.substring(0, 8), 16);
+		let idevento = parseInt(idcertificado.substring(8), 16);
+		if (isNaN(idpalestrante) || idpalestrante < 0 ||
+			isNaN(idevento) || idevento < 0)
+			return null;
+		return [idpalestrante ^ Palestrante.HashId, idevento ^ Palestrante.HashIdEvento];
+	}
+
 	public static caminhoRelativoPasta(idevento: number): string {
 		return `public/evt/${idevento}/palestrantes`;
 	}
@@ -124,8 +140,6 @@ export = class Palestrante {
 		if ((res = Palestrante.validar(p)))
 			return res;
 
-		let enviarEmail = false;
-
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.beginTransaction();
@@ -143,8 +157,6 @@ export = class Palestrante {
 				res = p.id.toString();
 
 				await sql.commit();
-
-				enviarEmail = true;
 			} catch (e) {
 				if (e.code) {
 					switch (e.code) {
@@ -163,9 +175,6 @@ export = class Palestrante {
 				}
 			}
 		});
-
-		//if (enviarEmail && p.email)
-		//	res = await Palestrante.enviarEmailLiberacao(p);
 
 		return res;
 	}
@@ -318,83 +327,74 @@ export = class Palestrante {
 	}
 
 	public static async gerarLinkExterno(id: number, idevento: number): Promise<string> {
-		let sid = intToHex(id).toLowerCase() + intToHex(idevento).toLowerCase();
-		let sidHash = intToHex(id ^ Palestrante.HashId).toLowerCase() + intToHex(idevento ^ Palestrante.HashIdEvento).toLowerCase();
-		return "https://credenciamento.espm.br/evento/palestrante/" + sidHash + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
-	}
-
-	public static async gerarLinkLiberacao(id: number): Promise<string> {
-		let sid = intToHex(id).toLowerCase();
-		let sidHash = intToHex(id ^ Palestrante.HashId).toLowerCase();
-		return "https://credenciamento.espm.br/evento/termo/" + sidHash + (await GeradorHash.criarHash(sid)).replace(/\:/g, "_").replace(/\//g, "-").replace(/\+/g, "@").replace(/\=/g, "[");
+		let r = (Math.random() * 0x3fffffff) | 0;
+		let sid = (intToHex(id) + intToHex(idevento)).toLowerCase();
+		let sidHash = (intToHex(r) + intToHex(id ^ r ^ Palestrante.HashId) + intToHex(idevento ^ r ^ Palestrante.HashIdEvento)).toLowerCase();
+		return "https://credenciamento.espm.br/evento/palestrante/" + sidHash + await GeradorHash.criarHashHex(sid);
 	}
 
 	public static async validarHashExterno(hash: string): Promise<[number, number]> {
-		if (!hash || hash.length <= 16)
+		if (!hash || hash.length !== (24 + (33 * 2 * 2)))
 			return [0, 0];
 
-		let sid = hash.substr(0, 16).toLowerCase();
-		let id = parseInt(sid.substr(0, 8), 16);
-		let idevento = parseInt(sid.substr(8), 16);
-		if (isNaN(id) || id <= 0 || isNaN(idevento) || idevento <= 0)
+		let sid = hash.substr(0, 24);
+		let r = parseInt(sid.substr(0, 8), 16);
+		let id = parseInt(sid.substr(8, 8), 16);
+		let idevento = parseInt(sid.substr(16), 16);
+		if (isNaN(r) || r < 0 || r > 0x3fffffff ||
+			isNaN(id) || id <= 0 ||
+			isNaN(idevento) || idevento <= 0)
 			return [0, 0];
 
-		id ^= Palestrante.HashId;
-		idevento ^= Palestrante.HashIdEvento;
-		sid = intToHex(id).toLowerCase() + intToHex(idevento).toLowerCase();
+		id ^= r ^ Palestrante.HashId;
+		idevento ^= r ^ Palestrante.HashIdEvento;
+		sid = (intToHex(id) + intToHex(idevento)).toLowerCase();
 
-		if (!(await GeradorHash.validarSenha(sid, hash.substr(16).replace(/\_/g, ":").replace(/\-/g, "/").replace(/@/g, "+").replace(/\[/g, "="))))
+		if (!(await GeradorHash.validarSenhaHex(sid, hash.substr(24))))
 			return [0, 0];
 
 		return [id, idevento];
 	}
 
-	public static async liberar(hash: string): Promise<boolean> {
-		if (!hash || hash.length <= 8)
-			return false;
+	public static async enviarEmailLinkExterno(id: number, idevento: number, email: string, emailEvento: string): Promise<string> {
+		let res: string = null;
 
-		let sid = hash.substr(0, 8).toLowerCase();
-		let id = parseInt(sid, 16);
-		if (isNaN(id) || id <= 0)
-			return false;
+		let link = await Palestrante.gerarLinkExterno(id, idevento);
 
-		id ^= Palestrante.HashId;
-		sid = intToHex(id).toLowerCase();
+		let transporter = nodemailer.createTransport(appsettings.mailConfig);
 
-		if (!(await GeradorHash.validarSenha(sid, hash.substr(8).replace(/\_/g, ":").replace(/\-/g, "/").replace(/@/g, "+").replace(/\[/g, "="))))
-			return false;
-
-		let res = false;
+		await transporter.sendMail({
+			from: emailEvento.toLowerCase(),
+			to: email.toLowerCase(),
+			subject: "Informações",
+			text: `Olá!\n\nVocê está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.\n\nComo respeitamos muito sua imagem e sua privacidade, pedimos a gentileza de preencher suas próprias informações para serem exibidas no site.\n\nAlém disso, algumas sessões poderão ser gravadas e retransmitidas. Contudo, isso só ocorrerá mediante seu aceite.\n\nPara preencher as informações e dar o aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:\n\n${link}\n\nCaso desconheça sua participação no evento, por favor, desconsidere essa mensagem.\n\nAté breve!\n\nTenha um excelente evento :)`,
+			html: `<p>Olá!</p><p>Você está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.</p><p>Como respeitamos muito sua imagem e sua privacidade, pedimos a gentileza de preencher suas próprias informações para serem exibidas no site.</p><p>Além disso, algumas sessões poderão ser gravadas e retransmitidas. Contudo, isso só ocorrerá mediante seu aceite.</p><p>Para preencher as informações e dar o aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:</p><p><a target="_blank" href="${link}">${link}</a></p><p>Caso desconheça sua participação no evento, por favor, desconsidere essa mensagem.</p><p>Até breve!</p><p>Tenha um excelente evento :)</p>`
+		});
 
 		await Sql.conectar(async (sql: Sql) => {
-			await sql.query("update eventopalestrante set liberado = 1 where id = " + id);
-
-			res = !!sql.linhasAfetadas;
+			res = await sql.scalar("update eventosessaopalestrante set email = now() where idevento = " + idevento + " and ideventopalestrante = " + id + "; select date_format(now(), '%d/%m/%Y %H:%i');") as string;
 		});
 
 		return res;
 	}
 
-	private static async enviarEmailLiberacao(p: Palestrante): Promise<string> {
+	public static async listarSessoesEAceites(id: number, idevento: number): Promise<any[]> {
+		let lista = [];
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select s.id, s.nome, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, h.inicio, h.termino, u.sigla sigla_unidade, l.nome nome_local, el.cor, date_format(esp.aceite, '%d/%m/%Y %H:%i') aceite from eventosessao s inner join eventosessaopalestrante esp on esp.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join eventohorario h on h.id = s.ideventohorario where s.idevento = " + idevento + " and esp.idevento = " + idevento + " and esp.ideventopalestrante = " + id + " order by d.ano asc, d.mes asc, d.dia asc, h.ordem asc, l.nome asc");
+		});
+
+		return lista;
+	}
+
+	public static async concederAceiteExterno(id: number, idevento: number, idsessao: number): Promise<string> {
 		let res: string = null;
 
-		let link = await Palestrante.gerarLinkLiberacao(p.id);
-
-		try {
-			let transporter = nodemailer.createTransport(appsettings.mailConfig);
-
-			await transporter.sendMail({
-				from: appsettings.mailFromRedefinicao,
-				to: p.email.toLowerCase(),
-				subject: "Termo de Aceite do Uso de Imagem",
-				text: `Olá!\n\nVocê está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.\n\nComo respeitamos muito sua imagem e sua privacidade, sua imagem e suas informações só serão exibidas no site do evento mediante seu aceite.\n\nPara dar esse aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:\n\n${link}\n\nCaso desconheça sua participação no evento, por favor, desconsidere essa mensagem.\n\nAté breve!\n\nTenha um excelente evento :)`,
-				html: `<p>Olá!</p><p>Você está recebendo essa mensagem pois vai participar como palestrante de um evento na ESPM.</p><p>Como respeitamos muito sua imagem e sua privacidade, sua imagem e suas informações só serão exibidas no site do evento mediante seu aceite</p><p>Para dar esse aceite, por favor, basta acessar o endereço abaixo a partir de seu browser:</p><p><a target="_blank" href="${link}">${link}</a></p><p>Caso desconheça sua participação no evento, por favor, desconsidere essa mensagem.</p><p>Até breve!</p><p>Tenha um excelente evento :)</p>`
-			});
-
-			res = p.id.toString();
-		} catch (ex) {
-			res = "O palestrante foi criado com sucesso! Porém houve uma falha ao enviar o e-mail com o link para o termo de aceite do uso de imagem. Por favor, envie o link manualmente \uD83D\uDE22";
-		}
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update eventosessaopalestrante set aceite = now() where idevento = " + idevento + " and ideventosessao = " + idsessao + " and ideventopalestrante = " + id);
+			res = await sql.scalar("select date_format(aceite, '%d/%m/%Y %H:%i') from eventosessaopalestrante where idevento = " + idevento + " and ideventosessao = " + idsessao + " and ideventopalestrante = " + id) as string;
+		});
 
 		return res;
 	}

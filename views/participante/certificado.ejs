@@ -5,12 +5,12 @@
 				<img alt="ESPM" width="150" src="/imagens/logo.png" />
 			</div>
 			<h1>Certificado de Participação</h1>
-			<p>A ESPM certifica que <b><%=participante.nome %></b> (<b><%=participante.email %></b>) participou das atividades descritas abaixo, com uma carga horária total de <b id="lblHoras"></b>, nos respectivos dias e horários, como parte do evento <b><%=evento.nome %></b>.</p>
+			<p>A ESPM certifica que <b><%=participante.nome %></b> (<b><%=participante.email %></b>) <%-(palestrante ? "ministrou as" : "participou das") %> sessões descritas abaixo, com uma carga horária total de <b id="lblHoras"></b>, nos respectivos dias e horários, como parte do evento <b><%=evento.nome %></b>.</p>
 			<div class="table-responsive" style="margin-bottom: 15px;">
 				<table class="table table-hover">
 					<thead>
 						<tr>
-							<th class="text-left">Atividade</th>
+							<th class="text-left">Sessão</th>
 							<th class="col-min text-center">Data</th>
 							<th class="col-min text-center">Início</th>
 							<th class="col-min text-center">Término</th>
@@ -29,7 +29,7 @@
 						Link para verificação de autenticidade do certificado:
 					</span>
 					<br />
-					credenciamento.espm.br/participante/certificado/<%-idcertificado %>
+					credenciamento.espm.br/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
 				</small>
 			</div>
 		</div>
@@ -97,7 +97,7 @@
 			}
 
 			html += '<tr><td class="text-left">' + encode(presenca.nome) + '</td>';
-			html += '<td class="col-min text-center">' + format2(presenca.dia) + months[presenca.mes - 1] + presenca.ano + '</td>';
+			html += '<td class="col-min text-center">' + (presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) + '</td>';
 			html += '<td class="col-min text-center">' + presenca.inicio + '</td>';
 			html += '<td class="col-min text-center">' + presenca.termino + '</td>';
 			html += '<td class="col-min text-center">' + duracao.toFixed(1).replace(".", ",") + '</td></tr>';

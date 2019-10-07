@@ -70,6 +70,16 @@ router.post("/alterarExterno/:h", multer().single("imagem"), wrap(async (req: ex
 	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"], true) : "Dados inválidos!");
 }));
 
+router.get("/concederAceite/:h/:s", wrap(async (req: express.Request, res: express.Response) => {
+	let id: number, idevento: number, idsessao: number;
+	[id, idevento] = await Palestrante.validarHashExterno(req.params["h"] as string);
+	if (id <= 0 || idevento <= 0 || isNaN(idsessao = parseInt(req.params["s"])) || idsessao <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+	res.json(await Palestrante.concederAceiteExterno(id, idevento, idsessao));
+}));
+
 router.get("/excluir", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)

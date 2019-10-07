@@ -40,7 +40,7 @@ router.all("/alterar", wrap(async (req: express.Request, res: express.Response) 
 	}
 }));
 
-router.get("/listar", wrap(async (req: express.Request, res: express.Response) => {
+router.all("/listar", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u || !u.admin) {
 		res.redirect("/acesso");
@@ -49,7 +49,7 @@ router.get("/listar", wrap(async (req: express.Request, res: express.Response) =
 	}
 }));
 
-router.get("/", wrap(async (req: express.Request, res: express.Response) => {
+router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u) {
 		res.redirect("/acesso");
@@ -217,7 +217,7 @@ router.get("/controlar-usuarios", wrap(async (req: express.Request, res: express
 	}
 }));
 
-router.get("/palestrante/:h", wrap(async (req: express.Request, res: express.Response) => {
+router.all("/palestrante/:h", wrap(async (req: express.Request, res: express.Response) => {
 	let hash = req.params["h"] as string;
 	let id: number, idevento: number;
 	[id, idevento] = await Palestrante.validarHashExterno(hash);
@@ -238,7 +238,31 @@ router.get("/palestrante/:h", wrap(async (req: express.Request, res: express.Res
 		return;
 	}
 
-	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, titulo: "Minhas Informações", palestrante: p, empresas: await Empresa.listar(idevento), idevento: idevento, idempresapadrao: evt.idempresapadrao, url: evt.url, hash: hash });
+	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, titulo: "Minhas Informações", palestrante: p, idcertificado: Palestrante.idPalestranteParaIdCertificado(id, idevento), empresas: await Empresa.listar(idevento), evento: await Evento.obter(idevento), sessoes: await Palestrante.listarSessoesEAceites(id, idevento), hash: hash });
+}));
+
+router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let idcertificado = req.params["i"] as string;
+	let ids = Palestrante.idCertificadoParaIdPalestrante(idcertificado);
+	if (!ids) {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Código de certificado inválido" });
+	} else {
+		let palestrante = await Palestrante.obter(ids[0], ids[1]);
+		if (!palestrante) {
+			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Participante não encontrado" });
+		} else {
+			let evento = await Evento.obter(ids[1]);
+			if (!evento) {
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Evento não encontrado" });
+			} else {
+				let sessoes = await Palestrante.listarSessoesEAceites(ids[0], ids[1]);
+				if (!sessoes || !sessoes.length)
+					res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "O palestrante não possui sessões no evento " + evento.nome });
+				else
+					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: true, titulo: "Certificado de Participação", palestrante: true, participante: palestrante, evento: evento, idcertificado: idcertificado, presencas: JSON.stringify(sessoes) });
+			}
+		}
+	}
 }));
 
 export = router;
