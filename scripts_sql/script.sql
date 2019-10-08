@@ -303,6 +303,7 @@ CREATE TABLE eventosessaoparticipante (
   UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (idevento,ideventosessao,idparticipante),
   KEY ideventosessao_FK_idx (ideventosessao),
   KEY idparticipante_FK_idx (idparticipante),
+  KEY idevento_idparticipante_idx (idevento, idparticipante),
   CONSTRAINT ideventosessao_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idparticipante_FK FOREIGN KEY (idparticipante) REFERENCES participante (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );

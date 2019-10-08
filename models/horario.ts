@@ -7,6 +7,10 @@ export = class Horario {
 	public termino: string;
 	public ordem: number;
 
+	public static converterEmInteiro(h: string): number {
+		return (!h ? 0 : parseInt(h.replace(":", ""), 10));
+	}
+
 	private static validar(h: Horario): string {
 		let expHorario = /^([01]\d|2[0-3]):[0-5]\d$/;
 		if (isNaN(h.idevento) || h.idevento <= 0)

@@ -23,6 +23,24 @@
 	</div>
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluir">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Excluir Inscrição</h4>
+			</div>
+			<div class="modal-body">
+				Tem certeza que deseja excluir sua inscrição na sessão <span id="lblExcluirNome"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="excluir()"><i class="fa fa-check"></i>Excluir</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="modalInscricoes">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -115,7 +133,7 @@
 	//<![CDATA[
 	"use strict";
 
-	var eventos = <%- eventos %>, qrcode = null, idParaAvaliar = 0;
+	var eventos = <%- eventos %>, qrcode = null, idParaAvaliar = 0, idParaExcluir = 0, idEventoParaExcluir = 0;
 
 	function mostrarQR() {
 		if (JsonWebApi.active)
@@ -144,6 +162,39 @@
 			return;
 
 		idParaAvaliar = id;
+		idParaExcluir = 0;
+		idEventoParaExcluir = 0;
+
+		$("#modalInscricoes").modal("hide");
+	}
+
+	function excluir() {
+		if (JsonWebApi.active || !idParaExcluir || !idEventoParaExcluir)
+			return;
+
+		$("#modalExcluir").modal("hide");
+
+		Notification.wait();
+
+		JsonWebApi.get("/api/participante/excluirInscricao", function (response) {
+			if (response.success)
+				Notification.success("Inscrição excluída com sucesso! " + emoji.happy);
+			else
+				Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
+		}, "id", idParaExcluir, "idevento", idEventoParaExcluir);
+
+		idParaExcluir = 0;
+		idEventoParaExcluir = 0;
+	}
+
+	function excluirInscricao(id, idevento, nome) {
+		if (JsonWebApi.active)
+			return;
+
+		$("#lblExcluirNome").text(nome);
+		idParaAvaliar = 0;
+		idParaExcluir = id;
+		idEventoParaExcluir = idevento;
 
 		$("#modalInscricoes").modal("hide");
 	}
@@ -168,10 +219,10 @@
 
 			JsonWebApi.get("/api/participante/avaliarSessao", function (response) {
 				if (response.success) {
-					Notification.success("Avaliação realizada cm sucesso! \uD83D\uDE04");
+					Notification.success("Avaliação realizada com sucesso! " + emoji.happy);
 					$("#modalAvaliacao").modal("hide");
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			}, "id", idParaAvaliar, "avaliacao", $("#txtAvaliacao").val(), "comentario", trim($("#txtComentario").val()));
 		}
@@ -182,6 +233,8 @@
 			return;
 
 		idParaAvaliar = 0;
+		idParaExcluir = 0;
+		idEventoParaExcluir = 0;
 
 		Notification.wait();
 
@@ -238,6 +291,9 @@
 								html += 'Período de avaliação encerrado</i></small>';
 							else
 								html += 'Avaliação indisponível</i></small>';
+							var nomeJS = JSON.stringify(inscricao.nome).substr(1);
+							nomeJS = nomeJS.substr(0, nomeJS.length - 1);
+							html += '<br /><button type="button" class="btn btn-danger btn-xs" onclick="excluirInscricao(' + inscricao.id + ', ' + idevento + ', \'' + nomeJS + '\')"><i class="fa fa-times"></i>Excluir</button>';
 						}
 						html += '</h3>';
 						html += '<p class="text-right">';
@@ -300,6 +356,11 @@
 				resetForm("#formAvaliacao");
 
 				$("#modalAvaliacao").modal({
+					backdrop: "static",
+					keyboard: false
+				});
+			} else if (idParaExcluir) {
+				$("#modalExcluir").modal({
 					backdrop: "static",
 					keyboard: false
 				});

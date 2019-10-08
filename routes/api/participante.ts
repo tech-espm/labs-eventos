@@ -2,6 +2,7 @@
 import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../../utils/jsonRes");
 import Participante = require("../../models/participante");
+import Sessao = require("../../models/sessao");
 
 const router = express.Router();
 
@@ -45,6 +46,18 @@ router.get("/avaliarSessao", wrap(async (req: express.Request, res: express.Resp
 		res.json(await Participante.avaliarSessao(p.id, ideventosessaoparticipante, avaliacao, comentario));
 	else
 		jsonRes(res, 400, "Dados inválidos");
+}));
+
+router.get("/excluirInscricao", wrap(async (req: express.Request, res: express.Response) => {
+	let p = await Participante.cookie(req);
+	let id = parseInt(req.query["id"]);
+	let idevento = parseInt(req.query["idevento"]);
+	if (p && id > 0 && idevento > 0) {
+		await Sessao.excluirInscricao(id, idevento, p.id);
+		res.sendStatus(204);
+	} else {
+		jsonRes(res, 400, "Dados inválidos");
+	}
 }));
 
 router.get("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {

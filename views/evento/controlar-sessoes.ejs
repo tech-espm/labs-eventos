@@ -46,19 +46,25 @@
 					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control upper" maxlength="100" />
 				</div>
 				<div class="row">
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group">
 							<label for="txtSessaoNomeCurto">Nome Curto</label>
 							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control upper" maxlength="45" />
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group">
 							<label for="cbSessaoOculta">Oculta</label>
 							<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
+							<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
+						</div>
+					</div>
+					<div class="col-sm-3">
 						<div class="form-group">
 							<label for="cbSessaoCurso">Curso Âncora</label>
 							<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
@@ -103,14 +109,17 @@
 					</div>
 					<div class="panel-body">
 						<div class="row">
-							<div class="col-sm-4 col-sm-space-bottom">
+							<div class="col-sm-3 col-sm-space-bottom">
 								<button class="btn btn-primary btn-block" type="button" onclick="criarEAdicionarNovoPalestrante()"><i class="fa fa-plus"></i>Criar Novo</button>
 							</div>
-							<div class="col-sm-4 col-sm-space-bottom">
+							<div class="col-sm-3 col-sm-space-bottom">
 								<input id="txtSessaoPalestranteNovoNome" name="txtSessaoPalestranteNovoNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" placeholder="NOME" />
 							</div>
-							<div class="col-sm-4">
+							<div class="col-sm-3 col-sm-space-bottom">
 								<input id="txtSessaoPalestranteNovoEmail" name="txtSessaoPalestranteNovoEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" placeholder="E-MAIL" />
+							</div>
+							<div class="col-sm-3">
+								<input id="txtSessaoPalestranteNovoEmpresa" name="txtSessaoPalestranteNovoEmpresa" class="form-control upper" type="text" maxlength="100" spellcheck="false" placeholder="EMPRESA" />
 							</div>
 						</div>
 						<hr />
@@ -158,7 +167,7 @@
 			</div>
 			<div class="modal-body">
 				<p>
-					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Essa operação <b class="col-h">NÃO</b> pode ser desfeita!
+					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
 					<br />
 					<b class="col-h">Se houverem inscritos na sessão, suas inscrições também serão excluídas!</b>
 				</p>
@@ -318,6 +327,7 @@
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
 			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
+			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
 			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
@@ -461,6 +471,7 @@
 					nome_curto: trim($("#txtSessaoNomeCurto").val()).toUpperCase(),
 					descricao: trim($("#txtSessaoDescricao").val()).toUpperCase(),
 					oculta: parseInt($("#cbSessaoOculta").val()),
+					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
@@ -500,6 +511,7 @@
 							sessao.nome_curto = s.nome_curto;
 							sessao.descricao = s.descricao;
 							sessao.oculta = s.oculta;
+							sessao.permiteinscricao = s.permiteinscricao;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;
 							sessao.idtiposessao = s.idtiposessao;
@@ -519,6 +531,7 @@
 					JsonWebApi.post("/api/sessao/criar", s, function (response) {
 						if (response.success) {
 							resetForm("#formAlterarSessao");
+							_("cbSessaoPermiteInscricao").value = "1";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value);
@@ -708,17 +721,19 @@
 		};
 
 		var txtSessaoPalestranteNovoNome = _("txtSessaoPalestranteNovoNome"),
-			txtSessaoPalestranteNovoEmail = _("txtSessaoPalestranteNovoEmail");
+			txtSessaoPalestranteNovoEmail = _("txtSessaoPalestranteNovoEmail"),
+			txtSessaoPalestranteNovoEmpresa = _("txtSessaoPalestranteNovoEmpresa");
 
 		window.criarEAdicionarNovoPalestrante = function () {
 			if ($.active || JsonWebApi.active)
 				return;
 
-			var p,
+			var i, idempresa = 0,
 				nome = trim(txtSessaoPalestranteNovoNome.value).normalize().toUpperCase(),
-				email = trim(txtSessaoPalestranteNovoEmail.value).normalize().toUpperCase();
+				email = trim(txtSessaoPalestranteNovoEmail.value).normalize().toUpperCase(),
+				nome_empresa = trim(txtSessaoPalestranteNovoEmpresa.value).normalize().toUpperCase();
 
-			if (!nome) {
+			if (nome.length < 3 || nome.length > 100) {
 				Notification.error("Nome inválido " + emoji.sad, true);
 				return;
 			}
@@ -728,67 +743,121 @@
 				return;
 			}
 
-			p = {
-				idevento: idevento,
-				idempresa: idempresapadrao,
-				nome_empresa: eventoEmpresasPorId[idempresapadrao].nome,
-				nome: nome,
-				nome_curto: (nome.length <= 45 ? nome : nome.substr(0, 45)),
-				email: email,
-				oculto: 0,
-				prioridade: 0,
-				cargo: "",
-				url_site: "",
-				url_twitter: "",
-				url_facebook: "",
-				url_linkedin: "",
-				cargo: "",
-				bio: "",
-				bio_curta: "",
-				versao: 0
-			};
+			if (nome_empresa.length < 3 || nome_empresa.length > 100) {
+				Notification.error("Empresa inválida " + emoji.sad, true);
+				return;
+			}
+
+			function criarPalestrante() {
+				var p = {
+					idevento: idevento,
+					idempresa: idempresa,
+					nome_empresa: eventoEmpresasPorId[idempresa].nome,
+					nome: nome,
+					nome_curto: (nome.length <= 45 ? nome : nome.substr(0, 45)),
+					email: email,
+					oculto: 0,
+					prioridade: 0,
+					cargo: "",
+					url_site: "",
+					url_twitter: "",
+					url_facebook: "",
+					url_linkedin: "",
+					cargo: "",
+					bio: "",
+					bio_curta: "",
+					versao: 0
+				};
+
+				var formData = new FormData();
+				formData.append("idevento", p.idevento);
+				formData.append("idempresa", p.idempresa);
+				formData.append("nome", p.nome);
+				formData.append("nome_curto", p.nome_curto);
+				formData.append("email", p.email);
+				formData.append("oculto", p.oculto);
+				formData.append("prioridade", p.prioridade);
+				formData.append("cargo", p.cargo);
+				formData.append("url_site", p.url_site);
+				formData.append("url_twitter", p.url_twitter);
+				formData.append("url_facebook", p.url_facebook);
+				formData.append("url_linkedin", p.url_linkedin);
+				formData.append("bio", p.bio);
+				formData.append("bio_curta", p.bio_curta);
+				formData.append("versao", p.versao);
+				formData.append("imagem", new Blob([gerarPNGVazio()], { type: "image/png" }));
+
+				JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
+					if (response.success) {
+						txtSessaoPalestranteNovoNome.value = "";
+						txtSessaoPalestranteNovoEmail.value = "";
+						txtSessaoPalestranteNovoEmpresa.value = "";
+						p.id = parseInt(response.value);
+						eventoPalestrantesPorId[p.id] = p;
+						eventoPalestrantes.push(p);
+						eventoPalestrantes.sort(comparadorNome);
+						$("#cbSessaoPalestrante").append('<option value="' + p.id + '">' + encode(p.nome) + '</option>');
+						setCbSearch(_("cbSessaoPalestrante"), p.id.toString());
+						Notification.success("Palestrante criado com sucesso! " + emoji.happy);
+						var tabela = _("tabela-palestrantes");
+						if (tabela) {
+							tabela = $(tabela).DataTable();
+							tabela.row.add(p).draw();
+						}
+						window.adicionarPalestrante(p.id);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+			}
+
+			for (i = eventoEmpresas.length - 1; i >= 0; i--) {
+				if (eventoEmpresas[i].nome === nome_empresa) {
+					idempresa = eventoEmpresas[i].id;
+					break;
+				}
+			}
 
 			Notification.wait();
 
-			var formData = new FormData();
-			formData.append("idevento", p.idevento);
-			formData.append("idempresa", p.idempresa);
-			formData.append("nome", p.nome);
-			formData.append("nome_curto", p.nome_curto);
-			formData.append("email", p.email);
-			formData.append("oculto", p.oculto);
-			formData.append("prioridade", p.prioridade);
-			formData.append("cargo", p.cargo);
-			formData.append("url_site", p.url_site);
-			formData.append("url_twitter", p.url_twitter);
-			formData.append("url_facebook", p.url_facebook);
-			formData.append("url_linkedin", p.url_linkedin);
-			formData.append("bio", p.bio);
-			formData.append("bio_curta", p.bio_curta);
-			formData.append("versao", p.versao);
-			formData.append("imagem", new Blob([new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82])], { type: "image/png" }));
+			if (idempresa) {
+				criarPalestrante();
+			} else {
+				var e = {
+					idevento: idevento,
+					nome: nome_empresa,
+					nome_curto: (nome_empresa.length <= 45 ? nome_empresa : nome_empresa.substr(0, 45)),
+					idtipo: eventoEmpresasPorId[idempresapadrao].idtipo,
+					nome_tipo: eventoEmpresasPorId[idempresapadrao].nome_tipo,
+					versao: 0
+				};
 
-			JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
-				if (response.success) {
-					txtSessaoPalestranteNovoNome.value = "";
-					txtSessaoPalestranteNovoEmail.value = "";
-					p.id = parseInt(response.value);
-					eventoPalestrantesPorId[p.id] = p;
-					eventoPalestrantes.push(p);
-					eventoPalestrantes.sort(comparadorNome);
-					$("#cbSessaoPalestrante").append('<option value="' + p.id + '">' + encode(p.nome) + '</option>');
-					setCbSearch(_("cbSessaoPalestrante"), p.id.toString());
-					Notification.success("Palestrante criado com sucesso! " + emoji.happy);
-					var tabela = _("tabela-palestrantes");
-					if (tabela) {
-						tabela = $(tabela).DataTable();
-						tabela.row.add(p).draw();
+				var formData = new FormData();
+				formData.append("idevento", e.idevento);
+				formData.append("nome", e.nome);
+				formData.append("nome_curto", e.nome_curto);
+				formData.append("idtipo", e.idtipo);
+				formData.append("versao", e.versao);
+				formData.append("imagem", new Blob([gerarPNGVazio()], { type: "image/png" }));
+
+				JsonWebApi.postFormData("/api/empresa/criar", formData, function (response) {
+					if (response.success) {
+						e.id = parseInt(response.value);
+						idempresa = e.id;
+						eventoEmpresasPorId[e.id] = e;
+						eventoEmpresas.push(e);
+						eventoEmpresas.sort(comparadorNome);
+						var tabela = _("tabela-empresas");
+						if (tabela) {
+							tabela = $(tabela).DataTable();
+							tabela.row.add(e).draw();
+						}
+						criarPalestrante();
+					} else {
+						Notification.error(response.value, true);
 					}
-					window.adicionarPalestrante(p.id);
-				} else {
-					Notification.error(response.value, true);
-				}
-			});
+				});
+			}
 		}
 
 		function keydownPalestranteNovo(e) {
@@ -808,6 +877,8 @@
 		txtSessaoPalestranteNovoNome.onkeyup = keyupPalestranteNovo;
 		txtSessaoPalestranteNovoEmail.onkeydown = keydownPalestranteNovo;
 		txtSessaoPalestranteNovoEmail.onkeyup = keyupPalestranteNovo;
+		txtSessaoPalestranteNovoEmpresa.onkeydown = keydownPalestranteNovo;
+		txtSessaoPalestranteNovoEmpresa.onkeyup = keyupPalestranteNovo;
 	});
 
 	//]]>
