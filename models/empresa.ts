@@ -144,6 +144,31 @@ export = class Empresa {
 		return res;
 	}
 
+	public static async alterarImagem(id: number, idevento: number, versao: number, arquivo: any): Promise<string> {
+		let res: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.beginTransaction();
+
+			await sql.query("update eventoempresa set versao = ? where id = ? and idevento = ?", [versao, id, idevento]);
+
+			if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
+				// Chegando aqui, significa que a inclusão foi bem sucedida.
+				// Logo, podemos tentar criar o arquivo físico. Se a criação do
+				// arquivo não funcionar, uma exceção ocorrerá, e a transação será
+				// desfeita, já que o método commit() não executará, e nossa classe
+				// Sql já executa um rollback() por nós nesses casos.
+				await Upload.gravarArquivo(arquivo, Empresa.caminhoRelativoPasta(idevento), id + "." + Empresa.extensaoImagem);
+			}
+
+			res = sql.linhasAfetadas.toString();
+
+			await sql.commit();
+		});
+
+		return res;
+	}
+
 	public static async excluir(id: number, idevento: number): Promise<string> {
 		let res: string = null;
 

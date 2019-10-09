@@ -2,6 +2,8 @@
 import multer = require("multer");
 import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../../utils/jsonRes");
+import Empresa = require("../../models/empresa");
+import Evento = require("../../models/evento");
 import Usuario = require("../../models/usuario");
 import Palestrante = require("../../models/palestrante");
 
@@ -64,10 +66,22 @@ router.post("/alterarExterno/:h", multer().single("imagem"), wrap(async (req: ex
 	if (p) {
 		p.id = id;
 		p.idevento = idevento;
-		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
 	}
 	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"], true) : "Dados inválidos!");
+}));
+
+router.post("/alterarEmpresaExterno/:h", multer().single("imagem"), wrap(async (req: express.Request, res: express.Response) => {
+	let id: number, idevento: number;
+	[id, idevento] = await Palestrante.validarHashExterno(req.params["h"] as string);
+	if (id <= 0 || idevento <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+	let versao = parseInt(req.body.versao);
+	let p = await Palestrante.obter(id, idevento);
+	let e = await Evento.obter(idevento);
+	jsonRes(res, 400, (p && e && p.idempresa !== e.idempresapadrao && !isNaN(versao) && versao > 0 && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Empresa.tamanhoMaximoImagemEmBytes)) ? await Empresa.alterarImagem(p.idempresa, idevento, versao, req["file"]) : "Dados inválidos!");
 }));
 
 router.get("/concederAceite/:h/:s", wrap(async (req: express.Request, res: express.Response) => {

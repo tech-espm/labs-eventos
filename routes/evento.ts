@@ -238,7 +238,7 @@ router.all("/palestrante/:h", wrap(async (req: express.Request, res: express.Res
 		return;
 	}
 
-	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, titulo: "Minhas Informações", palestrante: p, idcertificado: Palestrante.idPalestranteParaIdCertificado(id, idevento), empresas: await Empresa.listar(idevento), evento: await Evento.obter(idevento), sessoes: await Palestrante.listarSessoesEAceites(id, idevento), hash: hash });
+	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, titulo: "Minhas Informações", palestrante: p, idcertificado: Palestrante.idPalestranteParaIdCertificado(id, idevento), empresa: await Empresa.obter(p.idempresa, idevento), evento: await Evento.obter(idevento), sessoes: await Palestrante.listarSessoesEAceites(id, idevento), hash: hash });
 }));
 
 router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Response) => {

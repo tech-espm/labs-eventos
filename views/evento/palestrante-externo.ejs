@@ -1,5 +1,5 @@
 ﻿
-<div class="painel-msg">
+<div class="painel-msg" style="padding-bottom: 15px;">
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>M</span>INHAS <span>I</span>NFORMAÇÕES</div>
@@ -17,15 +17,6 @@
 			<div class="form-group">
 				<label for="txtPalestranteEmail">E-mail</label>
 				<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" value="<%=palestrante.email %>" disabled="disabled" />
-			</div>
-			<div class="form-group">
-				<label for="cbPalestranteEmpresa">Empresa</label>
-				<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control upper" size="1">
-					<option value="">SELECIONE...</option>
-					<% for (var i = 0; i < empresas.length; i++) { %>
-					<option value="<%-empresas[i].id %>"><%=empresas[i].nome %></option>
-					<% } %>
-				</select>
 			</div>
 			<div class="form-group">
 				<label for="txtPalestranteCargo">Cargo</label>
@@ -59,12 +50,6 @@
 				<label for="txtPalestranteImagem">Nova Imagem</label>
 				<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
 			</div>
-			<div class="form-group no-margin-bottom">
-				<label for="txtPalestranteImagemAtual">Imagem Atual</label>
-				<div class="text-center">
-					<img alt="Foto Palestrante" id="txtPalestranteImagemAtual" height="200" src="/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
-				</div>
-			</div>
 			<div class="form-group hidden">
 				<label for="cbPalestranteImagemModo">Modo de Ajuste da Imagem</label>
 				<select id="cbPalestranteImagemModo" name="cbPalestranteImagemModo" class="form-control upper" size="1">
@@ -72,32 +57,85 @@
 					<option value="1">REDUZIR PARA CABER (COM BORDAS)</option>
 				</select>
 			</div>
-			<% if (sessoes && sessoes.length) { %>
-			<%
-			function intToColor(i) {
-				if (i < 0)
-					return "transparent";
-				var s = "00000" + i.toString(16);
-				return "#" + s.substr(s.length - 6);
-			}
-			function relativeLuminance(rgb) {
-				if (rgb < 0)
-					return 1;
-				//http://www.w3.org/TR/2007/WD-WCAG20-TECHS-20070517/Overview.html#G18
-				var RsRGB = ((rgb >>> 16) & 0xff) / 255.0,
-					GsRGB = ((rgb >>> 8) & 0xff) / 255.0,
-					BsRGB = (rgb & 0xff) / 255.0,
-					R, G, B;
-				if (RsRGB <= 0.03928) R = RsRGB / 12.92; else R = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
-				if (GsRGB <= 0.03928) G = GsRGB / 12.92; else G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
-				if (BsRGB <= 0.03928) B = BsRGB / 12.92; else B = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
-				return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
-			}
-			function textColorForBackground(i) {
-				return (relativeLuminance(i) < 0.4 ? "#fff" : "#000");
-			}
-			%>
-			<hr />
+			<div class="form-group no-margin-bottom">
+				<label for="txtPalestranteImagemAtual">Imagem Atual</label>
+				<div class="text-center">
+					<img alt="Imagem do Palestrante" id="txtPalestranteImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
+		</div>
+	</form>
+</div>
+
+<div class="painel-msg" style="padding-top: 0; <%=((sessoes && sessoes.length) ? 'padding-bottom: 15px;' : '' ) %>">
+	<form class="panel panel-default no-margin-bottom" id="formEmpresa" method="post" action=".">
+		<div class="panel-heading clearfix">
+			<span>E</span>MPRESA
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label for="txtEmpresaNome">Nome</label>
+				<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control upper" spellcheck="false" value="<%=palestrante.nome_empresa %>" disabled="disabled" />
+			</div>
+			<div class="form-group">
+				<label for="txtEmpresaImagem">Novo Logotipo</label>
+				<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
+			</div>
+			<div class="form-group hidden">
+				<label for="cbEmpresaImagemModo">Modo de Ajuste do Logotipo</label>
+				<select id="cbEmpresaImagemModo" name="cbEmpresaImagemModo" class="form-control upper" size="1">
+					<option value="">AMPLIAR (SEM BORDAS)</option>
+					<option value="1" selected="selected">REDUZIR PARA CABER (COM BORDAS)</option>
+				</select>
+			</div>
+			<div class="form-group no-margin-bottom">
+				<label for="txtEmpresaImagemAtual">Logotipo Atual</label>
+				<div class="text-center">
+					<img alt="Logotipo da Empresa" id="txtEmpresaImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=<%-empresa.versao %>" />
+				</div>
+			</div>
+		</div>
+		<div class="panel-footer">
+			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
+		</div>
+	</form>
+</div>
+
+<% if (sessoes && sessoes.length) { %>
+<%
+function intToColor(i) {
+	if (i < 0)
+		return "transparent";
+	var s = "00000" + i.toString(16);
+	return "#" + s.substr(s.length - 6);
+}
+function relativeLuminance(rgb) {
+	if (rgb < 0)
+		return 1;
+	//http://www.w3.org/TR/2007/WD-WCAG20-TECHS-20070517/Overview.html#G18
+	var RsRGB = ((rgb >>> 16) & 0xff) / 255.0,
+		GsRGB = ((rgb >>> 8) & 0xff) / 255.0,
+		BsRGB = (rgb & 0xff) / 255.0,
+		R, G, B;
+	if (RsRGB <= 0.03928) R = RsRGB / 12.92; else R = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
+	if (GsRGB <= 0.03928) G = GsRGB / 12.92; else G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
+	if (BsRGB <= 0.03928) B = BsRGB / 12.92; else B = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
+	return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+}
+function textColorForBackground(i) {
+	return (relativeLuminance(i) < 0.4 ? "#fff" : "#000");
+}
+%>
+
+<div class="painel-msg" style="padding-top: 0;">
+	<div class="panel panel-default no-margin-bottom">
+		<div class="panel-heading clearfix">
+			<span>M</span>INHA <span>P</span>ARTICIPAÇÃO
+		</div>
+		<div class="panel-body">
 			<p class="text-center">Caso necessite comprovar sua participação no evento, seu certificado pode ser emitido pelo link abaixo:</p>
 			<a class="btn btn-lg btn-outline btn-default btn-block" href="/evento/certificado/<%-idcertificado %>" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a>
 			<hr />
@@ -115,26 +153,22 @@
 					<% for (var i = 0; i < sessoes.length; i++) { %>
 						<tr>
 							<% if (sessoes[i].aceite) { %>
-							<td>Aceite concedido em <%=sessoes[i].aceite %></td>
+							<td>Aceite concedido em<br /><%=sessoes[i].aceite %></td>
 							<% } else { %>
 							<td><button type="button" class="btn btn-primary" onclick="concederAceite(this, <%-sessoes[i].id %>)"><i class="fa fa-check"></i>Conceder Aceite</button></td>
 							<% } %>
 							<td><%=sessoes[i].nome %></td>
-							<td class="text-center"><%=sessoes[i].data %> das <%=sessoes[i].inicio %> às <%=sessoes[i].termino %></td>
+							<td class="text-center"><%=sessoes[i].data %>&nbsp;das<br /><%=sessoes[i].inicio %> às <%=sessoes[i].termino %></td>
 							<td>Unidade <%=sessoes[i].sigla_unidade %><br /><span class="badge badge-sala" style="background-color: <%-intToColor(sessoes[i].cor) %>; color: <%-textColorForBackground(sessoes[i].cor) %>;"><%=sessoes[i].nome_local %></span></td>
 						</tr>
 					<% } %>
 					</tbody>
 				</table>
 			</div>
-			<% } %>
 		</div>
-		<div class="panel-footer">
-			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
-		</div>
-	</form>
+	</div>
 </div>
-
+<% } %>
 
 <%- contentFor("styles") %>
 <style type="text/css">
@@ -159,10 +193,7 @@
 	//<![CDATA[
 	"use strict";
 
-	var versao = <%-palestrante.versao %>, preparandoImagem = false;
-
-	prepareCbSearch(_("cbPalestranteEmpresa"));
-	setCbSearch(_("cbPalestranteEmpresa"), "<%-palestrante.idempresa %>");
+	var versao = <%-palestrante.versao %>, versaoEmpresa = <%-empresa.versao %>, preparandoImagem = false;
 
 	function concederAceite(btn, idsessao) {
 		if ($.active || JsonWebApi.active || preparandoImagem)
@@ -170,7 +201,7 @@
 
 		JsonWebApi.get("/api/palestrante/concederAceite/<%-hash %>/" + idsessao, function (response) {
 			if (response.success) {
-				btn.parentNode.textContent = "Aceite concedido em " + response.value;
+				btn.parentNode.innerHTML = "Aceite concedido em<br />" + response.value;
 				Notification.success("Aceite concedido com sucesso! " + emoji.happy);
 			} else {
 				Notification.error(response.value, true);
@@ -192,9 +223,6 @@
 				required: true,
 				email: true,
 				maxlength: 100
-			},
-			cbPalestranteEmpresa: {
-				required: true,
 			},
 			txtPalestranteCargo: {
 				required: true,
@@ -236,7 +264,6 @@
 			Notification.wait();
 
 			var formData = new FormData();
-			formData.append("idempresa", parseInt($("#cbPalestranteEmpresa").val()));
 			formData.append("nome", trim($("#txtPalestranteNome").val()).toUpperCase());
 			formData.append("nome_curto", trim($("#txtPalestranteNomeCurto").val()).toUpperCase());
 			formData.append("email", trim($("#txtPalestranteEmail").val()).toUpperCase());
@@ -357,7 +384,7 @@
 							context.drawImage(image, 0, 0, cw, ch);
 						}
 
-						var mime = "image/jpeg"; //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
+						var mime = "image/jpeg";
 
 						if (!HTMLCanvasElement.prototype.toBlob) {
 							var data = canvas.toDataURL(mime, 1);
@@ -395,6 +422,171 @@
 				prepararImagem(txtPalestranteImagem.files[0]);
 			else
 				terminar(false);
+		}
+	});
+
+	$("#formEmpresa").validate({
+		rules: {
+			txtEmpresaImagem: {
+				required: true,
+				suporteArquivoAvancado: true,
+				tamanhoArquivoMinimoBytes: 128,
+				//tamanhoArquivoMaximoKiB: 512,
+				extensaoArquivo: [".png", ".jpg", ".jpeg"]
+			}
+		},
+		submitHandler: function (form) {
+			if ($.active || JsonWebApi.active || preparandoImagem)
+				return;
+
+			var txtEmpresaImagem = _("txtEmpresaImagem");
+			if (!txtEmpresaImagem.files || !txtEmpresaImagem.files[0])
+				return;
+
+			Notification.wait();
+
+			var formData = new FormData();
+
+			function terminar() {
+				preparandoImagem = false;
+
+				versaoEmpresa++;
+				formData.append("versao", versaoEmpresa);
+
+				JsonWebApi.postFormData("/api/palestrante/alterarEmpresaExterno/<%-hash %>", formData, function (response) {
+					if (response.success) {
+						txtEmpresaImagem.value = "";
+						_("txtEmpresaImagemAtual").setAttribute("src", "/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=" + versaoEmpresa);
+						Notification.success("Logotipo alterado com sucesso! " + emoji.happy);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+			}
+
+			function erroImagem() {
+				preparandoImagem = false;
+				Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
+			}
+
+			function prepararImagem(arquivo) {
+				preparandoImagem = true;
+
+				function terminarImagem(src) {
+					var image = new Image();
+					image.onload = function () {
+						var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
+
+						// Inicialmente ajusta o tamanho do canvas com base
+						// no aspect ratio desejado, caso exista algum
+						var aspectratioempresa = "<%=evento.aspectratioempresa %>";
+						if (aspectratioempresa) {
+							var rw = aspectratioempresa.split(":"), rh;
+							if (rw.length === 2 &&
+								!isNaN(rh = parseInt(rw[1])) &&
+								!isNaN(rw = parseInt(rw[0])) &&
+								rh > 0 &&
+								rw > 0) {
+								if (Math.abs((cw / ch) - (rw / rh)) > 0.07) {
+									bordas = true;
+									// Preserva a maior dimensão
+									if ((cw / rw) >= (ch / rh))
+										ch = (cw * rh) / rw;
+									else
+										cw = (ch * rw) / rh;
+								}
+							}
+						}
+
+						// Não podemos ter imagens muito grandes
+						if (cw >= ch) {
+							if (cw > 600) {
+								ch = ch * (600 / cw);
+								cw = 600;
+							}
+						} else {
+							if (ch > 600) {
+								cw = cw * (600 / ch);
+								ch = 600;
+							}
+						}
+
+						cw = (cw + 0.5) | 0;
+						ch = (ch + 0.5) | 0;
+
+						var canvas = document.createElement("canvas");
+						canvas.width = cw;
+						canvas.height = ch;
+
+						var context = canvas.getContext("2d", { alpha: true });
+						if (bordas) {
+							// Preenche o fundo de transparente (as novas bordas da imagem)
+							context.clearRect(0, 0, cw, ch);
+
+							if ($("#cbEmpresaImagemModo").val()) {
+								// Redimensiona e centraliza a imagem dentro do canvas
+								if ((cw / ch) > (w / h)) {
+									// Bordas verticais nas laterais
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								} else {
+									// Bordas horizontais acima e abaixo
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								}
+							} else {
+								// Amplia cortando o excesso
+								if ((cw / ch) > (w / h)) {
+									// Corta a parte superior e inferior da imagem
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								} else {
+									// Corta as laterais da imagem
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								}
+							}
+
+							context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
+						} else {
+							// Apenas redimensiona (não precisa de bordas)
+							context.drawImage(image, 0, 0, cw, ch);
+						}
+
+						var mime = "image/png";
+
+						if (!HTMLCanvasElement.prototype.toBlob) {
+							var data = canvas.toDataURL(mime, 1);
+
+							// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
+							var binStr = atob(data.split(",")[1]),
+								len = binStr.length,
+								arr = new Uint8Array(len);
+							for (var i = 0; i < len; i++)
+								arr[i] = binStr.charCodeAt(i);
+
+							formData.append("imagem", new Blob([arr], { type: mime }));
+							terminar(true);
+						} else {
+							canvas.toBlob(function (blob) {
+								formData.append("imagem", blob);
+								terminar(true);
+							}, mime, 1);
+						}
+					};
+					image.onerror = erroImagem;
+					image.src = src;
+				}
+
+				var reader = new FileReader();
+				reader.onload = function () {
+					terminarImagem(reader.result);
+				};
+				reader.onerror = erroImagem;
+				reader.readAsDataURL(arquivo);
+			}
+
+			prepararImagem(txtEmpresaImagem.files[0]);
 		}
 	});
 	//]]>
