@@ -607,7 +607,6 @@
 
 			div = document.createElement("div");
 			div.className = "table-responsive";
-			div.style.paddingTop = "15px";
 
 			html = '<table id="gridData' + ideventodata + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
 			for (i = 0; i < eventoHorarios.length; i++) {
@@ -662,7 +661,7 @@
 
 			var i, html, data, tabContent, tabPanel, $modalGridDataBody = $("#modalGridDataBody");
 
-			html = '<ul class="nav nav-pills text-center" role="tablist">';
+			html = '<ul class="nav nav-pills text-center col-xs-space-bottom" role="tablist">';
 
 			for (i = 0; i < eventoDatas.length; i++) {
 				data = eventoDatas[i];

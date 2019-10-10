@@ -136,4 +136,30 @@ router.get("/gerarLinkExterno/:i", wrap(async (req: express.Request, res: expres
 	res.json(await Palestrante.gerarLinkExterno(id, u.idevento_logado));
 }));
 
+router.get("/enviarEmailLinkExterno/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let id = parseInt(req.params["i"]);
+	let p: Palestrante;
+	let e: Evento;
+	if (isNaN(id) || id <= 0 ||
+		!(e = await Evento.obter(u.idevento_logado)) ||
+		!(p = await Palestrante.obter(id, u.idevento_logado))) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+
+	res.json(await Palestrante.enviarEmailLinkExterno(id, u.idevento_logado, p.email, e.emailpadrao));
+}));
+
+router.get("/listarSessoesEAceitesGeral", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	res.json(await Palestrante.listarSessoesEAceitesGeral(u.idevento_logado));
+}));
+
 export = router;

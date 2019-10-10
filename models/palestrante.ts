@@ -372,10 +372,21 @@ export = class Palestrante {
 		});
 
 		await Sql.conectar(async (sql: Sql) => {
-			res = await sql.scalar("update eventosessaopalestrante set email = now() where idevento = " + idevento + " and ideventopalestrante = " + id + "; select date_format(now(), '%d/%m/%Y %H:%i');") as string;
+			await sql.query("update eventosessaopalestrante set email = now() where idevento = " + idevento + " and ideventopalestrante = " + id);
+			res = await sql.scalar("select date_format(now(), '%d/%m/%Y');") as string;
 		});
 
 		return res;
+	}
+
+	public static async listarSessoesEAceitesGeral(idevento: number): Promise<any[]> {
+		let lista = [];
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select id, ideventopalestrante, date_format(email, '%d/%m/%Y') email, date_format(aceite, '%d/%m/%Y') aceite from eventosessaopalestrante where idevento = " + idevento);
+		});
+
+		return lista;
 	}
 
 	public static async listarSessoesEAceites(id: number, idevento: number): Promise<any[]> {

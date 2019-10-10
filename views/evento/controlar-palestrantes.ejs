@@ -5,6 +5,7 @@
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
 					<button class="btn btn-primary" type="button" onclick="criarPalestrante()"><i class="fa fa-plus"></i>Criar Palestrante...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAceite()"><i class="fa fa-table"></i>Exibir Grade de Aceites...</button>
 				</div>
 				<table class="table table-striped table-hover" id="tabela-palestrantes"></table>
 			</div>
@@ -120,6 +121,21 @@
 	</div>
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalGridAceite">
+	<div class="modal-dialog modal-flex" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Grade de Aceites</h4>
+			</div>
+			<div class="modal-body" id="modalGridAceiteBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
@@ -138,7 +154,7 @@
 			order: [[1, "asc"]],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" style=\"max-width: 100px; max-height: 75px;\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" class=\"palestrante-img\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome para Divulgação", data: "nome_curto" },
 				{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
@@ -358,7 +374,7 @@
 								palestrante.bio_curta = p.bio_curta;
 								palestrante.versao = p.versao;
 								eventoPalestrantes.sort(comparadorNome);
-								Notification.success("Palestrante alterado com sucesso! \uD83D\uDE04");
+								Notification.success("Palestrante alterado com sucesso! " + emoji.happy);
 								tabela.row(trClicada).invalidate().draw();
 								trClicada = null;
 							} else {
@@ -377,7 +393,7 @@
 								eventoPalestrantesPorId[p.id] = p;
 								eventoPalestrantes.push(p);
 								eventoPalestrantes.sort(comparadorNome);
-								Notification.success("Palestrante criado com sucesso! \uD83D\uDE04");
+								Notification.success("Palestrante criado com sucesso! " + emoji.happy);
 								tabela.row.add(p).draw();
 							} else {
 								Notification.error(response.value, true);
@@ -389,7 +405,7 @@
 
 				function erroImagem() {
 					preparandoImagem = false;
-					Notification.error("Ocorreu um erro durante o processamento da imagem \uD83D\uDE22", true);
+					Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
 				}
 
 				function prepararImagem(arquivo) {
@@ -573,7 +589,7 @@
 							break;
 						}
 					}
-					Notification.success("Palestrante excluído com sucesso! \uD83D\uDE04");
+					Notification.success("Palestrante excluído com sucesso! " + emoji.happy);
 					tabela.row(trClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);
@@ -584,7 +600,7 @@
 
 		function exibirErroTwitter(mensagem) {
 			preparandoImagem = false;
-			Notification.error((mensagem || "Algo saiu errado! Por favor, tente novamente mais tarde") + " \uD83D\uDE22", true);
+			Notification.error((mensagem || "Algo saiu errado! Por favor, tente novamente mais tarde") + " " + emoji.sad, true);
 		}
 
 		window.downloadTwitter = function () {
@@ -598,7 +614,7 @@
 
 			var url = trim($("#txtPalestranteUrlTwitter").val());
 			if (url.indexOf("http://") && url.indexOf("https://")) {
-				Notification.error("URL do Twitter inválida \uD83D\uDE22", true);
+				Notification.error("URL do Twitter inválida " + emoji.sad, true);
 				return;
 			}
 
@@ -625,7 +641,7 @@
 					preparandoImagem = false;
 					imagemTwitter = xhr.response;
 					$("#lblPalestranteImagemTwitter").show();
-					Notification.success("Imagem obtida com sucesso! \uD83D\uDE04");
+					Notification.success("Imagem obtida com sucesso! " + emoji.happy);
 				};
 
 				xhr.send();
@@ -633,6 +649,157 @@
 				exibirErroTwitter();
 			}
 		};
+
+		window.mostrarGridAceite = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/palestrante/listarSessoesEAceitesGeral", function (response) {
+				if (response.success) {
+
+					var i, j,
+						ideventopalestrante, palestrante, sessao,
+						partes, maiorEmail, data, dataMaiorEmail,
+						temSessao, faltaEmail, aceiteCompleto,
+						placeholder = { versao: 0 },
+						html = '<div class="text-center col-xs-space-bottom"><button type="button" class="btn btn-primary" onclick="enviarEmailsFaltantes()"><i class="fa fa-envelope-o"></i>Enviar E-mails Faltantes</button></div><div class="table-responsive"><table id="gridAceite" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th data-orderable="false" data-searchable="false"></th><th class="left">Palestrante</th><th>Sessões sem E-mail</th><th>Aceite Completo</th><th data-type="customdateint">Data do Último E-mail</th><th data-orderable="false" data-searchable="false"></th></tr></thead><tbody>'
+
+					for (i = 0; i < eventoPalestrantes.length; i++) {
+						palestrante = eventoPalestrantes[i];
+						ideventopalestrante = palestrante.id;
+
+						maiorEmail = null;
+						dataMaiorEmail = 0;
+						temSessao = false;
+						faltaEmail = false;
+						aceiteCompleto = true;
+
+						for (j = response.value.length - 1; j >= 0; j--) {
+							sessao = response.value[j];
+							if (sessao.ideventopalestrante !== ideventopalestrante)
+								continue;
+
+							temSessao = true;
+
+							if (!sessao.email) {
+								faltaEmail = true;
+							} else {
+								partes = sessao.email.split("/");
+								data = (parseInt(partes[2]) * 10000) + (parseInt(partes[1]) * 100) + parseInt(partes[0]);
+								if (dataMaiorEmail < data) {
+									dataMaiorEmail = data;
+									maiorEmail = sessao.email;
+								}
+							}
+
+							if (!sessao.aceite)
+								aceiteCompleto = false;
+						}
+
+						if (!temSessao)
+							continue;
+
+						html += '<tr data-ideventopalestrante="' + ideventopalestrante + '">';
+						html += '<td><img alt="Imagem da Palestrante" class="palestrante-img" src="' + caminhoAbsolutoPastaExterno + '/' + ideventopalestrante + '.' + extensaoImagem + '?v=' + (eventoPalestrantesPorId[ideventopalestrante] || placeholder).versao + '" /></td>';
+						html += '<td class="left">' + encode(palestrante.nome) + '</td>';
+						html += (faltaEmail ? '<td><span class="col-h">SIM</span></td>' : '<td>NÃO</td>');
+						html += (aceiteCompleto ? '<td>SIM</td>' : '<td><span class="col-h">NÃO</span></td>');
+						html += (maiorEmail ? '<td>' + maiorEmail + '</td>' : '<td></td>');
+						html += '<td><button type="button" onclick="enviarEmail(this.parentNode.parentNode, true)" class="btn btn-outline btn-primary"><i class="fa fa-envelope-o"></i>Reenviar E-mail</button></td>';
+						html += '</tr>';
+					}
+
+					html += '</tbody></table></div>';
+
+					$("#modalGridAceiteBody").html(html);
+
+					prepareDataTable("gridAceite", {
+						order: [[1, "asc"]],
+						deferRender: false,
+						export: { title: "Aceites" }
+					});
+
+					Notification.hide();
+
+					$("#modalGridAceite").modal({
+						backdrop: "static",
+						keyboard: true
+					});
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
+				}
+			});
+		};
+
+		window.enviarEmailsFaltantes = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			var i = -1, gridAceite = $("#gridAceite").DataTable(), rows = gridAceite.rows().nodes();
+
+			function enviarProximo(erro) {
+				if (erro) {
+					Notification.error(erro, true);
+					return;
+				}
+
+				i++;
+				if (i >= rows.length) {
+					Notification.success("E-mails enviados com sucesso! " + emoji.happy);
+					return;
+				}
+
+				Notification.wait("Enviando e-mail " + (i + 1) + " de " + rows.length + ". Por favor, aguarde...");
+
+				if (!enviarEmail(rows[i], false, enviarProximo, gridAceite))
+					setTimeout(function () { enviarProximo(null); }, 10);
+			}
+
+			Notification.wait();
+
+			enviarProximo(null);
+		};
+
+		window.enviarEmail = function (row, forcar, callback, gridAceite) {
+			if (forcar) {
+				if ($.active || JsonWebApi.active)
+					return false;
+
+				Notification.wait();
+			} else {
+				if (gridAceite.row(row).data()[2] == "NÃO")
+					return false;
+			}
+
+			JsonWebApi.get("/api/palestrante/enviarEmailLinkExterno/" + row.getAttribute("data-ideventopalestrante"), function (response) {
+				if (response.success) {
+					concluirRow(row, response.value, gridAceite);
+					if (callback)
+						callback(null);
+					else
+						Notification.success("E-mail enviado com sucesso! " + emoji.happy);
+				} else {
+					var msg = "Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad;
+					if (callback)
+						callback(msg);
+					else
+						Notification.error(msg, true);
+				}
+			});
+
+			return true;
+		};
+
+		function concluirRow(row, data, gridAceite) {
+			if (!gridAceite)
+				gridAceite = $("#gridAceite").DataTable();
+			var $row = gridAceite.row(row), dados = $row.data();
+			dados[2] = "NÃO";
+			dados[4] = data;
+			$row.data(dados).invalidate().draw();
+		}
 	});
 
 	//]]>
