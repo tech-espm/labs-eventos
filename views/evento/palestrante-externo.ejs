@@ -47,7 +47,7 @@
 				<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
 			</div>
 			<div class="form-group">
-				<label for="txtPalestranteImagem">Nova Imagem</label>
+				<label for="txtPalestranteImagem">Nova Imagem <small><i>(Aspect ratio preferencial <%=evento.aspectratiopalestrante %>)</i></small></label>
 				<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
 			</div>
 			<div class="form-group hidden">
@@ -81,7 +81,7 @@
 				<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control upper" spellcheck="false" value="<%=palestrante.nome_empresa %>" disabled="disabled" />
 			</div>
 			<div class="form-group">
-				<label for="txtEmpresaImagem">Novo Logotipo</label>
+				<label for="txtEmpresaImagem">Novo Logotipo <small><i>(Aspect ratio preferencial <%=evento.aspectratioempresa %>)</i></small></label>
 				<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
 			</div>
 			<div class="form-group hidden">
@@ -264,6 +264,7 @@ function textColorForBackground(i) {
 			Notification.wait();
 
 			var formData = new FormData();
+			formData.append("idempresa", "<%-palestrante.idempresa %>");
 			formData.append("nome", trim($("#txtPalestranteNome").val()).toUpperCase());
 			formData.append("nome_curto", trim($("#txtPalestranteNomeCurto").val()).toUpperCase());
 			formData.append("email", trim($("#txtPalestranteEmail").val()).toUpperCase());

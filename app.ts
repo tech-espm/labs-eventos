@@ -200,7 +200,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					empresas: await Empresa.listar(evento.id),
 					horarios: await Horario.listar(evento.id),
 					locais: await Local.eventoListar(evento.id),
-					sessoes: await Sessao.listar(evento.id),
+					sessoes: await Sessao.listar(evento.id, true),
 					palestrantes: await Palestrante.listar(evento.id, true)
 				});
 			} else {

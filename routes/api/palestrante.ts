@@ -32,6 +32,7 @@ router.post("/criar", multer().single("imagem"), wrap(async (req: express.Reques
 	if (p) {
 		p.idevento = u.idevento_logado;
 		p.oculto = parseInt(req.body.oculto);
+		p.confirmado = parseInt(req.body.confirmado);
 		p.prioridade = parseInt(req.body.prioridade);
 		p.idempresa = parseInt(req.body.idempresa);
 		p.versao = parseInt(req.body.versao);
@@ -47,6 +48,7 @@ router.post("/alterar", multer().single("imagem"), wrap(async (req: express.Requ
 	if (p) {
 		p.id = parseInt(req.body.id);
 		p.oculto = parseInt(req.body.oculto);
+		p.confirmado = parseInt(req.body.confirmado);
 		p.prioridade = parseInt(req.body.prioridade);
 		p.idevento = u.idevento_logado;
 		p.idempresa = parseInt(req.body.idempresa);
@@ -63,9 +65,11 @@ router.post("/alterarExterno/:h", multer().single("imagem"), wrap(async (req: ex
 		return;
 	}
 	let p = req.body as Palestrante;
+	let palestrante = await Palestrante.obter(id, idevento);
 	if (p) {
 		p.id = id;
 		p.idevento = idevento;
+		p.idempresa = palestrante.idempresa;
 		p.versao = parseInt(req.body.versao);
 	}
 	jsonRes(res, 400, (p && !isNaN(p.id) && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Palestrante.tamanhoMaximoImagemEmBytes)) ? await Palestrante.alterar(p, req["file"], true) : "Dados inválidos!");

@@ -34,13 +34,19 @@
 					<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" />
 				</div>
 				<div class="row">
-					<div class="col-xs-6">
+					<div class="col-xs-4">
 						<div class="form-group">
 							<label for="cbPalestranteOculto">Oculto</label>
 							<select id="cbPalestranteOculto" name="cbPalestranteOculto" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 						</div>
 					</div>
-					<div class="col-xs-6">
+					<div class="col-xs-4">
+						<div class="form-group">
+							<label for="cbPalestranteConfirmado">Confirmado</label>
+							<select id="cbPalestranteConfirmado" name="cbPalestranteConfirmado" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+						</div>
+					</div>
+					<div class="col-xs-4">
 						<div class="form-group">
 							<label for="txtPalestrantePrioridade">Prioridade</label>
 							<input id="txtPalestrantePrioridade" name="txtPalestrantePrioridade" class="form-control upper" type="number" min="-100" max="100" />
@@ -158,6 +164,7 @@
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome para Divulgação", data: "nome_curto" },
 				{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Confirmado", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.confirmado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
 				{ title: "Prioridade", "class": "col-min text-center", data: "prioridade" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
@@ -219,6 +226,7 @@
 				$("#txtPalestranteNomeCurto").val(palestrante.nome_curto);
 				$("#txtPalestranteEmail").val(palestrante.email);
 				$("#cbPalestranteOculto").val(palestrante.oculto);
+				$("#cbPalestranteConfirmado").val(palestrante.confirmado);
 				$("#txtPalestrantePrioridade").val(palestrante.prioridade);
 				$("#txtPalestranteCargo").val(palestrante.cargo);
 				$("#txtPalestranteUrlSite").val(palestrante.url_site);
@@ -255,6 +263,9 @@
 					maxlength: 100
 				},
 				cbPalestranteOculto: {
+					required: true
+				},
+				cbPalestranteConfirmado: {
 					required: true
 				},
 				txtPalestrantePrioridade: {
@@ -309,6 +320,7 @@
 					nome_curto: trim($("#txtPalestranteNomeCurto").val()).toUpperCase(),
 					email: trim($("#txtPalestranteEmail").val()).toUpperCase(),
 					oculto: parseInt($("#cbPalestranteOculto").val()),
+					confirmado: parseInt($("#cbPalestranteConfirmado").val()),
 					prioridade: (parseInt($("#txtPalestrantePrioridade").val()) || 0),
 					cargo: trim($("#txtPalestranteCargo").val()).toUpperCase(),
 					url_site: trim($("#txtPalestranteUrlSite").val()),
@@ -332,6 +344,7 @@
 				formData.append("nome_curto", p.nome_curto);
 				formData.append("email", p.email);
 				formData.append("oculto", p.oculto);
+				formData.append("confirmado", p.confirmado);
 				formData.append("prioridade", p.prioridade);
 				formData.append("cargo", p.cargo);
 				formData.append("url_site", p.url_site);
@@ -364,6 +377,7 @@
 								palestrante.nome_curto = p.nome_curto;
 								palestrante.email = p.email;
 								palestrante.oculto = p.oculto;
+								palestrante.confirmado = p.confirmado;
 								palestrante.prioridade = p.prioridade;
 								palestrante.cargo = p.cargo;
 								palestrante.url_site = p.url_site;
