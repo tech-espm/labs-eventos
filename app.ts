@@ -186,6 +186,14 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 
 	try {
 		let evento = Evento.idsPorUrl[req.path];
+		if (!evento || !evento.id) {
+			if (req.path.endsWith("/")) {
+				res.redirect(req.path.substr(0, req.path.length - 1));
+				return;
+			} else if (await Evento.atualizarIdsPorUrlSeNecessario()) {
+				evento = Evento.idsPorUrl[req.path];
+			}
+		}
 		if (evento && evento.id) {
 			if (evento.habilitado) {
 				res.render("evt/" + evento.id, {
@@ -207,13 +215,6 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Evento desabilitado", mensagem: "A página do evento está atualmente desabilitada" });
 			}
 			return;
-		} else if (req.path.endsWith("/")) {
-			let url = req.path.substr(0, req.path.length - 1);
-			evento = Evento.idsPorUrl[url];
-			if (evento && evento.id) {
-				res.redirect(url);
-				return;
-			}
 		}
 	} catch (e) {
 		err = e;

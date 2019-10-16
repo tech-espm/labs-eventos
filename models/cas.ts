@@ -41,6 +41,9 @@ export = class Cas {
 			cas.user = Cas.extrairValor(xml, "cas:uid");
 			if (!cas.user)
 				return null;
+			let i: number;
+			if ((i = cas.user.indexOf("@")) > 0)
+				cas.user = cas.user.substr(0, i);
 		}
 
 		if (!cas.nome)

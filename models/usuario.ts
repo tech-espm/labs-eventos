@@ -9,7 +9,9 @@ import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
 
 export = class Usuario {
-	private static readonly cacheUsuarioLogados = lru(100);
+	// Removendo o cache para adequar o sistema a ambientes de cluster
+	// (No futuro usar Redis ou similar...)
+	//private static readonly cacheUsuarioLogados = lru(100);
 
 	private static readonly HashSenhaPadrao = appsettings.usuarioHashSenhaPadrao;
 	private static readonly HashId = appsettings.usuarioHashId;
@@ -32,7 +34,7 @@ export = class Usuario {
 	public cas: boolean;
 
 	public static removerDoCache(id: number): void {
-		Usuario.cacheUsuarioLogados.del(id);
+		//Usuario.cacheUsuarioLogados.del(id);
 	}
 
 	// Parei de usar Usuario.pegarDoCookie como middleware, porque existem muitas requests
@@ -49,11 +51,12 @@ export = class Usuario {
 			return null;
 		} else {
 			let id = parseInt(cookieStr.substr(0, 8), 16) ^ Usuario.HashId;
-			let usuario = Usuario.cacheUsuarioLogados.get(id) as Usuario;
-			if (usuario) {
-				if (usuario.cookieStr !== cookieStr)
-					usuario = null;
-			} else {
+			let usuario: Usuario;
+			//let usuario = Usuario.cacheUsuarioLogados.get(id) as Usuario;
+			//if (usuario) {
+			//	if (usuario.cookieStr !== cookieStr)
+			//		usuario = null;
+			//} else {
 				usuario = null;
 
 				await Sql.conectar(async (sql: Sql) => {
@@ -86,11 +89,11 @@ export = class Usuario {
 					u.admin = (u.tipo === Usuario.TipoAdmin);
 					u.cas = u.login.endsWith("@ESPM.BR");
 
-					Usuario.cacheUsuarioLogados.set(id, u);
+					//Usuario.cacheUsuarioLogados.set(id, u);
 
 					usuario = u;
 				});
-			}
+			//}
 			if (admin && usuario && usuario.tipo !== Usuario.TipoAdmin)
 				usuario = null;
 			if (!usuario && res) {
@@ -148,7 +151,7 @@ export = class Usuario {
 			u.admin = (u.tipo === Usuario.TipoAdmin);
 			u.cas = !!cas;
 
-			Usuario.cacheUsuarioLogados.set(row.id, u);
+			//Usuario.cacheUsuarioLogados.set(row.id, u);
 
 			// @@@ secure!!!
 			res.cookie("usuario", cookieStr, { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
@@ -164,7 +167,7 @@ export = class Usuario {
 			this.idevento_logado = 0;
 			this.nomeevento_logado = null;
 
-			Usuario.cacheUsuarioLogados.del(this.id);
+			//Usuario.cacheUsuarioLogados.del(this.id);
 
 			// @@@ secure!!!
 			res.cookie("usuario", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
@@ -276,8 +279,8 @@ export = class Usuario {
 		await Sql.conectar(async (sql: Sql) => {
 			await sql.query("update usuario set nome = ?, tipo = ? where id = " + u.id, [u.nome, u.tipo]);
 			res = sql.linhasAfetadas.toString();
-			if (sql.linhasAfetadas)
-				Usuario.cacheUsuarioLogados.del(u.id);
+			//if (sql.linhasAfetadas)
+			//	Usuario.cacheUsuarioLogados.del(u.id);
 		});
 
 		return res;
@@ -289,8 +292,8 @@ export = class Usuario {
 		await Sql.conectar(async (sql: Sql) => {
 			await sql.query("delete from usuario where id = " + id);
 			res = sql.linhasAfetadas.toString();
-			if (sql.linhasAfetadas)
-				Usuario.cacheUsuarioLogados.del(id);
+			//if (sql.linhasAfetadas)
+			//	Usuario.cacheUsuarioLogados.del(id);
 		});
 
 		return res;
@@ -306,8 +309,8 @@ export = class Usuario {
 			} else {
 				await sql.query("update usuario set token = null, idevento_logado = 0, senha = '" + Usuario.hashSenhaPadraoDeLogin(login) + "' where id = " + id);
 				res = sql.linhasAfetadas.toString();
-				if (sql.linhasAfetadas)
-					Usuario.cacheUsuarioLogados.del(id);
+				//if (sql.linhasAfetadas)
+				//	Usuario.cacheUsuarioLogados.del(id);
 			}
 		});
 
@@ -315,11 +318,11 @@ export = class Usuario {
 	}
 
 	public static alterarNomeDoEventoEmCache(idevento: number, nome: string): void {
-		Usuario.cacheUsuarioLogados.forEach((value, key, cache) => {
-			let u = value as Usuario;
-			if (u.idevento_logado === idevento)
-				u.nomeevento_logado = nome;
-		});
+		//Usuario.cacheUsuarioLogados.forEach((value, key, cache) => {
+		//	let u = value as Usuario;
+		//	if (u.idevento_logado === idevento)
+		//		u.nomeevento_logado = nome;
+		//});
 	}
 
 	// Eventos

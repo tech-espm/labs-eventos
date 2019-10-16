@@ -27,6 +27,7 @@ export = class Evento {
 
 	private static urlRegExp = /[^a-z0-9_\-]/gi;
 	private static aspectRatioRegExp = /^\d+:\d+$/;
+	private static ultimaAtualizacaoCache = 0;
 
 	public static caminhoRelativo(id: number): string {
 		return "public/evt/" + id;
@@ -65,6 +66,17 @@ export = class Evento {
 		if (!ev.emailpadrao || ev.emailpadrao.length > 100 || !emailValido(ev.emailpadrao))
 			return "E-mail padrão para envios inválido";
 		return null;
+	}
+
+	public static async atualizarIdsPorUrlSeNecessario(): Promise<boolean> {
+		let agora = Date.now();
+		if ((agora - Evento.ultimaAtualizacaoCache) < 60000)
+			return false;
+		Evento.ultimaAtualizacaoCache = agora;
+
+		await Evento.atualizarIdsPorUrl();
+
+		return true;
 	}
 
 	public static async atualizarIdsPorUrl(): Promise<void> {
