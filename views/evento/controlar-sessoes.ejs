@@ -137,11 +137,11 @@
 									<tr>
 										<th></th>
 										<th></th>
+										<th></th>
 										<th class="col-50">Nome</th>
 										<th class="col-50">E-mail</th>
 										<th class="col-25">Empresa</th>
-										<th class="col-min">Aceite</th>
-										<th></th>
+										<th class="col-min text-right">Aceite</th>
 									</tr>
 								</thead>
 								<tbody id="tabelaSessaoPalestranteBody" class="content-section"></tbody>
@@ -227,22 +227,22 @@
 			order: [],
 			deferRender: true,
 			columns: [
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
-				{ title: "Data", "class": "col-min", "type": "customdate", data: "data" },
-				{ title: "Início", "class": "col-min", "type": "customtime", render: encode, data: "inicio" },
-				{ title: "Término", "class": "col-min", "type": "customtime", render: encode, data: "termino" },
+				{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
+				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
+				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
-				{ title: "Oculta", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
 				{ title: "Vertical", render: encode, data: "nome_vertical" },
 				{ title: "Público-Alvo", render: encode, data: "publico_alvo" },
 				{ title: "Tags", render: encode, data: "tags" },
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
 			data: eventoSessoes,
 			export: { title: "Sessões do Evento" }
@@ -282,12 +282,12 @@
 			$("#tabelaSessaoPalestranteBody").append(
 				'<tr class="ui-sortable-handle" data-id="' + id + '">' +
 				'<td class="col-min content-enum"></td>' +
+				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerPalestrante(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
 				'<td class="col-min"><img alt="Imagem da Palestrante" style="max-width: 100px; max-height: 75px;" src="/evt/' + idevento + '/palestrantes/' + id + '.' + extensaoImagem + '?v=' + palestrante.versao + '"></td>' +
 				'<td class="col-50">' + encode(palestrante.nome) + '</td>' +
 				'<td class="col-50">' + encode(palestrante.email) + '</td>' +
 				'<td class="col-25">' + encode(palestrante.nome_empresa) + '</td>' +
-				'<td class="col-min">' + ((aceites && aceites[palestrante.id]) || "-") + "</td>" +
-				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerPalestrante(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
+				'<td class="col-min text-right">' + ((aceites && aceites[palestrante.id]) || "-") + "</td>" +
 				'</tr>');
 
 			$("#tabelaSessaoPalestrante").show();

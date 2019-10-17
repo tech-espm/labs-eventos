@@ -42,9 +42,15 @@
 	"use strict";
 
 	var tabela = prepareDataTable("tabela", {
-		order: [[0, "asc"]],
+		order: [[1, "asc"]],
 		deferRender: true,
 		columns: [
+			{
+				title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) {
+					return "<a target=\"_blank\" title=\"Editar\" href=\"/evento/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a>";
+					//" <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>";
+				}
+			},
 			{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 			{ title: "URL", "class": "col-min", render: encode, data: "url" },
 			{ title: "Descrição", "class": "col-50", render: encode, data: "descricao" },
@@ -52,12 +58,6 @@
 			{ title: "Alunos?", "class": "col-min", data: function (row, type, set, meta) { return row.permitealuno ? "SIM" : "NÃO"; } },
 			{ title: "Funcionários?", "class": "col-min", data: function (row, type, set, meta) { return row.permitefuncionario ? "SIM" : "NÃO"; } },
 			{ title: "Externos?", "class": "col-min", data: function (row, type, set, meta) { return row.permiteexterno ? "SIM" : "NÃO"; } },
-			{
-				title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) {
-					return "<a target=\"_blank\" title=\"Editar\" href=\"/evento/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a>";
-					//" <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>";
-				}
-			},
 		],
 		data: <%- lista %>,
 		export: { title: "Eventos" }

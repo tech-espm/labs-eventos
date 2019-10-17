@@ -104,15 +104,15 @@
 	$(function () {
 		var arquivos = <%- arquivos %>;
 		var tabela = prepareDataTable("tabela-arquivos", {
-			order: [[0, "asc"]],
+			order: [[1, "asc"]],
 			deferRender: true,
 			columns: [
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "nome", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Baixar arquivo\" href=\"<%=caminhoAbsolutoExterno %>/" + row.nome + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-external-link\"></i></a> <button title=\"Renomear\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{ title: "Tamanho", "class": "col-min text-right", data: "tamanho", orderData: 2, render: function (v, type, row) { return formatSize(row.tamanho); } },
 				{ title: "TamanhoInt", visible: false, searchable: false, data: "tamanho", "type": "num" },
 				{ title: "Modificação", "class": "col-min text-right", render: encode, data: "modificacao", orderData: 4 },
 				{ title: "ModificaçãoInt", visible: false, searchable: false, "type": "num", data: "modificacaoMs" },
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "nome", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Baixar arquivo\" href=\"<%=caminhoAbsolutoExterno %>/" + row.nome + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-external-link\"></i></a> <button title=\"Renomear\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			],
 			data: arquivos,
 			export: { title: "Arquivos do Evento" },

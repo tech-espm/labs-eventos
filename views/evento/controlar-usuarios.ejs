@@ -28,11 +28,11 @@
 			order: [[0, "asc"]],
 			deferRender: true,
 			columns: [
+				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tipo === "ADMIN" ? "" : "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"); } },
+				{ title: "Associado", "class": "col-min", data: function (row, type, set, meta) { return ((usuariosSelecionados[row.id] || row.tipo === "ADMIN") ? "SIM" : "NÃO"); } },
 				{ title: "Login", "class": "col-25", render: encode, data: "login" },
 				{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 				{ title: "Tipo", "class": "col-25", render: encode, data: "tipo" },
-				{ title: "Associado", "class": "col-min", data: function (row, type, set, meta) { return ((usuariosSelecionados[row.id] || row.tipo === "ADMIN") ? "SIM" : "NÃO"); } },
-				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return (row.tipo === "ADMIN" ? "" : "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"); } },
 			],
 			data: <%- usuarios %>,
 			export: { title: "Usuários do Evento" },

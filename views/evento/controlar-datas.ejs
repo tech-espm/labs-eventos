@@ -81,13 +81,13 @@
 		carregarDatas(<%- datas %>);
 
 		var tabela = prepareDataTable("tabela-datas", {
-			order: [[2, "asc"]],
+			order: [[3, "asc"]],
 			deferRender: true,
 			columns: [
-				{ title: "Ano", "class": "col-25", "type": "num", data: "ano" },
-				{ title: "Mês", "class": "col-25", "type": "num", data: "mes" },
-				{ title: "Dia", "class": "col-25", "type": "num", data: "dia" },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "Ano", "class": "col-25 text-right", "type": "num", data: "ano" },
+				{ title: "Mês", "class": "col-25 text-right", "type": "num", data: "mes" },
+				{ title: "Dia", "class": "col-25 text-right", "type": "num", data: "dia" },
 			],
 			data: eventoDatas,
 			export: { title: "Datas do Evento" }
