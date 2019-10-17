@@ -145,6 +145,7 @@ CREATE TABLE eventoempresa (
   idtipo int NOT NULL,
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
+  url_site varchar(100) NOT NULL,
   versao int NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idevento_nome_eventoempresa_UN (idevento,nome),

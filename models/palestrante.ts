@@ -95,16 +95,16 @@ export = class Palestrante {
 		p.cargo = (p.cargo || "").normalize().trim().toUpperCase();
 		if (p.cargo.length > 45)
 			return "Cargo inválido";
-		p.url_site = (p.url_site || "").trim();
+		p.url_site = (p.url_site || "").normalize().trim();
 		if (p.url_site.length > 100)
 			return "URL do site inválida";
-		p.url_twitter = (p.url_twitter || "").trim();
+		p.url_twitter = (p.url_twitter || "").normalize().trim();
 		if (p.url_twitter.length > 100)
 			return "URL do Twitter inválida";
-		p.url_facebook = (p.url_facebook || "").trim();
+		p.url_facebook = (p.url_facebook || "").normalize().trim();
 		if (p.url_facebook.length > 100)
 			return "URL do Facebook inválida";
-		p.url_linkedin = (p.url_linkedin || "").trim();
+		p.url_linkedin = (p.url_linkedin || "").normalize().trim();
 		if (p.url_linkedin.length > 100)
 			return "URL do LinkedIn inválida";
 		p.bio = (p.bio || "").normalize().trim().toUpperCase();

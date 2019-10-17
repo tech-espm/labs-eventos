@@ -12,6 +12,7 @@ export = class Empresa {
 	public idtipo: number;
 	public nome: string;
 	public nome_curto: string;
+	public url_site: string;
 	public versao: number;
 
 	public static caminhoRelativoPasta(idevento: number): string {
@@ -41,6 +42,9 @@ export = class Empresa {
 		e.nome_curto = (e.nome_curto || "").normalize().trim().toUpperCase();
 		if (e.nome_curto.length < 1 || e.nome_curto.length > 45)
 			return "Nome curto inválido";
+		e.url_site = (e.url_site || "").normalize().trim();
+		if (e.url_site.length > 100)
+			return "URL do site inválida";
 		if (isNaN(e.versao) || e.versao < 0)
 			return "Versão inválida";
 		return null;
@@ -50,7 +54,7 @@ export = class Empresa {
 		let lista: Empresa[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.idevento = ? order by e.nome asc", [idevento]) as Empresa[];
+			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.url_site, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.idevento = ? order by e.nome asc", [idevento]) as Empresa[];
 		});
 
 		return (lista || []);
@@ -60,7 +64,7 @@ export = class Empresa {
 		let lista: Empresa[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.id = ? and e.idevento = ?", [id, idevento]) as Empresa[];
+			lista = await sql.query("select e.id, e.idevento, e.idtipo, e.nome, e.nome_curto, e.url_site, e.versao, t.nome nome_tipo from eventoempresa e inner join tipoempresa t on t.id = e.idtipo where e.id = ? and e.idevento = ?", [id, idevento]) as Empresa[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -75,7 +79,7 @@ export = class Empresa {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, versao) values (?, ?, ?, ?, ?)", [e.idevento, e.idtipo, e.nome, e.nome_curto, e.versao]);
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, versao) values (?, ?, ?, ?, ?, ?)", [e.idevento, e.idtipo, e.nome, e.nome_curto, e.url_site, e.versao]);
 				e.id = await sql.scalar("select last_insert_id()") as number;
 
 				// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -119,7 +123,7 @@ export = class Empresa {
 			try {
 				await sql.beginTransaction();
 
-				await sql.query("update eventoempresa set idtipo = ?, nome = ?, nome_curto = ?, versao = ? where id = ? and idevento = ?", [e.idtipo, e.nome, e.nome_curto, e.versao, e.id, e.idevento]);
+				await sql.query("update eventoempresa set idtipo = ?, nome = ?, nome_curto = ?, url_site = ?, versao = ? where id = ? and idevento = ?", [e.idtipo, e.nome, e.nome_curto, e.url_site, e.versao, e.id, e.idevento]);
 
 				if (sql.linhasAfetadas && arquivo && arquivo.buffer && arquivo.size) {
 					// Chegando aqui, significa que a inclusão foi bem sucedida.
@@ -160,6 +164,26 @@ export = class Empresa {
 				// Sql já executa um rollback() por nós nesses casos.
 				await Upload.gravarArquivo(arquivo, Empresa.caminhoRelativoPasta(idevento), id + "." + Empresa.extensaoImagem);
 			}
+
+			res = sql.linhasAfetadas.toString();
+
+			await sql.commit();
+		});
+
+		return res;
+	}
+
+	public static async alterarUrl(id: number, idevento: number, url_site: string): Promise<string> {
+		let res: string = null;
+
+		url_site = (url_site || "").normalize().trim();
+		if (url_site.length > 100)
+			return "URL do site inválida";
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.beginTransaction();
+
+			await sql.query("update eventoempresa set url_site = ? where id = ? and idevento = ?", [url_site, id, idevento]);
 
 			res = sql.linhasAfetadas.toString();
 

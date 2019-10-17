@@ -826,6 +826,7 @@
 					idevento: idevento,
 					nome: nome_empresa,
 					nome_curto: (nome_empresa.length <= 45 ? nome_empresa : nome_empresa.substr(0, 45)),
+					url_site: "",
 					idtipo: eventoEmpresasPorId[idempresapadrao].idtipo,
 					nome_tipo: eventoEmpresasPorId[idempresapadrao].nome_tipo,
 					versao: 0
@@ -835,6 +836,7 @@
 				formData.append("idevento", e.idevento);
 				formData.append("nome", e.nome);
 				formData.append("nome_curto", e.nome_curto);
+				formData.append("url_site", e.url_site);
 				formData.append("idtipo", e.idtipo);
 				formData.append("versao", e.versao);
 				formData.append("imagem", new Blob([gerarPNGVazio()], { type: "image/png" }));

@@ -29,6 +29,10 @@
 					<input id="txtEmpresaNomeCurto" name="txtEmpresaNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
 				</div>
 				<div class="form-group">
+					<label for="txtEmpresaUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
+					<input id="txtEmpresaUrlSite" name="txtEmpresaUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" />
+				</div>
+				<div class="form-group">
 					<label for="cbEmpresaTipo">Tipo</label>
 					<select id="cbEmpresaTipo" name="cbEmpresaTipo" class="form-control upper" size="1">
 						<option value="" selected="selected">SELECIONE...</option>
@@ -107,6 +111,7 @@
 		var trClicada, preparandoImagem = false;
 
 		prepareCbSearch(_("cbEmpresaTipo"));
+		fixUrlOnBlur(_("txtEmpresaUrlSite"));
 
 		$("#modalAlterarEmpresa").on("show.bs.modal", function () {
 			var parent = $("#txtEmpresaImagem").parent();
@@ -136,6 +141,7 @@
 
 				$("#txtEmpresaNome").val(empresa.nome);
 				$("#txtEmpresaNomeCurto").val(empresa.nome_curto);
+				$("#txtEmpresaUrlSite").val(empresa.url_site);
 				setCbSearch(_("cbEmpresaTipo"), empresa.idtipo);
 
 				$("#lblAlterarEmpresa").text("Salvar Alterações");
@@ -156,6 +162,10 @@
 				txtEmpresaNomeCurto: {
 					maxlength: 45
 				},
+				txtEmpresaUrlSite: {
+					url: true,
+					maxlength: 100
+				},
 				cbEmpresaTipo: {
 					required: true
 				},
@@ -173,10 +183,11 @@
 
 				var empresa, e = {
 					idevento: idevento,
-					nome: trim($("#txtEmpresaNome").val()).toUpperCase(),
-					nome_curto: trim($("#txtEmpresaNomeCurto").val()).toUpperCase(),
+					nome: trim($("#txtEmpresaNome").val()).normalize().toUpperCase(),
+					nome_curto: trim($("#txtEmpresaNomeCurto").val()).normalize().toUpperCase(),
+					url_site: trim($("#txtEmpresaUrlSite").val()).normalize(),
 					idtipo: parseInt($("#cbEmpresaTipo").val()),
-					nome_tipo: trim($("#cbEmpresaTipo option:selected").text()).toUpperCase(),
+					nome_tipo: trim($("#cbEmpresaTipo option:selected").text()).normalize().toUpperCase(),
 					versao: 0
 				};
 
@@ -189,6 +200,7 @@
 				formData.append("idevento", e.idevento);
 				formData.append("nome", e.nome);
 				formData.append("nome_curto", e.nome_curto);
+				formData.append("url_site", e.url_site);
 				formData.append("idtipo", e.idtipo);
 
 				function terminar(atualizarVersao) {
@@ -205,6 +217,7 @@
 								$("#modalAlterarEmpresa").modal("hide");
 								empresa.nome = e.nome;
 								empresa.nome_curto = e.nome_curto;
+								empresa.url_site = e.url_site;
 								empresa.idtipo = e.idtipo;
 								empresa.nome_tipo = e.nome_tipo;
 								empresa.versao = e.versao;
