@@ -177,22 +177,10 @@
 		var trClicada, preparandoImagem = false, imagemTwitter = null, urlImagemTwitter = null;
 
 		prepareCbSearch(_("cbPalestranteEmpresa"));
-
-		function ajustarTxtURL(id) {
-			var txt = _(id);
-			txt.onblur = function () {
-				var url = trim(txt.value);
-				if (!url)
-					return;
-				if (url.indexOf("http://") && url.indexOf("https://"))
-					txt.value = "http://" + url;
-			};
-		}
-
-		ajustarTxtURL("txtPalestranteUrlSite");
-		ajustarTxtURL("txtPalestranteUrlTwitter");
-		ajustarTxtURL("txtPalestranteUrlFacebook");
-		ajustarTxtURL("txtPalestranteUrlLinkedIn");
+		fixUrlOnBlur(_("txtPalestranteUrlSite"));
+		fixUrlOnBlur(_("txtPalestranteUrlTwitter"));
+		fixUrlOnBlur(_("txtPalestranteUrlFacebook"));
+		fixUrlOnBlur(_("txtPalestranteUrlLinkedIn"));
 
 		$("#modalAlterarPalestrante").on("show.bs.modal", function () {
 			var parent = $("#txtPalestranteImagem").parent();

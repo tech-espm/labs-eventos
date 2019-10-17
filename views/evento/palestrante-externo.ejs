@@ -65,6 +65,9 @@
 			</div>
 		</div>
 		<div class="panel-footer">
+			<div class="well well-sm text-center">
+				Sua imagem será utilizada exclusivamente nos materiais de divulgação do evento.
+			</div>
 			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
 		</div>
 	</form>
@@ -155,7 +158,7 @@ function textColorForBackground(i) {
 							<% if (sessoes[i].aceite) { %>
 							<td>Aceite concedido em<br /><%=sessoes[i].aceite %></td>
 							<% } else { %>
-							<td><button type="button" class="btn btn-primary" onclick="concederAceite(this, <%-sessoes[i].id %>)"><i class="fa fa-check"></i>Conceder Aceite</button></td>
+							<td><button type="button" class="btn btn-primary" onclick="mostrarModalConcederAceite(this, <%-sessoes[i].id %>)"><i class="fa fa-check"></i>Conceder Aceite</button></td>
 							<% } %>
 							<td><%=sessoes[i].nome %></td>
 							<td class="text-center"><%=sessoes[i].data %>&nbsp;das<br /><%=sessoes[i].inicio %> às <%=sessoes[i].termino %></td>
@@ -169,6 +172,24 @@ function textColorForBackground(i) {
 	</div>
 </div>
 <% } %>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalConcederAceite">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Termo de Aceite de Uso de Imagem</h4>
+			</div>
+			<div class="modal-body">
+				<div style="white-space: pre-wrap;"><%=(evento.termoaceite || "Você confirma que deseja ceder os direitos de uso das imagens e filmagens realizadas durante a sessão?") %></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="concederAceite()"><i class="fa fa-check"></i>Estou de Acordo</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <%- contentFor("styles") %>
 <style type="text/css">
@@ -193,16 +214,35 @@ function textColorForBackground(i) {
 	//<![CDATA[
 	"use strict";
 
-	var versao = <%-palestrante.versao %>, versaoEmpresa = <%-empresa.versao %>, preparandoImagem = false;
+	var versao = <%-palestrante.versao %>, versaoEmpresa = <%-empresa.versao %>, preparandoImagem = false, btnAceite = null, idsessaoAceite = 0;
 
-	function concederAceite(btn, idsessao) {
+	fixUrlOnBlur(_("txtPalestranteUrlSite"));
+	fixUrlOnBlur(_("txtPalestranteUrlTwitter"));
+	fixUrlOnBlur(_("txtPalestranteUrlFacebook"));
+	fixUrlOnBlur(_("txtPalestranteUrlLinkedIn"));
+
+	function mostrarModalConcederAceite(btn, idsessao) {
 		if ($.active || JsonWebApi.active || preparandoImagem)
 			return;
 
-		JsonWebApi.get("/api/palestrante/concederAceite/<%-hash %>/" + idsessao, function (response) {
+		btnAceite = btn;
+		idsessaoAceite = idsessao;
+
+		$("#modalConcederAceite").modal({
+			backdrop: "static",
+			keyboard: false
+		});
+	}
+
+	function concederAceite() {
+		if ($.active || JsonWebApi.active || preparandoImagem || !btnAceite || !idsessaoAceite)
+			return;
+
+		JsonWebApi.get("/api/palestrante/concederAceite/<%-hash %>/" + idsessaoAceite, function (response) {
 			if (response.success) {
-				btn.parentNode.innerHTML = "Aceite concedido em<br />" + response.value;
+				btnAceite.parentNode.innerHTML = "Aceite concedido em<br />" + response.value;
 				Notification.success("Aceite concedido com sucesso! " + emoji.happy);
+				$("#modalConcederAceite").modal("hide");
 			} else {
 				Notification.error(response.value, true);
 			}

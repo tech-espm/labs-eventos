@@ -669,6 +669,20 @@ window.relativeLuminance = function (rgb) {
 window.textColorForBackground = function (i) {
 	return (relativeLuminance(i) < 0.4 ? "#fff" : "#000");
 };
+window.fixUrlOnBlur = function (input) {
+	var i = _(input);
+	i.addEventListener("blur", function () {
+		var v = trim(i.value), uv;
+		if (v) {
+			if ((uv = v.toUpperCase()).indexOf("HTTP://") && uv.indexOf("HTTPS://")) {
+				setTimeout(function () {
+					i.value = "http://" + v;
+					$(i).valid();
+				}, 20);
+			}
+		}
+	});
+};
 (function () {
 	var fullScreenFrame = null;
 
