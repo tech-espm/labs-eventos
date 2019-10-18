@@ -21,10 +21,19 @@
 					<label for="descricao">Descrição</label>
 					<textarea id="descricao" name="descricao" maxlength="250" class="form-control upper" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
 				</div>
-				<div class="checkbox">
-					<label for="habilitado">
-						<input id="habilitado" name="habilitado" type="checkbox" value="1" <%=((!item || item.habilitado) ? 'checked="checked"' : '') %> /> Acesso habilitado à landing page
-					</label>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="habilitado">Landing Page</label>
+							<select id="habilitado" name="habilitado" class="form-control upper" size="1"><option value="0" <%=((!item || !item.habilitado) ? 'selected="selected"' : '') %>>DESABILITADA</option><option value="1" <%=((item && item.habilitado) ? 'selected="selected"' : '') %>>HABILITADA</option></select>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="permiteinscricao">Inscrições</label>
+							<select id="permiteinscricao" name="permiteinscricao" class="form-control upper" size="1"><option value="0" <%=((!item || !item.permiteinscricao) ? 'selected="selected"' : '') %>>DESABILITADAS</option><option value="1" <%=((item && item.permiteinscricao) ? 'selected="selected"' : '') %>>HABILITADAS</option></select>
+						</div>
+					</div>
 				</div>
 				<div class="form-group">
 					<label for="aspectratioempresa">Aspect Ratio das Imagens das Empresas</label>
@@ -35,6 +44,10 @@
 					<label for="aspectratiopalestrante">Aspect Ratio das Imagens dos Palestrantes</label>
 					<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
 					<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
+				</div>
+				<div class="form-group">
+					<label for="termoaceite">Termo de Aceite de Uso de Imagem</label>
+					<textarea id="termoaceite" name="termoaceite" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.termoaceite : '') %></textarea>
 				</div>
 				<div class="checkbox">
 					<label for="permitealuno">
@@ -50,10 +63,6 @@
 					<label for="permiteexterno">
 						<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
 					</label>
-				</div>
-				<div class="form-group">
-					<label for="termoaceite">Termo de Aceite de Uso de Imagem</label>
-					<textarea id="termoaceite" name="termoaceite" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.termoaceite : '') %></textarea>
 				</div>
 			</div>
 			<div class="panel-footer">

@@ -2,7 +2,7 @@
 <div class="text-center">
 	<h1>Credenciamento ESPM</h1>
 	<div id="qrcode"></div>
-	<h2>Apresente este código para acessar as sessões dos eventos.</h2>
+	<h2>Apresente este código para acessar as instalações e sessões dos eventos.</h2>
 </div>
 
 <%- contentFor("styles") %>
@@ -25,7 +25,7 @@
 	"use strict";
 
 	new QRCode("qrcode", {
-		text: "<%- participante.id %>",
+		text: "<%- participante.idqr %>",
 		width: 500,
 		height: 500,
 		colorDark: "#000000",

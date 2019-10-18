@@ -30,6 +30,9 @@ export = class Participante {
 	// Utilizado apenas durante a criação
 	public senha: string;
 
+	// Utilizado apenas na extração do cookie, para geração do QR
+	public idqr: string;
+
 	public static idParticipanteParaIdCertificado(idparticipante: number, idevento: number): string {
 		return intToHex(idparticipante ^ Participante.HashIdParticipante) +
 			intToHex(idevento ^ Participante.HashIdEvento);
@@ -44,6 +47,33 @@ export = class Participante {
 			isNaN(idevento) || idevento < 0)
 			return null;
 		return [idparticipante ^ Participante.HashIdParticipante, idevento ^ Participante.HashIdEvento];
+	}
+
+	public static idParticipanteParaIdQR(idparticipante: number): string {
+		idparticipante ^= appsettings.participanteHashIdQR;
+		let b = [idparticipante & 0xFF, (idparticipante >>> 8) & 0xFF, (idparticipante >>> 16) & 0xFF, (idparticipante >>> 24) & 0xFF];
+		// NÃO UTILIZAR |, <<, & etc para juntar as partes, pois eles fazem o JS entender
+		// o número como int, e valores maiores do que 0x7fffffff viram negativos
+		return intToHex(
+			b[appsettings.participanteIdQR0] +
+			(b[appsettings.participanteIdQR1] * 256) +
+			(b[appsettings.participanteIdQR2] * 65536) +
+			(b[appsettings.participanteIdQR3] * 16777216)
+		);
+	}
+
+	public static idQRParaIdParticipante(idqr: string): number {
+		if (!idqr || idqr.length > 8)
+			return 0;
+		let idparticipante = parseInt(idqr, 16);
+		// NÃO UTILIZAR |, <<, & etc para juntar as partes, pois eles fazem o JS entender
+		// o número como int, e valores maiores do que 0x7fffffff viram negativos
+		return appsettings.participanteHashIdQR ^ (
+			((idparticipante & 0xFF) * (1 << (appsettings.participanteIdQR0 << 3))) +
+			(((idparticipante >>> 8) & 0xFF) * (1 << (appsettings.participanteIdQR1 << 3))) +
+			(((idparticipante >>> 16) & 0xFF) * (1 << (appsettings.participanteIdQR2 << 3))) +
+			(((idparticipante >>> 24) & 0xFF) * (1 << (appsettings.participanteIdQR3 << 3)))
+		);
 	}
 
 	public static async cookie(req: express.Request, res: express.Response = null): Promise<Participante> {
@@ -71,7 +101,9 @@ export = class Participante {
 					return;
 
 				delete row.token;
+
 				p = row as Participante;
+				p.idqr = Participante.idParticipanteParaIdQR(p.id);
 			});
 			if (!p && res) {
 				res.statusCode = 403;

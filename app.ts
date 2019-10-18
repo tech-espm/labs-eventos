@@ -198,6 +198,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 			if (evento.habilitado) {
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
+					permiteinscricao: evento.permiteinscricao,
 					idempresapadrao: evento.idempresapadrao,
 					url: req.path,
 					urlBase: "/evt/" + evento.id + "/",
@@ -252,10 +253,18 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 //	res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: {} });
 //});
 
-app.set("port", process.env.PORT || 3000);
+async function iniciar() {
+	app.set("port", process.env.PORT || 3000);
 
-Evento.atualizarIdsPorUrl();
+	try {
+		await Evento.atualizarIdsPorUrl();
+	} catch (ex) {
+		console.error(ex);
+	}
 
-const server = app.listen(app.get("port"), process.env.IP || "127.0.0.1", () => {
-	debug("Express server listening on port " + server.address()["port"]);
-});
+	const server = app.listen(app.get("port"), process.env.IP || "127.0.0.1", () => {
+		debug("Express server listening on port " + server.address()["port"]);
+	});
+}
+
+iniciar().catch(console.error);

@@ -37,7 +37,8 @@
 			{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 			{ title: "URL", "class": "col-min", render: encode, data: "url" },
 			{ title: "Descrição", "class": "col-50", render: encode, data: "descricao" },
-			{ title: "Habilitado?", "class": "col-min", data: function (row, type, set, meta) { return row.habilitado ? "SIM" : "NÃO"; } },
+			{ title: "Landing Page?", "class": "col-min", data: function (row, type, set, meta) { return row.habilitado ? 'SIM' : 'NÃO'; } },
+			{ title: "Inscrições?", "class": "col-min", data: function (row, type, set, meta) { return row.permiteinscricao ? '<span class="col-h">SIM</span>' : 'NÃO'; } },
 			{ title: "Alunos?", "class": "col-min", data: function (row, type, set, meta) { return row.permitealuno ? "SIM" : "NÃO"; } },
 			{ title: "Funcionários?", "class": "col-min", data: function (row, type, set, meta) { return row.permitefuncionario ? "SIM" : "NÃO"; } },
 			{ title: "Externos?", "class": "col-min", data: function (row, type, set, meta) { return row.permiteexterno ? "SIM" : "NÃO"; } }

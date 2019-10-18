@@ -236,7 +236,7 @@ export = class Sessao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let sessao: [{ ideventodata: number, inicio: string, termino: string }] = await sql.query("select s.ideventodata, h.inicio, h.termino from eventosessao s inner join eventohorario h on h.id = s.ideventohorario where s.id = " + id + " and s.idevento = " + idevento) as [{ ideventodata: number, inicio: string, termino: string }];
+				let sessao: [{ ideventodata: number, inicio: string, termino: string }] = await sql.query("select s.ideventodata, h.inicio, h.termino from eventosessao s inner join eventohorario h on h.id = s.ideventohorario inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ ideventodata: number, inicio: string, termino: string }];
 
 				if (!sessao || !sessao[0]) {
 					res = "Sessão não encontrada";

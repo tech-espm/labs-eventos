@@ -41,6 +41,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	let ev = req.body as Evento;
 	if (ev) {
 		ev.habilitado = (parseInt(req.body.habilitado) ? 1 : 0);
+		ev.permiteinscricao = (parseInt(req.body.permiteinscricao) ? 1 : 0);
 		ev.permitealuno = (parseInt(req.body.permitealuno) ? 1 : 0);
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);
@@ -62,6 +63,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 			return;
 		}
 		ev.habilitado = (parseInt(req.body.habilitado) ? 1 : 0);
+		ev.permiteinscricao = (parseInt(req.body.permiteinscricao) ? 1 : 0);
 		ev.permitealuno = (parseInt(req.body.permitealuno) ? 1 : 0);
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);

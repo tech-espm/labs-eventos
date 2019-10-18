@@ -771,7 +771,7 @@
 
 				Notification.wait();
 			} else {
-				if (gridAceite.row(row).data()[2] == "NÃO")
+				if (gridAceite.row(row).data()[3] == "NÃO")
 					return false;
 			}
 
@@ -798,8 +798,8 @@
 			if (!gridAceite)
 				gridAceite = $("#gridAceite").DataTable();
 			var $row = gridAceite.row(row), dados = $row.data();
-			dados[2] = "NÃO";
-			dados[4] = data;
+			dados[3] = "NÃO";
+			dados[5] = data;
 			$row.data(dados).invalidate().draw();
 		}
 	});

@@ -5,46 +5,79 @@
 				<% if (mensagem) { %>
 				<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
 				<% } %>
-				<div class="row">
-					<div class="col-sm-6">
-						<img alt="ESPM" src="/imagens/logo.png" width="100" />
+				<p class="text-center"><img alt="ESPM" src="/imagens/logo.png" width="100" /></p>
+
+				<ul class="nav nav-pills text-center" role="tablist">
+					<li class="col-xs-space-bottom" role="presentation"><a href="#tab-interno" aria-controls="tab-interno" role="tab" data-toggle="tab">Alunos e Funcionários</a></li>
+					<li class="col-xs-space-bottom" role="presentation"><a href="#tab-externo" aria-controls="tab-externo" role="tab" data-toggle="tab">Visitantes Externos</a></li>
+				</ul>
+
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade in active text-center" id="tab-padrao">
 						<br />
-						<br />
-						Ainda não se cadastrou no sistema de eventos da ESPM?
-						<br />
-						<br />
-						<a href="#" onclick="mostrarModalCadastro(); return false;">Clique aqui e cadastre-se agora mesmo! 😊</a>
-						<br />
-						<br />
-						Já possui cadastro? Basta digitar suas informações para entrar!
+						Por favor, escolha uma das opções acima para acessar o sistema.
 						<br />
 						<br />
 					</div>
-					<div class="col-sm-6 text-left">
-						<div class="form-group">
-							<label for="email">E-mail</label>
-							<input name="email" type="email" id="email" class="form-control text-uppercase" spellcheck="false" />
-						</div>
-						<div class="form-group">
-							<label for="senha">Senha</label>
-							<input name="senha" type="password" id="senha" class="form-control" />
-						</div>
-						<div class="form-group">
-							<input type="submit" value="Entrar" class="btn btn-primary btn-block" />
-						</div>
-						<div>
-							<button type="button" class="btn btn-outline btn-default btn-block btn-sm" onclick="esqueciMinhaSenha()">Esqueci minha senha</button>
-						</div>
-						<hr />
-						<a href="<%- loginUrl %>" class="btn btn-outline btn-default btn-block"><i class="fa fa-lock fa-nomargin"></i>
+					<div role="tabpanel" class="tab-pane fade" id="tab-interno">
+						<a href="<%- loginUrl %>" class="btn btn-primary btn-block"><i class="fa fa-lock fa-nomargin"></i>
 							<br />
-							Entrar com as credenciais da ESPM (alunos e funcionários)</a>
+							Entrar com as credenciais da ESPM
+						</a>
+					</div>
+					<div role="tabpanel" class="tab-pane fade" id="tab-externo">
+						<div class="row">
+							<div class="col-sm-6">
+								<br />
+								Ainda não se cadastrou no sistema de eventos da ESPM?
+								<br />
+								<br />
+								<a href="#" onclick="mostrarModalCadastro(); return false;">Clique aqui e cadastre-se agora mesmo! 😊</a>
+								<br />
+								<br />
+								Já possui cadastro? Basta digitar suas informações para entrar!
+								<br />
+								<br />
+							</div>
+
+							<div class="col-sm-6 text-left">
+								<div class="form-group">
+									<label for="email">E-mail</label>
+									<input name="email" type="email" id="email" class="form-control text-uppercase" spellcheck="false" />
+								</div>
+								<div class="form-group">
+									<label for="senha">Senha</label>
+									<input name="senha" type="password" id="senha" class="form-control" />
+								</div>
+								<div class="form-group">
+									<input type="submit" value="Entrar" class="btn btn-primary btn-block" />
+								</div>
+								<div>
+									<button type="button" class="btn btn-outline btn-default btn-block btn-sm" onclick="esqueciMinhaSenha()">Esqueci minha senha</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </form>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.nav > li > a {
+		color: #000;
+	}
+
+	.nav-pills > li {
+		float: none;
+	}
+
+	.nav > li {
+		display: inline-block;
+	}
+</style>
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
