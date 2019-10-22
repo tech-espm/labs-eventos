@@ -305,6 +305,16 @@
 							canvas.height = ch;
 
 							var context = canvas.getContext("2d", { alpha: true });
+
+							try {
+								if (("imageSmoothingEnabled" in context))
+									context.imageSmoothingEnabled = true;
+								if (("imageSmoothingQuality" in context))
+									context.imageSmoothingQuality = "high";
+							} catch (ex) {
+								// Apenas ignora...
+							}
+
 							if (bordas) {
 								// Preenche o fundo de transparente (as novas bordas da imagem)
 								//context.fillStyle = "#000";

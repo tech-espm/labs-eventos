@@ -110,6 +110,8 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 			let evento = await Evento.obter(ids[1]);
 			if (!evento) {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Evento não encontrado" });
+			} else if (!evento.certificadoliberado) {
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Os certificados só estarão disponíveis depois da conclusão do evento" });
 			} else {
 				let presencas = await Participante.listarPresencas(ids[0], ids[1]);
 				if (!presencas || !presencas.length)

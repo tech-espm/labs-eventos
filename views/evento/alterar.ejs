@@ -22,13 +22,19 @@
 					<textarea id="descricao" name="descricao" maxlength="250" class="form-control upper" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
 				</div>
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="habilitado">Landing Page</label>
 							<select id="habilitado" name="habilitado" class="form-control upper" size="1"><option value="0" <%=((!item || !item.habilitado) ? 'selected="selected"' : '') %>>DESABILITADA</option><option value="1" <%=((item && item.habilitado) ? 'selected="selected"' : '') %>>HABILITADA</option></select>
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="certificadoliberado">Certificados</label>
+							<select id="certificadoliberado" name="certificadoliberado" class="form-control upper" size="1"><option value="0" <%=((!item || !item.certificadoliberado) ? 'selected="selected"' : '') %>>BLOQUEADOS</option><option value="1" <%=((item && item.certificadoliberado) ? 'selected="selected"' : '') %>>LIBERADOS</option></select>
+						</div>
+					</div>
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="permiteinscricao">Inscrições</label>
 							<select id="permiteinscricao" name="permiteinscricao" class="form-control upper" size="1"><option value="0" <%=((!item || !item.permiteinscricao) ? 'selected="selected"' : '') %>>DESABILITADAS</option><option value="1" <%=((item && item.permiteinscricao) ? 'selected="selected"' : '') %>>HABILITADAS</option></select>

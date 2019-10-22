@@ -460,6 +460,16 @@
 							canvas.height = ch;
 
 							var context = canvas.getContext("2d", { alpha: imagemVazia });
+
+							try {
+								if (("imageSmoothingEnabled" in context))
+									context.imageSmoothingEnabled = true;
+								if (("imageSmoothingQuality" in context))
+									context.imageSmoothingQuality = "high";
+							} catch (ex) {
+								// Apenas ignora...
+							}
+
 							if (bordas) {
 								// Preenche o fundo de preto (as novas bordas da imagem)
 								if (imagemVazia) {

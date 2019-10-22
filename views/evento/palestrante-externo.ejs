@@ -143,8 +143,12 @@ function textColorForBackground(i) {
 			<span>M</span>INHA <span>P</span>ARTICIPAÇÃO
 		</div>
 		<div class="panel-body">
+			<% if (!evento.certificadoliberado) { %>
+			<p class="text-center">Caso necessite comprovar sua participação no evento, seu certificado estará disponível aqui, depois da conclusão do evento.</p>
+			<% } else { %>
 			<p class="text-center">Caso necessite comprovar sua participação no evento, seu certificado pode ser emitido pelo link abaixo:</p>
 			<a class="btn btn-lg btn-outline btn-default btn-block" href="/evento/certificado/<%-idcertificado %>" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a>
+			<% } %>
 			<hr />
 			<div class="table-responsive">
 				<table class="table table-striped table-hover no-margin-bottom">
@@ -395,6 +399,16 @@ function textColorForBackground(i) {
 						canvas.height = ch;
 
 						var context = canvas.getContext("2d", { alpha: false });
+
+						try {
+							if (("imageSmoothingEnabled" in context))
+								context.imageSmoothingEnabled = true;
+							if (("imageSmoothingQuality" in context))
+								context.imageSmoothingQuality = "high";
+						} catch (ex) {
+							// Apenas ignora...
+						}
+
 						if (bordas) {
 							// Preenche o fundo de preto (as novas bordas da imagem)
 							context.fillStyle = "#000";
@@ -571,6 +585,16 @@ function textColorForBackground(i) {
 							canvas.height = ch;
 
 							var context = canvas.getContext("2d", { alpha: true });
+
+							try {
+								if (("imageSmoothingEnabled" in context))
+									context.imageSmoothingEnabled = true;
+								if (("imageSmoothingQuality" in context))
+									context.imageSmoothingQuality = "high";
+							} catch (ex) {
+								// Apenas ignora...
+							}
+
 							if (bordas) {
 								// Preenche o fundo de transparente (as novas bordas da imagem)
 								context.clearRect(0, 0, cw, ch);

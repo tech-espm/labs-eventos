@@ -113,6 +113,7 @@ CREATE TABLE evento (
   url varchar(50) NOT NULL,
   descricao varchar(250) NOT NULL,
   habilitado tinyint(4) NOT NULL,
+  certificadoliberado tinyint(4) NOT NULL,
   permiteinscricao tinyint(4) NOT NULL,
   aspectratioempresa varchar(16) DEFAULT NULL,
   aspectratiopalestrante varchar(16) DEFAULT NULL,
