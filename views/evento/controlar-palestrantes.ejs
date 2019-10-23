@@ -127,6 +127,23 @@
 	</div>
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalLinkPalestrante">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Link de Edição Externa</h4>
+			</div>
+			<div class="modal-body">
+				<a id="aLinkPalestrante" href="#" target="_blank" style="word-break: break-all;"></a>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="modalGridAceite">
 	<div class="modal-dialog modal-flex" role="document">
 		<div class="modal-content">
@@ -160,7 +177,7 @@
 			order: [[2, "asc"]],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Link de Edição Externa\" type=\"button\" data-link=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-link\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" class=\"palestrante-img\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome para Divulgação", data: "nome_curto" },
@@ -206,6 +223,25 @@
 				$("#modalExcluirPalestrante").modal({
 					backdrop: "static",
 					keyboard: true
+				});
+			} else if (this.getAttribute("data-link")) {
+				Notification.wait();
+
+				JsonWebApi.get("/api/palestrante/gerarLinkExterno/" + palestrante.id, function (response) {
+					if (response.success) {
+						Notification.hide();
+
+						var a = _("aLinkPalestrante");
+						a.setAttribute("href", response.value);
+						a.textContent = response.value;
+
+						$("#modalLinkPalestrante").modal({
+							backdrop: "static",
+							keyboard: true
+						});
+					} else {
+						Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad);
+					}
 				});
 			} else {
 				resetForm("#formAlterarPalestrante");
@@ -812,6 +848,10 @@
 			dados[5] = data;
 			$row.data(dados).invalidate().draw();
 		}
+
+		window.gerarLinkExterno = function (id) {
+
+		};
 	});
 
 	//]]>

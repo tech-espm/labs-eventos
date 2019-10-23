@@ -229,6 +229,22 @@
 			columns: [
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
+				{
+					title: "Palestrantes", data: function (row, type, set, meta) {
+						var i, nomes = "", p, n, ids = row.idspalestrante;
+						if (ids && eventoPalestrantesPorId) {
+							for (i = 0; i < ids.length; i++) {
+								p = eventoPalestrantesPorId[ids[i]];
+								if (!p || (!(n = p.nome_curto) && !(n = p.nome)))
+									continue;
+								if (nomes)
+									nomes += ", ";
+								nomes += encode(n);
+							}
+						}
+						return nomes;
+					}
+				},
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
