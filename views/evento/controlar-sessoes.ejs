@@ -227,7 +227,7 @@
 			order: [],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{
 					title: "Palestrantes", data: function (row, type, set, meta) {
@@ -322,7 +322,7 @@
 				$("#tabelaSessaoPalestrante").hide();
 		};
 
-		var trClicada, aceites;
+		var trClicada, aceites, clonar;
 
 		prepareCbSearch(_("cbSessaoData"));
 		prepareCbSearch(_("cbSessaoHorario"));
@@ -353,6 +353,10 @@
 			preencherCb(_("cbSessaoPalestrante"), eventoPalestrantes, "0");
 			$("#tabelaSessaoPalestranteBody").empty();
 			$("#tabelaSessaoPalestrante").hide();
+			if (clonar) {
+				trClicada = null;
+				aceites = null;
+			}
 			if (sessao) {
 				for (i = 0; i < sessao.idspalestrante.length; i++)
 					adicionarPalestrante(sessao.idspalestrante[i]);
@@ -379,30 +383,42 @@
 					keyboard: true
 				});
 			} else {
-				resetForm("#formAlterarSessao");
+				clonar = this.getAttribute("data-clonar");
 
-				$("#lblAlterarSessao").text("Salvar Alterações");
+				resetForm("#formAlterarSessao");
 
 				aceites = null;
 
-				Notification.wait();
+				if (clonar) {
+					$("#lblAlterarSessao").text("Criar Sessão");
 
-				JsonWebApi.get("/api/sessao/listarAceites", function (response) {
-					if (response.success) {
-						Notification.hide();
-						if (response.value && response.value.length) {
-							aceites = {};
-							for (var i = response.value.length - 1; i >= 0; i--)
-								aceites[response.value[i].ideventopalestrante] = response.value[i].aceite;
+					$("#modalAlterarSessao").modal({
+						backdrop: "static",
+						keyboard: true
+					});
+				} else {
+
+					Notification.wait();
+
+					$("#lblAlterarSessao").text("Salvar Alterações");
+
+					JsonWebApi.get("/api/sessao/listarAceites", function (response) {
+						if (response.success) {
+							Notification.hide();
+							if (response.value && response.value.length) {
+								aceites = {};
+								for (var i = response.value.length - 1; i >= 0; i--)
+									aceites[response.value[i].ideventopalestrante] = response.value[i].aceite;
+							}
+							$("#modalAlterarSessao").modal({
+								backdrop: "static",
+								keyboard: true
+							});
+						} else {
+							Notification.error("Não foi possível obter o estado de aceite dos palestrantes " + emoji.sad, true);
 						}
-						$("#modalAlterarSessao").modal({
-							backdrop: "static",
-							keyboard: true
-						});
-					} else {
-						Notification.error("Não foi possível obter o estado de aceite dos palestrantes " + emoji.sad, true);
-					}
-				}, "id", sessao.id);
+					}, "id", sessao.id);
+				}
 			}
 		});
 
