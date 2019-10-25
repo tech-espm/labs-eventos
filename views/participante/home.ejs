@@ -293,7 +293,7 @@
 								html += 'Avaliação indisponível</i></small>';
 							var nomeJS = JSON.stringify(inscricao.nome).substr(1);
 							nomeJS = nomeJS.substr(0, nomeJS.length - 1);
-							html += '<br /><button type="button" class="btn btn-danger btn-xs" onclick="excluirInscricao(' + inscricao.id + ', ' + idevento + ', \'' + nomeJS + '\')"><i class="fa fa-times"></i>Excluir</button>';
+							html += '<br /><button type="button" class="btn btn-danger btn-xs" onclick="excluirInscricao(' + inscricao.id + ', ' + idevento + ', \'' + nomeJS.replace(/\'/g, "\\\'") + '\')"><i class="fa fa-times"></i>Excluir</button>';
 						}
 						html += '</h3>';
 						html += '<p class="text-right">';

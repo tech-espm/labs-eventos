@@ -278,6 +278,7 @@ CREATE TABLE participante (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   login varchar(50) DEFAULT NULL,
+  rg varchar(25) DEFAULT NULL,
   email varchar(100) NOT NULL,
   tipo tinyint(4) NOT NULL,
   idindustria int DEFAULT NULL,

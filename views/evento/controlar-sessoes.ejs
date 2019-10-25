@@ -287,8 +287,11 @@
 			if ($.active || JsonWebApi.active)
 				return;
 
-			if (!id)
+			var salvar = false;
+			if (!id) {
 				id = parseInt($("#cbSessaoPalestrante").val());
+				salvar = true;
+			}
 
 			var palestrante = eventoPalestrantesPorId[id];
 
@@ -307,6 +310,11 @@
 				'</tr>');
 
 			$("#tabelaSessaoPalestrante").show();
+
+			if (trClicada && salvar) {
+				naoFecharModal = true;
+				$("#formAlterarSessao").submit();
+			}
 		};
 
 		window.removerPalestrante = function (btn) {
@@ -320,9 +328,14 @@
 
 			if (!tabelaSessaoPalestranteBody.childNodes.length)
 				$("#tabelaSessaoPalestrante").hide();
+
+			if (trClicada) {
+				naoFecharModal = true;
+				$("#formAlterarSessao").submit();
+			}
 		};
 
-		var trClicada, aceites, clonar;
+		var trClicada, aceites, clonar, naoFecharModal = false;
 
 		prepareCbSearch(_("cbSessaoData"));
 		prepareCbSearch(_("cbSessaoHorario"));
@@ -535,7 +548,6 @@
 
 					JsonWebApi.post("/api/sessao/alterar", s, function (response) {
 						if (response.success) {
-							$("#modalAlterarSessao").modal("hide");
 							sessao.ideventodata = s.ideventodata;
 							sessao.ideventohorario = s.ideventohorario;
 							sessao.ideventolocal = s.ideventolocal;
@@ -554,7 +566,12 @@
 							preencherDadosSessao(sessao);
 							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
 							tabela.row(trClicada).invalidate().draw();
-							trClicada = null;
+							if (naoFecharModal) {
+								naoFecharModal = false;
+							} else {
+								trClicada = null;
+								$("#modalAlterarSessao").modal("hide");
+							}
 						} else {
 							Notification.error(response.value, true);
 						}
@@ -836,6 +853,11 @@
 							tabela.row.add(p).draw();
 						}
 						window.adicionarPalestrante(p.id);
+
+						if (trClicada) {
+							naoFecharModal = true;
+							$("#formAlterarSessao").submit();
+						}
 					} else {
 						Notification.error(response.value, true);
 					}

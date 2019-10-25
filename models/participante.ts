@@ -20,6 +20,7 @@ export = class Participante {
 
 	public id: number;
 	public nome: string;
+	public rg: string;
 	public login: string;
 	public email: string;
 	public tipo: number;
@@ -201,6 +202,9 @@ export = class Participante {
 			p.login = null;
 			p.tipo = Participante.TipoExterno;
 
+			p.rg = (p.rg || "").normalize();
+			if (p.rg.length < 5 || p.rg.length > 25)
+				return "RG inválido";
 			if (p.email.endsWith("@ESPM.BR") || p.email.endsWith("@ACAD.ESPM.BR"))
 				return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
 			if (isNaN(p.idindustria) || p.idindustria <= 0)
@@ -210,6 +214,7 @@ export = class Participante {
 			if (isNaN(p.idprofissao) || p.idprofissao <= 0)
 				return "Profissão inválida";
 		} else {
+			p.rg = null;
 			p.idindustria = null;
 			p.idinstrucao = null;
 			p.idprofissao = null;
@@ -247,7 +252,7 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into participante (nome, login, email, tipo, idindustria, idinstrucao, idprofissao, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.tipo, p.idindustria, p.idinstrucao, p.idprofissao, await GeradorHash.criarHash(p.senha)]);
+				await sql.query("insert into participante (nome, login, rg, email, tipo, idindustria, idinstrucao, idprofissao, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.rg, p.email, p.tipo, p.idindustria, p.idinstrucao, p.idprofissao, await GeradorHash.criarHash(p.senha)]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (e) {
 				if (e.code) {
