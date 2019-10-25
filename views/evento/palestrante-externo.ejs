@@ -1,5 +1,5 @@
 ﻿
-<div class="painel-msg" style="padding-bottom: 15px;">
+<div class="painel-msg" style="<%=((sessoes && sessoes.length) ? 'padding-bottom: 15px;' : '' ) %>">
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>M</span>INHAS <span>I</span>NFORMAÇÕES</div>
@@ -64,17 +64,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="panel-footer">
-			<div class="well well-sm text-center">
-				Sua imagem será utilizada exclusivamente nos materiais de divulgação do evento.
-			</div>
-			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
-		</div>
-	</form>
-</div>
-
-<div class="painel-msg" style="padding-top: 0; <%=((sessoes && sessoes.length) ? 'padding-bottom: 15px;' : '' ) %>">
-	<form class="panel panel-default no-margin-bottom" id="formEmpresa" method="post" action=".">
 		<div class="panel-heading clearfix">
 			<span>E</span>MPRESA
 		</div>
@@ -106,6 +95,9 @@
 			</div>
 		</div>
 		<div class="panel-footer">
+			<div class="well well-sm text-center">
+				Sua imagem será utilizada exclusivamente nos materiais de divulgação do evento.
+			</div>
 			<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i>Salvar</button>
 		</div>
 	</form>
@@ -258,6 +250,179 @@ function textColorForBackground(i) {
 		});
 	}
 
+	function submitEmpresa() {
+		function atualizarImagem() {
+			var txtEmpresaImagem = _("txtEmpresaImagem");
+			if (!txtEmpresaImagem.files || !txtEmpresaImagem.files[0]) {
+				//Notification.success("URL do site alterada com sucesso! " + emoji.happy);
+				Notification.success("Informações alteradas com sucesso! " + emoji.happy);
+				return;
+			}
+
+			var formData = new FormData();
+
+			function terminar() {
+				preparandoImagem = false;
+
+				versaoEmpresa++;
+				formData.append("versao", versaoEmpresa);
+
+				JsonWebApi.postFormData("/api/palestrante/alterarEmpresaExterno/<%-hash %>", formData, function (response) {
+					if (response.success) {
+						txtEmpresaImagem.value = "";
+						_("txtEmpresaImagemAtual").setAttribute("src", "/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=" + versaoEmpresa);
+
+						//Notification.success("URL do site e logotipo alterados com sucesso! " + emoji.happy);
+						Notification.success("Informações alteradas com sucesso! " + emoji.happy);
+					} else {
+						Notification.error(response.value, true);
+					}
+				});
+			}
+
+			function erroImagem() {
+				preparandoImagem = false;
+				Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
+			}
+
+			function prepararImagem(arquivo) {
+				preparandoImagem = true;
+
+				function terminarImagem(src) {
+					var image = new Image();
+					image.onload = function () {
+						var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
+
+						// Inicialmente ajusta o tamanho do canvas com base
+						// no aspect ratio desejado, caso exista algum
+						var aspectratioempresa = "<%=evento.aspectratioempresa %>";
+						if (aspectratioempresa) {
+							var rw = aspectratioempresa.split(":"), rh;
+							if (rw.length === 2 &&
+								!isNaN(rh = parseInt(rw[1])) &&
+								!isNaN(rw = parseInt(rw[0])) &&
+								rh > 0 &&
+								rw > 0) {
+								if (Math.abs((cw / ch) - (rw / rh)) > 0.07) {
+									bordas = true;
+									// Preserva a maior dimensão
+									if ((cw / rw) >= (ch / rh))
+										ch = (cw * rh) / rw;
+									else
+										cw = (ch * rw) / rh;
+								}
+							}
+						}
+
+						// Não podemos ter imagens muito grandes
+						if (cw >= ch) {
+							if (cw > 600) {
+								ch = ch * (600 / cw);
+								cw = 600;
+							}
+						} else {
+							if (ch > 600) {
+								cw = cw * (600 / ch);
+								ch = 600;
+							}
+						}
+
+						cw = (cw + 0.5) | 0;
+						ch = (ch + 0.5) | 0;
+
+						var canvas = document.createElement("canvas");
+						canvas.width = cw;
+						canvas.height = ch;
+
+						var context = canvas.getContext("2d", { alpha: true });
+
+						try {
+							if (("imageSmoothingEnabled" in context))
+								context.imageSmoothingEnabled = true;
+							if (("imageSmoothingQuality" in context))
+								context.imageSmoothingQuality = "high";
+						} catch (ex) {
+							// Apenas ignora...
+						}
+
+						if (bordas) {
+							// Preenche o fundo de transparente (as novas bordas da imagem)
+							context.clearRect(0, 0, cw, ch);
+
+							if ($("#cbEmpresaImagemModo").val()) {
+								// Redimensiona e centraliza a imagem dentro do canvas
+								if ((cw / ch) > (w / h)) {
+									// Bordas verticais nas laterais
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								} else {
+									// Bordas horizontais acima e abaixo
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								}
+							} else {
+								// Amplia cortando o excesso
+								if ((cw / ch) > (w / h)) {
+									// Corta a parte superior e inferior da imagem
+									h = (((h * cw) / w) + 0.5) | 0;
+									w = cw;
+								} else {
+									// Corta as laterais da imagem
+									w = (((w * ch) / h) + 0.5) | 0;
+									h = ch;
+								}
+							}
+
+							context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
+						} else {
+							// Apenas redimensiona (não precisa de bordas)
+							context.drawImage(image, 0, 0, cw, ch);
+						}
+
+						var mime = "image/png";
+
+						if (!HTMLCanvasElement.prototype.toBlob) {
+							var data = canvas.toDataURL(mime, 1);
+
+							// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
+							var binStr = atob(data.split(",")[1]),
+								len = binStr.length,
+								arr = new Uint8Array(len);
+							for (var i = 0; i < len; i++)
+								arr[i] = binStr.charCodeAt(i);
+
+							formData.append("imagem", new Blob([arr], { type: mime }));
+							terminar(true);
+						} else {
+							canvas.toBlob(function (blob) {
+								formData.append("imagem", blob);
+								terminar(true);
+							}, mime, 1);
+						}
+					};
+					image.onerror = erroImagem;
+					image.src = src;
+				}
+
+				var reader = new FileReader();
+				reader.onload = function () {
+					terminarImagem(reader.result);
+				};
+				reader.onerror = erroImagem;
+				reader.readAsDataURL(arquivo);
+			}
+
+			prepararImagem(txtEmpresaImagem.files[0]);
+		}
+
+		JsonWebApi.get("/api/palestrante/alterarUrlEmpresaExterno/<%-hash %>", function (response) {
+			if (response.success)
+				atualizarImagem();
+			else
+				Notification.error(response.value, true);
+		}, "url_site", trim($("#txtEmpresaUrlSite").val()));
+	}
+
 	$("#form").validate({
 		rules: {
 			txtPalestranteNome: {
@@ -304,6 +469,16 @@ function textColorForBackground(i) {
 				tamanhoArquivoMinimoBytes: 128,
 				//tamanhoArquivoMaximoKiB: 512,
 				extensaoArquivo: [".png", ".jpg", ".jpeg"]
+			},
+			txtEmpresaUrlSite: {
+				url: true,
+				maxlength: 100
+			},
+			txtEmpresaImagem: {
+				suporteArquivoAvancado: true,
+				tamanhoArquivoMinimoBytes: 128,
+				//tamanhoArquivoMaximoKiB: 512,
+				extensaoArquivo: [".png", ".jpg", ".jpeg"]
 			}
 		},
 		submitHandler: function (form) {
@@ -337,7 +512,9 @@ function textColorForBackground(i) {
 						txtPalestranteImagem.value = "";
 						if (atualizarVersao)
 							_("txtPalestranteImagemAtual").setAttribute("src", "/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=" + versao);
-						Notification.success("Informações alteradas com sucesso! " + emoji.happy);
+
+						//Notification.success("Informações alteradas com sucesso! " + emoji.happy);
+						submitEmpresa();
 					} else {
 						Notification.error(response.value, true);
 					}
@@ -485,193 +662,5 @@ function textColorForBackground(i) {
 		}
 	});
 
-	$("#formEmpresa").validate({
-		rules: {
-			txtEmpresaUrlSite: {
-				url: true,
-				maxlength: 100
-			},
-			txtEmpresaImagem: {
-				suporteArquivoAvancado: true,
-				tamanhoArquivoMinimoBytes: 128,
-				//tamanhoArquivoMaximoKiB: 512,
-				extensaoArquivo: [".png", ".jpg", ".jpeg"]
-			}
-		},
-		submitHandler: function (form) {
-			if ($.active || JsonWebApi.active || preparandoImagem)
-				return;
-
-			Notification.wait();
-
-			function atualizarImagem() {
-				var txtEmpresaImagem = _("txtEmpresaImagem");
-				if (!txtEmpresaImagem.files || !txtEmpresaImagem.files[0]) {
-					Notification.success("URL do site alterada com sucesso! " + emoji.happy);
-					return;
-				}
-
-				var formData = new FormData();
-
-				function terminar() {
-					preparandoImagem = false;
-
-					versaoEmpresa++;
-					formData.append("versao", versaoEmpresa);
-
-					JsonWebApi.postFormData("/api/palestrante/alterarEmpresaExterno/<%-hash %>", formData, function (response) {
-						if (response.success) {
-							txtEmpresaImagem.value = "";
-							_("txtEmpresaImagemAtual").setAttribute("src", "/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=" + versaoEmpresa);
-							Notification.success("URL do site e logotipo alterados com sucesso! " + emoji.happy);
-						} else {
-							Notification.error(response.value, true);
-						}
-					});
-				}
-
-				function erroImagem() {
-					preparandoImagem = false;
-					Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
-				}
-
-				function prepararImagem(arquivo) {
-					preparandoImagem = true;
-
-					function terminarImagem(src) {
-						var image = new Image();
-						image.onload = function () {
-							var w = image.width, h = image.height, cw = w, ch = h, bordas = false;
-
-							// Inicialmente ajusta o tamanho do canvas com base
-							// no aspect ratio desejado, caso exista algum
-							var aspectratioempresa = "<%=evento.aspectratioempresa %>";
-							if (aspectratioempresa) {
-								var rw = aspectratioempresa.split(":"), rh;
-								if (rw.length === 2 &&
-									!isNaN(rh = parseInt(rw[1])) &&
-									!isNaN(rw = parseInt(rw[0])) &&
-									rh > 0 &&
-									rw > 0) {
-									if (Math.abs((cw / ch) - (rw / rh)) > 0.07) {
-										bordas = true;
-										// Preserva a maior dimensão
-										if ((cw / rw) >= (ch / rh))
-											ch = (cw * rh) / rw;
-										else
-											cw = (ch * rw) / rh;
-									}
-								}
-							}
-
-							// Não podemos ter imagens muito grandes
-							if (cw >= ch) {
-								if (cw > 600) {
-									ch = ch * (600 / cw);
-									cw = 600;
-								}
-							} else {
-								if (ch > 600) {
-									cw = cw * (600 / ch);
-									ch = 600;
-								}
-							}
-
-							cw = (cw + 0.5) | 0;
-							ch = (ch + 0.5) | 0;
-
-							var canvas = document.createElement("canvas");
-							canvas.width = cw;
-							canvas.height = ch;
-
-							var context = canvas.getContext("2d", { alpha: true });
-
-							try {
-								if (("imageSmoothingEnabled" in context))
-									context.imageSmoothingEnabled = true;
-								if (("imageSmoothingQuality" in context))
-									context.imageSmoothingQuality = "high";
-							} catch (ex) {
-								// Apenas ignora...
-							}
-
-							if (bordas) {
-								// Preenche o fundo de transparente (as novas bordas da imagem)
-								context.clearRect(0, 0, cw, ch);
-
-								if ($("#cbEmpresaImagemModo").val()) {
-									// Redimensiona e centraliza a imagem dentro do canvas
-									if ((cw / ch) > (w / h)) {
-										// Bordas verticais nas laterais
-										w = (((w * ch) / h) + 0.5) | 0;
-										h = ch;
-									} else {
-										// Bordas horizontais acima e abaixo
-										h = (((h * cw) / w) + 0.5) | 0;
-										w = cw;
-									}
-								} else {
-									// Amplia cortando o excesso
-									if ((cw / ch) > (w / h)) {
-										// Corta a parte superior e inferior da imagem
-										h = (((h * cw) / w) + 0.5) | 0;
-										w = cw;
-									} else {
-										// Corta as laterais da imagem
-										w = (((w * ch) / h) + 0.5) | 0;
-										h = ch;
-									}
-								}
-
-								context.drawImage(image, 0, 0, image.width, image.height, (cw - w) >> 1, (ch - h) >> 1, w, h);
-							} else {
-								// Apenas redimensiona (não precisa de bordas)
-								context.drawImage(image, 0, 0, cw, ch);
-							}
-
-							var mime = "image/png";
-
-							if (!HTMLCanvasElement.prototype.toBlob) {
-								var data = canvas.toDataURL(mime, 1);
-
-								// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
-								var binStr = atob(data.split(",")[1]),
-									len = binStr.length,
-									arr = new Uint8Array(len);
-								for (var i = 0; i < len; i++)
-									arr[i] = binStr.charCodeAt(i);
-
-								formData.append("imagem", new Blob([arr], { type: mime }));
-								terminar(true);
-							} else {
-								canvas.toBlob(function (blob) {
-									formData.append("imagem", blob);
-									terminar(true);
-								}, mime, 1);
-							}
-						};
-						image.onerror = erroImagem;
-						image.src = src;
-					}
-
-					var reader = new FileReader();
-					reader.onload = function () {
-						terminarImagem(reader.result);
-					};
-					reader.onerror = erroImagem;
-					reader.readAsDataURL(arquivo);
-				}
-
-				prepararImagem(txtEmpresaImagem.files[0]);
-			}
-
-			JsonWebApi.get("/api/palestrante/alterarUrlEmpresaExterno/<%-hash %>", function (response) {
-				if (response.success)
-					atualizarImagem();
-				else
-					Notification.error(response.value, true);
-			}, "url_site", trim($("#txtEmpresaUrlSite").val()));
-		}
-	});
 	//]]>
 </script>
