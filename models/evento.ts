@@ -195,7 +195,7 @@ export = class Evento {
 			try {
 				await sql.query("insert into evento (nome, url, descricao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, termoaceite) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
-				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', 0)", [ev.id]);
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0)", [ev.id]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("update evento set idempresapadrao = ? where id = " + ev.id, [ev.idempresapadrao]);
 				let diretorio = Evento.caminhoRelativo(ev.id);
