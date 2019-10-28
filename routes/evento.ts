@@ -162,10 +162,12 @@ router.get("/controlar-palestrantes", wrap(async (req: express.Request, res: exp
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
 		jsonRes(res, 400, "Sem acesso!");
 	} else {
+		let evt = Evento.eventosPorId[u.idevento_logado];
 		res.render("evento/controlar-palestrantes", {
 			layout: "layout-vazio",
 			usuario: u,
 			idevento: u.idevento_logado,
+			urlEvento: (evt ? evt.url : ""),
 			extensaoImagem: Palestrante.extensaoImagem,
 			caminhoAbsolutoPastaExterno: Palestrante.caminhoAbsolutoPastaExterno(u.idevento_logado),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
@@ -179,10 +181,12 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
 		jsonRes(res, 400, "Sem acesso!");
 	} else {
+		let evt = Evento.eventosPorId[u.idevento_logado];
 		res.render("evento/controlar-sessoes", {
 			layout: "layout-vazio",
 			usuario: u,
 			idevento: u.idevento_logado,
+			urlEvento: (evt ? evt.url : ""),
 			extensaoImagem: Palestrante.extensaoImagem,
 			datas: JSON.stringify(await Data.listar(u.idevento_logado)),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),

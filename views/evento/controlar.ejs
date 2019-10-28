@@ -135,7 +135,12 @@
 	};
 
 	var tabArquivosVisivel = false,
-		tabLandingPageVisivel = false;
+		tabLandingPageVisivel = false,
+		regA = /[áàãâä]/gi, regE = /[éèêë]/gi, regI = /[íìîï]/gi, regO = /[óòõôö]/gi, regU = /[úùûü]/gi, regC = /ç/gi;
+
+	function ajustarNome(nome) {
+		return nome.toLowerCase().replace(regA, "a").replace(regE, "e").replace(regI, "i").replace(regO, "o").replace(regU, "u").replace(regC, "c");
+	}
 
 	function gerarPNGVazio() {
 		return new Uint8Array([
