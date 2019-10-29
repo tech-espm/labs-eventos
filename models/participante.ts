@@ -23,6 +23,9 @@ export = class Participante {
 	public rg: string;
 	public login: string;
 	public email: string;
+	public codigoCurso: string;
+	public nomeCurso: string;
+	public serie: string;
 	public tipo: number;
 	public idindustria: number;
 	public idinstrucao: number;
@@ -201,6 +204,9 @@ export = class Participante {
 		if (externo) {
 			p.login = null;
 			p.tipo = Participante.TipoExterno;
+			p.codigoCurso = null;
+			p.nomeCurso = null;
+			p.serie = null;
 
 			p.rg = (p.rg || "").normalize();
 			if (p.rg.length < 5 || p.rg.length > 25)
@@ -223,6 +229,27 @@ export = class Participante {
 				return "Login inválido";
 			if (p.tipo !== Participante.TipoAluno && p.tipo !== Participante.TipoFuncionario)
 				return "Tipo inválido";
+			p.codigoCurso = (p.codigoCurso || "").normalize().trim().toUpperCase();
+			if (p.codigoCurso) {
+				if (p.codigoCurso.length > 25)
+					p.codigoCurso = p.codigoCurso.substr(0, 25).trim();
+			} else {
+				p.codigoCurso = null;
+			}
+			p.nomeCurso = (p.nomeCurso || "").normalize().trim().toUpperCase();
+			if (p.nomeCurso) {
+				if (p.nomeCurso.length > 50)
+					p.nomeCurso = p.nomeCurso.substr(0, 50).trim();
+			} else {
+				p.nomeCurso = null;
+			}
+			p.serie = (p.serie || "").normalize().trim().toUpperCase();
+			if (p.serie) {
+				if (p.serie.length > 25)
+					p.serie = p.serie.substr(0, 25).trim();
+			} else {
+				p.serie = null;
+			}
 		}
 
 		return null;
@@ -246,13 +273,16 @@ export = class Participante {
 			p.email = cas.emailAcademico;
 			p.senha = appsettings.senhaPadraoUsuariosIntegracaoCAS;
 			p.tipo = (cas.aluno ? Participante.TipoAluno : Participante.TipoFuncionario);
+			p.codigoCurso = cas.codigoCurso;
+			p.nomeCurso = cas.nomeCurso;
+			p.serie = cas.serie;
 		}
 		if ((r = Participante.validar(p, !cas)))
 			return r;
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into participante (nome, login, rg, email, tipo, idindustria, idinstrucao, idprofissao, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.rg, p.email, p.tipo, p.idindustria, p.idinstrucao, p.idprofissao, await GeradorHash.criarHash(p.senha)]);
+				await sql.query("insert into participante (nome, login, rg, email, codigoCurso, nomeCurso, serie, tipo, idindustria, idinstrucao, idprofissao, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.rg, p.email, p.codigoCurso, p.nomeCurso, p.serie, p.tipo, p.idindustria, p.idinstrucao, p.idprofissao, await GeradorHash.criarHash(p.senha)]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (e) {
 				if (e.code) {
