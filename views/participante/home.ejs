@@ -326,6 +326,10 @@
 	(function () {
 		var i, evento, html = '<div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-body"><button type="button" onclick="mostrarQR()" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-qrcode"></i>Código QR para entrada e presença</button></div></div></div></div>';
 
+		<% if (participante.tipo === 3) { %>
+			html += '<div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-body text-center">Por favor, não se esqueça de trazer um documento com foto no dia do evento 😊</div></div></div></div>';
+		<% } %>
+
 		eventos.sort(function (a, b) { return b.data - a.data; });
 
 		for (i = 0; i < eventos.length; i++) {

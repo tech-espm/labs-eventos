@@ -2,95 +2,100 @@
 <div class="painel-msg" style="<%=((sessoes && sessoes.length) ? 'padding-bottom: 15px;' : '' ) %>">
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
-			<div class="pull-left"><span>M</span>INHAS <span>I</span>NFORMAÇÕES</div>
+			<div class="pull-left"><span>I</span>NFORMAÇÕES</div>
 			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
 		</div>
 		<div class="panel-body">
-			<div class="form-group">
-				<label for="txtPalestranteNome">Nome</label>
-				<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" value="<%=palestrante.nome %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
-				<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.nome_curto %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteEmail">E-mail</label>
-				<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" value="<%=palestrante.email %>" disabled="disabled" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteCargo">Cargo</label>
-				<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.cargo %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
-				<input id="txtPalestranteUrlSite" name="txtPalestranteUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_site %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteUrlTwitter">URL do Twitter <small><i>(http://... ou https://...)</i></small></label>
-				<input id="txtPalestranteUrlTwitter" name="txtPalestranteUrlTwitter" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_twitter %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteUrlFacebook">URL do Facebook <small><i>(http://... ou https://...)</i></small></label>
-				<input id="txtPalestranteUrlFacebook" name="txtPalestranteUrlFacebook" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_facebook %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteUrlLinkedIn">URL do LinkedIn <small><i>(http://... ou https://...)</i></small></label>
-				<input id="txtPalestranteUrlLinkedIn" name="txtPalestranteUrlLinkedIn" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_linkedin %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteBio">Biografia <small><i>(Até 1000 caracteres)</i></small></label>
-				<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" rows="8"><%=palestrante.bio %></textarea>
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteBioCurta">Biografia Curta <small><i>(Até 200 caracteres)</i></small></label>
-				<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
-			</div>
-			<div class="form-group">
-				<label for="txtPalestranteImagem">Nova Imagem <small><i>(Aspect ratio preferencial <%=evento.aspectratiopalestrante %>)</i></small></label>
-				<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
-			</div>
-			<div class="form-group hidden">
-				<label for="cbPalestranteImagemModo">Modo de Ajuste da Imagem</label>
-				<select id="cbPalestranteImagemModo" name="cbPalestranteImagemModo" class="form-control upper" size="1">
-					<option value="" selected="selected">AMPLIAR (SEM BORDAS)</option>
-					<option value="1">REDUZIR PARA CABER (COM BORDAS)</option>
-				</select>
-			</div>
-			<div class="form-group no-margin-bottom">
-				<label for="txtPalestranteImagemAtual">Imagem Atual</label>
-				<div class="text-center">
-					<img alt="Imagem do Palestrante" id="txtPalestranteImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
+			<ul class="nav nav-pills text-center" role="tablist">
+				<li role="presentation" class="active"><a href="#tab-pessoal" aria-controls="tab-pessoal" role="tab" data-toggle="pill">Informações Pessoais</a></li>
+				<li role="presentation"><a href="#tab-empresa" aria-controls="tab-empresa" role="tab" data-toggle="pill">Informações da Empresa</a></li>
+			</ul>
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane fade in active" id="tab-pessoal">
+					<div class="form-group">
+						<label for="txtPalestranteNome">Nome</label>
+						<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" value="<%=palestrante.nome %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
+						<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.nome_curto %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteEmail">E-mail</label>
+						<input id="txtPalestranteEmail" name="txtPalestranteEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" value="<%=palestrante.email %>" disabled="disabled" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteCargo">Cargo</label>
+						<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.cargo %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
+						<input id="txtPalestranteUrlSite" name="txtPalestranteUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_site %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteUrlTwitter">URL do Twitter <small><i>(http://... ou https://...)</i></small></label>
+						<input id="txtPalestranteUrlTwitter" name="txtPalestranteUrlTwitter" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_twitter %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteUrlFacebook">URL do Facebook <small><i>(http://... ou https://...)</i></small></label>
+						<input id="txtPalestranteUrlFacebook" name="txtPalestranteUrlFacebook" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_facebook %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteUrlLinkedIn">URL do LinkedIn <small><i>(http://... ou https://...)</i></small></label>
+						<input id="txtPalestranteUrlLinkedIn" name="txtPalestranteUrlLinkedIn" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=palestrante.url_linkedin %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteBio">Biografia <small><i>(Até 1000 caracteres)</i></small></label>
+						<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" rows="8"><%=palestrante.bio %></textarea>
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteBioCurta">Biografia Curta <small><i>(Até 200 caracteres)</i></small></label>
+						<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
+					</div>
+					<div class="form-group">
+						<label for="txtPalestranteImagem">Nova Imagem <small><i>(Aspect ratio preferencial <%=evento.aspectratiopalestrante %>)</i></small></label>
+						<input id="txtPalestranteImagem" name="txtPalestranteImagem" class="form-control" type="file" accept="image/*" />
+					</div>
+					<div class="form-group hidden">
+						<label for="cbPalestranteImagemModo">Modo de Ajuste da Imagem</label>
+						<select id="cbPalestranteImagemModo" name="cbPalestranteImagemModo" class="form-control upper" size="1">
+							<option value="" selected="selected">AMPLIAR (SEM BORDAS)</option>
+							<option value="1">REDUZIR PARA CABER (COM BORDAS)</option>
+						</select>
+					</div>
+					<div class="form-group no-margin-bottom">
+						<label for="txtPalestranteImagemAtual">Imagem Atual</label>
+						<div class="text-center">
+							<img alt="Imagem do Palestrante" id="txtPalestranteImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="panel-heading clearfix">
-			<span>E</span>MPRESA
-		</div>
-		<div class="panel-body">
-			<div class="form-group">
-				<label for="txtEmpresaNome">Nome</label>
-				<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control upper" spellcheck="false" value="<%=empresa.nome %>" disabled="disabled" />
-			</div>
-			<div class="form-group">
-				<label for="txtEmpresaUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
-				<input id="txtEmpresaUrlSite" name="txtEmpresaUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=empresa.url_site %>" />
-			</div>
-			<div class="form-group">
-				<label for="txtEmpresaImagem">Novo Logotipo <small><i>(Aspect ratio preferencial <%=evento.aspectratioempresa %>)</i></small></label>
-				<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
-			</div>
-			<div class="form-group hidden">
-				<label for="cbEmpresaImagemModo">Modo de Ajuste do Logotipo</label>
-				<select id="cbEmpresaImagemModo" name="cbEmpresaImagemModo" class="form-control upper" size="1">
-					<option value="">AMPLIAR (SEM BORDAS)</option>
-					<option value="1" selected="selected">REDUZIR PARA CABER (COM BORDAS)</option>
-				</select>
-			</div>
-			<div class="form-group no-margin-bottom">
-				<label for="txtEmpresaImagemAtual">Logotipo Atual</label>
-				<div class="text-center">
-					<img alt="Logotipo da Empresa" id="txtEmpresaImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=<%-empresa.versao %>" />
+				<div role="tabpanel" class="tab-pane fade" id="tab-empresa">
+					<div class="form-group">
+						<label for="txtEmpresaNome">Nome</label>
+						<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control upper" spellcheck="false" value="<%=empresa.nome %>" disabled="disabled" />
+					</div>
+					<div class="form-group">
+						<label for="txtEmpresaUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
+						<input id="txtEmpresaUrlSite" name="txtEmpresaUrlSite" class="form-control" type="url" maxlength="100" spellcheck="false" value="<%=empresa.url_site %>" />
+					</div>
+					<div class="form-group">
+						<label for="txtEmpresaImagem">Novo Logotipo <small><i>(Aspect ratio preferencial <%=evento.aspectratioempresa %>)</i></small></label>
+						<input id="txtEmpresaImagem" name="txtEmpresaImagem" class="form-control" type="file" accept="image/*" />
+					</div>
+					<div class="form-group hidden">
+						<label for="cbEmpresaImagemModo">Modo de Ajuste do Logotipo</label>
+						<select id="cbEmpresaImagemModo" name="cbEmpresaImagemModo" class="form-control upper" size="1">
+							<option value="">AMPLIAR (SEM BORDAS)</option>
+							<option value="1" selected="selected">REDUZIR PARA CABER (COM BORDAS)</option>
+						</select>
+					</div>
+					<div class="form-group no-margin-bottom">
+						<label for="txtEmpresaImagemAtual">Logotipo Atual</label>
+						<div class="text-center">
+							<img alt="Logotipo da Empresa" id="txtEmpresaImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=<%-empresa.versao %>" />
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -207,6 +212,17 @@ function textColorForBackground(i) {
 		.panel-default > .panel-heading span {
 			font-size: 40px;
 		}
+
+	.nav-pills > li, .nav-pills > li + li {
+		margin: 2px 0;
+		float: none;
+		display: inline-block;
+	}
+
+	.nav-pills > li:not(.active) > a:not(:hover) {
+		background-color: #fff;
+		color: #333;
+	}
 </style>
 
 <%- contentFor("scripts") %>
@@ -424,6 +440,12 @@ function textColorForBackground(i) {
 	}
 
 	$("#form").validate({
+		// Para forçar validar campos ocultos (em abas ocultas)
+		ignore: [],
+		invalidHandler: function(event, validator) {
+			if (validator.numberOfInvalids())
+				Notification.error("Por favor, corrija os campos inválidos nas abas \"Informações Pessoais\" e \"Informações da Empresa\" " + emoji.sad, true);
+		},
 		rules: {
 			txtPalestranteNome: {
 				required: true,
