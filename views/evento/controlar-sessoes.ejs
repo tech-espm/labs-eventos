@@ -262,6 +262,7 @@
 						return nomes;
 					}
 				},
+				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },

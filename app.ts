@@ -204,6 +204,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					urlBase: "/evt/" + evento.id + "/",
 					urlInscricao: "/participante/inscricao" + req.path + "/",
 					urlParticipante: "/participante",
+					inscricoes: (evento.permiteinscricao ? await Evento.listarInscricoes(evento.id) : []),
 					participante: await Participante.cookie(req),
 					datas: await Data.listar(evento.id),
 					empresas: await Empresa.listar(evento.id),
