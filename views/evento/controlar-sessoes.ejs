@@ -265,6 +265,8 @@
 				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
+				{ title: "Capacidade Real", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
+				{ title: "Capacidade Alocada", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
 				{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
 				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },

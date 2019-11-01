@@ -43,7 +43,7 @@
 				{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 				{ title: "Capacidade Real", "class": "col-min text-right", data: "capacidade_real" },
 				{ title: "Unidade", "class": "col-25", render: encode, data: "sigla_unidade" },
-				{ title: "Capacidade", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<input type=\"number\" class=\"form-control upper text-right\" value=\"" + row.capacidade + "\" style=\"width: 7em; display: inline-block;\" min=\"0\" max=\"999\" /> <button title=\"Alterar capacidade\" type=\"button\" data-capacidade=\"1\" class=\"btn btn-outline btn-primary btn-evento-local\"><i class=\"fa fa-nomargin fa-save\"></i></button>"; } },
+				{ title: "Capacidade Alocada", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<input type=\"number\" class=\"form-control upper text-right\" value=\"" + row.capacidade + "\" style=\"width: 7em; display: inline-block;\" min=\"0\" max=\"999\" /> <button title=\"Alterar capacidade\" type=\"button\" data-capacidade=\"1\" class=\"btn btn-outline btn-primary btn-evento-local\"><i class=\"fa fa-nomargin fa-save\"></i></button>"; } },
 				{ title: "Cor", "class": "col-min", searchable: false, orderable: false, render: function (v, type, row) { return "<button title=\"Alterar cor\" type=\"button\" data-cor=\"1\" class=\"btn btn-outline btn-default btn-force-border btn-evento-local\" style=\"background-color: " + intToColor(row.cor) + "\">&nbsp;&nbsp;</button>"; } },
 			],
 			data: locais,

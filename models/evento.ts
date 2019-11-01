@@ -300,14 +300,21 @@ export = class Evento {
 		return (lista || []);
 	}
 
-	public static async listarInscricoesEPresencas(id: number): Promise<any[]> {
-		let lista: any[] = null;
+	public static async listarInscricoesEPresencas(id: number): Promise<any> {
+		let res = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ideventosessao, count(*) inscritos, sum(presente) presentes from eventosessaoparticipante where idevento = " + id + " group by ideventosessao");
+			let presencas = await sql.query("select ideventosessao, count(*) inscritos, sum(presente) presentes from eventosessaoparticipante where idevento = " + id + " group by ideventosessao");
+
+			let tipos = await sql.query("select count(*) inscritos, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante group by p.tipo");
+
+			res = {
+				presencas: presencas,
+				tipos: tipos
+			};
 		});
 
-		return (lista || []);
+		return res;
 	}
 
 	public static gerarPNGVazio(): Uint8Array {

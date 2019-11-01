@@ -321,10 +321,9 @@
 		}
 	}
 
-	function atualizarInscricoesEPresencas(presencas) {
-		var totalI = 0, totalP = 0;
+	function atualizarInscricoesEPresencas(r) {
+		var presencas = r.presencas, tipos = r.tipos, totalI = 0, totalP = 0, i, sessao, t1 = 0, t2 = 0, t3 = 0;
 		if (eventoSessoesPorId) {
-			var i, sessao;
 			for (i = 0; i < eventoSessoes.length; i++) {
 				sessao = eventoSessoes[i];
 				sessao.inscritos = 0;
@@ -342,7 +341,22 @@
 				}
 			}
 		}
-		$("#lblInscricoesEPresencas").html("Total de Inscrições: " + totalI + "<br />Total de Presenças: " + totalP);
+		if (tipos && tipos.length) {
+			for (i = 0; i < tipos.length; i++) {
+				switch (tipos[i].tipo) {
+					case 1:
+						t1 = tipos[i].inscritos;
+						break;
+					case 2:
+						t2 = tipos[i].inscritos;
+						break;
+					case 3:
+						t3 = tipos[i].inscritos;
+						break;
+				}
+			}
+		}
+		$("#lblInscricoesEPresencas").html("Total de Inscrições: " + totalI + "<br />Total de Presenças: " + totalP + "<br />Total de Alunos Inscritos: " + t1 + "<br />Total de Funcionários Inscritos: " + t2 + "<br />Total de Participantes Externos Inscritos: " + t3);
 	}
 
 	function carregarSessoes(sessoes, presencas) {
