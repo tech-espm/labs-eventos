@@ -33,10 +33,12 @@ router.all("/alterar", wrap(async (req: express.Request, res: express.Response) 
 	} else {
 		let id = parseInt(req.query["id"]);
 		let item: Evento = null;
-		if (isNaN(id) || !(item = await Evento.obter(id)))
+		if (isNaN(id) || !(item = await Evento.obter(id))) {
 			res.render("home/nao-encontrado", { usuario: u });
-		else
+		} else {
+			await Evento.obterDadosDeEdicao(item);
 			res.render("evento/alterar", { titulo: "Editar Evento", usuario: u, item: item });
+		}
 	}
 }));
 
@@ -60,6 +62,7 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		if (!(item = await Evento.obter(u.idevento_logado))) {
 			res.render("home/nao-encontrado", { usuario: u });
 		} else {
+			await Evento.obterDadosDeEdicao(item);
 			res.render("evento/controlar", {
 				titulo: "Controlar Evento",
 				usuario: u,

@@ -70,6 +70,30 @@
 						<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
 					</label>
 				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="senharecepcao">Senha da Recepção</label>
+							<div class="input-group">
+								<input id="senharecepcao" name="senharecepcao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senharecepcao : '') %>" />
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenharecepcao').className = (_('senharecepcao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senharecepcao').setAttribute('type', _('senharecepcao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenharecepcao" class="fa fa-nomargin fa-eye"></i></button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="senhacheckin">Senha do Check-In</label>
+							<div class="input-group">
+								<input id="senhacheckin" name="senhacheckin" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhacheckin : '') %>" />
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhacheckin').className = (_('senhacheckin').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhacheckin').setAttribute('type', _('senhacheckin').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhacheckin" class="fa fa-nomargin fa-eye"></i></button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="panel-footer">
 				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Evento') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
@@ -108,6 +132,12 @@
 					required: true,
 					email: true,
 					maxlength: 100
+				},
+				senharecepcao: {
+					maxlength: 45
+				},
+				senhacheckin: {
+					maxlength: 45
 				},
 				descricao: {
 					maxlength: 250
