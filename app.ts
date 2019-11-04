@@ -111,6 +111,7 @@ Evento.nomesReservados.push(
 	"logout",
 
 	"cas",
+	"checkin",
 	"curso",
 	"evento",
 	"formato",
@@ -120,6 +121,7 @@ Evento.nomesReservados.push(
 	"local",
 	"participante",
 	"profissao",
+	"recepcao",
 	"sessao",
 	"tipoEmpresa",
 	"tipoSessao",
@@ -163,6 +165,8 @@ app.use("/api/vertical", require("./routes/api/vertical"));
 
 // Cadastros relacionados aos eventos
 app.use("/evento", require("./routes/evento"));
+app.use("/checkin", require("./routes/checkin"));
+app.use("/recepcao", require("./routes/recepcao"));
 // API
 app.use("/api/evento", require("./routes/api/evento"));
 app.use("/api/data", require("./routes/api/data"));

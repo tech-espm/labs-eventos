@@ -97,15 +97,6 @@
 		border-top-right-radius: 0;
 	}
 
-	.panel-default > .panel-heading {
-		background-color: rgba(255,255,255,0.85);
-		font-size: 25px;
-	}
-
-		.panel-default > .panel-heading::first-letter {
-			font-size: 40px;
-		}
-
 	.titulo-inscricao {
 		font-size: 20px;
 		margin: 0 0 15px;
@@ -128,6 +119,10 @@
 </style>
 
 <%- contentFor("scripts") %>
+<!--
+	qrcode.js
+	https://github.com/davidshimjs/qrcodejs
+-->
 <script type="text/javascript" src="/lib/qrcodejs/js/qrcode-1.0.0.min.js"></script>
 <script type="text/javascript">
 	//<![CDATA[
@@ -343,7 +338,7 @@
 			html += '<div class="';
 			// A última coluna de uma lista com quantidade ímpar deve ocupar todo o espaço
 			html += ((i === (eventos.length - 1) && (eventos.length & 1)) ? "col-lg-12" : "col-sm-6");
-			html += '"><div class="panel panel-default"><div class="panel-heading">' + encode(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
+			html += '"><div class="panel panel-default"><div class="panel-heading">' + capitalizarFrase(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
 			html += '<h4 class="text-right"><i class="fa fa-calendar"></i>' + evento.data + '</h4>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a></div>';
 			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i>Inscrições e avaliações</button></div>';

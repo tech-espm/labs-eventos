@@ -85,7 +85,7 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		if (!eventos || !eventos.length)
 			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Meus Eventos", ocultarBotao: true, mensagem: "Você ainda não participou de nenhum evento conosco", participante: p });
 		else
-			res.render("participante/home", { layout: "layout-participante", titulo: "Meus Eventos", participante: p, eventos: JSON.stringify(eventos) });
+			res.render("participante/home", { layout: "layout-participante", panelHeadingPersonalizado: true, titulo: "Meus Eventos", participante: p, eventos: JSON.stringify(eventos) });
 	}
 }));
 

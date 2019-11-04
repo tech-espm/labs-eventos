@@ -1,0 +1,389 @@
+﻿
+<div class="painel-msg">
+	<div class="panel panel-default no-margin-bottom">
+		<div class="panel-heading clearfix">
+			<div class="pull-left"><span>R</span>ECEPÇÃO</div>
+			<!--<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>-->
+			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/participante" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Novos cadastros</a></div>
+		</div>
+		<div class="panel-body" id="panelBody">
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label for="txtSenha">Senha</label>
+						<input id="txtSenha" name="txtSenha" class="form-control" type="password" maxlength="45" spellcheck="false" autocomplete="off" />
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label class="hidden-xs">&nbsp;</label>
+						<button type="button" class="btn btn-primary btn-block" onclick="atualizarInscritos()"><i class="fa fa-refresh"></i>Atualizar</button>
+					</div>
+				</div>
+			</div>
+			<div class="form-group hidden" id="divQR">
+				<button type="button" onclick="mostrarQR()" class="btn btn-primary btn-block"><i class="fa fa-qrcode"></i>Ler códigos QR</button>
+			</div>
+			<div id="panelTabela">
+				<h2 style="text-align: center; margin: 0;">Digite a senha e clique em atualizar para ver os inscritos.</h2>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="divPreview" class="fullscreen hidden">
+	<video id="preview" class="fullscreen" onclick="pararDecodificacao()" autoplay playsinline></video>
+	<canvas id="qr-canvas" style="opacity: 0.5; z-index: 99; position: fixed; top: 0px; left: 0px; display: none;"></canvas>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalConcederAceite">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Termo de Aceite de Uso de Imagem</h4>
+			</div>
+			<div class="modal-body">
+				<div style="white-space: pre-wrap;"><%=(evento.termoaceite || "Você confirma que deseja ceder os direitos de uso das imagens e filmagens realizadas durante a sessão?") %></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="concederAceite()"><i class="fa fa-check"></i>Estou de Acordo</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.painel-msg {
+		text-align: left;
+		max-width: 1000px;
+		padding: 50px 15px;
+	}
+
+	.fullscreen {
+		padding: 0;
+		margin: 0;
+		left: 0;
+		top: 0;
+		height: 100%;
+		width: 100%;
+		object-fit: cover;
+	}
+
+	div.fullscreen {
+		position: fixed;
+		z-index: 1;
+	}
+
+	video.fullscreen {
+		cursor: pointer;
+	}
+
+	canvas, video {
+		display: block;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<!--
+	JavaScript QRCode reader for HTML5 enabled browser.
+	2011 Lazar Laszlo  http://lazarsoft.info
+	https://github.com/LazarSoft/jsqrcode
+-->
+<script type="text/javascript" src="/lib/qr/js/grid.js"></script>
+<script type="text/javascript" src="/lib/qr/js/version.js"></script>
+<script type="text/javascript" src="/lib/qr/js/detector.js"></script>
+<script type="text/javascript" src="/lib/qr/js/formatinf.js"></script>
+<script type="text/javascript" src="/lib/qr/js/errorlevel.js"></script>
+<script type="text/javascript" src="/lib/qr/js/bitmat.js"></script>
+<script type="text/javascript" src="/lib/qr/js/datablock.js"></script>
+<script type="text/javascript" src="/lib/qr/js/bmparser.js"></script>
+<script type="text/javascript" src="/lib/qr/js/datamask.js"></script>
+<script type="text/javascript" src="/lib/qr/js/rsdecoder.js"></script>
+<script type="text/javascript" src="/lib/qr/js/gf256poly.js"></script>
+<script type="text/javascript" src="/lib/qr/js/gf256.js"></script>
+<script type="text/javascript" src="/lib/qr/js/decoder.js"></script>
+<script type="text/javascript" src="/lib/qr/js/qrcode.js"></script>
+<script type="text/javascript" src="/lib/qr/js/findpat.js"></script>
+<script type="text/javascript" src="/lib/qr/js/alignpat.js"></script>
+<script type="text/javascript" src="/lib/qr/js/databr.js"></script>
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	var tabela = null;
+
+	if (!navigator.getUserMedia) {
+		navigator.getUserMedia = (navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia);
+	}
+
+	if (!window.URL)
+		window.URL = window.webkitURL;
+
+	if (!("now" in Date))
+		Date.now = function () { return (+new Date()); }
+
+	var preview, previewSrc, previewOk, cameraStream, cameraTrack, canvas, context,
+		ultimaNotificacaoQRValida = false,
+		ultimoQR = "",
+		horaUltimoQR = Date.now(),
+		inverter = false,
+		decodificando = false,
+		ligando = false,
+		panelBody = _("panelBody"),
+		divPreview = _("divPreview");
+
+	function atualizarInscritos() {
+		if (JsonWebApi.active || decodificando || ligando)
+			return;
+
+		var senha = _("txtSenha").value.normalize();
+
+		if (!senha)
+			return;
+
+		Notification.wait();
+
+		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha), function (response) {
+			if (response.success) {
+				if (!response.value || !response.value.length) {
+					Notification.error("Nada para exibir " + emoji.sad, true);
+					return;
+				}
+
+				Notification.hide();
+				_("divQR").className = "form-group";
+				$("#panelTabela").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabela"></table></div>');
+				tabela = prepareDataTable("tabela", {
+					order: [[0, "asc"]],
+					deferRender: true,
+					columns: [
+						{ title: "Nome", render: encode, data: "nome" },
+						{ title: "Login", render: encode, data: "login" },
+						{ title: "RG", render: encode, data: "rg" },
+						{ title: "E-mail", render: encode, data: "email" },
+						{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
+					],
+					data: response.value,
+					export: { title: "Inscritos" }
+				});
+			} else {
+				Notification.error(response.value, true);
+			}
+		});
+	}
+
+	_("txtSenha").onkeyup = function (e) {
+		if (e.key == "Enter" || e.keyCode == 13) {
+			cancelEvent(e);
+			atualizarInscritos();
+			return false;
+		}
+	};
+
+	function iniciarDecodificacao() {
+		if (preview.play) {
+			Notification.hide();
+			decodificando = true;
+			preview.play();
+			panelBody.className = "panel-body hidden";
+			divPreview.className = "fullscreen";
+			setTimeout(tentarDecodificar, 1000);
+			Notification.show("Clique sobre o vídeo para voltar", "default", 5000, false);
+		}
+	}
+
+	function pararDecodificacao() {
+		decodificando = false;
+		ligando = false;
+
+		preview.removeEventListener("canplay", ajustarPreview);
+		preview.removeEventListener("loadeddata", ajustarPreview);
+		preview.removeEventListener("resize", ajustarPreview);
+		if (preview.pause)
+			preview.pause();
+		if (cameraStream) {
+			if (cameraStream.stop)
+				cameraStream.stop();
+			if (cameraTrack && cameraTrack.stop)
+				cameraTrack.stop();
+			cameraStream = null;
+			cameraTrack = null;
+		}
+		if ("mozSrcObject" in preview)
+			preview.mozSrcObject = null;
+		else
+			preview.src = "";
+		previewOk = false;
+		if (previewSrc) {
+			URL.revokeObjectURL(previewSrc);
+			previewSrc = null;
+		}
+
+		panelBody.className = "panel-body";
+		divPreview.className = "fullscreen hidden";
+	}
+
+	function tentarDecodificar() {
+		if (!decodificando)
+			return true;
+
+		if (!JsonWebApi.active && tabela) {
+			// Desenha o vídeo atualmente exibido no canvas, espelhado horizontalmente quando necessário
+			if (inverter)
+				context.setTransform(-1, 0, 0, 1, canvas.width, 0);
+			context.drawImage(preview, 0, 0, canvas.width, canvas.height);
+			if (inverter)
+				context.setTransform(1, 0, 0, 1, 0, 0);
+
+			try {
+				var result = qrcode.decode(), i, agora;
+				if (result && result.length) {
+					result = trim(result).toLowerCase();
+					if (!isNaN(i = parseInt(result, 16)) && i >= 0 && result === formatHex8(i)) {
+						agora = Date.now();
+
+						if (ultimoQR !== result && (agora - horaUltimoQR) > 5000) {
+							ultimoQR = result;
+
+							ultimaNotificacaoQRValida = false;
+
+							Notification.wait();
+
+							JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
+								if (response.success) {
+									if (response.value <= 0) {
+										if (!ultimaNotificacaoQRValida)
+											Notification.hide();
+									} else {
+										var i, p, data = tabela.data(), id = response.value;
+										for (i = data.length - 1; i >= 0; i--) {
+											p = data[i];
+											if (p.id === id) {
+												ultimaNotificacaoQRValida = true;
+												horaUltimoQR = agora;
+												Notification.show(p.nome + (p.rg ? (" - RG " + p.rg) : ""), "success", 10000, false);
+												return;
+											}
+										}
+										Notification.error("Participante não encontrado, ou sem inscrições no evento " + emoji.sad, true);
+									}
+								} else {
+									ultimoQR = "";
+									Notification.error(response.value, true);
+								}
+							});
+						}
+					}
+				}
+			} catch (ex) {
+				// Apenas ignora... na maioria das vezes vai dar errado mesmo!
+			}
+		}
+
+		if (decodificando)
+			setTimeout(tentarDecodificar, 50);
+
+		return true;
+	}
+
+	function ajustarPreview() {
+		// Utiliza a variável previewOk para garantir que esse código seja executado apenas uma vez!
+		if (!previewOk) {
+			canvas.width = preview.videoWidth;
+			canvas.height = preview.videoHeight;
+			previewOk = true;
+			ligando = false;
+			// Reproduz o vídeo, efetivamente exibindo o conteúdo da câmera na página
+			iniciarDecodificacao();
+		}
+		return true;
+	}
+
+	function getUserMedia_Success(mediaStream) {
+		// Especifica o tratador do evento "canplay", que é executado quando o
+		// vídeo foi carregado, e já está pronto para reproduzir
+		preview.addEventListener("canplay", ajustarPreview);
+		// Às vezes, canplay não é chamado, dependendo do browser... :(
+		preview.addEventListener("loadeddata", ajustarPreview);
+		preview.addEventListener("resize", ajustarPreview);
+		// Armazena o stream para uso futuro
+		cameraStream = mediaStream;
+		if (cameraStream.getTracks)
+			cameraTrack = cameraStream.getTracks()[0];
+		if ("srcObject" in preview) {
+			// Browsers novos...
+			previewSrc = null;
+			preview.srcObject = mediaStream;
+		} else if ("mozSrcObject" in preview) {
+			// O Firefox antigo trabalha de jeito diferente...
+			previewSrc = null;
+			preview.mozSrcObject = mediaStream;
+		} else {
+			// Para os outros browsers, basta criar uma URL para encapsular o stream, e pronto!
+			previewSrc = URL.createObjectURL(mediaStream);
+			preview.src = previewSrc;
+		}
+		return true;
+	}
+
+	function getUserMedia_Error(error) {
+		ligando = false;
+		Notification.error("Erro ao obter acesso à câmera: " + error, true);
+		return true;
+	}
+
+	function mostrarQR() {
+		if (JsonWebApi.active || decodificando || ligando)
+			return true;
+
+		ligando = true;
+
+		// Tenta obter acesso à câmera de trás
+		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+			navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+			.then(getUserMedia_Success)
+			.catch(getUserMedia_Error);
+		} else if (navigator.getUserMedia) {
+			navigator.getUserMedia({ video: { facingMode: "environment" }, audio: false }, getUserMedia_Success, getUserMedia_Error);
+		}
+
+		Notification.wait();
+
+		return true;
+	}
+
+	(function () {
+		if (!navigator.getUserMedia && !navigator.mediaDevices) {
+			Notification.error("Aparentemente seu browser não possui a API necessária para acessar a câmera! " + emoji.sad, true);
+		} else {
+			// Obtém o vídeo da página (onde será exibido o preview)
+			preview = document.getElementById("preview");
+			if (inverter) {
+				// Inverte o filme horizontalmente
+				if ("transform" in preview.style)
+					preview.style.transform = "scaleX(-1)";
+				if ("mozTransform" in preview.style)
+					preview.style.mozTransform = "scaleX(-1)";
+				if ("webkitTransform" in preview.style)
+					preview.style.webkitTransform = "scaleX(-1)";
+				if ("oTransform" in preview.style)
+					preview.style.oTransform = "scaleX(-1)";
+			}
+			// Ver explicação na função preview_CanPlay
+			previewOk = false;
+			// Obtém o canvas da página (onde será exibida a foto tirada)
+			canvas = document.getElementById("qr-canvas");
+			// Obtém o contexto de desenho do canvas (utilizado para desenhar)
+			context = canvas.getContext("2d");
+			// Tenta obter acesso à câmera
+			//navigator.getUserMedia({ video: true, audio: false }, getUserMedia_Success, getUserMedia_Error);
+		}
+	})();
+
+	//]]>
+</script>

@@ -72,4 +72,8 @@ router.post("/definirSenha", wrap(async (req: express.Request, res: express.Resp
 	jsonRes(res, 400, (email && token && senha) ? await Participante.definirSenha(email, token, senha) : "Dados inválidos");
 }));
 
+router.get("/idQRParaIdParticipante/:i", wrap(async (req: express.Request, res: express.Response) => {
+	res.json(Participante.idQRParaIdParticipante(req.params["i"]));
+}));
+
 export = router;

@@ -71,6 +71,18 @@
 			margin: 15px;
 		}
 	</style>
+	<% if ((typeof panelHeadingPersonalizado !== "undefined") && panelHeadingPersonalizado) { %>
+	<style type="text/css">
+		.panel-default > .panel-heading {
+			background-color: rgba(255,255,255,0.85);
+			font-size: 25px;
+		}
+
+			.panel-default > .panel-heading span {
+				font-size: 40px;
+			}
+	</style>
+	<% } %>
 
 	<%- defineContent("styles") %>
 </head>

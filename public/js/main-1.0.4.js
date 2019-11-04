@@ -53,7 +53,7 @@ window.parseQueryString = function () {
 window.encode = (function () {
 	var lt = /</g, gt = />/g;
 	return function (x) {
-		return x.replace(lt, "&lt;").replace(gt, "&gt;");
+		return (x ? x.replace(lt, "&lt;").replace(gt, "&gt;") : "");
 	};
 })();
 window.customFilterHandler = function (table, input) {
@@ -102,6 +102,10 @@ window.prepareCustomFilter = function (table, tableId, customFilterLabel, placeh
 };
 window.format2 = function (x) {
 	return ((x < 10) ? ("0" + x) : x);
+};
+window.formatHex8 = function (x) {
+	var s = "0000000" + x.toString(16).toLowerCase();
+	return s.substr(s.length - 8);
 };
 window.formatPeriod = function (period) {
 	return (period < 60 ? (period + " minutos") : (period == 60 ? "1 hora" : (((period / 60) | 0) + " horas")));
@@ -682,6 +686,30 @@ window.fixUrlOnBlur = function (input) {
 			}
 		}
 	});
+};
+window.capitalizarPalavras = function (s, classe, tag) {
+	var i, html = '', partes = encode(s).split(" ");
+	if (!tag)
+		tag = "span";
+	for (i = 0; i < partes.length; i++) {
+		if (i)
+			html += ' ';
+		html += (classe ? '<' + tag + ' class="' + classe + '">' : '<' + tag + '>') + partes[i].charAt(0) + '</' + tag + '>';
+		html += partes[i].substr(1);
+	}
+	return html;
+};
+window.capitalizarFrase = function (s, classe, tag) {
+	var i, html = '', partes = [encode(s)];
+	if (!tag)
+		tag = "span";
+	for (i = 0; i < partes.length; i++) {
+		if (i)
+			html += ' ';
+		html += (classe ? '<' + tag + ' class="' + classe + '">' : '<' + tag + '>') + partes[i].charAt(0) + '</' + tag + '>';
+		html += partes[i].substr(1);
+	}
+	return html;
 };
 (function () {
 	var fullScreenFrame = null;

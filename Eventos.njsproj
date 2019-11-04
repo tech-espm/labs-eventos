@@ -5,7 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>Eventos</Name>
     <RootNamespace>Eventos</RootNamespace>
-    <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
+    <LastActiveSolutionConfig>Release|Any CPU</LastActiveSolutionConfig>
     <NameOfLastUsedPublishProfile>Local</NameOfLastUsedPublishProfile>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
@@ -136,6 +136,7 @@
     <Content Include="views\participante\redefinirSenha.ejs" />
     <Content Include="views\participante\modal.ejs" />
     <Content Include="views\participante\login.ejs" />
+    <Content Include="views\recepcao\index.ejs" />
     <Content Include="views\rodape.ejs" />
     <Content Include="views\shared\sucesso-fundo.ejs" />
     <Content Include="views\shared\erro.ejs" />
@@ -202,6 +203,8 @@
     <TypeScriptCompile Include="routes\api\usuario.ts" />
     <TypeScriptCompile Include="routes\api\profissao.ts" />
     <TypeScriptCompile Include="routes\cas.ts" />
+    <TypeScriptCompile Include="routes\checkin.ts" />
+    <TypeScriptCompile Include="routes\recepcao.ts" />
     <TypeScriptCompile Include="routes\evento.ts" />
     <TypeScriptCompile Include="routes\local.ts" />
     <TypeScriptCompile Include="routes\instrucao.ts" />
@@ -235,8 +238,10 @@
     <Folder Include="public\lib\metis-menu\js\" />
     <Folder Include="public\evt\" />
     <Folder Include="public\favicons\" />
+    <Folder Include="public\lib\qr\" />
     <Folder Include="public\lib\qrcodejs\" />
     <Folder Include="public\lib\qrcodejs\js\" />
+    <Folder Include="public\lib\qr\js\" />
     <Folder Include="scripts_sql\" />
     <Folder Include="utils\" />
     <Folder Include="public\" />
@@ -273,6 +278,8 @@
     <Folder Include="views\formato\" />
     <Folder Include="views\curso\" />
     <Folder Include="views\evt\" />
+    <Folder Include="views\checkin\" />
+    <Folder Include="views\recepcao\" />
     <Folder Include="views\participante\" />
     <Folder Include="views\profissao\" />
     <Folder Include="views\tipoEmpresa\" />
@@ -284,7 +291,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.5.js" />
-    <Compile Include="public\js\main-1.0.3.js" />
+    <Compile Include="public\js\main-1.0.4.js" />
     <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.3.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.0.min.js" />
     <Compile Include="public\lib\data-tables\js\data-tables-1.0.11.min.js" />
@@ -295,6 +302,23 @@
     <Compile Include="public\lib\jquery\js\jquery-1.0.1.min.js" />
     <Compile Include="public\lib\metis-menu\js\metis-menu-1.0.1.min.js" />
     <Compile Include="public\lib\qrcodejs\js\qrcode-1.0.0.min.js" />
+    <Compile Include="public\lib\qr\js\alignpat.js" />
+    <Compile Include="public\lib\qr\js\bitmat.js" />
+    <Compile Include="public\lib\qr\js\bmparser.js" />
+    <Compile Include="public\lib\qr\js\datablock.js" />
+    <Compile Include="public\lib\qr\js\databr.js" />
+    <Compile Include="public\lib\qr\js\datamask.js" />
+    <Compile Include="public\lib\qr\js\decoder.js" />
+    <Compile Include="public\lib\qr\js\detector.js" />
+    <Compile Include="public\lib\qr\js\errorlevel.js" />
+    <Compile Include="public\lib\qr\js\findpat.js" />
+    <Compile Include="public\lib\qr\js\formatinf.js" />
+    <Compile Include="public\lib\qr\js\gf256.js" />
+    <Compile Include="public\lib\qr\js\gf256poly.js" />
+    <Compile Include="public\lib\qr\js\grid.js" />
+    <Compile Include="public\lib\qr\js\qrcode.js" />
+    <Compile Include="public\lib\qr\js\rsdecoder.js" />
+    <Compile Include="public\lib\qr\js\version.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

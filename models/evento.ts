@@ -338,6 +338,28 @@ export = class Evento {
 		return res;
 	}
 
+	public static async listarInscritos(id: number, senha: string, ideventosessao: number = 0): Promise<Participante[]> {
+		let lista: Participante[] = null;
+
+		if (isNaN(id) || !senha || isNaN(ideventosessao))
+			return [];
+
+		senha = senha.normalize();
+
+		await Sql.conectar(async (sql: Sql) => {
+			let senhas = await sql.query("select senharecepcao, senhacheckin from evento where id = " + id);
+
+			if (!senhas || !senhas[0] || (senhas[0].senharecepcao !== senha && senhas[0].senhacheckin !== senha))
+				return;
+
+			lista = await sql.query(ideventosessao > 0 ?
+				("select p.id, p.nome, p.login, p.rg, p.email, p.tipo from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
+				("select p.id, p.nome, p.login, p.rg, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante")) as Participante[];
+		});
+
+		return (lista || []);
+	}
+
 	public static gerarPNGVazio(): Uint8Array {
 		return new Uint8Array([
 			0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,

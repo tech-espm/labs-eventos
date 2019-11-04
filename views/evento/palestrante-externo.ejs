@@ -3,7 +3,7 @@
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>I</span>NFORMAÇÕES</div>
-			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
+			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
 		</div>
 		<div class="panel-body">
 			<ul class="nav nav-pills text-center" role="tablist">
@@ -203,15 +203,6 @@ function textColorForBackground(i) {
 		padding-top: 5%;
 		padding-bottom: 5%;
 	}
-
-	.panel-default > .panel-heading {
-		background-color: rgba(255,255,255,0.85);
-		font-size: 25px;
-	}
-
-		.panel-default > .panel-heading span {
-			font-size: 40px;
-		}
 
 	.nav-pills > li, .nav-pills > li + li {
 		margin: 2px 0;

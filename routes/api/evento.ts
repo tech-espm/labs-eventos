@@ -227,4 +227,11 @@ router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res:
 	res.json(await Evento.listarInscricoesEPresencas(u.idevento_logado));
 }));
 
+router.get("/listarInscritos/:e/:s/:i?", wrap(async (req: express.Request, res: express.Response) => {
+	let e = req.params["e"] as string;
+	let senha = req.params["s"] as string;
+	let i = req.params["i"] as string;
+	res.json(await Evento.listarInscritos(parseInt(e), senha, i ? parseInt(i) : 0));
+}));
+
 export = router;
