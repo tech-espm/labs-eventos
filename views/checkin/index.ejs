@@ -2,11 +2,37 @@
 <div class="painel-msg">
 	<div class="panel panel-default no-margin-bottom">
 		<div class="panel-heading clearfix">
-			<div class="pull-left"><span>R</span>ECEPÇÃO</div>
+			<div class="pull-left"><span>C</span>HECK-IN</div>
 			<!--<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>-->
 			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/participante" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Novos cadastros</a></div>
 		</div>
 		<div class="panel-body" id="panelBody">
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label for="cbData">Dia</label>
+						<select id="cbData" name="cbData" class="form-control" size="1">
+							<% for (var i = 0; i < datas.length; i++) { %>
+							<option value="<%-datas[i].id %>"><%=datas[i].dia %></option>
+							<% } %>
+						</select>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label for="cbLocal">Local</label>
+						<select id="cbLocal" name="cbLocal" class="form-control" size="1">
+							<% for (var i = 0; i < locais.length; i++) { %>
+							<option value="<%-locais[i].ideventolocal %>"><%=locais[i].sigla_unidade %> - <%=locais[i].nome %></option>
+							<% } %>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="cbSessao">Sessão</label>
+				<select id="cbSessao" name="cbSessao" class="form-control" size="1"></select>
+			</div>
 			<div class="row">
 				<div class="col-sm-6">
 					<div class="form-group">
@@ -25,7 +51,25 @@
 				<button type="button" onclick="mostrarQR()" class="btn btn-primary btn-block"><i class="fa fa-qrcode"></i>Ler códigos QR</button>
 			</div>
 			<div id="panelTabela">
-				<h2 style="text-align: center; margin: 0;">Digite a senha e clique em atualizar para ver os inscritos.</h2>
+				<h2 style="text-align: center; margin: 0;">Preencha a data, o local, a sessão e a senha e clique em atualizar para ver os inscritos.</h2>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalConfirmarPresenca">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Confirmação</h4>
+			</div>
+			<div class="modal-body">
+				Confirmar a presença de <b id="lblConfirmarPresencaNome"></b>?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success" onclick="confirmarPresenca()"><i class="fa fa-check"></i>Confirmar</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
 			</div>
 		</div>
 	</div>
@@ -110,17 +154,59 @@
 		Date.now = function () { return (+new Date()); }
 
 	var preview, previewSrc, previewOk, cameraStream, cameraTrack, canvas, context,
-		ultimaNotificacaoQRValida = false,
 		ultimoQR = "",
 		horaUltimoQR = Date.now(),
 		inverter = false,
 		decodificando = false,
 		ligando = false,
 		panelBody = _("panelBody"),
-		divPreview = _("divPreview");
+		divPreview = _("divPreview"),
+		idparticipanteSelecionado = 0,
+		ideventosessaoSelecionado = 0,
+		modalConfirmarPresencaVisivel = false,
+		cbData = _("cbData"),
+		cbLocal = _("cbLocal"),
+		$cbSessao = $("#cbSessao"),
+		sessoes = <%-JSON.stringify(sessoes) %>;
 
-	function atualizarInscritos() {
-		if (JsonWebApi.active || decodificando || ligando)
+	sessoes.sort(function (a, b) {
+		if (a.inicio < b.inicio)
+			return -1;
+		if (a.inicio > b.inicio)
+			return 1;
+		if (a.termino < b.termino)
+			return -1;
+		return 1;
+	});
+
+	function atualizarSessoes() {
+		var i, s, ideventodata = parseInt(cbData.value), ideventolocal = parseInt(cbLocal.value);
+
+		$cbSessao.empty();
+
+		for (i = 0; i < sessoes.length; i++) {
+			if ((s = sessoes[i]).ideventodata !== ideventodata ||
+				s.ideventolocal !== ideventolocal)
+				continue;
+			$cbSessao.append('<option value="' + s.id + '">' + encode(s.inicio) + ' às ' + encode(s.termino) + ' - ' + encode(s.nome_curto) + '</option>');
+		}
+	}
+
+	cbData.onchange = atualizarSessoes;
+	cbLocal.onchange = atualizarSessoes;
+
+	atualizarSessoes();
+
+	$("#modalConfirmarPresencaVisivel").on("show.bs.modal", function () {
+		modalConfirmarPresencaVisivel = true;
+	});
+
+	$("#modalConfirmarPresencaVisivel").on("hidden.bs.modal", function () {
+		modalConfirmarPresencaVisivel = false;
+	});
+
+	function confirmarPresenca() {
+		if (JsonWebApi.active || !ideventosessaoSelecionado || !idparticipanteSelecionado)
 			return;
 
 		var senha = _("txtSenha").value.normalize();
@@ -130,7 +216,36 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha), function (response) {
+		JsonWebApi.get("/api/participante/marcarPresenca", function (response) {
+			if (response.success) {
+				if (!response.value) {
+					Notification.error("Não foi possível localizar o participante inscrito na sessão, ou a senha digitada é inválida " + emoji.sad, true);
+					return;
+				}
+
+				Notification.success("Presença marcada com sucesso " + emoji.happy);
+
+				$("#modalConfirmarPresenca").modal("hide");
+
+				idparticipanteSelecionado = 0;
+			} else {
+				Notification.error(response.value, true);
+			}
+		}, "senha", senha, "idevento", "<%-evento.id %>", "ideventosessao", ideventosessaoSelecionado, "idparticipante", idparticipanteSelecionado);
+	}
+
+	function atualizarInscritos() {
+		if (JsonWebApi.active || decodificando || ligando)
+			return;
+
+		var ideventosessao = parseInt($cbSessao.val()), senha = _("txtSenha").value.normalize();
+
+		if (isNaN(ideventosessao) || !ideventosessao || !senha)
+			return;
+
+		Notification.wait();
+
+		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/" + ideventosessao, function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
@@ -138,8 +253,9 @@
 				}
 
 				Notification.hide();
+				ideventosessaoSelecionado = ideventosessao;
 				_("divQR").className = "form-group";
-				$("#panelTabela").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabela"></table></div>');
+				$("#panelTabela").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover table-row-pointer" id="tabela"></table></div>');
 				tabela = prepareDataTable("tabela", {
 					order: [[0, "asc"]],
 					deferRender: true,
@@ -152,6 +268,30 @@
 					],
 					data: response.value,
 					export: { title: "Inscritos" }
+				});
+
+				$("#tabela").on("click", "tbody tr", function () {
+					if (JsonWebApi.active)
+						return;
+
+					var senha = _("txtSenha").value.normalize();
+
+					if (!ideventosessaoSelecionado || !senha)
+						return;
+
+					var participante = tabela.row(this).data();
+
+					if (!participante)
+						return;
+
+					idparticipanteSelecionado = participante.id;
+
+					$("#lblConfirmarPresencaNome").text(participante.nome + (participante.login ? (" (" + participante.login + ")") : ""));
+
+					$("#modalConfirmarPresenca").modal({
+						backdrop: "static",
+						keyboard: false
+					});
 				});
 			} else {
 				Notification.error(response.value, true);
@@ -214,7 +354,7 @@
 		if (!decodificando)
 			return true;
 
-		if (!JsonWebApi.active && tabela) {
+		if (!JsonWebApi.active && tabela && !modalConfirmarPresencaVisivel) {
 			// Desenha o vídeo atualmente exibido no canvas, espelhado horizontalmente quando necessário
 			if (inverter)
 				context.setTransform(-1, 0, 0, 1, canvas.width, 0);
@@ -232,27 +372,34 @@
 						if (ultimoQR !== result && (agora - horaUltimoQR) > 5000) {
 							ultimoQR = result;
 
-							ultimaNotificacaoQRValida = false;
-
 							Notification.wait();
 
 							JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
 								if (response.success) {
 									if (response.value <= 0) {
-										if (!ultimaNotificacaoQRValida)
-											Notification.hide();
+										Notification.hide();
 									} else {
 										var i, p, data = tabela.data(), id = response.value;
 										for (i = data.length - 1; i >= 0; i--) {
 											p = data[i];
 											if (p.id === id) {
-												ultimaNotificacaoQRValida = true;
-												horaUltimoQR = agora;
-												Notification.show(p.nome + (p.rg ? (" - RG " + p.rg) : ""), "success", 10000, false);
+												ultimoQR = null;
+
+												Notification.hide();
+
+												idparticipanteSelecionado = id;
+
+												$("#lblConfirmarPresencaNome").text(p.nome + (p.login ? (" (" + p.login + ")") : ""));
+
+												$("#modalConfirmarPresenca").modal({
+													backdrop: "static",
+													keyboard: false
+												});
+
 												return;
 											}
 										}
-										Notification.error("Participante não encontrado, ou sem inscrições no evento " + emoji.sad, true);
+										Notification.error("Participante não encontrado, ou sem inscrição na sessão " + emoji.sad, true);
 									}
 								} else {
 									ultimoQR = "";

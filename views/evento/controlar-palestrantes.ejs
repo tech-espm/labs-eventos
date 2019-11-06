@@ -187,6 +187,7 @@
 				{ title: "E-mail", data: "email" },
 				{ title: "Empresa", data: "nome_empresa" },
 				{ title: "Cargo", data: "cargo" },
+				{ title: "Link de Compartilhamento", data: function (row, type, set, meta) { var str = gerarLinkDeCompartilhamento(row.nome); return '<a target="_blank" class="link-curto" href="' + str + '">' + str + '</a>'; } },
 			],
 			data: eventoPalestrantes,
 			export: { title: "Palestrantes do Evento" }
@@ -245,8 +246,7 @@
 					}
 				});
 			} else if (this.getAttribute("data-share")) {
-				var str = encodeURIComponent(ajustarNome(palestrante.nome)).replace(/\%20/g, "+");
-				str = "https://credenciamento.espm.br<%-urlEvento %>?" + str;
+				var str = gerarLinkDeCompartilhamento(palestrante.nome);
 
 				var a = _("aLinkPalestrante");
 				a.setAttribute("href", str);

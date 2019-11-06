@@ -125,6 +125,14 @@
 	#page-wrapper > .row {
 		max-width: 9999px;
 	}
+
+	.link-curto {
+		display: inline-block;
+		white-space: nowrap;
+		max-width: 100px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 </style>
 
 <%- contentFor("scripts") %>
@@ -140,10 +148,14 @@
 
 	var tabArquivosVisivel = false,
 		tabLandingPageVisivel = false,
-		regA = /[áàãâä]/gi, regE = /[éèêë]/gi, regI = /[íìîï]/gi, regO = /[óòõôö]/gi, regU = /[úùûü]/gi, regC = /ç/gi;
+		regEspaco = /\%20/g, regA = /[áàãâä]/gi, regE = /[éèêë]/gi, regI = /[íìîï]/gi, regO = /[óòõôö]/gi, regU = /[úùûü]/gi, regC = /ç/gi;
 
 	function ajustarNome(nome) {
 		return nome.toLowerCase().replace(regA, "a").replace(regE, "e").replace(regI, "i").replace(regO, "o").replace(regU, "u").replace(regC, "c");
+	}
+
+	function gerarLinkDeCompartilhamento(nome) {
+		return "https://credenciamento.espm.br/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
 	}
 
 	function gerarPNGVazio() {

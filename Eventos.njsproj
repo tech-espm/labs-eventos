@@ -94,6 +94,7 @@
     <Content Include="public\lib\font-awesome\fonts\fontawesome-webfont.woff" />
     <Content Include="public\lib\font-awesome\fonts\fontawesome-webfont.woff2" />
     <Content Include="utils\jsonRes.ts" />
+    <Content Include="views\checkin\index.ejs" />
     <Content Include="views\evento\controlar-sessoes.ejs" />
     <Content Include="views\evento\controlar-palestrantes.ejs" />
     <Content Include="views\evento\controlar-empresas.ejs" />

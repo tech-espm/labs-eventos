@@ -348,6 +348,23 @@ export = class Participante {
 		return (lista || []);
 	}
 
+	public static async marcarPresenca(senha: string, idevento: number, ideventosessao: number, idparticipante: number): Promise<number> {
+		let res = 0;
+
+		await Sql.conectar(async (sql: Sql) => {
+			let senhas = await sql.query("select senhacheckin from evento where id = " + idevento);
+
+			if (!senhas || !senhas[0] || senhas[0].senhacheckin !== senha)
+				return;
+
+			await sql.query("update eventosessaoparticipante set presente = 1 where idevento = " + idevento + " and ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante);
+
+			res = sql.linhasAfetadas;
+		});
+
+		return res;
+	}
+
 	public static async avaliarSessao(idparticipante: number, ideventosessaoparticipante: number, avaliacao: number, comentario: string): Promise<string> {
 		let res: string = null;
 
@@ -357,7 +374,7 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let a = await sql.scalar("select 1 from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idparticipante = " + idparticipante);
+				let a = await sql.scalar("select 1 from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idparticipante = " + idparticipante + " and presente = 1");
 				if (!a) {
 					res = "Sessão não encontrada";
 					return;

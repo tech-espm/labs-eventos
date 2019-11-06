@@ -1,6 +1,7 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../../utils/jsonRes");
+import Evento = require("../../models/evento");
 import Participante = require("../../models/participante");
 import Sessao = require("../../models/sessao");
 
@@ -44,6 +45,21 @@ router.get("/avaliarSessao", wrap(async (req: express.Request, res: express.Resp
 	let comentario = req.query["comentario"];
 	if (p && ideventosessaoparticipante > 0 && avaliacao >= 1 && avaliacao <= 5)
 		res.json(await Participante.avaliarSessao(p.id, ideventosessaoparticipante, avaliacao, comentario));
+	else
+		jsonRes(res, 400, "Dados inválidos");
+}));
+
+router.get("/marcarPresenca", wrap(async (req: express.Request, res: express.Response) => {
+	let senha = req.query["senha"];
+	let idevento = parseInt(req.query["idevento"]);
+	let ideventosessao = parseInt(req.query["ideventosessao"]);
+	let idparticipante = parseInt(req.query["idparticipante"]);
+	let evt = Evento.eventosPorId[idevento];
+
+	if (!evt || !evt.habilitado || !evt.permiteinscricao)
+		jsonRes(res, 400, "Dados inválidos");
+	else if (senha && idevento > 0 && ideventosessao > 0 && idparticipante > 0)
+		res.json(await Participante.marcarPresenca(senha, idevento, ideventosessao, idparticipante));
 	else
 		jsonRes(res, 400, "Dados inválidos");
 }));

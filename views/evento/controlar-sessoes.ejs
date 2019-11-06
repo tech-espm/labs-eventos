@@ -279,6 +279,7 @@
 				{ title: "Vertical", render: encode, data: "nome_vertical" },
 				{ title: "Público-Alvo", render: encode, data: "publico_alvo" },
 				{ title: "Tags", render: encode, data: "tags" },
+				{ title: "Link de Compartilhamento", data: function (row, type, set, meta) { var str = gerarLinkDeCompartilhamento(row.nome); return '<a target="_blank" class="link-curto" href="' + str + '">' + str + '</a>'; } },
 			],
 			data: eventoSessoes,
 			export: { title: "Sessões do Evento" }
@@ -416,8 +417,7 @@
 					keyboard: true
 				});
 			} else if (this.getAttribute("data-share")) {
-				var str = encodeURIComponent(ajustarNome(sessao.nome)).replace(/\%20/g, "+");
-				str = "https://credenciamento.espm.br<%-urlEvento %>?" + str;
+				var str = gerarLinkDeCompartilhamento(sessao.nome);
 
 				var a = _("aLinkSessao");
 				a.setAttribute("href", str);
