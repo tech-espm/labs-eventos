@@ -323,7 +323,7 @@ CREATE TABLE eventosessaoavaliacao (
   id bigint NOT NULL AUTO_INCREMENT,
   ideventosessaoparticipante bigint NOT NULL,
   avaliacao tinyint(4) NOT NULL,
-  comentario varchar(100) NOT NULL,
+  comentario varchar(100) NULL,
   data_avaliacao datetime NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY ideventosessaoparticipante_eventosessaoavaliacao_UN (ideventosessaoparticipante),

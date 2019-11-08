@@ -368,7 +368,7 @@ export = class Participante {
 	public static async avaliarSessao(idparticipante: number, ideventosessaoparticipante: number, avaliacao: number, comentario: string): Promise<string> {
 		let res: string = null;
 
-		comentario = (comentario || "").normalize().trim().toUpperCase();
+		comentario = (comentario || "").normalize().trim();
 		if (!comentario)
 			comentario = null;
 

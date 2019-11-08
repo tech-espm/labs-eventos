@@ -65,12 +65,19 @@
 			</div>
 			<div class="modal-body">
 				<div class="form-group">
-					<label for="txtAvaliacao">Nota <small>(1 a 5)</small></label>
-					<input id="txtAvaliacao" name="txtAvaliacao" type="number" class="form-control" min="1" max="5" />
+					<label for="txtAvaliacao">Nota <small>(Uma a cinco estrelas)</small></label>
+					<div>
+						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela1" onclick="definirEstrela(1)" title="Uma estrela"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Uma estrela</span></button>
+						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela2" onclick="definirEstrela(2)" title="Duas estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Duas estrelas</span></button>
+						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela3" onclick="definirEstrela(3)" title="Três estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Três estrelas</span></button>
+						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela4" onclick="definirEstrela(4)" title="Quatro estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Quatro estrelas</span></button>
+						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela5" onclick="definirEstrela(5)" title="Cinco estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Cinco estrelas</span></button>
+					</div>
+					<input id="txtAvaliacao" name="txtAvaliacao" type="text" tabindex="-1" style="position: absolute; border: 0; outline: 0; pointer-events: none; width: 0; height: 0; display: inline-block; background: transparent;" />
 				</div>
 				<div class="form-group no-margin-bottom">
 					<label for="txtComentario">Comentário <small>(Opcional)</small></label>
-					<input id="txtComentario" name="txtComentario" type="text" class="form-control upper" maxlength="100" />
+					<input id="txtComentario" name="txtComentario" type="text" class="form-control" maxlength="100" />
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -192,6 +199,23 @@
 		idEventoParaExcluir = idevento;
 
 		$("#modalInscricoes").modal("hide");
+	}
+
+	function definirEstrela(estrela) {
+		if (!estrela || estrela < 0)
+			estrela = 0;
+		else if (estrela > 5)
+			estrela = 5;
+		else
+			estrela |= 0;
+
+		$("#txtAvaliacao").val(estrela || "");
+
+		var i;
+		for (i = 1; i <= estrela; i++)
+			$("#btnEstrela" + i + ">i").removeClass("fa-star-o").addClass("fa-star");
+		for (; i <= 5; i++)
+			$("#btnEstrela" + i + ">i").removeClass("fa-star").addClass("fa-star-o");
 	}
 
 	$("#formAvaliacao").validate({
@@ -352,6 +376,8 @@
 
 		$("#modalInscricoes").on("hidden.bs.modal", function () {
 			if (idParaAvaliar) {
+				definirEstrela(0);
+
 				resetForm("#formAvaliacao");
 
 				$("#modalAvaliacao").modal({

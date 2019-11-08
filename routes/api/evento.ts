@@ -234,4 +234,15 @@ router.get("/listarInscritos/:e/:s/:i?", wrap(async (req: express.Request, res: 
 	res.json(await Evento.listarInscritos(parseInt(e), senha, i ? parseInt(i) : 0));
 }));
 
+router.get("/listarInscritosGeral", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	res.json(await Evento.listarInscritosGeral(u.idevento_logado));
+}));
+
 export = router;
