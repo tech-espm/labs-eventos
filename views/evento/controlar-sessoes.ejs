@@ -271,7 +271,7 @@
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Capacidade Real", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
 				{ title: "Capacidade Alocada", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
-				{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
+				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 				{ title: "Local", render: encode, data: "nome_local" },
@@ -822,7 +822,7 @@
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
 						deferRender: true,
 						columns: [
-							{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
+							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
@@ -867,7 +867,7 @@
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"], [6, "asc"]],
 						deferRender: true,
 						columns: [
-							{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
+							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
