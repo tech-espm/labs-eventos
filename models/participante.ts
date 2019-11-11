@@ -374,9 +374,19 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let a = await sql.scalar("select 1 from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idparticipante = " + idparticipante + " and presente = 1");
-				if (!a) {
+				let data = await sql.query("select d.ano, d.mes, d.dia from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.presente = 1");
+				if (!data || !data.length) {
 					res = "Sessão não encontrada";
+					return;
+				}
+
+				let agora = (new Date()).getTime();
+				let dataSessao = (new Date(data[0].ano, data[0].mes - 1, data[0].dia)).getTime();
+				if (agora < dataSessao) {
+					res = "Avaliação ainda não está liberada";
+					return;
+				} else if (agora >= (dataSessao + (11 * 24 * 60 * 60 * 1000))) {
+					res = "Período de avaliação encerrado";
 					return;
 				}
 

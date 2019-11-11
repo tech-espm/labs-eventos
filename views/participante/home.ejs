@@ -61,7 +61,7 @@
 		<form class="modal-content" id="formAvaliacao" method="get">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Minhas Inscrições</h4>
+				<h4 class="modal-title">Avaliação</h4>
 			</div>
 			<div class="modal-body">
 				<div class="form-group">
@@ -238,8 +238,12 @@
 
 			JsonWebApi.get("/api/participante/avaliarSessao", function (response) {
 				if (response.success) {
-					Notification.success("Avaliação realizada com sucesso! " + emoji.happy);
-					$("#modalAvaliacao").modal("hide");
+					if (response.value) {
+						Notification.error(response.value + " " + emoji.sad);
+					} else {
+						Notification.success("Avaliação realizada com sucesso! " + emoji.happy);
+						$("#modalAvaliacao").modal("hide");
+					}
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
