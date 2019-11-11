@@ -57,6 +57,27 @@
 	</div>
 </div>
 
+<div id="divPreview" class="fullscreen hidden">
+	<video id="preview" class="fullscreen" autoplay playsinline></video>
+	<div id="divCapa" class="fullscreen" onclick="pararDecodificacao()"></div>
+	<canvas id="qr-canvas" style="opacity: 0.5; z-index: 99; position: fixed; top: 0px; left: 0px; display: none;"></canvas>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAlerta">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Check-In</h4>
+			</div>
+			<div class="modal-body" id="modalAlertaBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="modalConfirmarPresenca">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -73,11 +94,6 @@
 			</div>
 		</div>
 	</div>
-</div>
-
-<div id="divPreview" class="fullscreen hidden">
-	<video id="preview" class="fullscreen" onclick="pararDecodificacao()" autoplay playsinline></video>
-	<canvas id="qr-canvas" style="opacity: 0.5; z-index: 99; position: fixed; top: 0px; left: 0px; display: none;"></canvas>
 </div>
 
 <%- contentFor("styles") %>
@@ -104,6 +120,11 @@
 	}
 
 	video.fullscreen {
+		pointer-events: none;
+	}
+
+	#divCapa {
+		z-index: 2;
 		cursor: pointer;
 	}
 
@@ -154,8 +175,6 @@
 		Date.now = function () { return (+new Date()); }
 
 	var preview, previewSrc, previewOk, cameraStream, cameraTrack, canvas, context,
-		ultimoQR = "",
-		horaUltimoQR = Date.now(),
 		inverter = false,
 		decodificando = false,
 		ligando = false,
@@ -163,6 +182,9 @@
 		divPreview = _("divPreview"),
 		idparticipanteSelecionado = 0,
 		ideventosessaoSelecionado = 0,
+		alertaDepoisDaConfirmacao = null,
+		alertaDepoisDaConfirmacaoErro = false,
+		modalAlertaVisivel = false,
 		modalConfirmarPresencaVisivel = false,
 		cbData = _("cbData"),
 		cbLocal = _("cbLocal"),
@@ -190,19 +212,36 @@
 				continue;
 			$cbSessao.append('<option value="' + s.id + '">' + encode(s.inicio) + ' às ' + encode(s.termino) + ' - ' + encode(s.nome_curto) + '</option>');
 		}
+
+		limparInscritos();
 	}
 
 	cbData.onchange = atualizarSessoes;
 	cbLocal.onchange = atualizarSessoes;
+	$cbSessao[0].onchange = limparInscritos;
 
 	atualizarSessoes();
 
-	$("#modalConfirmarPresencaVisivel").on("show.bs.modal", function () {
+	$("#modalAlerta").on("show.bs.modal", function () {
+		modalAlertaVisivel = true;
+	});
+
+	$("#modalAlerta").on("hidden.bs.modal", function () {
+		modalAlertaVisivel = false;
+	});
+
+	$("#modalConfirmarPresenca").on("show.bs.modal", function () {
 		modalConfirmarPresencaVisivel = true;
 	});
 
-	$("#modalConfirmarPresencaVisivel").on("hidden.bs.modal", function () {
+	$("#modalConfirmarPresenca").on("hidden.bs.modal", function () {
 		modalConfirmarPresencaVisivel = false;
+
+		if (alertaDepoisDaConfirmacao) {
+			mostrarAlerta(alertaDepoisDaConfirmacao, alertaDepoisDaConfirmacaoErro);
+			alertaDepoisDaConfirmacao = null;
+			alertaDepoisDaConfirmacaoErro = false;
+		}
 	});
 
 	function confirmarPresenca() {
@@ -217,25 +256,35 @@
 		Notification.wait();
 
 		JsonWebApi.get("/api/participante/marcarPresenca", function (response) {
+			Notification.hide();
+
 			if (response.success) {
 				if (!response.value) {
-					Notification.error("Não foi possível localizar o participante inscrito na sessão, ou a senha digitada é inválida " + emoji.sad, true);
+					alertaDepoisDaConfirmacao = "Não foi possível localizar o participante inscrito na sessão, ou a senha digitada é inválida " + emoji.sad;
+					alertaDepoisDaConfirmacaoErro = true;
+					$("#modalConfirmarPresenca").modal("hide");
 					return;
 				}
 
-				Notification.success("Presença marcada com sucesso " + emoji.happy);
-
+				alertaDepoisDaConfirmacao = "Presença marcada com sucesso " + emoji.happy;
+				alertaDepoisDaConfirmacaoErro = false;
 				$("#modalConfirmarPresenca").modal("hide");
 
 				idparticipanteSelecionado = 0;
 			} else {
-				Notification.error(response.value, true);
+				alertaDepoisDaConfirmacao = response.value;
+				alertaDepoisDaConfirmacaoErro = true;
+				$("#modalConfirmarPresenca").modal("hide");
 			}
 		}, "senha", senha, "idevento", "<%-evento.id %>", "ideventosessao", ideventosessaoSelecionado, "idparticipante", idparticipanteSelecionado);
 	}
 
+	function limparInscritos() {
+		$("#panelTabela").html('<h2 style="text-align: center; margin: 0;">Preencha a data, o local, a sessão e a senha e clique em atualizar para ver os inscritos.</h2>');
+	}
+
 	function atualizarInscritos() {
-		if (JsonWebApi.active || decodificando || ligando)
+		if (JsonWebApi.active || decodificando || ligando || modalAlertaVisivel || modalConfirmarPresencaVisivel)
 			return;
 
 		var ideventosessao = parseInt($cbSessao.val()), senha = _("txtSenha").value.normalize();
@@ -245,10 +294,11 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/" + ideventosessao, function (response) {
+		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/2/" + ideventosessao, function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
+					limparInscritos();
 					return;
 				}
 
@@ -285,6 +335,9 @@
 						return;
 
 					idparticipanteSelecionado = participante.id;
+
+					alertaDepoisDaConfirmacao = null;
+					alertaDepoisDaConfirmacaoErro = false;
 
 					$("#lblConfirmarPresencaNome").text(participante.nome + (participante.login ? (" (" + participante.login + ")") : ""));
 
@@ -350,11 +403,19 @@
 		divPreview.className = "fullscreen hidden";
 	}
 
+	function mostrarAlerta(mensagem, erro) {
+		$("#modalAlertaBody").html('<div class="no-margin-bottom alert alert-' + (erro ? 'danger' : 'success') + '">' + mensagem + '</div>');
+		$("#modalAlerta").modal({
+			backdrop: "static",
+			keyboard: false
+		});
+	}
+
 	function tentarDecodificar() {
 		if (!decodificando)
 			return true;
 
-		if (!JsonWebApi.active && tabela && !modalConfirmarPresencaVisivel) {
+		if (!JsonWebApi.active && tabela && !modalAlertaVisivel && !modalConfirmarPresencaVisivel) {
 			// Desenha o vídeo atualmente exibido no canvas, espelhado horizontalmente quando necessário
 			if (inverter)
 				context.setTransform(-1, 0, 0, 1, canvas.width, 0);
@@ -363,50 +424,46 @@
 				context.setTransform(1, 0, 0, 1, 0, 0);
 
 			try {
-				var result = qrcode.decode(), i, agora;
+				var result = qrcode.decode(), i;
 				if (result && result.length) {
 					result = trim(result).toLowerCase();
 					if (!isNaN(i = parseInt(result, 16)) && i >= 0 && result === formatHex8(i)) {
-						agora = Date.now();
+						Notification.wait();
 
-						if (ultimoQR !== result && (agora - horaUltimoQR) > 5000) {
-							ultimoQR = result;
+						JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
+							Notification.hide();
 
-							Notification.wait();
-
-							JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
-								if (response.success) {
-									if (response.value <= 0) {
-										Notification.hide();
-									} else {
-										var i, p, data = tabela.data(), id = response.value;
-										for (i = data.length - 1; i >= 0; i--) {
-											p = data[i];
-											if (p.id === id) {
-												ultimoQR = null;
-
-												Notification.hide();
-
-												idparticipanteSelecionado = id;
-
-												$("#lblConfirmarPresencaNome").text(p.nome + (p.login ? (" (" + p.login + ")") : ""));
-
-												$("#modalConfirmarPresenca").modal({
-													backdrop: "static",
-													keyboard: false
-												});
-
-												return;
-											}
-										}
-										Notification.error("Participante não encontrado, ou sem inscrição na sessão " + emoji.sad, true);
-									}
+							if (response.success) {
+								if (response.value <= 0) {
+									mostrarAlerta("Código QR desconhecido " + emoji.sad, true);
 								} else {
-									ultimoQR = "";
-									Notification.error(response.value, true);
+									var i, p, data = tabela.data(), id = response.value;
+									for (i = data.length - 1; i >= 0; i--) {
+										p = data[i];
+										if (p.id === id) {
+											Notification.hide();
+
+											idparticipanteSelecionado = id;
+
+											alertaDepoisDaConfirmacao = null;
+											alertaDepoisDaConfirmacaoErro = false;
+
+											$("#lblConfirmarPresencaNome").text(p.nome + (p.login ? (" (" + p.login + ")") : ""));
+
+											$("#modalConfirmarPresenca").modal({
+												backdrop: "static",
+												keyboard: false
+											});
+
+											return;
+										}
+									}
+									mostrarAlerta("Participante não encontrado, ou sem inscrição na sessão " + emoji.sad, true);
 								}
-							});
-						}
+							} else {
+								mostrarAlerta(response.value, true);
+							}
+						});
 					}
 				}
 			} catch (ex) {

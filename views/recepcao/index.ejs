@@ -32,8 +32,24 @@
 </div>
 
 <div id="divPreview" class="fullscreen hidden">
-	<video id="preview" class="fullscreen" onclick="pararDecodificacao()" autoplay playsinline></video>
+	<video id="preview" class="fullscreen" autoplay playsinline></video>
+	<div id="divCapa" class="fullscreen" onclick="pararDecodificacao()"></div>
 	<canvas id="qr-canvas" style="opacity: 0.5; z-index: 99; position: fixed; top: 0px; left: 0px; display: none;"></canvas>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAlerta">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Recepção</h4>
+			</div>
+			<div class="modal-body" id="modalAlertaBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <%- contentFor("styles") %>
@@ -60,6 +76,11 @@
 	}
 
 	video.fullscreen {
+		pointer-events: none;
+	}
+
+	#divCapa {
+		z-index: 2;
 		cursor: pointer;
 	}
 
@@ -110,17 +131,23 @@
 		Date.now = function () { return (+new Date()); }
 
 	var preview, previewSrc, previewOk, cameraStream, cameraTrack, canvas, context,
-		ultimaNotificacaoQRValida = false,
-		ultimoQR = "",
-		horaUltimoQR = Date.now(),
+		modalAlertaVisivel = false,
 		inverter = false,
 		decodificando = false,
 		ligando = false,
 		panelBody = _("panelBody"),
 		divPreview = _("divPreview");
 
+	$("#modalAlerta").on("show.bs.modal", function () {
+		modalAlertaVisivel = true;
+	});
+
+	$("#modalAlerta").on("hidden.bs.modal", function () {
+		modalAlertaVisivel = false;
+	});
+
 	function atualizarInscritos() {
-		if (JsonWebApi.active || decodificando || ligando)
+		if (JsonWebApi.active || decodificando || ligando || modalAlertaVisivel)
 			return;
 
 		var senha = _("txtSenha").value.normalize();
@@ -130,10 +157,11 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha), function (response) {
+		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/1", function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
+					$("#panelTabela").html('<h2 style="text-align: center; margin: 0;">Digite a senha e clique em atualizar para ver os inscritos.</h2>');
 					return;
 				}
 
@@ -210,11 +238,19 @@
 		divPreview.className = "fullscreen hidden";
 	}
 
+	function mostrarAlerta(mensagem, erro) {
+		$("#modalAlertaBody").html('<div class="no-margin-bottom alert alert-' + (erro ? 'danger' : 'success') + '">' + mensagem + '</div>');
+		$("#modalAlerta").modal({
+			backdrop: "static",
+			keyboard: false
+		});
+	}
+
 	function tentarDecodificar() {
 		if (!decodificando)
 			return true;
 
-		if (!JsonWebApi.active && tabela) {
+		if (!JsonWebApi.active && tabela && !modalAlertaVisivel) {
 			// Desenha o vídeo atualmente exibido no canvas, espelhado horizontalmente quando necessário
 			if (inverter)
 				context.setTransform(-1, 0, 0, 1, canvas.width, 0);
@@ -223,43 +259,33 @@
 				context.setTransform(1, 0, 0, 1, 0, 0);
 
 			try {
-				var result = qrcode.decode(), i, agora;
+				var result = qrcode.decode(), i;
 				if (result && result.length) {
 					result = trim(result).toLowerCase();
 					if (!isNaN(i = parseInt(result, 16)) && i >= 0 && result === formatHex8(i)) {
-						agora = Date.now();
+						Notification.wait();
 
-						if (ultimoQR !== result && (agora - horaUltimoQR) > 5000) {
-							ultimoQR = result;
+						JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
+							Notification.hide();
 
-							ultimaNotificacaoQRValida = false;
-
-							Notification.wait();
-
-							JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
-								if (response.success) {
-									if (response.value <= 0) {
-										if (!ultimaNotificacaoQRValida)
-											Notification.hide();
-									} else {
-										var i, p, data = tabela.data(), id = response.value;
-										for (i = data.length - 1; i >= 0; i--) {
-											p = data[i];
-											if (p.id === id) {
-												ultimaNotificacaoQRValida = true;
-												horaUltimoQR = agora;
-												Notification.show(p.nome + (p.rg ? (" - RG " + p.rg) : ""), "success", 10000, false);
-												return;
-											}
-										}
-										Notification.error("Participante não encontrado, ou sem inscrições no evento " + emoji.sad, true);
-									}
+							if (response.success) {
+								if (response.value <= 0) {
+									mostrarAlerta("Código QR desconhecido " + emoji.sad, true);
 								} else {
-									ultimoQR = "";
-									Notification.error(response.value, true);
+									var i, p, data = tabela.data(), id = response.value;
+									for (i = data.length - 1; i >= 0; i--) {
+										p = data[i];
+										if (p.id === id) {
+											mostrarAlerta(p.nome + (p.rg ? (" - RG " + p.rg) : ""), false);
+											return;
+										}
+									}
+									mostrarAlerta("Participante não encontrado, ou sem inscrições no evento " + emoji.sad, true);
 								}
-							});
-						}
+							} else {
+								mostrarAlerta(response.value, true);
+							}
+						});
 					}
 				}
 			} catch (ex) {

@@ -338,18 +338,18 @@ export = class Evento {
 		return res;
 	}
 
-	public static async listarInscritos(id: number, senha: string, ideventosessao: number = 0): Promise<Participante[]> {
+	public static async listarInscritos(id: number, senha: string, tipo: number, ideventosessao: number = 0): Promise<Participante[]> {
 		let lista: Participante[] = null;
 
-		if (isNaN(id) || !senha || isNaN(ideventosessao))
+		if (isNaN(id) || !senha || isNaN(tipo) || (tipo !== 1 && tipo !== 2) || isNaN(ideventosessao))
 			return [];
 
 		senha = senha.normalize();
 
 		await Sql.conectar(async (sql: Sql) => {
-			let senhas = await sql.query("select senharecepcao, senhacheckin from evento where id = " + id);
+			let senhaDb = await sql.scalar("select " + (tipo === 1 ? "senharecepcao" : "senhacheckin") + " from evento where id = " + id);
 
-			if (!senhas || !senhas[0] || (senhas[0].senharecepcao !== senha && senhas[0].senhacheckin !== senha))
+			if (!senhaDb || senhaDb !== senha)
 				return;
 
 			lista = await sql.query(ideventosessao > 0 ?
