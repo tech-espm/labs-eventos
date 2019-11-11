@@ -245,4 +245,15 @@ router.get("/listarInscritosGeral", wrap(async (req: express.Request, res: expre
 	res.json(await Evento.listarInscritosGeral(u.idevento_logado));
 }));
 
+router.get("/listarPalestrantesGeral", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	res.json(await Evento.listarPalestrantesGeral(u.idevento_logado));
+}));
+
 export = router;

@@ -370,6 +370,16 @@ export = class Evento {
 		return (lista || []);
 	}
 
+	public static async listarPalestrantesGeral(id: number): Promise<any[]> {
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			lista = await sql.query("select s.nome nome_sessao, l.nome nome_local, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, c.nome nome_curso, h.inicio, h.termino, p.nome, p.email, p.oculto, p.confirmado from eventosessaopalestrante esp inner join eventopalestrante p on p.id = esp.ideventopalestrante inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
+		});
+
+		return (lista || []);
+	}
+
 	public static gerarPNGVazio(): Uint8Array {
 		return new Uint8Array([
 			0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,

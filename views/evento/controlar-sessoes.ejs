@@ -5,8 +5,11 @@
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
 					<button class="btn btn-primary" type="button" onclick="criarSessao()"><i class="fa fa-plus"></i>Criar Sessão...</button>
+				</div>
+				<div class="col-xs-space-bottom text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridInscritosGeral()"><i class="fa fa-users"></i>Exibir Participantes e Presenças...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="listarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
@@ -837,6 +840,49 @@
 					});
 
 					$("#modalGridDataTitle").text("Inscritos");
+
+					$("#modalGridData").modal({
+						backdrop: "static",
+						keyboard: true
+					});
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+		};
+
+		window.mostrarGridPalestrantesGeral = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/listarPalestrantesGeral", function (response) {
+				if (response.success) {
+					Notification.hide();
+
+					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaPalestrantesGeral"></table></div>');
+
+					prepareDataTable("tabelaPalestrantesGeral", {
+						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"], [6, "asc"]],
+						deferRender: true,
+						columns: [
+							{ title: "Data", "class": "col-min text-right", "type": "customdate", data: "data" },
+							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
+							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Sessão", render: encode, data: "nome_sessao" },
+							{ title: "Local", render: encode, data: "nome_local" },
+							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+							{ title: "Palestrante", render: encode, data: "nome" },
+							{ title: "E-mail", render: encode, data: "email" },
+							{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "SIM" : "NÃO"); } },
+							{ title: "Confirmado", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.confirmado ? "SIM" : "NÃO"); } }
+						],
+						data: response.value,
+						export: { title: "Palestrantes" }
+					});
+
+					$("#modalGridDataTitle").text("Palestrantes");
 
 					$("#modalGridData").modal({
 						backdrop: "static",
