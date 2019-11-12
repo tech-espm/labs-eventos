@@ -7,7 +7,7 @@ import appsettings = require("../appsettings");
 
 const router = express.Router();
 
-router.all("/login", wrap(async (req: express.Request, res: express.Response) => {
+async function casLogin(req: express.Request, res: express.Response) {
 	let ticket = req.query["ticket"] as string;
 	let cas: Cas = null;
 	let mensagem: string = null;
@@ -48,6 +48,11 @@ router.all("/login", wrap(async (req: express.Request, res: express.Response) =>
 			res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: ((mensagem || "Não foi possível efetuar login no servidor remoto.") + " Por favor, tente novamente mais tarde."), loginUrl: appsettings.loginUrl });
 		}
 	}
-}));
+}
+
+// Alguns iPhones redirecionam apenas para /cas, e não para /cas/login...
+router.all("/", wrap(casLogin));
+
+router.all("/login", wrap(casLogin));
 
 export = router;
