@@ -111,6 +111,7 @@ Evento.nomesReservados.push(
 	"logout",
 
 	"cas",
+	"certificado",
 	"checkin",
 	"curso",
 	"evento",
@@ -137,6 +138,7 @@ Evento.nomesReservados.push(
 // Cadastros simples
 app.use("/", require("./routes/home"));
 app.use("/cas", require("./routes/cas"));
+app.use("/certificado", require("./routes/certificado"));
 app.use("/curso", require("./routes/curso"));
 app.use("/formato", require("./routes/formato"));
 app.use("/industria", require("./routes/industria"));

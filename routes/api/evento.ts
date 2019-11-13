@@ -257,4 +257,20 @@ router.get("/listarPalestrantesGeral", wrap(async (req: express.Request, res: ex
 	res.json(await Evento.listarPalestrantesGeral(u.idevento_logado));
 }));
 
+router.post("/listarPalestrantesGeral", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	let info = req.body;
+	if (!info || !info.emails || !info.emails.length || !info.assunto || !info.texto) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+	res.json(await Evento.enviarEmail(u.idevento_logado, info.emails as string[], info.assunto as string, info.texto as string));
+}));
+
 export = router;

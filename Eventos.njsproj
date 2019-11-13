@@ -67,6 +67,7 @@
     <Content Include="public\favicons\favicon.png" />
     <Content Include="public\favicons\favicon.svg" />
     <Content Include="public\favicons\manifest.json" />
+    <Content Include="public\imagens\fundo-certificado.png" />
     <Content Include="public\imagens\loading-444-t.gif" />
     <Content Include="public\imagens\loading-grey-t.gif" />
     <Content Include="public\imagens\loading-grey.gif" />
@@ -80,6 +81,7 @@
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
     <None Include="scripts_sql\script.sql" />
+    <Content Include="public\lib\paper-css\css\paper.min.css" />
     <Content Include="utils\geradorHash.ts" />
     <Content Include="public\lib\bootstrap-datepicker\css\bootstrap-datepicker-1.0.0.min.css" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.eot" />
@@ -205,6 +207,7 @@
     <TypeScriptCompile Include="routes\api\profissao.ts" />
     <TypeScriptCompile Include="routes\cas.ts" />
     <TypeScriptCompile Include="routes\checkin.ts" />
+    <TypeScriptCompile Include="routes\certificado.ts" />
     <TypeScriptCompile Include="routes\recepcao.ts" />
     <TypeScriptCompile Include="routes\evento.ts" />
     <TypeScriptCompile Include="routes\local.ts" />
@@ -239,6 +242,8 @@
     <Folder Include="public\lib\metis-menu\js\" />
     <Folder Include="public\evt\" />
     <Folder Include="public\favicons\" />
+    <Folder Include="public\lib\paper-css\" />
+    <Folder Include="public\lib\paper-css\css\" />
     <Folder Include="public\lib\qr\" />
     <Folder Include="public\lib\qrcodejs\" />
     <Folder Include="public\lib\qrcodejs\js\" />

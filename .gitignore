@@ -338,3 +338,4 @@ appsettings-producao.js
 *.js.map
 deploy/
 _misc/
+dados/

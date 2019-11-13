@@ -268,7 +268,7 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 				if (!sessoes || !sessoes.length)
 					res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "O palestrante não possui sessões no evento " + evento.nome });
 				else
-					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: true, titulo: "Certificado de Participação", palestrante: true, participante: palestrante, evento: evento, idcertificado: idcertificado, presencas: JSON.stringify(sessoes) });
+					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: false, titulo: "Certificado de Participação", palestrante: true, participante: palestrante, evento: evento, idcertificado: idcertificado, presencas: sessoes });
 			}
 		}
 	}

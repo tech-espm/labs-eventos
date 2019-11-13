@@ -1,8 +1,10 @@
-﻿import Arquivo = require("../infra/arquivo");
+﻿import nodemailer = require("nodemailer");
+import Arquivo = require("../infra/arquivo");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
 import Upload = require("../infra/upload");
 import emailValido = require("../utils/emailValido");
+import appsettings = require("../appsettings");
 import Empresa = require("./empresa");
 import Participante = require("./participante");
 import Usuario = require("./usuario");
@@ -188,6 +190,16 @@ export = class Evento {
 		});
 
 		return ((lista && lista[0]) || null);
+	}
+
+	public static async obterEmailPadrao(id: number): Promise<string> {
+		let emailpadrao: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			emailpadrao = await sql.scalar("select emailpadrao from evento where id = " + id) as string;
+		});
+
+		return emailpadrao;
 	}
 
 	public static async obterDadosDeEdicao(ev: Evento): Promise<void> {
@@ -378,6 +390,21 @@ export = class Evento {
 		});
 
 		return (lista || []);
+	}
+
+	public static async enviarEmail(id: number, emails: string[], assunto: string, texto: string): Promise<void> {
+		let emailpadrao = await Evento.obterEmailPadrao(id);
+
+		let transporter = nodemailer.createTransport(appsettings.mailConfig);
+
+		for (let i = 0; i < emails.length; i++) {
+			await transporter.sendMail({
+				from: emailpadrao.toLowerCase(),
+				to: emails[i].toLowerCase(),
+				subject: assunto,
+				text: texto
+			});
+		}
 	}
 
 	public static gerarPNGVazio(): Uint8Array {

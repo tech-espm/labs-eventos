@@ -117,7 +117,7 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 				if (!presencas || !presencas.length)
 					res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Ainda sem presenças marcadas no evento " + evento.nome });
 				else
-					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: true, titulo: "Certificado de Participação", palestrante: false, participante: participante, evento: evento, idcertificado: idcertificado, presencas: JSON.stringify(presencas) });
+					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: false, titulo: "Certificado de Participação", palestrante: false, participante: participante, evento: evento, idcertificado: idcertificado, presencas: presencas });
 			}
 		}
 	}
