@@ -34,7 +34,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	res.json(isNaN(id) ? null : await Evento.obter(id, u.id, u.tipo !== Usuario.TipoAdmin));
 }));
 
-router.post("/criar", wrap(async (req: express.Request, res: express.Response) => {
+router.post("/criar", multer().single("fundocertificado"), wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res, true);
 	if (!u)
 		return;
@@ -47,10 +47,10 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);
 	}
-	jsonRes(res, 400, ev ? await Evento.criar(ev) : "Dados inválidos!");
+	jsonRes(res, 400, (ev && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Evento.tamanhoMaximoFundoCertificadoEmBytes)) ? await Evento.criar(ev, req["file"]) : "Dados inválidos!");
 }));
 
-router.post("/alterar", wrap(async (req: express.Request, res: express.Response) => {
+router.post("/alterar", multer().single("fundocertificado"), wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
@@ -70,7 +70,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);
 	}
-	jsonRes(res, 400, ev ? await Evento.alterar(ev) : "Dados inválidos!");
+	jsonRes(res, 400, (ev && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Evento.tamanhoMaximoFundoCertificadoEmBytes)) ? await Evento.alterar(ev, req["file"]) : "Dados inválidos!");
 }));
 
 router.get("/listarArquivos", wrap(async (req: express.Request, res: express.Response) => {

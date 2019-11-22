@@ -10,6 +10,9 @@ import Participante = require("./participante");
 import Usuario = require("./usuario");
 
 export = class Evento {
+	public static readonly tamanhoMaximoFundoCertificadoEmKiB = 2048;
+	public static readonly tamanhoMaximoFundoCertificadoEmBytes = Evento.tamanhoMaximoFundoCertificadoEmKiB << 10;
+
 	public static readonly nomesReservados: string[] = [];
 	public static idsPorUrl = {};
 	public static eventosPorId = {};
@@ -18,6 +21,7 @@ export = class Evento {
 	public nome: string;
 	public url: string;
 	public descricao: string;
+	public versao: number;
 	public habilitado: number;
 	public certificadoliberado: number;
 	public permiteinscricao: number;
@@ -121,7 +125,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, url, descricao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
+			lista = await sql.query("select id, nome, url, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -131,7 +135,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
+			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.descricao, ev.versao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -184,7 +188,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			lista = await sql.query(
-				"select id, nome, url, descricao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, termoaceite from evento where id = " + id +
+				"select id, nome, url, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, termoaceite from evento where id = " + id +
 				(apenasDoUsuario ? (" and exists (select 1 from eventousuario where idevento = " + id + " and idusuario = " + idusuario + ")") : "")
 			) as Evento[];
 		});
@@ -215,7 +219,7 @@ export = class Evento {
 		}
 	}
 
-	public static async criar(ev: Evento): Promise<string> {
+	public static async criar(ev: Evento, arquivoFundoCertificado: any): Promise<string> {
 		let res: string;
 		if ((res = Evento.validar(ev)))
 			return res;
@@ -226,7 +230,7 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, descricao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
+				await sql.query("insert into evento (nome, url, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0)", [ev.id]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
@@ -236,6 +240,16 @@ export = class Evento {
 				await FS.criarDiretorio(diretorio + "/empresas");
 				await FS.criarDiretorio(diretorio + "/palestrantes");
 				await Upload.criarArquivo(Empresa.caminhoRelativoPasta(ev.id), ev.idempresapadrao + "." + Empresa.extensaoImagem, Evento.gerarPNGVazio());
+
+				if (arquivoFundoCertificado && arquivoFundoCertificado.buffer && arquivoFundoCertificado.size) {
+					// Chegando aqui, significa que a inclusão foi bem sucedida.
+					// Logo, podemos tentar criar o arquivo físico. Se a criação do
+					// arquivo não funcionar, uma exceção ocorrerá, e a transação será
+					// desfeita, já que o método commit() não executará, e nossa classe
+					// Sql já executa um rollback() por nós nesses casos.
+					await Upload.gravarArquivo(arquivoFundoCertificado, Evento.caminhoRelativo(ev.id), "fundo-certificado.png");
+				}
+
 				await sql.commit();
 				await Evento.atualizarIdsPorUrlInterno(sql);
 			} catch (e) {
@@ -249,17 +263,27 @@ export = class Evento {
 		return res;
 	}
 
-	public static async alterar(ev: Evento): Promise<string> {
+	public static async alterar(ev: Evento, arquivoFundoCertificado: any): Promise<string> {
 		let res: string;
 		if ((res = Evento.validar(ev)))
 			return res;
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("update evento set nome = ?, url = ?, descricao = ?, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
+				await sql.query("update evento set nome = ?, url = ?, descricao = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
 				res = sql.linhasAfetadas.toString();
-				if (sql.linhasAfetadas)
+				if (sql.linhasAfetadas) {
 					Usuario.alterarNomeDoEventoEmCache(ev.id, ev.nome);
+
+					if (arquivoFundoCertificado && arquivoFundoCertificado.buffer && arquivoFundoCertificado.size) {
+						// Chegando aqui, significa que a inclusão foi bem sucedida.
+						// Logo, podemos tentar criar o arquivo físico. Se a criação do
+						// arquivo não funcionar, uma exceção ocorrerá, e a transação será
+						// desfeita, já que o método commit() não executará, e nossa classe
+						// Sql já executa um rollback() por nós nesses casos.
+						await Upload.gravarArquivo(arquivoFundoCertificado, Evento.caminhoRelativo(ev.id), "fundo-certificado.png");
+					}
+				}
 				await Evento.atualizarIdsPorUrlInterno(sql);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")

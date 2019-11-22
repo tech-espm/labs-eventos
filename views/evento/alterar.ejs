@@ -52,6 +52,10 @@
 					<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
 				</div>
 				<div class="form-group">
+					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i> <small>(Baixe o fundo padrão <a target="_blank" href="/imagens/fundo-certificado.png">aqui</a>)</small></label>
+					<input id="fundocertificado" name="fundocertificado" class="form-control" type="file" accept="image/*" />
+				</div>
+				<div class="form-group">
 					<label for="termoaceite">Termo de Aceite de Uso de Imagem</label>
 					<textarea id="termoaceite" name="termoaceite" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.termoaceite : '') %></textarea>
 				</div>
@@ -112,6 +116,7 @@
 	$(function () {
 		window.idempresapadrao = <%- (item ? item.idempresapadrao : 0) %>;
 
+		$("#tooltipFundoCertificado").tooltip();
 		$("#aspectratioempresa").mask("09999:09999");
 		$("#aspectratiopalestrante").mask("09999:09999");
 
@@ -150,6 +155,12 @@
 					maxlength: 11,
 					eventoAspectRatio: true
 				},
+				fundoCertificado: {
+					suporteArquivoAvancado: true,
+					tamanhoArquivoMinimoBytes: 128,
+					tamanhoArquivoMaximoKiB: 2048,
+					extensaoArquivo: [".png", ".jpg", ".jpeg"]
+				},
 				termoaceite: {
 					maxlength: 4000
 				}
@@ -163,12 +174,13 @@
 
 				//<% if (item) { %>
 
-				JsonWebApi.postFormData("/api/evento/alterar", form, function (response) {
+				JsonWebApi.postFormData("/api/evento/alterar", new FormData(form), function (response) {
 					if (response.success) {
 						if (window.eventoUrlListener)
 							window.eventoUrlListener(trim($("#url").val()).toLowerCase());
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
+						$("#fundocertificado").val("");
 						Notification.success("Evento alterado com sucesso! \uD83D\uDE04");
 					} else {
 						Notification.error(response.value, true);
@@ -177,7 +189,7 @@
 
 				//<% } else { %>
 
-				JsonWebApi.postFormData("/api/evento/criar", form, function (response) {
+				JsonWebApi.postFormData("/api/evento/criar", new FormData(form), function (response) {
 					if (response.success) {
 						resetForm("#form");
 						Notification.success("Evento criado com sucesso! \uD83D\uDE04");
