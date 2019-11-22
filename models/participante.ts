@@ -315,6 +315,10 @@ export = class Participante {
 		return r;
 	}
 
+	public static async gerarLinkCertificado(id: number, idevento: number): Promise<string> {
+		return "https://credenciamento.espm.br/participante/certificado/" + await Participante.idParticipanteParaIdCertificado(id, idevento);
+	}
+
 	public static async listarEventos(p: Participante): Promise<any[]> {
 		let lista: any[] = null;
 

@@ -856,6 +856,7 @@
 							{ title: "Local", render: encode, data: "nome_local" },
 							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 							{ title: "Participante", render: encode, data: "nome" },
+							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
 							{ title: "Login", render: encode, data: "login" },
 							{ title: "RG", render: encode, data: "rg" },
 							{ title: "E-mail", render: encode, data: "email" },
@@ -874,6 +875,23 @@
 					});
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+		};
+
+		window.mostrarCertificadoParticipante = function (idParticipante) {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/participante/gerarLinkCertificado/" + idParticipante, function (response) {
+				if (response.success) {
+					Notification.hide();
+
+					window.open(response.value);
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad);
 				}
 			});
 		};

@@ -339,6 +339,10 @@ export = class Palestrante {
 		return "https://credenciamento.espm.br/evento/palestrante/" + sidHash + await GeradorHash.criarHashHex(sid);
 	}
 
+	public static async gerarLinkCertificado(id: number, idevento: number): Promise<string> {
+		return "https://credenciamento.espm.br/evento/certificado/" + await Palestrante.idPalestranteParaIdCertificado(id, idevento);
+	}
+
 	public static async validarHashExterno(hash: string): Promise<[number, number]> {
 		if (!hash || hash.length !== (24 + (33 * 2 * 2)))
 			return [0, 0];

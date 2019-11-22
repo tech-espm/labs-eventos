@@ -1,6 +1,7 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../../utils/jsonRes");
+import Usuario = require("../../models/usuario");
 import Evento = require("../../models/evento");
 import Participante = require("../../models/participante");
 import Sessao = require("../../models/sessao");
@@ -90,6 +91,20 @@ router.post("/definirSenha", wrap(async (req: express.Request, res: express.Resp
 
 router.get("/idQRParaIdParticipante/:i", wrap(async (req: express.Request, res: express.Response) => {
 	res.json(Participante.idQRParaIdParticipante(req.params["i"]));
+}));
+
+router.get("/gerarLinkCertificado/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let id = parseInt(req.params["i"]);
+	if (isNaN(id) || id <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+
+	res.json(await Participante.gerarLinkCertificado(id, u.idevento_logado));
 }));
 
 export = router;

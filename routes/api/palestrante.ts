@@ -153,6 +153,20 @@ router.get("/gerarLinkExterno/:i", wrap(async (req: express.Request, res: expres
 	res.json(await Palestrante.gerarLinkExterno(id, u.idevento_logado));
 }));
 
+router.get("/gerarLinkCertificado/:i", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let id = parseInt(req.params["i"]);
+	if (isNaN(id) || id <= 0) {
+		jsonRes(res, 400, "Dados inválidos!");
+		return;
+	}
+
+	res.json(await Palestrante.gerarLinkCertificado(id, u.idevento_logado));
+}));
+
 router.get("/enviarEmailLinkExterno/:i", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
