@@ -227,6 +227,17 @@ router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res:
 	res.json(await Evento.listarInscricoesEPresencas(u.idevento_logado));
 }));
 
+router.get("/listarAvaliacoesEMedias", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	res.json(await Evento.listarAvaliacoesEMedias(u.idevento_logado));
+}));
+
 router.get("/listarInscritos/:e/:s/:t/:i?", wrap(async (req: express.Request, res: express.Response) => {
 	let e = req.params["e"] as string;
 	let senha = req.params["s"] as string;

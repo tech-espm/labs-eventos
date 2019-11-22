@@ -334,16 +334,16 @@
 	}
 
 	function atualizarInscricoesEPresencas(r) {
-		var presencas = r.presencas, tipos = r.tipos, totalI = 0, totalP = 0, i, sessao, t1 = 0, t2 = 0, t3 = 0;
+		var presencas = r.presencas, tipos = r.tipos, totalI = 0, totalP = 0, i, sessao, t1 = 0, t2 = 0, t3 = 0, presenca;
 		if (eventoSessoesPorId) {
-			for (i = 0; i < eventoSessoes.length; i++) {
+			for (i = eventoSessoes.length - 1; i >= 0; i--) {
 				sessao = eventoSessoes[i];
 				sessao.inscritos = 0;
 				sessao.presentes = 0;
 			}
 			if (presencas) {
-				for (i = 0; i < presencas.length; i++) {
-					var presenca = presencas[i];
+				for (i = presencas.length - 1; i >= 0; i--) {
+					presenca = presencas[i];
 					if ((sessao = eventoSessoesPorId[presenca.ideventosessao])) {
 						totalI += presenca.inscritos;
 						totalP += presenca.presentes;
@@ -354,7 +354,7 @@
 			}
 		}
 		if (tipos && tipos.length) {
-			for (i = 0; i < tipos.length; i++) {
+			for (i = tipos.length - 1; i >= 0; i--) {
 				switch (tipos[i].tipo) {
 					case 1:
 						t1 = tipos[i].inscritos;
@@ -371,6 +371,31 @@
 		$("#lblInscricoesEPresencas").html("Total de Inscrições: " + totalI + "<br />Total de Presenças: " + totalP + "<br />Total de Alunos Inscritos: " + t1 + "<br />Total de Funcionários Inscritos: " + t2 + "<br />Total de Participantes Externos Inscritos: " + t3);
 	}
 
+	function atualizarAvaliacoesEMedias(avaliacoes) {
+		var i, sessao, avaliacao;
+		if (eventoSessoesPorId) {
+			for (i = eventoSessoes.length - 1; i >= 0; i--) {
+				sessao = eventoSessoes[i];
+				sessao.avaliacoes = 0;
+				sessao.media = 0;
+			}
+			if (avaliacoes) {
+				for (i = avaliacoes.length - 1; i >= 0; i--) {
+					avaliacao = avaliacoes[i];
+					if ((sessao = eventoSessoesPorId[avaliacao.ideventosessao])) {
+						sessao.avaliacoes++;
+						sessao.media += avaliacao.avaliacao;
+					}
+				}
+				for (i = eventoSessoes.length - 1; i >= 0; i--) {
+					sessao = eventoSessoes[i];
+					if (sessao.avaliacoes)
+						sessao.media = (((sessao.media / sessao.avaliacoes) * 10) | 0) / 10;
+				}
+			}
+		}
+	}
+
 	function carregarSessoes(sessoes, presencas) {
 		window.eventoSessoes = sessoes;
 		window.eventoSessoesPorId = {};
@@ -379,6 +404,8 @@
 				var sessao = eventoSessoes[i];
 				sessao.inscritos = 0;
 				sessao.presentes = 0;
+				sessao.avaliacoes = "-";
+				sessao.media = "-";
 				eventoSessoesPorId[sessao.id] = sessao;
 				if (!sessao.idspalestrante) {
 					sessao.idspalestrante = [];

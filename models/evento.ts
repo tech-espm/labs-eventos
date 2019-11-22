@@ -374,6 +374,16 @@ export = class Evento {
 		return res;
 	}
 
+	public static async listarAvaliacoesEMedias(id: number): Promise<any[]> {
+		let res: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			res = await sql.query("select esp.ideventosessao, esa.avaliacao, esa.comentario, date_format(esa.data_avaliacao, '%d/%m/%Y') data_avaliacao from eventosessaoparticipante esp inner join eventosessaoavaliacao esa on esa.ideventosessaoparticipante = esp.id where esp.idevento = " + id);
+		});
+
+		return res;
+	}
+
 	public static async listarInscritos(id: number, senha: string, tipo: number, ideventosessao: number = 0): Promise<Participante[]> {
 		let lista: Participante[] = null;
 

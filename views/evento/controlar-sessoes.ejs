@@ -9,8 +9,12 @@
 				<div class="col-xs-space-bottom text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridInscritosGeral()"><i class="fa fa-users"></i>Exibir Participantes e Presenças...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAvaliacoesEMedias()"><i class="fa fa-thumbs-o-up"></i>Exibir Avaliações e Comentários...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
+				</div>
+				<div class="col-xs-space-bottom text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="listarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="listarAvaliacoesEMedias()"><i class="fa fa-refresh"></i>Atualizar Avaliações e Médias...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
 				<table class="table table-striped table-hover" id="tabela-sessoes"></table>
@@ -269,6 +273,8 @@
 				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
+				{ title: "Avaliações", "class": "col-min text-right", "type": "number", data: "avaliacoes" },
+				{ title: "Nota Média", "class": "col-min text-right", "type": "number", data: "media" },
 				{ title: "Capacidade Real", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
 				{ title: "Capacidade Alocada", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
@@ -300,6 +306,25 @@
 					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
 
 					atualizarInscricoesEPresencas(response.value);
+
+					tabela.rows().invalidate().draw();
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+		};
+
+		window.listarAvaliacoesEMedias = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/listarAvaliacoesEMedias", function (response) {
+				if (response.success) {
+					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
+
+					atualizarAvaliacoesEMedias(response.value);
 
 					tabela.rows().invalidate().draw();
 				} else {
@@ -622,6 +647,8 @@
 							s.id = parseInt(response.value);
 							s.inscritos = 0;
 							s.presentes = 0;
+							s.avaliacoes = "-";
+							s.media = "-";
 							preencherDadosSessao(s);
 							eventoSessoesPorId[s.id] = s;
 							eventoSessoes.push(s);
@@ -840,6 +867,67 @@
 					});
 
 					$("#modalGridDataTitle").text("Inscritos");
+
+					$("#modalGridData").modal({
+						backdrop: "static",
+						keyboard: true
+					});
+				} else {
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				}
+			});
+		};
+
+		window.mostrarGridAvaliacoesEMedias = function () {
+			if ($.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			JsonWebApi.get("/api/evento/listarAvaliacoesEMedias", function (response) {
+				if (response.success) {
+					Notification.hide();
+
+					var i, sessao, avaliacao, avaliacoes = response.value, data = [];
+
+					for (i = avaliacoes.length - 1; i >= 0; i--) {
+						avaliacao = avaliacoes[i];
+						if (!(sessao = eventoSessoesPorId[avaliacao.ideventosessao]))
+							continue;
+						data.push({
+							data: sessao.data,
+							inicio: sessao.inicio,
+							termino: sessao.termino,
+							nome_sessao: sessao.nome,
+							nome_local: sessao.nome_local,
+							nome_curso: sessao.nome_curso,
+							avaliacao: avaliacao.avaliacao,
+							data_avaliacao: avaliacao.data_avaliacao,
+							comentario: avaliacao.comentario || ""
+						});
+					}
+
+					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaAvaliacoesIndividuais"></table></div>');
+
+					prepareDataTable("tabelaAvaliacoesIndividuais", {
+						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
+						deferRender: true,
+						columns: [
+							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
+							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
+							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Sessão", render: encode, data: "nome_sessao" },
+							{ title: "Local", render: encode, data: "nome_local" },
+							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+							{ title: "Nota", "class": "col-min text-right", "type": "number", data: "avaliacao" },
+							{ title: "Data da Avaliação", "class": "col-min text-right", "type": "customdateint", data: "data_avaliacao" },
+							{ title: "Comentário", render: encode, data: "comentario" },
+						],
+						data: data,
+						export: { title: "Avaliações e Comentários" }
+					});
+
+					$("#modalGridDataTitle").text("Avaliações e Comentários");
 
 					$("#modalGridData").modal({
 						backdrop: "static",
