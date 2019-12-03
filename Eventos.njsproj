@@ -165,6 +165,7 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="infra\sqlPool.ts" />
+    <TypeScriptCompile Include="infra\clusterEventos.ts" />
     <TypeScriptCompile Include="infra\upload.ts" />
     <TypeScriptCompile Include="models\cas.ts" />
     <TypeScriptCompile Include="models\sessao.ts">

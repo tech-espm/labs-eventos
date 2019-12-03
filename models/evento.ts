@@ -1,5 +1,6 @@
 ﻿import nodemailer = require("nodemailer");
 import Arquivo = require("../infra/arquivo");
+import ClusterEventos = require("../infra/clusterEventos");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
 import Upload = require("../infra/upload");
@@ -38,7 +39,6 @@ export = class Evento {
 
 	private static urlRegExp = /[^a-z0-9_\-]/gi;
 	private static aspectRatioRegExp = /^\d+:\d+$/;
-	private static ultimaAtualizacaoCache = 0;
 
 	public static caminhoRelativo(id: number): string {
 		return "public/evt/" + id;
@@ -88,24 +88,13 @@ export = class Evento {
 		return null;
 	}
 
-	public static async atualizarIdsPorUrlSeNecessario(): Promise<boolean> {
-		let agora = Date.now();
-		if ((agora - Evento.ultimaAtualizacaoCache) < 60000)
-			return false;
-		Evento.ultimaAtualizacaoCache = agora;
-
-		await Evento.atualizarIdsPorUrl();
-
-		return true;
-	}
-
-	public static async atualizarIdsPorUrl(): Promise<void> {
+	public static async atualizarIdsPorUrlSemPropagacao(): Promise<void> {
 		await Sql.conectar(async (sql: Sql) => {
-			Evento.atualizarIdsPorUrlInterno(sql);
+			Evento.atualizarIdsPorUrl(sql, false);
 		});
 	}
 
-	private static async atualizarIdsPorUrlInterno(sql: Sql): Promise<void> {
+	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
 		let idsPorUrl = {};
 		let eventosPorId = {};
 		let lista = await sql.query("select id, url, idempresapadrao, habilitado, permiteinscricao from evento") as Evento[];
@@ -119,6 +108,9 @@ export = class Evento {
 		}
 		Evento.idsPorUrl = idsPorUrl;
 		Evento.eventosPorId = eventosPorId;
+
+		if (propagarParaCluster)
+			await ClusterEventos.enviarAtualizarIdsPorUrl();
 	}
 
 	public static async listar(): Promise<Evento[]> {
@@ -232,7 +224,7 @@ export = class Evento {
 			try {
 				await sql.query("insert into evento (nome, url, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
-				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0)", [ev.id]);
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("update evento set idempresapadrao = ? where id = " + ev.id, [ev.idempresapadrao]);
 				let diretorio = Evento.caminhoRelativo(ev.id);
@@ -251,7 +243,7 @@ export = class Evento {
 				}
 
 				await sql.commit();
-				await Evento.atualizarIdsPorUrlInterno(sql);
+				await Evento.atualizarIdsPorUrl(sql, true);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "O evento \"" + ev.nome + "\" ou a URL \"" + ev.url + "\" já existem";
@@ -284,7 +276,7 @@ export = class Evento {
 						await Upload.gravarArquivo(arquivoFundoCertificado, Evento.caminhoRelativo(ev.id), "fundo-certificado.png");
 					}
 				}
-				await Evento.atualizarIdsPorUrlInterno(sql);
+				await Evento.atualizarIdsPorUrl(sql, true);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "O evento \"" + ev.nome + "\" ou a URL \"" + ev.url + "\" já existem";

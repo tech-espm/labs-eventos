@@ -23,6 +23,7 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import ClusterEventos = require("./infra/clusterEventos");
 import Data = require("./models/data");
 import Empresa = require("./models/empresa");
 import Horario = require("./models/horario");
@@ -196,8 +197,6 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 			if (req.path.endsWith("/")) {
 				res.redirect(req.path.substr(0, req.path.length - 1));
 				return;
-			} else if (await Evento.atualizarIdsPorUrlSeNecessario()) {
-				evento = Evento.idsPorUrl[req.path];
 			}
 		}
 		if (evento && evento.id) {
@@ -260,11 +259,15 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 //	res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: {} });
 //});
 
+// Para evitar dependência circular...
+// (require("evento") dentro de cluster e require("cluster") dentro de evento)
+ClusterEventos.preparar(Evento.atualizarIdsPorUrlSemPropagacao);
+
 async function iniciar() {
 	app.set("port", process.env.PORT || 3000);
 
 	try {
-		await Evento.atualizarIdsPorUrl();
+		await Evento.atualizarIdsPorUrlSemPropagacao();
 	} catch (ex) {
 		console.error(ex);
 	}
