@@ -37,18 +37,18 @@ export = class Sessao {
 			return "Tipo de sessão inválido";
 		if (isNaN(s.idvertical) || s.idvertical <= 0)
 			return "Vertical inválida";
-		s.nome = (s.nome || "").normalize().trim().toUpperCase();
+		s.nome = (s.nome || "").normalize().trim();
 		if (s.nome.length < 3 || s.nome.length > 100)
 			return "Nome inválido";
-		s.nome_curto = (s.nome_curto || "").normalize().trim().toUpperCase();
+		s.nome_curto = (s.nome_curto || "").normalize().trim();
 		if (s.nome_curto.length < 3 || s.nome_curto.length > 100)
 			return "Nome curto inválido";
-		s.descricao = (s.descricao || "").normalize().trim().toUpperCase();
+		s.descricao = (s.descricao || "").normalize().trim();
 		if (s.descricao.length > 200)
 			return "Descrição inválida";
 		if (isNaN(s.oculta) || s.oculta < 0 || s.oculta > 1)
 			s.oculta = 0;
-		s.publico_alvo = (s.publico_alvo || "").normalize().trim().toUpperCase();
+		s.publico_alvo = (s.publico_alvo || "").normalize().trim();
 		if (s.publico_alvo.length > 100)
 			return "Público-alvo inválido";
 		s.tags = (s.tags || "").normalize().trim().toUpperCase();

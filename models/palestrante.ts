@@ -73,10 +73,10 @@ export = class Palestrante {
 			return "Evento inválido";
 		if (isNaN(p.idempresa) || p.idempresa <= 0)
 			return "Empresa inválida";
-		p.nome = (p.nome || "").normalize().trim().toUpperCase();
+		p.nome = (p.nome || "").normalize().trim();
 		if (p.nome.length < 3 || p.nome.length > 100)
 			return "Nome inválido";
-		p.nome_curto = (p.nome_curto || "").normalize().trim().toUpperCase();
+		p.nome_curto = (p.nome_curto || "").normalize().trim();
 		if (p.nome_curto.length < 1 || p.nome_curto.length > 45)
 			return "Nome para divulgação inválido";
 		p.email = (p.email || "").normalize().trim().toUpperCase();
@@ -92,7 +92,7 @@ export = class Palestrante {
 			p.prioridade = -100;
 		else if (p.prioridade > 100)
 			p.prioridade = 100;
-		p.cargo = (p.cargo || "").normalize().trim().toUpperCase();
+		p.cargo = (p.cargo || "").normalize().trim();
 		if (p.cargo.length > 45)
 			return "Cargo inválido";
 		p.url_site = (p.url_site || "").normalize().trim();
@@ -107,10 +107,10 @@ export = class Palestrante {
 		p.url_linkedin = (p.url_linkedin || "").normalize().trim();
 		if (p.url_linkedin.length > 100)
 			return "URL do LinkedIn inválida";
-		p.bio = (p.bio || "").normalize().trim().toUpperCase();
+		p.bio = (p.bio || "").normalize().trim();
 		if (p.bio.length > 1000)
 			return "Biografia inválido";
-		p.bio_curta = (p.bio_curta || "").normalize().trim().toUpperCase();
+		p.bio_curta = (p.bio_curta || "").normalize().trim();
 		if (p.bio_curta.length > 200)
 			return "Biografia curta inválido";
 		if (isNaN(p.versao) || p.versao < 0)

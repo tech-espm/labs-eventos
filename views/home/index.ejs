@@ -30,10 +30,16 @@
 	"use strict";
 
 	var tabela = prepareDataTable("tabela", {
-		order: [[0, "asc"]],
+		order: [[1, "asc"]],
 		deferRender: true,
 		columns: [
 			//{ title: "Id", visible: false, searchable: false, data: "id" },
+			{
+				title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) {
+					return "<a target=\"_blank\" title=\"Landing Page\" href=\"/" + row.url + "\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-external-link\"></i></a>";
+					//" <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>";
+				}
+			},
 			{ title: "Nome", "class": "col-50", render: encode, data: "nome" },
 			{ title: "URL", "class": "col-min", render: encode, data: "url" },
 			{ title: "Descrição", "class": "col-50", render: encode, data: "descricao" },
@@ -51,8 +57,8 @@
 		}
 	});
 
-	$("#tabela").on("click", "tbody tr", function () {
-		if (JsonWebApi.active)
+	$("#tabela").on("click", "tbody tr", function (e) {
+		if (JsonWebApi.active || e.target.tagName === "A" || e.target.tagName === "I")
 			return;
 
 		var evento = tabela.row(this).data();

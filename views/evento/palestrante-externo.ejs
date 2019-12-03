@@ -14,11 +14,11 @@
 				<div role="tabpanel" class="tab-pane fade in active" id="tab-pessoal">
 					<div class="form-group">
 						<label for="txtPalestranteNome">Nome</label>
-						<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" value="<%=palestrante.nome %>" />
+						<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control" type="text" maxlength="100" spellcheck="false" value="<%=palestrante.nome %>" />
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
-						<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.nome_curto %>" />
+						<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.nome_curto %>" />
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteEmail">E-mail</label>
@@ -26,7 +26,7 @@
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteCargo">Cargo</label>
-						<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.cargo %>" />
+						<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control" type="text" maxlength="45" spellcheck="false" value="<%=palestrante.cargo %>" />
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
@@ -46,11 +46,11 @@
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteBio">Biografia <small><i>(Até 1000 caracteres)</i></small></label>
-						<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000" rows="8"><%=palestrante.bio %></textarea>
+						<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control" maxlength="1000" rows="8"><%=palestrante.bio %></textarea>
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteBioCurta">Biografia Curta <small><i>(Até 200 caracteres)</i></small></label>
-						<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
+						<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control" maxlength="200" rows="5"><%=palestrante.bio_curta %></textarea>
 					</div>
 					<div class="form-group">
 						<label for="txtPalestranteImagem">Nova Imagem <small><i>(Aspect ratio preferencial <%=evento.aspectratiopalestrante %>)</i></small></label>
@@ -73,7 +73,7 @@
 				<div role="tabpanel" class="tab-pane fade" id="tab-empresa">
 					<div class="form-group">
 						<label for="txtEmpresaNome">Nome</label>
-						<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control upper" spellcheck="false" value="<%=empresa.nome %>" disabled="disabled" />
+						<input id="txtEmpresaNome" name="txtEmpresaNome" class="form-control" spellcheck="false" value="<%=empresa.nome %>" disabled="disabled" />
 					</div>
 					<div class="form-group">
 						<label for="txtEmpresaUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
@@ -502,16 +502,16 @@ function textColorForBackground(i) {
 
 			var formData = new FormData();
 			formData.append("idempresa", "<%-palestrante.idempresa %>");
-			formData.append("nome", trim($("#txtPalestranteNome").val()).normalize().toUpperCase());
-			formData.append("nome_curto", trim($("#txtPalestranteNomeCurto").val()).normalize().toUpperCase());
+			formData.append("nome", trim($("#txtPalestranteNome").val()).normalize());
+			formData.append("nome_curto", trim($("#txtPalestranteNomeCurto").val()).normalize());
 			formData.append("email", trim($("#txtPalestranteEmail").val()).normalize().toUpperCase());
-			formData.append("cargo", trim($("#txtPalestranteCargo").val()).normalize().toUpperCase());
+			formData.append("cargo", trim($("#txtPalestranteCargo").val()).normalize());
 			formData.append("url_site", trim($("#txtPalestranteUrlSite").val()).normalize());
 			formData.append("url_twitter", trim($("#txtPalestranteUrlTwitter").val()).normalize());
 			formData.append("url_facebook", trim($("#txtPalestranteUrlFacebook").val()).normalize());
 			formData.append("url_linkedin", trim($("#txtPalestranteUrlLinkedIn").val()).normalize());
-			formData.append("bio", trim($("#txtPalestranteBio").val()).normalize().toUpperCase());
-			formData.append("bio_curta", trim($("#txtPalestranteBioCurta").val()).normalize().toUpperCase());
+			formData.append("bio", trim($("#txtPalestranteBio").val()).normalize());
+			formData.append("bio_curta", trim($("#txtPalestranteBioCurta").val()).normalize());
 
 			function terminar(atualizarVersao) {
 				preparandoImagem = false;

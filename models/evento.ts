@@ -49,7 +49,7 @@ export = class Evento {
 	}
 
 	private static validar(ev: Evento): string {
-		ev.nome = (ev.nome || "").normalize().trim().toUpperCase();
+		ev.nome = (ev.nome || "").normalize().trim();
 		if (ev.nome.length < 3 || ev.nome.length > 100)
 			return "Nome inválido";
 		ev.url = (ev.url || "").normalize().trim().toLowerCase();
@@ -59,7 +59,7 @@ export = class Evento {
 			if (ev.url == Evento.nomesReservados[i])
 				return "A URL \"" + ev.url + "\" é reservada para o sistema";
 		}
-		ev.descricao = (ev.descricao || "").normalize().trim().toUpperCase();
+		ev.descricao = (ev.descricao || "").normalize().trim();
 		if (ev.descricao.length > 250)
 			return "Descrição inválida";
 		ev.aspectratioempresa = (ev.aspectratioempresa || "").normalize().trim().toUpperCase();

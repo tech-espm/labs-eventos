@@ -23,11 +23,11 @@
 			<div class="modal-body">
 				<div class="form-group">
 					<label for="txtPalestranteNome">Nome</label>
-					<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" />
+					<input id="txtPalestranteNome" name="txtPalestranteNome" class="form-control" type="text" maxlength="100" spellcheck="false" />
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteNomeCurto">Nome para Divulgação</label>
-					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
+					<input id="txtPalestranteNomeCurto" name="txtPalestranteNomeCurto" class="form-control" type="text" maxlength="45" spellcheck="false" />
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteEmail">E-mail</label>
@@ -55,11 +55,11 @@
 				</div>
 				<div class="form-group">
 					<label for="cbPalestranteEmpresa">Empresa</label>
-					<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+					<select id="cbPalestranteEmpresa" name="cbPalestranteEmpresa" class="form-control" size="1"><option value="">SELECIONE...</option></select>
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteCargo">Cargo</label>
-					<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control upper" type="text" maxlength="45" spellcheck="false" />
+					<input id="txtPalestranteCargo" name="txtPalestranteCargo" class="form-control" type="text" maxlength="45" spellcheck="false" />
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteUrlSite">URL do Site <small><i>(http://... ou https://...)</i></small></label>
@@ -79,11 +79,11 @@
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteBio">Biografia <small><i>(Até 1000 caracteres)</i></small></label>
-					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control upper" maxlength="1000"></textarea>
+					<textarea id="txtPalestranteBio" name="txtPalestranteBio" class="form-control" maxlength="1000"></textarea>
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteBioCurta">Biografia Curta <small><i>(Até 200 caracteres)</i></small></label>
-					<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control upper" maxlength="200"></textarea>
+					<textarea id="txtPalestranteBioCurta" name="txtPalestranteBioCurta" class="form-control" maxlength="200"></textarea>
 				</div>
 				<div class="form-group">
 					<label for="txtPalestranteImagem">Imagem</label>
@@ -364,20 +364,20 @@
 				var palestrante, p = {
 					idevento: idevento,
 					idempresa: parseInt($("#cbPalestranteEmpresa").val()),
-					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).normalize().toUpperCase(),
-					nome: trim($("#txtPalestranteNome").val()).normalize().toUpperCase(),
-					nome_curto: trim($("#txtPalestranteNomeCurto").val()).normalize().toUpperCase(),
+					nome_empresa: trim($("#cbPalestranteEmpresa option:selected").text()).normalize(),
+					nome: trim($("#txtPalestranteNome").val()).normalize(),
+					nome_curto: trim($("#txtPalestranteNomeCurto").val()).normalize(),
 					email: trim($("#txtPalestranteEmail").val()).normalize().toUpperCase(),
 					oculto: parseInt($("#cbPalestranteOculto").val()),
 					confirmado: parseInt($("#cbPalestranteConfirmado").val()),
 					prioridade: (parseInt($("#txtPalestrantePrioridade").val()) || 0),
-					cargo: trim($("#txtPalestranteCargo").val()).normalize().toUpperCase(),
+					cargo: trim($("#txtPalestranteCargo").val()).normalize(),
 					url_site: trim($("#txtPalestranteUrlSite").val()).normalize(),
 					url_twitter: trim($("#txtPalestranteUrlTwitter").val()).normalize(),
 					url_facebook: trim($("#txtPalestranteUrlFacebook").val()).normalize(),
 					url_linkedin: trim($("#txtPalestranteUrlLinkedIn").val()).normalize(),
-					bio: trim($("#txtPalestranteBio").val()).normalize().toUpperCase(),
-					bio_curta: trim($("#txtPalestranteBioCurta").val()).normalize().toUpperCase(),
+					bio: trim($("#txtPalestranteBio").val()).normalize(),
+					bio_curta: trim($("#txtPalestranteBioCurta").val()).normalize(),
 					versao: 0
 				};
 

@@ -51,13 +51,13 @@
 				</div>
 				<div class="form-group">
 					<label for="txtSessaoNome">Nome</label>
-					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control upper" maxlength="100" />
+					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
 				</div>
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group">
 							<label for="txtSessaoNomeCurto">Nome Curto</label>
-							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control upper" maxlength="45" />
+							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
 						</div>
 					</div>
 					<div class="col-sm-3">
@@ -81,7 +81,7 @@
 				</div>
 				<div class="form-group">
 					<label for="txtSessaoDescricao">Descrição</label>
-					<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control upper" maxlength="200" rows="4"></textarea>
+					<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
 				</div>
 				<div class="row">
 					<div class="col-sm-4">
@@ -105,7 +105,7 @@
 				</div>
 				<div class="form-group">
 					<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
-					<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control upper" maxlength="100" />
+					<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control" maxlength="100" />
 				</div>
 				<div class="form-group">
 					<label for="txtSessaoTags">Tags <small>(Separadas por vírgula)</small></label>
@@ -121,13 +121,13 @@
 								<button class="btn btn-primary btn-block" type="button" onclick="criarEAdicionarNovoPalestrante()"><i class="fa fa-plus"></i>Criar Novo</button>
 							</div>
 							<div class="col-sm-3 col-sm-space-bottom">
-								<input id="txtSessaoPalestranteNovoNome" name="txtSessaoPalestranteNovoNome" class="form-control upper" type="text" maxlength="100" spellcheck="false" placeholder="NOME" />
+								<input id="txtSessaoPalestranteNovoNome" name="txtSessaoPalestranteNovoNome" class="form-control" type="text" maxlength="100" spellcheck="false" placeholder="NOME" />
 							</div>
 							<div class="col-sm-3 col-sm-space-bottom">
 								<input id="txtSessaoPalestranteNovoEmail" name="txtSessaoPalestranteNovoEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" placeholder="E-MAIL" />
 							</div>
 							<div class="col-sm-3">
-								<input id="txtSessaoPalestranteNovoEmpresa" name="txtSessaoPalestranteNovoEmpresa" class="form-control upper" type="text" maxlength="100" spellcheck="false" placeholder="EMPRESA" />
+								<input id="txtSessaoPalestranteNovoEmpresa" name="txtSessaoPalestranteNovoEmpresa" class="form-control" type="text" maxlength="100" spellcheck="false" placeholder="EMPRESA" />
 							</div>
 						</div>
 						<hr />
@@ -136,7 +136,7 @@
 								<button class="btn btn-primary btn-block" type="button" onclick="adicionarPalestrante()"><i class="fa fa-plus"></i>Adicionar</button>
 							</div>
 							<div class="col-sm-8">
-								<select id="cbSessaoPalestrante" name="cbSessaoPalestrante" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+								<select id="cbSessaoPalestrante" name="cbSessaoPalestrante" class="form-control" size="1"><option value="">SELECIONE...</option></select>
 							</div>
 						</div>
 						<div class="table-responsive">
@@ -184,7 +184,7 @@
 				</p>
 				<div class="form-group">
 					<label for="txtModalExcluirSessao">Nome da sessão</label>
-					<input type="text" class="form-control upper" spellcheck="false" autocomplete="off" id="txtModalExcluirSessao" />
+					<input type="text" class="form-control" spellcheck="false" autocomplete="off" id="txtModalExcluirSessao" />
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -573,16 +573,16 @@
 					ideventodata: parseInt($("#cbSessaoData").val()),
 					ideventohorario: parseInt($("#cbSessaoHorario").val()),
 					ideventolocal: parseInt($("#cbSessaoLocal").val()),
-					nome: trim($("#txtSessaoNome").val()).toUpperCase(),
-					nome_curto: trim($("#txtSessaoNomeCurto").val()).toUpperCase(),
-					descricao: trim($("#txtSessaoDescricao").val()).toUpperCase(),
+					nome: trim($("#txtSessaoNome").val()),
+					nome_curto: trim($("#txtSessaoNomeCurto").val()),
+					descricao: trim($("#txtSessaoDescricao").val()),
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
 					idvertical: parseInt($("#cbSessaoVertical").val()),
-					publico_alvo: trim($("#txtSessaoPublicoAlvo").val()).toUpperCase(),
+					publico_alvo: trim($("#txtSessaoPublicoAlvo").val()),
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
 					idspalestrante: []
 				};
@@ -1009,9 +1009,10 @@
 				return;
 
 			var i, idempresa = 0,
-				nome = trim(txtSessaoPalestranteNovoNome.value).normalize().toUpperCase(),
+				nome = trim(txtSessaoPalestranteNovoNome.value).normalize(),
 				email = trim(txtSessaoPalestranteNovoEmail.value).normalize().toUpperCase(),
-				nome_empresa = trim(txtSessaoPalestranteNovoEmpresa.value).normalize().toUpperCase();
+				nome_empresa = trim(txtSessaoPalestranteNovoEmpresa.value).normalize(),
+				nome_empresa_upper = nome_empresa.toUpperCase();
 
 			if (nome.length < 3 || nome.length > 100) {
 				Notification.error("Nome inválido " + emoji.sad, true);
@@ -1097,8 +1098,9 @@
 			}
 
 			for (i = eventoEmpresas.length - 1; i >= 0; i--) {
-				if (eventoEmpresas[i].nome === nome_empresa) {
+				if (eventoEmpresas[i].nome.toUpperCase() === nome_empresa_upper) {
 					idempresa = eventoEmpresas[i].id;
+					nome_empresa = eventoEmpresas[i].nome;
 					break;
 				}
 			}
