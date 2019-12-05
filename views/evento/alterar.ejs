@@ -43,12 +43,12 @@
 				</div>
 				<div class="form-group">
 					<label for="aspectratioempresa">Aspect Ratio das Imagens das Empresas</label>
-					<input id="aspectratioempresa" name="aspectratioempresa" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratioempresa : '') %>" />
+					<input id="aspectratioempresa" name="aspectratioempresa" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratioempresa : '4:3') %>" />
 					<input id="aspectratioempresavalido" type="hidden" value="<%=(item ? item.aspectratioempresa : '') %>" />
 				</div>
 				<div class="form-group">
 					<label for="aspectratiopalestrante">Aspect Ratio das Imagens dos Palestrantes</label>
-					<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
+					<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '1:1') %>" />
 					<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
 				</div>
 				<div class="form-group">
@@ -176,8 +176,10 @@
 
 				JsonWebApi.postFormData("/api/evento/alterar", new FormData(form), function (response) {
 					if (response.success) {
+						var url = trim($("#url").val()).toLowerCase();
 						if (window.eventoUrlListener)
-							window.eventoUrlListener(trim($("#url").val()).toLowerCase());
+							window.eventoUrlListener(url);
+						document.getElementById("aLandingPageTitulo").setAttribute("href", "/" + url);
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
 						$("#fundocertificado").val("");
@@ -192,6 +194,8 @@
 				JsonWebApi.postFormData("/api/evento/criar", new FormData(form), function (response) {
 					if (response.success) {
 						resetForm("#form");
+						$("#aspectratioempresa").val("4:3");
+						$("#aspectratiopalestrante").val("1:1");
 						Notification.success("Evento criado com sucesso! \uD83D\uDE04");
 					} else {
 						Notification.error(response.value, true);

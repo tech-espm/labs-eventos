@@ -97,11 +97,11 @@ export = class Evento {
 	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
 		let idsPorUrl = {};
 		let eventosPorId = {};
-		let lista = await sql.query("select id, url, idempresapadrao, habilitado, permiteinscricao from evento") as Evento[];
+		let lista = await sql.query("select id, nome, descricao, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao from evento") as Evento[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				let evt = { id: e.id, url: "/" + e.url, idempresapadrao: e.idempresapadrao, habilitado: e.habilitado, permiteinscricao: e.permiteinscricao };
+				let evt = { id: e.id, nome: e.nome, descricao: e.descricao, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao };
 				idsPorUrl[evt.url] = evt;
 				eventosPorId[e.id] = evt;
 			}
