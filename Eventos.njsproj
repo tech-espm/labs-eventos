@@ -79,7 +79,7 @@
     <Content Include="public\imagens\logo-institucional-preto.png" />
     <Content Include="public\imagens\logo.png" />
     <Content Include="public\imagens\user.png" />
-    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.21.min.css" />
+    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.22.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
