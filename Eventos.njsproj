@@ -37,7 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="public\arquivos-landing-page.zip" />
-    <Content Include="public\css\admin-1.0.25.css" />
+    <Content Include="public\css\admin-1.0.26.css" />
     <Content Include="public\favicons\apple-icon-114x114.png" />
     <Content Include="public\favicons\apple-icon-120x120.png" />
     <Content Include="public\favicons\apple-icon-144x144.png" />
@@ -304,7 +304,7 @@
     <Folder Include="views\vertical\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="public\js\admin-1.0.5.js" />
+    <Compile Include="public\js\admin-1.0.6.js" />
     <Compile Include="public\js\main-1.0.4.js" />
     <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.3.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.0.min.js" />
