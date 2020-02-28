@@ -201,10 +201,16 @@
 
 				JsonWebApi.postFormData("/api/evento/criar", new FormData(form), function (response) {
 					if (response.success) {
-						resetForm("#form");
-						$("#aspectratioempresa").val("4:3");
-						$("#aspectratiopalestrante").val("1:1");
-						Notification.success("Evento criado com sucesso! \uD83D\uDE04");
+						JsonWebApi.get("/api/usuario/eventoSelecionar", function (response) {
+							if (response.success) {
+								location.href = "/evento";
+							} else {
+								resetForm("#form");
+								$("#aspectratioempresa").val("4:3");
+								$("#aspectratiopalestrante").val("1:1");
+								Notification.success("Evento criado com sucesso! \uD83D\uDE04");
+							}
+						}, "idevento", response.value);
 					} else {
 						Notification.error(response.value, true);
 					}

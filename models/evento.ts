@@ -1,4 +1,6 @@
-﻿import nodemailer = require("nodemailer");
+﻿import fs = require("fs");
+import nodemailer = require("nodemailer");
+import unzipper = require("unzipper");
 import Arquivo = require("../infra/arquivo");
 import ClusterEventos = require("../infra/clusterEventos");
 import FS = require("../infra/fs");
@@ -258,6 +260,11 @@ export = class Evento {
 			}
 		});
 
+		if (!res) {
+			await Evento.criarArquivosPadrao(ev.id);
+			res = ev.id.toString();
+		}
+
 		return res;
 	}
 
@@ -305,6 +312,28 @@ export = class Evento {
 		return [FS.gerarCaminhoAbsoluto(Evento.caminhoRelativo(id)), nome];
 	}
 
+	public static criarArquivosPadrao(id: number): Promise<void> {
+		return new Promise((resolve, reject) => {
+			try {
+				fs.createReadStream(FS.gerarCaminhoAbsoluto("public/arquivos-landing-page.zip")).pipe(unzipper.Parse()).on("entry", function (entry) {
+					const path: string = entry.path;
+					let nomeZip: string = null;
+					if (path !== "explica.txt" &&
+						path !== "arquivos" &&
+						path !== "arquivos/")
+						nomeZip = (path.startsWith("arquivos/") ? path.substr(9) : path);
+					if (!nomeZip)
+						entry.autodrain();
+					else
+						entry.pipe(fs.createWriteStream((nomeZip === "landing-page.ejs") ? Evento.caminhoLandingPage(id) : Evento.caminhoAnexo(id, nomeZip)));
+				}).on("finish", resolve).on("error", resolve);
+			} catch (ex) {
+				// Não há muito o que fazer...
+				resolve();
+			}
+		});
+	}
+
 	public static async atualizarVersaoArquivo(id: number, nome: string): Promise<void> {
 		let campo: string = null;
 
@@ -349,7 +378,11 @@ export = class Evento {
 		return null;
 	}
 
-	public static caminhoAnexo(id: number, tipoAnexo: string, idanexo: number, extensao: string): string {
+	public static caminhoAnexo(id: number, nome: string): string {
+		return FS.gerarCaminhoAbsoluto(Evento.caminhoRelativo(id) + "/" + nome);
+	}
+
+	public static caminhoAnexoPorTipo(id: number, tipoAnexo: string, idanexo: number, extensao: string): string {
 		return FS.gerarCaminhoAbsoluto(Evento.caminhoRelativo(id) + "/" + tipoAnexo + "/" + idanexo + "." + extensao);
 	}
 
