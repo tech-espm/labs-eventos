@@ -18,6 +18,10 @@
 					<input id="emailpadrao" name="emailpadrao" maxlength="100" class="form-control upper" type="email" spellcheck="false" value="<%=((item ? item.emailpadrao : '') || 'eventos@espm.br') %>" />
 				</div>
 				<div class="form-group">
+					<label for="titulo">Título da Landing Page<br /><small>(Pode incluir o nome e a data do evento, por exemplo)</small></label>
+					<textarea id="titulo" name="titulo" maxlength="100" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.titulo : '') %></textarea>
+				</div>
+				<div class="form-group">
 					<label for="descricao">Descrição</label>
 					<textarea id="descricao" name="descricao" maxlength="250" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
 				</div>
@@ -52,7 +56,7 @@
 					<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
 				</div>
 				<div class="form-group">
-					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i> <small>(Baixe o fundo padrão <a target="_blank" href="/imagens/fundo-certificado.png">aqui</a>)</small></label>
+					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i><br /><small>(Baixe o fundo padrão <a target="_blank" href="/imagens/fundo-certificado.png" download="fundo-certificado.png">preenchido <i class="fa fa-download fa-nomargin"></i></a> ou <a target="_blank" href="/imagens/fundo-certificado-branco.png" download="fundo-certificado-branco.png">em branco <i class="fa fa-download fa-nomargin"></i></a>)</small></label>
 					<input id="fundocertificado" name="fundocertificado" class="form-control" type="file" accept="image/*" />
 				</div>
 				<div class="form-group">
@@ -143,6 +147,10 @@
 				},
 				senhacheckin: {
 					maxlength: 45
+				},
+				titulo: {
+					required: true,
+					maxlength: 100
 				},
 				descricao: {
 					maxlength: 250

@@ -207,6 +207,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					idempresapadrao: evento.idempresapadrao,
 					id: evento.id,
 					nome: evento.nome,
+					titulo: evento.titulo,
 					descricao: evento.descricao,
 					emailpadrao: evento.emailpadrao,
 					url: req.path,

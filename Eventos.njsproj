@@ -69,6 +69,7 @@
     <Content Include="public\favicons\favicon.svg" />
     <Content Include="public\favicons\manifest.json" />
     <Content Include="public\imagens\fundo-certificado.png" />
+    <Content Include="public\imagens\fundo-certificado-branco.png" />
     <Content Include="public\imagens\loading-444-t.gif" />
     <Content Include="public\imagens\loading-grey-t.gif" />
     <Content Include="public\imagens\loading-grey.gif" />
@@ -79,6 +80,21 @@
     <Content Include="public\imagens\logo-institucional-preto.png" />
     <Content Include="public\imagens\logo.png" />
     <Content Include="public\imagens\user.png" />
+    <Content Include="public\landing\css\admin.css" />
+    <Content Include="public\landing\css\bootstrap.min.css" />
+    <Content Include="public\landing\css\font-awesome.min.css" />
+    <Content Include="public\landing\css\slick.css" />
+    <Content Include="public\landing\fonts\fontawesome-webfont.eot" />
+    <Content Include="public\landing\fonts\fontawesome-webfont.svg" />
+    <Content Include="public\landing\fonts\fontawesome-webfont.ttf" />
+    <Content Include="public\landing\fonts\fontawesome-webfont.woff" />
+    <Content Include="public\landing\fonts\fontawesome-webfont.woff2" />
+    <Content Include="public\landing\fonts\FontAwesome.otf" />
+    <Content Include="public\landing\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="public\landing\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="public\landing\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="public\lib\bootstrap\css\bootstrap-1.0.22.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
@@ -238,6 +254,9 @@
   <ItemGroup>
     <Folder Include="models\" />
     <Folder Include="infra\" />
+    <Folder Include="public\landing\css\" />
+    <Folder Include="public\landing\fonts\" />
+    <Folder Include="public\landing\js\" />
     <Folder Include="public\lib\jquery-ui\" />
     <Folder Include="public\lib\jquery-ui\css\" />
     <Folder Include="public\lib\jquery-ui\js\" />
@@ -256,6 +275,7 @@
     <Folder Include="public\lib\qr\js\" />
     <Folder Include="public\lib\slick\js\" />
     <Folder Include="public\lib\slick\css\" />
+    <Folder Include="public\landing\" />
     <Folder Include="scripts_sql\" />
     <Folder Include="utils\" />
     <Folder Include="public\" />
@@ -306,6 +326,10 @@
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.6.js" />
     <Compile Include="public\js\main-1.0.4.js" />
+    <Compile Include="public\landing\js\bootstrap.min.js" />
+    <Compile Include="public\landing\js\jquery.min.js" />
+    <Compile Include="public\landing\js\main.js" />
+    <Compile Include="public\landing\js\slick.min.js" />
     <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.3.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.0.min.js" />
     <Compile Include="public\lib\data-tables\js\data-tables-1.0.12.min.js" />

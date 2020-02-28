@@ -111,6 +111,7 @@ CREATE TABLE evento (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   url varchar(50) NOT NULL,
+  titulo varchar(100) NOT NULL,
   descricao varchar(250) NOT NULL,
   versao int NOT NULL,
   habilitado tinyint(4) NOT NULL,
