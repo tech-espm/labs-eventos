@@ -241,42 +241,39 @@
 			mensagemDrag = false, timeoutDrag = 0;
 
 		function enviarArquivos(e, files) {
-			var dt = (e ? e.dataTransfer : null);
+			var i, file, dt = (e ? e.dataTransfer : null);
+
+			if (dt) {
+				files = [];
+
+				if (dt.items) {
+					for (i = 0; i < dt.items.length; i++) {
+						file = dt.items[i];
+						if (file && file.kind === "file")
+							files.push(file.getAsFile());
+					}
+				} else {
+					for (i = 0; i < dt.files.length; i++) {
+						file = dt.files[i];
+						if (file)
+							files.push(file);
+					}
+				}
+			} else if (!files) {
+				files = [];
+			}
 
 			function enviarProximo(proximoIndice) {
 				var i, file, nomeReal, nome;
 
-				if (files) {
-					if (proximoIndice >= files.length) {
-						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
-						return;
-					}
-					file = files[proximoIndice];
-					if (!file) {
-						enviarProximo(proximoIndice + 1);
-						return;
-					}
-				} else if (dt.items) {
-					if (proximoIndice >= dt.items.length) {
-						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
-						return;
-					}
-					file = dt.items[proximoIndice];
-					if (!file || file.kind != "file") {
-						enviarProximo(proximoIndice + 1);
-						return;
-					}
-					file = file.getAsFile();
-				} else {
-					if (proximoIndice >= dt.files.length) {
-						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
-						return;
-					}
-					file = dt.files[proximoIndice];
-					if (!file) {
-						enviarProximo(proximoIndice + 1);
-						return;
-					}
+				if (proximoIndice >= files.length) {
+					Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+					return;
+				}
+				file = files[proximoIndice];
+				if (!file) {
+					enviarProximo(proximoIndice + 1);
+					return;
 				}
 
 				nomeReal = file.name;
