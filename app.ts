@@ -105,6 +105,7 @@ Evento.nomesReservados.push(
 	"favicons",
 	"imagens",
 	"js",
+	"landing",
 	"lib",
 
 	"acesso",
@@ -208,6 +209,8 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					id: evento.id,
 					nome: evento.nome,
 					titulo: evento.titulo,
+					versaobanner: evento.versaobanner,
+					versaologo: evento.versaologo,
 					descricao: evento.descricao,
 					emailpadrao: evento.emailpadrao,
 					url: req.path,

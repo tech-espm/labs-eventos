@@ -45,7 +45,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
-				<a id="aLandingPage" target="_blank" href="/<%=evento.url %>">Acesse a landing page agora <i class="fa fa-nomargin fa-external-link"></i></a>, ou <a id="aLandingPageDownload" href="/api/evento/landingPageDownload" target="_blank" download="landingPage-<%=evento.url %>.ejs">baixe o arquivo EJS atual <i class="fa fa-nomargin fa-download"></i></a>.
+				<a id="aLandingPage" target="_blank" href="/<%=evento.url %>">Acesse a landing page agora <i class="fa fa-nomargin fa-external-link"></i></a>, ou <a id="aLandingPageDownload" href="/api/evento/landingPageDownload" target="_blank" download="landing-page-<%=evento.url %>.ejs">baixe o arquivo EJS atual <i class="fa fa-nomargin fa-download"></i></a>.
 			</div>
 		</div>
 	</div>
@@ -72,7 +72,7 @@
 
 		window.eventoUrlListener = function (urlNova) {
 			document.getElementById("aLandingPage").setAttribute("href", "/" + urlNova);
-			document.getElementById("aLandingPageDownload").setAttribute("download", "landingPage-" + urlNova + ".ejs");
+			document.getElementById("aLandingPageDownload").setAttribute("download", "landing-page-" + urlNova + ".ejs");
 		};
 
 		function enviarArquivoLandingPage(e, files) {

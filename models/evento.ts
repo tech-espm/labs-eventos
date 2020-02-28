@@ -24,6 +24,8 @@ export = class Evento {
 	public titulo: string;
 	public descricao: string;
 	public versao: number;
+	public versaobanner: number;
+	public versaologo: number;
 	public habilitado: number;
 	public certificadoliberado: number;
 	public permiteinscricao: number;
@@ -101,11 +103,11 @@ export = class Evento {
 	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
 		let idsPorUrl = {};
 		let eventosPorId = {};
-		let lista = await sql.query("select id, nome, titulo, descricao, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao from evento") as Evento[];
+		let lista = await sql.query("select id, nome, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao from evento") as Evento[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				let evt = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao };
+				let evt = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao };
 				idsPorUrl[evt.url] = evt;
 				eventosPorId[e.id] = evt;
 			}
@@ -226,7 +228,7 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, titulo, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
+				await sql.query("insert into evento (nome, url, titulo, descricao, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
@@ -301,6 +303,30 @@ export = class Evento {
 			return null;
 
 		return [FS.gerarCaminhoAbsoluto(Evento.caminhoRelativo(id)), nome];
+	}
+
+	public static async atualizarVersaoArquivo(id: number, nome: string): Promise<void> {
+		let campo: string = null;
+
+		switch (nome) {
+			case "banner.jpg":
+			case "banner.png":
+				campo = "versaobanner";
+				break;
+			case "banner-logo.png":
+			case "banner_logo.png":
+			case "banner-logo.jpg":
+			case "banner_logo.jpg":
+				campo = "versaologo";
+				break;
+			default:
+				return;
+		}
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update evento set " + campo + " = " + campo + " + 1 where id = " + id);
+			await Evento.atualizarIdsPorUrl(sql, true);
+		});
 	}
 
 	public static async renomearArquivo(id: number, nomeAtual: string, nomeNovo: string): Promise<string> {

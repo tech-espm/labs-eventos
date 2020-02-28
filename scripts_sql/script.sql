@@ -114,6 +114,8 @@ CREATE TABLE evento (
   titulo varchar(100) NOT NULL,
   descricao varchar(250) NOT NULL,
   versao int NOT NULL,
+  versaobanner int NOT NULL,
+  versaologo int NOT NULL,
   habilitado tinyint(4) NOT NULL,
   certificadoliberado tinyint(4) NOT NULL,
   permiteinscricao tinyint(4) NOT NULL,

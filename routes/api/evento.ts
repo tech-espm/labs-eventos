@@ -124,6 +124,8 @@ router.post("/criarArquivo", wrap(async (req: express.Request, res: express.Resp
 			return;
 		}
 
+		Evento.atualizarVersaoArquivo(u.idevento_logado, nome);
+
 		res.json(0);
 	});
 }));
@@ -213,7 +215,7 @@ router.get("/landingPageDownload", wrap(async (req: express.Request, res: expres
 
 	res.setHeader("Content-type", "application/octet-stream");
 
-	res.download(Evento.caminhoLandingPage(u.idevento_logado), "landingPage-" + e.url + ".ejs");
+	res.download(Evento.caminhoLandingPage(u.idevento_logado), "landing-page-" + e.url + ".ejs");
 }));
 
 router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res: express.Response) => {
