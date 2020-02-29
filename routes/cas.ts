@@ -41,7 +41,7 @@ async function casLogin(req: express.Request, res: express.Response) {
 			let u: Usuario;
 			[mensagem, u] = await Usuario.efetuarLogin(null, null, cas, res);
 			if (mensagem)
-				res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: `O usuário ${cas.emailAcademico.toUpperCase()} não está cadstrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
+				res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: `O usuário ${cas.emailAcademico.toUpperCase()} não está cadastrado no sistema de credenciamento. Por favor, entre em contato com um administrador do sistema para obter acesso.`, loginUrl: appsettings.loginUrl });
 			else
 				res.redirect("/");
 		} else {
