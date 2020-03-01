@@ -1114,9 +1114,10 @@ window.Notification = {
 	timeoutVisible: 0,
 	timeoutGone: 0,
 	isVisible: false,
-	wait: function (msg, basePath) {
+	pathBase: "/",
+	wait: function (msg) {
 		var div = document.createElement("div");
-		div.innerHTML = "<img alt=\"Aguarde\" src=\"" + (basePath || "/") + "imagens/loading-grey-t.gif\"> " + (msg || "Por favor, aguarde...");
+		div.innerHTML = "<img alt=\"Aguarde\" src=\"" + Notification.pathBase + "imagens/loading-grey-t.gif\"> " + (msg || "Por favor, aguarde...");
 		return Notification.show(div, "default", -1);
 	},
 	success: function (message, important) {
