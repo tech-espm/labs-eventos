@@ -1,6 +1,8 @@
 ﻿import Sql = require("../infra/sql");
 
 export = class Unidade {
+	public static readonly idADefinir = 1;
+
 	public id: number;
 	public nome: string;
 	public sigla: string;
@@ -59,6 +61,9 @@ export = class Unidade {
 		if ((res = Unidade.validar(u)))
 			return res;
 
+		if (u.id === Unidade.idADefinir)
+			return "Não é possível editar esta unidade";
+
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.query("update unidade set nome = ?, sigla = ? where id = " + u.id, [u.nome, u.sigla]);
@@ -76,6 +81,9 @@ export = class Unidade {
 
 	public static async excluir(id: number): Promise<string> {
 		let res: string = null;
+
+		if (id === Unidade.idADefinir)
+			return "Não é possível excluir esta unidade";
 
 		await Sql.conectar(async (sql: Sql) => {
 			//await sql.beginTransaction();

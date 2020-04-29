@@ -94,6 +94,8 @@ CREATE TABLE unidade (
   UNIQUE KEY sigla_UN (sigla)
 );
 
+INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-');
+
 -- DROP TABLE IF EXISTS local;
 CREATE TABLE local (
   id int NOT NULL AUTO_INCREMENT,
@@ -105,6 +107,8 @@ CREATE TABLE local (
   KEY idunidade_FK_idx (idunidade),
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
+
+INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1);
 
 -- DROP TABLE IF EXISTS evento;
 CREATE TABLE evento (

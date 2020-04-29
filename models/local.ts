@@ -1,6 +1,8 @@
 ﻿import Sql = require("../infra/sql");
 
 export = class Local {
+	public static readonly idADefinir = 1;
+
 	public id: number;
 	public nome: string;
 	public idunidade: number;
@@ -76,6 +78,9 @@ export = class Local {
 		if ((res = Local.validar(l)))
 			return res;
 
+		if (l.id === Local.idADefinir)
+			return "Não é possível editar este local";
+
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.query("update local set nome = ?, idunidade = ?, capacidade_real = ? where id = " + l.id, [l.nome, l.idunidade, l.capacidade_real]);
@@ -104,6 +109,9 @@ export = class Local {
 
 	public static async excluir(id: number): Promise<string> {
 		let res: string = null;
+
+		if (id === Local.idADefinir)
+			return "Não é possível excluir este local";
 
 		await Sql.conectar(async (sql: Sql) => {
 			//await sql.beginTransaction();

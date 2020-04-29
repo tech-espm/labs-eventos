@@ -278,17 +278,27 @@ select.form-control.input-sm {
 		margin-bottom: 0;
 	}
 
+.col-xs-space-top {
+	margin-top: 15px;
+}
+
 .col-xs-space-bottom {
 	margin-bottom: 15px;
 }
 
 @media (max-width: 767px) {
+	.col-sm-space-top {
+		margin-top: 15px;
+	}
 	.col-sm-space-bottom {
 		margin-bottom: 15px;
 	}
 }
 
 @media (max-width: 991px) {
+	.col-md-space-top {
+		margin-top: 15px;
+	}
 	.col-md-space-bottom {
 		margin-bottom: 15px;
 	}
