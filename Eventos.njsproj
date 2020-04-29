@@ -5,7 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>Eventos</Name>
     <RootNamespace>Eventos</RootNamespace>
-    <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
+    <LastActiveSolutionConfig>Release|Any CPU</LastActiveSolutionConfig>
     <NameOfLastUsedPublishProfile>Local</NameOfLastUsedPublishProfile>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
@@ -95,8 +95,9 @@
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.24.min.css" />
+    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.25.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
+    <Content Include="public\lib\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
     <Content Include="public\lib\metis-menu\css\metis-menu-1.0.0.min.css" />
     <None Include="scripts_sql\script.sql" />
@@ -257,6 +258,8 @@
     <Folder Include="public\landing\css\" />
     <Folder Include="public\landing\fonts\" />
     <Folder Include="public\landing\js\" />
+    <Folder Include="public\lib\clipboardjs\" />
+    <Folder Include="public\lib\clipboardjs\js\" />
     <Folder Include="public\lib\jquery-ui\" />
     <Folder Include="public\lib\jquery-ui\css\" />
     <Folder Include="public\lib\jquery-ui\js\" />
@@ -325,17 +328,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.6.js" />
-    <Compile Include="public\js\main-1.0.4.js" />
+    <Compile Include="public\js\main-1.0.6.js" />
     <Compile Include="public\landing\js\bootstrap.min.js" />
     <Compile Include="public\landing\js\jquery.min.js" />
     <Compile Include="public\landing\js\main.js" />
     <Compile Include="public\landing\js\slick.min.js" />
-    <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.3.min.js" />
+    <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.4.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.0.min.js" />
-    <Compile Include="public\lib\data-tables\js\data-tables-1.0.12.min.js" />
+    <Compile Include="public\lib\clipboardjs\js\clipboard.min.js" />
+    <Compile Include="public\lib\data-tables\js\data-tables-1.0.13.min.js" />
     <Compile Include="public\lib\jquery-mask\js\jquery-mask-1.0.0.min.js" />
     <Compile Include="public\lib\jquery-ui\js\jquery-ui-1.0.0.min.js" />
-    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.1.min.js" />
+    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.2.min.js" />
     <Compile Include="public\lib\jquery-validate\js\messages_pt_BR.min.js" />
     <Compile Include="public\lib\jquery\js\jquery-1.0.1.min.js" />
     <Compile Include="public\lib\metis-menu\js\metis-menu-1.0.1.min.js" />
