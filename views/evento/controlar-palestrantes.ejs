@@ -135,6 +135,7 @@
 				<h4 class="modal-title">Link</h4>
 			</div>
 			<div class="modal-body">
+				<div class="col-xs-space-bottom"><button id="btnLinkPalestrante" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
 				<a id="aLinkPalestrante" href="#" target="_blank" style="word-break: break-all;"></a>
 			</div>
 			<div class="modal-footer">
@@ -177,7 +178,7 @@
 			order: [[2, "asc"]],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Link de Edição Externa\" type=\"button\" data-link=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-link\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link do Certificado\" type=\"button\" data-certificado=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Link de Edição Externa\" type=\"button\" data-link=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-link\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Certificado\" type=\"button\" data-certificado=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" class=\"palestrante-img\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
 				{ title: "Nome", data: "nome" },
 				{ title: "Nome para Divulgação", data: "nome_curto" },
@@ -200,6 +201,7 @@
 		fixUrlOnBlur(_("txtPalestranteUrlTwitter"));
 		fixUrlOnBlur(_("txtPalestranteUrlFacebook"));
 		fixUrlOnBlur(_("txtPalestranteUrlLinkedIn"));
+		prepareCopyHandler(_("modalLinkPalestrante"), "#btnLinkPalestrante");
 
 		$("#modalAlterarPalestrante").on("show.bs.modal", function () {
 			var parent = $("#txtPalestranteImagem").parent();
@@ -237,6 +239,9 @@
 						a.setAttribute("href", response.value);
 						a.textContent = response.value;
 
+						a = _("btnLinkPalestrante");
+						a.setAttribute("data-clipboard-text", response.value);
+
 						$("#modalLinkPalestrante").modal({
 							backdrop: "static",
 							keyboard: true
@@ -251,6 +256,9 @@
 				var a = _("aLinkPalestrante");
 				a.setAttribute("href", str);
 				a.textContent = str;
+
+				a = _("btnLinkPalestrante");
+				a.setAttribute("data-clipboard-text", str);
 
 				$("#modalLinkPalestrante").modal({
 					backdrop: "static",

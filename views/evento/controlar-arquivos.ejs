@@ -1,13 +1,12 @@
 ﻿
-<div class="row text-center">
-	<div class="col-lg-12">
-		<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="/arquivos-landing-page.zip">Baixar os arquivos da landing page padrão <i class="fa fa-nomargin fa-download"></i></a>
-		<hr style="border-color: #aaa;" />
-	</div>
-</div>
-
 <div class="row">
 	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body text-center">
+				<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="/arquivos-landing-page.zip"><i class="fa fa-download"></i>Baixar os arquivos da landing page padrão</a>
+			</div>
+		</div>
+
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				Cuidado ao sobrescrever arquivos existentes, caso o evento já tenha começado, pois pode ser que o arquivo já esteja no cache do browser do visitante.
@@ -15,11 +14,7 @@
 				Quando um arquivo precisar ser sobrescrito, é recomendável renomear o arquivo utilizando alguma versão, como foto-1.jpg, por exemplo.
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				Para referenciar os arquivos na landing page, utilize o prefixo "<%=caminhoAbsolutoExterno %>" nas URL's, como nos exemplos abaixo:
@@ -33,11 +28,7 @@
 				CSS:<br />background: url(<%=caminhoAbsolutoExterno %>/foto.jpg);
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				Para enviar arquivos, clique no botão abaixo, ou arraste-os até aqui (os arquivos devem ter até 5 MiB).
@@ -47,11 +38,7 @@
 				<div id="divArquivos" style="width: 0; display: inline-block; overflow: hidden; position: absolute;"></div>
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body dataTable_wrapper">
 				<table class="table table-striped table-hover" id="tabela-arquivos"></table>

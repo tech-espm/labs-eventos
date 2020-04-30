@@ -32,22 +32,28 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-xs-6">
+					<div class="col-xs-6 col-sm-4">
 						<div class="form-group">
 							<label for="cbSessaoData">Data</label>
 							<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 						</div>
 					</div>
-					<div class="col-xs-6">
+					<div class="col-xs-6 col-sm-4">
 						<div class="form-group">
 							<label for="cbSessaoHorario">Horário</label>
 							<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 						</div>
 					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="cbSessaoLocal">Local</label>
+							<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+						</div>
+					</div>
 				</div>
-				<div class="form-group">
-					<label for="cbSessaoLocal">Local</label>
-					<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				<div class="form-group" id="divSessaoUrlRemota" style="display: none;">
+					<label for="txtSessaoUrlRemota">URL da Sessão Remota <small><i>(http://... ou https://...)</i></small></label>
+					<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
 				</div>
 				<div class="form-group">
 					<label for="txtSessaoNome">Nome</label>
@@ -203,6 +209,7 @@
 				<h4 class="modal-title">Link</h4>
 			</div>
 			<div class="modal-body">
+				<div class="col-xs-space-bottom"><button id="btnLinkSessao" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
 				<a id="aLinkSessao" href="#" target="_blank" style="word-break: break-all;"></a>
 			</div>
 			<div class="modal-footer">
@@ -270,19 +277,20 @@
 						return nomes;
 					}
 				},
+				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Avaliações", "class": "col-min text-right", "type": "number", data: "avaliacoes" },
-				{ title: "Nota Média", "class": "col-min text-right", "type": "number", data: "media" },
-				{ title: "Capacidade Real", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
-				{ title: "Capacidade Alocada", "class": "col-min text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
+				{ title: "Nota Média", "class": "text-right", "type": "number", data: "media" },
+				{ title: "Capacidade Real", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
+				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
-				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
 				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
@@ -387,6 +395,17 @@
 
 		var trClicada, aceites, clonar, naoFecharModal = false;
 
+		function localInternet(ideventolocal) {
+			var i, local = null;
+			for (i = eventoLocais.length - 1; i >= 0; i--) {
+				if (eventoLocais[i].ideventolocal === ideventolocal) {
+					local = eventoLocais[i];
+					break;
+				}
+			}
+			return (local && local.idunidade === -1);
+		}
+
 		prepareCbSearch(_("cbSessaoData"));
 		prepareCbSearch(_("cbSessaoHorario"));
 		prepareCbSearch(_("cbSessaoLocal"));
@@ -396,6 +415,11 @@
 		prepareCbSearch(_("cbSessaoVertical"));
 		prepareCbSearch(_("cbSessaoPalestrante"));
 		$("#tabelaSessaoPalestranteBody").sortable().disableSelection();
+		_("cbSessaoLocal").onchange = function () {
+			_("divSessaoUrlRemota").style.display = (localInternet(parseInt(_("cbSessaoLocal").value)) ? "" : "none");
+		};
+		fixUrlOnBlur(_("txtSessaoUrlRemota"));
+		prepareCopyHandler(_("modalLinkSessao"), "#btnLinkSessao");
 
 		$("#modalAlterarSessao").on("show.bs.modal", function () {
 			var i, sessao = (trClicada ? tabela.row(trClicada).data() : null);
@@ -404,6 +428,8 @@
 			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
+			_("divSessaoUrlRemota").style.display = ((sessao && localInternet(sessao.ideventolocal)) ? "" : "none");
+			$("#txtSessaoUrlRemota").val(sessao ? sessao.url_remota : "");
 			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
@@ -451,6 +477,9 @@
 				var a = _("aLinkSessao");
 				a.setAttribute("href", str);
 				a.textContent = str;
+
+				a = _("btnLinkSessao");
+				a.setAttribute("data-clipboard-text", str);
 
 				$("#modalLinkSessao").modal({
 					backdrop: "static",
@@ -535,6 +564,9 @@
 				txtSessaoNomeCurto: {
 					maxlength: 45
 				},
+				txtSessaoUrlRemota: {
+					maxlength: 100
+				},
 				txtSessaoDescricao: {
 					maxlength: 200
 				},
@@ -575,6 +607,7 @@
 					ideventolocal: parseInt($("#cbSessaoLocal").val()),
 					nome: trim($("#txtSessaoNome").val()),
 					nome_curto: trim($("#txtSessaoNomeCurto").val()),
+					url_remota: trim($("#txtSessaoUrlRemota").val()),
 					descricao: trim($("#txtSessaoDescricao").val()),
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
@@ -614,6 +647,7 @@
 							sessao.ideventolocal = s.ideventolocal;
 							sessao.nome = s.nome;
 							sessao.nome_curto = s.nome_curto;
+							sessao.url_remota = s.url_remota;
 							sessao.descricao = s.descricao;
 							sessao.oculta = s.oculta;
 							sessao.permiteinscricao = s.permiteinscricao;

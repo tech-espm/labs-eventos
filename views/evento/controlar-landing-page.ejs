@@ -1,13 +1,12 @@
 ﻿
-<div class="row text-center">
-	<div class="col-lg-12">
-		<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="/arquivos-landing-page.zip">Baixar os arquivos da landing page padrão <i class="fa fa-nomargin fa-download"></i></a>
-		<hr style="border-color: #aaa;" />
-	</div>
-</div>
-
 <div class="row">
 	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body text-center">
+				<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="/arquivos-landing-page.zip"><i class="fa fa-download"></i>Baixar os arquivos da landing page padrão</a>
+			</div>
+		</div>
+
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				Para referenciar os arquivos na landing page, utilize o prefixo "<%=caminhoAbsolutoExterno %>" nas URL's, como nos exemplos abaixo:
@@ -21,11 +20,7 @@
 				CSS:<br />background: url(<%=caminhoAbsolutoExterno %>/foto.jpg);
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				Para enviar um novo arquivo da landing page, clique no botão abaixo, ou arraste-o até aqui (o arquivo deve ter até 1 MiB).
@@ -35,32 +30,20 @@
 				<div id="divArquivoLandingPage" style="width: 0; display: inline-block; overflow: hidden; position: absolute;"></div>
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row">
-	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				O arquivo da landing page deve ser criado utilizando HTML + EJS. Para mais informações sobre EJS, acesse <a target="_blank" href="https://ejs.co">ejs.co <i class="fa fa-nomargin fa-external-link"></i></a>.
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row" id="divLandingPageOK" <%-(landingPageExiste ? "" : "style=\"display: none;\"")%>>
-	<div class="col-lg-12">
-		<div class="panel panel-default">
-			<div class="panel-body placeholder-chooser">
-				<a id="aLandingPage" target="_blank" href="/<%=evento.url %>">Acesse a landing page agora <i class="fa fa-nomargin fa-external-link"></i></a>, ou <a id="aLandingPageDownload" href="/api/evento/landingPageDownload" target="_blank" download="landing-page-<%=evento.url %>.ejs">baixe o arquivo EJS atual <i class="fa fa-nomargin fa-download"></i></a>.
+		<div class="panel panel-default" id="divLandingPageOK" <%-(landingPageExiste ? "" : "style=\"display: none;\"")%>>
+			<div class="panel-body text-center">
+				<a class="btn btn-primary" id="aLandingPageDownload" style="white-space: normal;" href="/api/evento/landingPageDownload" target="_blank" download="landing-page-<%=evento.url %>.ejs"><i class="fa fa-download"></i>Baixar o arquivo EJS da landing page atual</a>
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="row" id="divLandingPageVazia" <%-(landingPageExiste ? "style=\"display: none;\"" : "")%>>
-	<div class="col-lg-12">
-		<div class="alert alert-danger">
+		<div class="alert alert-danger" id="divLandingPageVazia" <%-(landingPageExiste ? "style=\"display: none;\"" : "")%>>
 			O arquivo da landing page ainda não foi enviado!
 		</div>
 	</div>
@@ -78,7 +61,6 @@
 			mensagemDrag = false, timeoutDrag = 0;
 
 		window.eventoUrlListener = function (urlNova) {
-			document.getElementById("aLandingPage").setAttribute("href", "/" + urlNova);
 			document.getElementById("aLandingPageDownload").setAttribute("download", "landing-page-" + urlNova + ".ejs");
 		};
 

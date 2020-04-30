@@ -2,6 +2,7 @@
 
 export = class Unidade {
 	public static readonly idADefinir = 1;
+	public static readonly idInternet = -1;
 
 	public id: number;
 	public nome: string;
@@ -57,12 +58,12 @@ export = class Unidade {
 	}
 
 	public static async alterar(u: Unidade): Promise<string> {
+		if (u.id === Unidade.idADefinir || u.id === Unidade.idInternet)
+			return "Não é possível editar esta unidade";
+
 		let res: string;
 		if ((res = Unidade.validar(u)))
 			return res;
-
-		if (u.id === Unidade.idADefinir)
-			return "Não é possível editar esta unidade";
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
@@ -80,10 +81,10 @@ export = class Unidade {
 	}
 
 	public static async excluir(id: number): Promise<string> {
-		let res: string = null;
-
-		if (id === Unidade.idADefinir)
+		if (id === Unidade.idADefinir || id === Unidade.idInternet)
 			return "Não é possível excluir esta unidade";
+
+		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
 			//await sql.beginTransaction();

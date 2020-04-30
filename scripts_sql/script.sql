@@ -94,7 +94,8 @@ CREATE TABLE unidade (
   UNIQUE KEY sigla_UN (sigla)
 );
 
-INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-');
+INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-'), ('INTERNET', 'INTERNET');
+UPDATE unidade SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS local;
 CREATE TABLE local (
@@ -108,7 +109,8 @@ CREATE TABLE local (
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1);
+INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1), ('[INTERNET]', -1, 9999999);
+UPDATE local SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS evento;
 CREATE TABLE evento (
@@ -231,6 +233,7 @@ CREATE TABLE eventosessao (
   idvertical int NOT NULL,
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
+  url_remota varchar(100) NOT NULL,
   oculta tinyint(4) NOT NULL,
   publico_alvo varchar(100) NOT NULL,
   tags varchar(100) NOT NULL,

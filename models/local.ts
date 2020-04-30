@@ -1,7 +1,9 @@
 ﻿import Sql = require("../infra/sql");
+import Unidade = require("./unidade");
 
 export = class Local {
 	public static readonly idADefinir = 1;
+	public static readonly idInternet = -1;
 
 	public id: number;
 	public nome: string;
@@ -16,7 +18,7 @@ export = class Local {
 		l.nome = (l.nome || "").normalize().trim().toUpperCase();
 		if (l.nome.length < 3 || l.nome.length > 100)
 			return "Nome inválido";
-		if (isNaN(l.idunidade) || l.idunidade < 0)
+		if (isNaN(l.idunidade))
 			return "Unidade inválida";
 		if (isNaN(l.capacidade_real) || l.capacidade_real < 0)
 			return "Capacidade real inválida";
@@ -74,12 +76,12 @@ export = class Local {
 	}
 
 	public static async alterar(l: Local): Promise<string> {
+		if (l.id === Local.idADefinir || l.id === Local.idInternet)
+			return "Não é possível editar este local";
+
 		let res: string;
 		if ((res = Local.validar(l)))
 			return res;
-
-		if (l.id === Local.idADefinir)
-			return "Não é possível editar este local";
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
@@ -108,10 +110,10 @@ export = class Local {
 	}
 
 	public static async excluir(id: number): Promise<string> {
-		let res: string = null;
-
-		if (id === Local.idADefinir)
+		if (id === Local.idADefinir || id === Local.idInternet)
 			return "Não é possível excluir este local";
+
+		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
 			//await sql.beginTransaction();

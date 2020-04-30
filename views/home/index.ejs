@@ -3,11 +3,13 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
-				Por favor, selecione um dos eventos da lista abaixo, clicando sobre sua linha, para poder trabalhar nele.
 				<% if (usuario.nomeevento_logado) { %>
+				<a class="btn btn-primary" style="white-space: normal;" href="/evento"><i class="fa fa-bullhorn fa-fw"></i>Trabalhar no evento "<%=usuario.nomeevento_logado %>"</a>
 				<br />
 				<br />
-				<b class="col-h2">Evento atualmente selecionado: <%=usuario.nomeevento_logado %></b>
+				Se quiser trabalhar com outro evento, por favor, selecione um dos eventos da lista abaixo, clicando sobre sua linha.
+				<% } else { %>
+				Por favor, selecione um dos eventos da lista abaixo, clicando sobre sua linha, para poder trabalhar nele.
 				<% } %>
 			</div>
 		</div>
