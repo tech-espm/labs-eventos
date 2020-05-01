@@ -94,7 +94,7 @@ CREATE TABLE unidade (
   UNIQUE KEY sigla_UN (sigla)
 );
 
-INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-'), ('INTERNET', 'INTERNET');
+INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-'), ('VIRTUAL', 'VIRTUAL');
 UPDATE unidade SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS local;
@@ -109,7 +109,7 @@ CREATE TABLE local (
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1), ('[INTERNET]', -1, 9999999);
+INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1), ('ONLINE', -1, 9999999);
 UPDATE local SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS evento;

@@ -1208,12 +1208,13 @@ window.Notification = {
 	timeoutGone: 0,
 	isVisible: false,
 	pathBase: "/",
+	imagePath: "Images",
 	defaultWaitAlt: "Aguarde",
 	defaultWaitMessage: "Por favor, aguarde...",
 	wait: function (msg) {
-		var div = document.createElement("div");
-		div.innerHTML = "<img alt=\"" + Notification.defaultWaitAlt + "\" src=\"" + Notification.pathBase + "imagens/loading-grey-t.gif\"> " + (msg || Notification.defaultWaitMessage);
-		return Notification.show(div, "default", -1);
+		var span = document.createElement("span");
+		span.innerHTML = "<img alt=\"" + Notification.defaultWaitAlt + "\" src=\"" + Notification.pathBase + Notification.imagePath + "/loading-grey-t.gif\"> " + (msg || Notification.defaultWaitMessage);
+		return Notification.show(span, "default", -1);
 	},
 	success: function (message, important) {
 		return Notification.show(message, "success", important ? 5000 : 2500, true);
@@ -1435,7 +1436,7 @@ window.BlobDownloader = {
 			if (data.timerID)
 				clearTimeout(data.timerID);
 
-			if (data.dropDown.className != "dropdown") {
+			if (data.menuVisible) {
 				data.version++;
 				data.timerID = setTimeout(cbSearch_BlurTimeout, 300, { data: data, version: data.version });
 			}
@@ -1535,7 +1536,7 @@ window.BlobDownloader = {
 			case 38: // up
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.selection--;
 					data.updateSelection();
 				} else {
@@ -1545,7 +1546,7 @@ window.BlobDownloader = {
 			case 40: // down
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.selection++;
 					data.updateSelection();
 				} else {
@@ -1555,11 +1556,11 @@ window.BlobDownloader = {
 			case 13: // enter
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className == "dropdown")
+				if (!data.menuVisible)
 					data.open(data.cbSearchInput.value);
 				return false;
 			case 27: // escape
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.close();
 					return cancelEvent(e);
 				}
@@ -1627,14 +1628,14 @@ window.BlobDownloader = {
 			case 40: // down
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown")
+				if (data.menuVisible)
 					return false;
 				data.lastSearch = null;
 				break;
 			case 13: // enter
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.select();
 					return false;
 				}
@@ -1686,10 +1687,10 @@ window.BlobDownloader = {
 	}
 
 	function cbSearch_DataOpen(normalized) {
-		var i, li, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null;
+		var i, li, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null, rect;
 
-		while (this.menu.firstChild)
-			this.menu.removeChild(this.menu.firstChild);
+		while (menu.firstChild)
+			menu.removeChild(menu.firstChild);
 
 		for (i = 0; i < list.length; i++) {
 			li = list[i];
@@ -1728,13 +1729,27 @@ window.BlobDownloader = {
 
 		this.selection = 0;
 
-		if (ok)
-			this.dropDown.className = "dropdown open";
-		else
-			this.dropDown.className = "dropdown";
+		if (ok) {
+			if (!this.menuVisible) {
+				rect = this.dropDown.getBoundingClientRect();
+				menu.style.left = rect.left + "px";
+				menu.style.top = ((rect.bottom + 2) | 0) + "px";
+				document.body.appendChild(menu);
+				this.menuVisible = true;
+			}
+		} else {
+			if (this.menuVisible) {
+				if (menu.parentNode)
+					menu.parentNode.removeChild(menu);
+				this.menuVisible = false;
+			}
+		}
 	}
 
 	function cbSearch_DataClose() {
+		if (this.menuVisible && this.menu.parentNode)
+			this.menu.parentNode.removeChild(this.menu);
+		this.menuVisible = false;
 		while (this.menu.firstChild)
 			this.menu.removeChild(this.menu.firstChild);
 		this.version++;
@@ -1744,7 +1759,6 @@ window.BlobDownloader = {
 		}
 		this.lastSearch = null;
 		this.selection = -1;
-		this.dropDown.className = "dropdown";
 	}
 
 	window.setCbSearch = function (select, value) {
@@ -1783,6 +1797,7 @@ window.BlobDownloader = {
 				version: 0,
 				dropDown: outerdiv,
 				menu: document.createElement("ul"),
+				menuVisible: false,
 				select: cbSearch_DataSelect,
 				updateSelection: cbSearch_DataUpdateSelection,
 				open: cbSearch_DataOpen,
@@ -1827,6 +1842,11 @@ window.BlobDownloader = {
 		data.menu.className = "dropdown-menu";
 		data.menu.style.maxHeight = "140px";// 10 (padding) + (26 x item count)
 		data.menu.style.overflowY = "auto";
+		data.menu.style.height = "auto";
+		data.menu.style.width = "auto";
+		data.menu.style.right = "auto";
+		data.menu.style.bottom = "auto";
+		data.menu.style.display = "block";
 
 		button.appendChild(i);
 		span.appendChild(button);
@@ -1840,7 +1860,6 @@ window.BlobDownloader = {
 
 		outerdiv.appendChild(select);
 		outerdiv.appendChild(groupdiv);
-		outerdiv.appendChild(data.menu);
 
 		parent.appendChild(outerdiv);
 
