@@ -1,7 +1,9 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../../utils/jsonRes");
+import Evento = require("../../models/evento");
 import Usuario = require("../../models/usuario");
+import PalestranteResumido = require("../../models/palestranteResumido");
 import Sessao = require("../../models/sessao");
 
 const router = express.Router();
@@ -52,6 +54,30 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		}
 	}
 	jsonRes(res, 400, s ? await Sessao.criar(s) : "Dados inválidos!");
+}));
+
+router.post("/criarExterno", wrap(async (req: express.Request, res: express.Response) => {
+	let s = req.body as Sessao;
+	if (s) {
+		let url = (req.body.url as string || "");
+		let senha = (req.body.senha as string || "");
+		let evento = Evento.idsPorUrl[url];
+		if (!evento || !evento.id || evento.id !== parseInt(req.body.idevento) || !evento.senhasugestao || evento.senhasugestao !== senha)
+			s = null;
+	}
+	if (s) {
+		s.idcurso = parseInt(req.body.idcurso);
+		s.idevento = parseInt(req.body.idevento);
+		s.ideventodata = parseInt(req.body.ideventodata);
+		s.ideventohorario = parseInt(req.body.ideventohorario);
+		s.ideventolocal = parseInt(req.body.ideventolocal);
+		s.idformato = parseInt(req.body.idformato);
+		s.idtiposessao = parseInt(req.body.idtiposessao);
+		s.idvertical = parseInt(req.body.idvertical);
+		s.oculta = 0;
+		s.sugestao = 1;
+	}
+	jsonRes(res, 400, s ? await Sessao.criarExterno(s, (req.body.palestrantes && req.body.palestrantes.length) ? req.body.palestrantes as PalestranteResumido[] : []) : "Dados inválidos!");
 }));
 
 router.post("/alterar", wrap(async (req: express.Request, res: express.Response) => {

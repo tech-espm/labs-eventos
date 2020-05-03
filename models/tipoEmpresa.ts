@@ -25,6 +25,20 @@ export = class TipoEmpresa {
 		return (lista || []);
 	}
 
+	public static async obterIdPadrao(): Promise<number> {
+		let id = 0;
+
+		await Sql.conectar(async (sql: Sql) => {
+			let tmp = await sql.scalar("select id from tipoempresa where nome like '%apoi%' limit 1");
+			if (!tmp)
+				tmp = await sql.scalar("select id from tipoempresa limit 1");
+			if (tmp)
+				id = tmp as number;
+		});
+
+		return id;
+	}
+
 	public static async obter(id: number): Promise<TipoEmpresa> {
 		let lista: TipoEmpresa[] = null;
 

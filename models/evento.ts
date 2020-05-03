@@ -11,6 +11,7 @@ import appsettings = require("../appsettings");
 import Empresa = require("./empresa");
 import Participante = require("./participante");
 import Usuario = require("./usuario");
+import TipoEmpresa = require("./tipoEmpresa");
 
 export = class Evento {
 	public static readonly tamanhoMaximoFundoCertificadoEmKiB = 2048;
@@ -226,6 +227,8 @@ export = class Evento {
 		if ((res = Evento.validar(ev)))
 			return res;
 
+		let idTipoEmpresaPadrao = await TipoEmpresa.obterIdPadrao();
+
 		await Sql.conectar(async (sql: Sql) => {
 			ev.id = 0;
 
@@ -234,7 +237,7 @@ export = class Evento {
 			try {
 				await sql.query("insert into evento (nome, url, titulo, descricao, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite) values (?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
-				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id]);
+				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, ?, 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id, idTipoEmpresaPadrao]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("update evento set idempresapadrao = ? where id = " + ev.id, [ev.idempresapadrao]);
 				let diretorio = Evento.caminhoRelativo(ev.id);

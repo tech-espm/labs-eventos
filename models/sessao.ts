@@ -1,5 +1,6 @@
 ﻿import Sql = require("../infra/sql");
 import Horario = require("./horario");
+import PalestranteResumido = require("./palestranteResumido");
 
 export = class Sessao {
 	public id: number;
@@ -219,6 +220,31 @@ export = class Sessao {
 				}
 			}
 		});
+
+		return res;
+	}
+
+	public static async criarExterno(s: Sessao, pr: PalestranteResumido[]): Promise<string> {
+		let res: string;
+		if ((res = Sessao.validar(s)))
+			return res;
+
+		s.idspalestrante = [];
+
+		if (pr && pr.length) {
+			for (let i = 0; i < pr.length; i++) {
+				if (!pr[i])
+					continue;
+				pr[i].id = 0;
+				res = await PalestranteResumido.criar(s.idevento, pr[i]);
+				if (res && res !== parseInt(res).toString())
+					return res;
+				if (pr[i].id)
+					s.idspalestrante.push(pr[i].id);
+			}
+		}
+
+		res = await Sessao.criar(s);
 
 		return res;
 	}

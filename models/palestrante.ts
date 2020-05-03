@@ -128,6 +128,20 @@ export = class Palestrante {
 		return (lista || []);
 	}
 
+	public static async obterIdDeEmail(idevento: number, email: string): Promise<number> {
+		let id = 0;
+
+		await Sql.conectar(async (sql: Sql) => {
+			// As buscas por string no MySQL já são case insensitive!
+			// https://stackoverflow.com/a/3936986/3569421
+			let tmp = await sql.scalar("select id from eventopalestrante where idevento = ? and email = ?", [idevento, email]);
+			if (tmp)
+				id = tmp as number;
+		});
+
+		return id;
+	}
+
 	public static async obter(id: number, idevento: number): Promise<Palestrante> {
 		let lista: Palestrante[] = null;
 
