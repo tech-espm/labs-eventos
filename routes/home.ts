@@ -52,10 +52,11 @@ router.get("/perfil", wrap(async (req: express.Request, res: express.Response) =
 	}
 }));
 
-router.get("/sugestao/:url", wrap(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get("/sugestao/:url/:senha", wrap(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 	let url = (req.params["url"] as string || "").normalize().trim().toLowerCase();
+	let senha = (req.params["senha"] as string || "").normalize().trim();
 	let evento = Evento.idsPorUrl["/" + url];
-	if (!evento || !evento.id || !evento.senhasugestao) {
+	if (!evento || !evento.id || !evento.senhasugestao || evento.senhasugestao !== senha) {
 		next();
 		return;
 	}
@@ -66,6 +67,7 @@ router.get("/sugestao/:url", wrap(async (req: express.Request, res: express.Resp
 		panelHeadingPersonalizado: true,
 		titulo: "Sugestão de Sessão",
 		idevento: evento.id,
+		senha: senha,
 		evento: await Evento.obter(evento.id),
 		cursos: JSON.stringify(await Curso.listar()),
 		datas: JSON.stringify(await Data.listar(evento.id)),

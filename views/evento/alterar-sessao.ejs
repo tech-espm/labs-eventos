@@ -1,17 +1,17 @@
 ﻿<div class="row">
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6 col-sm-4') %>">
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6') %>">
 		<div class="form-group">
-			<label for="cbSessaoData">Data</label>
+			<label for="cbSessaoData"><%- (usuario ? "Data" : "Sugestão de Data") %></label>
 			<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6 col-sm-4') %>">
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6') %>">
 		<div class="form-group">
-			<label for="cbSessaoHorario">Horário</label>
+			<label for="cbSessaoHorario"><%- (usuario ? "Horário" : "Sugestão de Horário") %></label>
 			<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'hidden') %>">
 		<div class="form-group">
 			<label for="cbSessaoLocal">Local</label>
 			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
@@ -25,7 +25,7 @@
 	</div>
 </div>
 <div class="form-group" id="divSessaoUrlRemota" style="display: none;">
-	<label for="txtSessaoUrlRemota">URL da Sessão Remota <small><i>(http://... ou https://...)</i></small></label>
+	<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
 	<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
 </div>
 <div class="form-group">
@@ -33,25 +33,25 @@
 	<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
 </div>
 <div class="row">
-	<div class="col-sm-3">
+	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-6') %>">
 		<div class="form-group">
 			<label for="txtSessaoNomeCurto">Nome Curto</label>
 			<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
 		</div>
 	</div>
-	<div class="col-sm-3">
+	<div class="<%- (usuario ? 'col-sm-3' : 'hidden') %>">
 		<div class="form-group">
 			<label for="cbSessaoOculta">Oculta</label>
 			<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 		</div>
 	</div>
-	<div class="col-sm-3">
+	<div class="<%- (usuario ? 'col-sm-3' : 'hidden') %>">
 		<div class="form-group">
 			<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
 			<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
 		</div>
 	</div>
-	<div class="col-sm-3">
+	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-6') %>">
 		<div class="form-group">
 			<label for="cbSessaoCurso">Curso Âncora</label>
 			<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
@@ -99,7 +99,7 @@
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
-		var idevento = <%- idevento %>;
+		var idevento = <%- idevento %>, idEventoLocalPadraoInternet = 0;
 		carregarDatas(<%- datas %>);
 		carregarHorarios(<%- horarios %>);
 		carregarLocais(<%- eventoLocais %>, <%- locais %>);
@@ -117,6 +117,27 @@
 				}
 			}
 			return (local && local.idunidade === -1);
+		};
+
+		window.obterIdEventoLocalPadraoInternet = function () {
+			if (idEventoLocalPadraoInternet)
+				return idEventoLocalPadraoInternet;
+			var i;
+			for (i = eventoLocais.length - 1; i >= 0; i--) {
+				if (eventoLocais[i].id === -1) {
+					idEventoLocalPadraoInternet = eventoLocais[i].ideventolocal;
+					break;
+				}
+			}
+			if (idEventoLocalPadraoInternet)
+				return idEventoLocalPadraoInternet;
+			for (i = eventoLocais.length - 1; i >= 0; i--) {
+				if (eventoLocais[i].idunidade === -1) {
+					idEventoLocalPadraoInternet = eventoLocais[i].ideventolocal;
+					break;
+				}
+			}
+			return idEventoLocalPadraoInternet;
 		};
 
 		window.preencherFormSessao = function (sessao) {
@@ -191,7 +212,14 @@
 					maxlength: 45
 				},
 				txtSessaoUrlRemota: {
-					maxlength: 100
+					maxlength: 100,
+					required: function () {
+						// <% if (usuario) { %>
+						return false;
+						// <% } else { %>
+						return (!!obterIdEventoLocalPadraoInternet() && parseInt(_("cbSessaoLocal").value) === obterIdEventoLocalPadraoInternet());
+						// <% } %>
+					}
 				},
 				txtSessaoDescricao: {
 					maxlength: 200
@@ -220,10 +248,21 @@
 				txtSessaoTags: {
 					maxlength: 100
 				},
-				txtSessaoPalestranteNovoEmail: {
+				//<% if (!usuario) { for (let i = 0; i < 6; i++) { %>
+				"txtPalestranteNome<%- i %>": {
+					maxlength: 100,
+					required: function () { return (!!trimValue("txtPalestranteEmail<%- i %>") || !!trimValue("txtPalestranteEmpresa<%- i %>")); }
+				},
+				"txtPalestranteEmail<%- i %>": {
+					maxlength: 100,
 					email: true,
-					maxlength: 100
-				}
+					required: function () { return (!!trimValue("txtPalestranteNome<%- i %>") || !!trimValue("txtPalestranteEmpresa<%- i %>")); }
+				},
+				"txtPalestranteEmpresa<%- i %>": {
+					maxlength: 100,
+					required: function () { return (!!trimValue("txtPalestranteNome<%- i %>") || !!trimValue("txtPalestranteEmail<%- i %>")); }
+				},
+				//<% } } %>
 			},
 			submitHandler: function (form) {
 				if ($.active || JsonWebApi.active)
@@ -249,6 +288,19 @@
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
 					idspalestrante: []
 				};
+
+				//<% if (!usuario) { %>
+				s.sessaoSenha = trimValue("txtSessaoSenha");
+				s.palestrantes = [
+				//<% for (let i = 0; i < 6; i++) { %>
+					{
+						nome: trimValue("txtPalestranteNome<%- i %>"),
+						email: trimValue("txtPalestranteEmail<%- i %>"),
+						empresa: trimValue("txtPalestranteEmpresa<%- i %>"),
+					},
+				//<% } %>
+				];
+				//<% } %>
 
 				if (!s.nome_curto)
 					s.nome_curto = (s.nome.length <= 45 ? s.nome : s.nome.substr(0, 45));
@@ -308,7 +360,7 @@
 
 					// <% } %>
 
-					JsonWebApi.post("/api/sessao/criar", s, function (response) {
+					JsonWebApi.post("<%- (usuario ? '/api/sessao/criar' : '/api/sessao/criarExterno') %>", s, function (response) {
 						if (response.success) {
 							resetForm("#formAlterarSessao");
 
@@ -330,6 +382,7 @@
 
 							// <% } else { %>
 
+							setCbSearch(_("cbSessaoLocal"), obterIdEventoLocalPadraoInternet());
 							Notification.success("Sugestão de sessão criada com sucesso! " + emoji.happy);
 
 							// <% } %>
@@ -352,6 +405,7 @@
 
 		//<% if (!usuario) { %>
 		preencherFormSessao(null);
+		setCbSearch(_("cbSessaoLocal"), obterIdEventoLocalPadraoInternet());
 		//<% } %>
 	});
 

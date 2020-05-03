@@ -5,21 +5,37 @@
 			<div class="pull-left"><span>I</span>NFORMAÇÕES DA <span>S</span>ESSÃO</div>
 			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
 		</div>
-		<div class="panel-body">
+		<div class="panel-body no-bottom">
+			<input type="hidden" id="txtSessaoSenha" name="txtSessaoSenha" value="<%= senha %>" />
 			<%- include("alterar-sessao") %>
 			<hr />
-			<div>Palestrante 1</div>
-			<div>Palestrante 2</div>
-		</div>
-		<div class="panel-footer">
-			<div class="row">
-				<div class="col-sm-4 col-sm-offset-4">
-					<div class="form-group">
-						<label for="txtSessaoSenha">Senha para Criação</label>
-						<input type="password" id="txtSessaoSenha" name="txtSessaoSenha" class="form-control" />
+			<h3 class="col-xs-space-bottom">Caso já possua, você pode fornecer as informações dos palestrantes aqui (até seis palestrantes):</h3>
+			<% for (let i = 0; i < 6; i++) { %>
+			<div class="panel panel-default">
+				<div class="panel-heading">Palestrante <%- (i + 1) %></div>
+				<div class="panel-body no-bottom">
+					<div class="row">
+						<div class="col-sm-4">
+							<div class="form-group">
+								<input type="text" class="form-control" id="txtPalestranteNome<%- i %>" name="txtPalestranteNome<%- i %>" spellcheck="false" maxlength="100" placeholder="NOME" />
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<input type="email" class="form-control" id="txtPalestranteEmail<%- i %>" name="txtPalestranteEmail<%- i %>" spellcheck="false" maxlength="100" placeholder="E-MAIL" />
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<input type="text" class="form-control" id="txtPalestranteEmpresa<%- i %>" name="txtPalestranteEmpresa<%- i %>" spellcheck="false" maxlength="100" placeholder="EMPRESA" />
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
+			<% } %>
+		</div>
+		<div class="panel-footer">
 			<div class="well well-sm text-center">
 				Sua sugestão será avaliada antes de ser publicada na página do evento.
 			</div>

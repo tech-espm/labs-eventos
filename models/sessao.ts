@@ -60,6 +60,11 @@ export = class Sessao {
 			return "Público-alvo inválido";
 		s.tags = (s.tags || "").normalize().trim().toUpperCase();
 		let stags = s.tags.split(",");
+		if (stags.length === 1) {
+			stags = s.tags.split(";");
+			if (stags.length === 1)
+				stags = s.tags.split("/");
+		}
 		for (let i = 0; i < stags.length; i++) {
 			stags[i] = stags[i].trim();
 			if (!stags[i]) {
