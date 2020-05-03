@@ -6,6 +6,7 @@
 			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
 		</div>
 		<div class="panel-body no-bottom">
+			<input type="hidden" id="txtSessaoUrl" name="txtSessaoUrl" value="<%= url %>" />
 			<input type="hidden" id="txtSessaoSenha" name="txtSessaoSenha" value="<%= senha %>" />
 			<%- include("alterar-sessao") %>
 			<hr />
