@@ -96,7 +96,7 @@
 					</label>
 				</div>
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="senharecepcao">Senha da Recepção</label>
 							<div class="input-group">
@@ -107,13 +107,24 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="senhacheckin">Senha do Check-In</label>
 							<div class="input-group">
 								<input id="senhacheckin" name="senhacheckin" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhacheckin : '') %>" />
 								<span class="input-group-btn">
 									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhacheckin').className = (_('senhacheckin').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhacheckin').setAttribute('type', _('senhacheckin').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhacheckin" class="fa fa-nomargin fa-eye"></i></button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="senhasugestao">Senha das Sugestões</label>
+							<div class="input-group">
+								<input id="senhasugestao" name="senhasugestao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhasugestao : '') %>" />
+								<span class="input-group-btn">
+									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhasugestao').className = (_('senhasugestao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhasugestao').setAttribute('type', _('senhasugestao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhasugestao" class="fa fa-nomargin fa-eye"></i></button>
 								</span>
 							</div>
 						</div>
@@ -166,6 +177,9 @@
 				senhacheckin: {
 					maxlength: 45
 				},
+				senhasugestao: {
+					maxlength: 45
+				},
 				titulo: {
 					required: true,
 					maxlength: 100
@@ -202,10 +216,11 @@
 
 				JsonWebApi.postFormData("/api/evento/alterar", new FormData(form), function (response) {
 					if (response.success) {
-						var url = trim($("#url").val()).toLowerCase();
+						var url = trim($("#url").val()).toLowerCase(), a;
 						if (window.eventoUrlListener)
 							window.eventoUrlListener(url);
-						document.getElementById("aLandingPageTitulo").setAttribute("href", "/" + url);
+						if ((a = document.getElementById("aLandingPageTitulo")))
+							a.setAttribute("href", "/" + url);
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
 						$("#fundocertificado").val("");

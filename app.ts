@@ -110,6 +110,7 @@ Evento.nomesReservados.push(
 
 	"acesso",
 	"perfil",
+	"sugestao",
 	"logout",
 
 	"cas",

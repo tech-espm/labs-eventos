@@ -95,7 +95,7 @@
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="public\landing\fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.26.min.css" />
+    <Content Include="public\lib\bootstrap\css\bootstrap-1.0.27.min.css" />
     <Content Include="public\lib\data-tables\css\data-tables.bootstrap-1.0.7.css" />
     <Content Include="public\lib\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="public\lib\jquery-ui\css\jquery-ui-1.0.0.min.css" />
@@ -118,6 +118,7 @@
     <Content Include="public\lib\font-awesome\fonts\fontawesome-webfont.woff2" />
     <Content Include="utils\jsonRes.ts" />
     <Content Include="views\checkin\index.ejs" />
+    <Content Include="views\evento\alterar-sessao.ejs" />
     <Content Include="views\evento\controlar-sessoes.ejs" />
     <Content Include="views\evento\controlar-palestrantes.ejs" />
     <Content Include="views\evento\controlar-empresas.ejs" />
@@ -128,6 +129,10 @@
     <Content Include="views\evento\controlar-locais.ejs" />
     <Content Include="views\evento\controlar-usuarios.ejs" />
     <Content Include="views\evento\controlar.ejs" />
+    <Content Include="views\evento\scripts-comuns.ejs">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="views\evento\sessao-externa.ejs" />
     <Content Include="views\evento\palestrante-externo.ejs" />
     <Content Include="views\home\perfil.ejs" />
     <Content Include="views\home\nao-encontrado.ejs" />

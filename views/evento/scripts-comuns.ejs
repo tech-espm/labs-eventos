@@ -1,0 +1,159 @@
+﻿<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	var regEspaco = /\%20/g, regA = /[áàãâä]/gi, regE = /[éèêë]/gi, regI = /[íìîï]/gi, regO = /[óòõôö]/gi, regU = /[úùûü]/gi, regC = /ç/gi;
+
+	function ajustarNome(nome) {
+		return nome.toLowerCase().replace(regA, "a").replace(regE, "e").replace(regI, "i").replace(regO, "o").replace(regU, "u").replace(regC, "c");
+	}
+
+	function gerarPNGVazio() {
+		return new Uint8Array([
+			0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+			0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+			0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0x60, 0x00, 0x02, 0x00,
+			0x00, 0x05, 0x00, 0x01, 0xE2, 0x26, 0x05, 0x9B, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+			0xAE, 0x42, 0x60, 0x82
+		]);
+	}
+
+	function comparadorNome(a, b) {
+		return (a.nome < b.nome ? -1 : (a.nome > b.nome ? 1 : 0));
+	}
+
+	function comparadorOrdem(a, b) {
+		return a.ordem - b.ordem;
+	}
+
+	function comparadorAnoMesDia(a, b) {
+		return ((a.ano === b.ano) ? ((a.mes === b.mes) ? (a.dia - b.dia) : (a.mes - b.mes)) : (a.ano - b.ano));
+	}
+
+	function carregarDatas(datas) {
+		window.eventoDatas = datas;
+		window.eventoDatasPorId = {};
+		if (eventoDatas) {
+			for (var i = 0; i < eventoDatas.length; i++)
+				eventoDatasPorId[eventoDatas[i].id] = eventoDatas[i];
+		}
+	}
+
+	function carregarEmpresas(empresas) {
+		window.eventoEmpresas = empresas;
+		window.eventoEmpresasPorId = {};
+		if (eventoEmpresas) {
+			for (var i = 0; i < eventoEmpresas.length; i++)
+				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
+		}
+	}
+
+	function carregarHorarios(horarios) {
+		window.eventoHorarios = horarios;
+		window.eventoHorariosPorId = {};
+		if (eventoHorarios) {
+			for (var i = 0; i < eventoHorarios.length; i++)
+				eventoHorariosPorId[eventoHorarios[i].id] = eventoHorarios[i];
+		}
+	}
+
+	function atualizarEventoLocais() {
+		window.eventoLocais = [];
+		window.eventoLocaisPorIdEventoLocal = {};
+		for (var id in locaisSelecionados) {
+			var local = locaisSelecionados[id];
+			eventoLocais.push(local);
+			eventoLocaisPorIdEventoLocal[local.ideventolocal] = local;
+		}
+		eventoLocais.sort(function (a, b) {
+			return ((a.nome === b.nome) ? ((a.sigla_unidade < b.sigla_unidade) ? -1 : 1) : ((a.nome < b.nome) ? -1 : 1));
+		});
+	}
+
+	function carregarLocais(eventoLocais, locais) {
+		window.locais = locais;
+		window.locaisSelecionados = {};
+		if (eventoLocais) {
+			for (var i = 0; i < eventoLocais.length; i++)
+				locaisSelecionados[eventoLocais[i].id] = eventoLocais[i];
+		}
+		if (locais) {
+			for (var i = 0; i < locais.length; i++) {
+				var local = locais[i];
+				var localSelecionado = locaisSelecionados[local.id];
+				if (localSelecionado) {
+					local.ideventolocal = localSelecionado.ideventolocal;
+					local.capacidade = localSelecionado.capacidade;
+					local.cor = localSelecionado.cor;
+					locaisSelecionados[local.id] = local;
+				} else {
+					local.ideventolocal = 0;
+					local.capacidade = local.capacidade_real;
+					local.cor = -1;
+				}
+			}
+		}
+		atualizarEventoLocais();
+	}
+
+	function carregarPalestrantes(palestrantes) {
+		window.eventoPalestrantes = palestrantes;
+		window.eventoPalestrantesPorId = {};
+		if (eventoPalestrantes) {
+			for (var i = 0; i < eventoPalestrantes.length; i++)
+				eventoPalestrantesPorId[eventoPalestrantes[i].id] = eventoPalestrantes[i];
+		}
+	}
+
+	function carregarCursos(cursos) {
+		window.eventoCursos = cursos;
+		window.eventoCursosPorId = {};
+		if (eventoCursos) {
+			for (var i = 0; i < eventoCursos.length; i++)
+				eventoCursosPorId[eventoCursos[i].id] = eventoCursos[i];
+		}
+	}
+
+	function carregarFormatos(formatos) {
+		window.eventoFormatos = formatos;
+		window.eventoFormatosPorId = {};
+		if (eventoFormatos) {
+			for (var i = 0; i < eventoFormatos.length; i++)
+				eventoFormatosPorId[eventoFormatos[i].id] = eventoFormatos[i];
+		}
+	}
+
+	function carregarTipoSessoes(tipoSessoes) {
+		window.eventoTipoSessoes = tipoSessoes;
+		window.eventoTipoSessoesPorId = {};
+		if (eventoTipoSessoes) {
+			for (var i = 0; i < eventoTipoSessoes.length; i++)
+				eventoTipoSessoesPorId[eventoTipoSessoes[i].id] = eventoTipoSessoes[i];
+		}
+	}
+
+	function carregarVerticais(verticais) {
+		window.eventoVerticais = verticais;
+		window.eventoVerticaisPorId = {};
+		if (eventoVerticais) {
+			for (var i = 0; i < eventoVerticais.length; i++)
+				eventoVerticaisPorId[eventoVerticais[i].id] = eventoVerticais[i];
+		}
+	}
+
+	function preencherCb(cb, array, valor, formatador, id) {
+		if (!id)
+			id = "id";
+		var $cb = $(cb);
+		$cb.empty();
+		$cb.append("<option value=\"\">SELECIONE...</option>");
+		for (var i = 0; i < array.length; i++) {
+			var e = array[i];
+			$cb.append("<option value=\"" + e[id] + "\">" + (formatador ? formatador(e) : encode(e.nome)) + "</option>");
+		}
+
+		setCbSearch(cb, valor);
+	}
+
+	//]]>
+</script>

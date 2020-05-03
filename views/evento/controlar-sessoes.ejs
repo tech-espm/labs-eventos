@@ -31,92 +31,7 @@
 				<h4 class="modal-title">Sessão</h4>
 			</div>
 			<div class="modal-body">
-				<div class="row">
-					<div class="col-xs-6 col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoData">Data</label>
-							<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-					<div class="col-xs-6 col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoHorario">Horário</label>
-							<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoLocal">Local</label>
-							<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-				</div>
-				<div class="form-group" id="divSessaoUrlRemota" style="display: none;">
-					<label for="txtSessaoUrlRemota">URL da Sessão Remota <small><i>(http://... ou https://...)</i></small></label>
-					<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
-				</div>
-				<div class="form-group">
-					<label for="txtSessaoNome">Nome</label>
-					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
-				</div>
-				<div class="row">
-					<div class="col-sm-3">
-						<div class="form-group">
-							<label for="txtSessaoNomeCurto">Nome Curto</label>
-							<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
-						</div>
-					</div>
-					<div class="col-sm-3">
-						<div class="form-group">
-							<label for="cbSessaoOculta">Oculta</label>
-							<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
-						</div>
-					</div>
-					<div class="col-sm-3">
-						<div class="form-group">
-							<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
-							<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
-						</div>
-					</div>
-					<div class="col-sm-3">
-						<div class="form-group">
-							<label for="cbSessaoCurso">Curso Âncora</label>
-							<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="txtSessaoDescricao">Descrição</label>
-					<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
-				</div>
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoFormato">Formato</label>
-							<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoTipo">Tipo de Sessão</label>
-							<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="cbSessaoVertical">Vertical</label>
-							<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
-					<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control" maxlength="100" />
-				</div>
-				<div class="form-group">
-					<label for="txtSessaoTags">Tags <small>(Separadas por vírgula)</small></label>
-					<input id="txtSessaoTags" name="txtSessaoTags" type="text" class="form-control upper" maxlength="100" />
-				</div>
+				<%- include("alterar-sessao") %>
 				<div class="panel panel-default no-margin-bottom">
 					<div class="panel-heading">
 						Palestrantes
@@ -244,18 +159,11 @@
 	$(function () {
 		var idevento = <%- idevento %>;
 		var extensaoImagem = "<%- extensaoImagem %>";
-		carregarDatas(<%- datas %>);
 		carregarEmpresas(<%- empresas %>);
-		carregarHorarios(<%- horarios %>);
-		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 		carregarPalestrantes(<%- palestrantes %>);
-		carregarCursos(<%- cursos %>);
-		carregarFormatos(<%- formatos %>);
-		carregarTipoSessoes(<%- tipoSessoes %>);
-		carregarVerticais(<%- verticais %>);
 		var totalIP = carregarSessoes(<%- sessoes %>, <%- presencas %>);
 
-		var tabela = prepareDataTable("tabela-sessoes", {
+		window.tabelaSessoes = prepareDataTable("tabela-sessoes", {
 			order: [],
 			deferRender: true,
 			columns: [
@@ -277,8 +185,9 @@
 						return nomes;
 					}
 				},
-				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
-				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
+				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">OCULTA</span>" : ""); } },
+				{ title: "Sugestão", "class": "col-min", data: function (row, type, set, meta) { return (row.sugestao ? "<span class=\"col-h\">SUGESTÃO</span>" : ""); } },
+				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">LOTADA</span>" : ""); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Avaliações", "class": "col-min text-right", "type": "number", data: "avaliacoes" },
@@ -315,7 +224,7 @@
 
 					atualizarInscricoesEPresencas(response.value);
 
-					tabela.rows().invalidate().draw();
+					tabelaSessoes.rows().invalidate().draw();
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
 				}
@@ -334,7 +243,7 @@
 
 					atualizarAvaliacoesEMedias(response.value);
 
-					tabela.rows().invalidate().draw();
+					tabelaSessoes.rows().invalidate().draw();
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
 				}
@@ -369,7 +278,7 @@
 
 			$("#tabelaSessaoPalestrante").show();
 
-			if (trClicada && salvar) {
+			if (trSessaoClicada && salvar) {
 				naoFecharModal = true;
 				$("#formAlterarSessao").submit();
 			}
@@ -387,63 +296,29 @@
 			if (!tabelaSessaoPalestranteBody.childNodes.length)
 				$("#tabelaSessaoPalestrante").hide();
 
-			if (trClicada) {
+			if (trSessaoClicada) {
 				naoFecharModal = true;
 				$("#formAlterarSessao").submit();
 			}
 		};
 
-		var trClicada, aceites, clonar, naoFecharModal = false;
+		var aceites, clonar;
 
-		function localInternet(ideventolocal) {
-			var i, local = null;
-			for (i = eventoLocais.length - 1; i >= 0; i--) {
-				if (eventoLocais[i].ideventolocal === ideventolocal) {
-					local = eventoLocais[i];
-					break;
-				}
-			}
-			return (local && local.idunidade === -1);
-		}
+		window.trSessaoClicada = null;
+		window.naoFecharModal = false;
 
-		prepareCbSearch(_("cbSessaoData"));
-		prepareCbSearch(_("cbSessaoHorario"));
-		prepareCbSearch(_("cbSessaoLocal"));
-		prepareCbSearch(_("cbSessaoCurso"));
-		prepareCbSearch(_("cbSessaoFormato"));
-		prepareCbSearch(_("cbSessaoTipo"));
-		prepareCbSearch(_("cbSessaoVertical"));
 		prepareCbSearch(_("cbSessaoPalestrante"));
 		$("#tabelaSessaoPalestranteBody").sortable().disableSelection();
-		_("cbSessaoLocal").onchange = function () {
-			_("divSessaoUrlRemota").style.display = (localInternet(parseInt(_("cbSessaoLocal").value)) ? "" : "none");
-		};
-		fixUrlOnBlur(_("txtSessaoUrlRemota"));
 		prepareCopyHandler(_("modalLinkSessao"), "#btnLinkSessao");
 
 		$("#modalAlterarSessao").on("show.bs.modal", function () {
-			var i, sessao = (trClicada ? tabela.row(trClicada).data() : null);
-			preencherCb(_("cbSessaoData"), eventoDatas, sessao ? sessao.ideventodata : "0", function (e) { return format2(e.dia) + "/" + format2(e.mes) + "/" + e.ano; });
-			preencherCb(_("cbSessaoHorario"), eventoHorarios, sessao ? sessao.ideventohorario : "0", function (e) { return e.inicio + " - " + e.termino; });
-			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
-			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
-			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
-			_("divSessaoUrlRemota").style.display = ((sessao && localInternet(sessao.ideventolocal)) ? "" : "none");
-			$("#txtSessaoUrlRemota").val(sessao ? sessao.url_remota : "");
-			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
-			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
-			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
-			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
-			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
-			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
-			preencherCb(_("cbSessaoVertical"), eventoVerticais, sessao ? sessao.idvertical : "0");
-			$("#txtSessaoPublicoAlvo").val(sessao ? sessao.publico_alvo : "");
-			$("#txtSessaoTags").val(sessao ? sessao.tags : "");
+			var i, sessao = (trSessaoClicada ? tabelaSessoes.row(trSessaoClicada).data() : null);
+			preencherFormSessao(sessao);
 			preencherCb(_("cbSessaoPalestrante"), eventoPalestrantes, "0");
 			$("#tabelaSessaoPalestranteBody").empty();
 			$("#tabelaSessaoPalestrante").hide();
 			if (clonar) {
-				trClicada = null;
+				trSessaoClicada = null;
 				aceites = null;
 			}
 			if (sessao) {
@@ -460,7 +335,7 @@
 			if ($.active || JsonWebApi.active)
 				return;
 
-			var sessao = tabela.row(trClicada = this.parentNode.parentNode).data();
+			var sessao = tabelaSessoes.row(trSessaoClicada = this.parentNode.parentNode).data();
 
 			if (this.getAttribute("data-excluir")) {
 				$("#lblExcluirSessao").text(sessao.nome);
@@ -525,183 +400,11 @@
 			}
 		});
 
-		function preencherDadosSessao(s) {
-			var tmp = eventoDatasPorId[s.ideventodata];
-			s.data = format2(tmp.dia) + "/" + format2(tmp.mes) + "/" + tmp.ano;
-			tmp = eventoHorariosPorId[s.ideventohorario];
-			s.inicio = tmp.inicio;
-			s.termino = tmp.termino;
-			tmp = eventoLocaisPorIdEventoLocal[s.ideventolocal];
-			s.idlocal = tmp.id;
-			s.nome_local = tmp.nome;
-			s.sigla_unidade = tmp.sigla_unidade;
-			tmp = eventoCursosPorId[s.idcurso];
-			s.nome_curso = tmp.nome;
-			tmp = eventoFormatosPorId[s.idformato];
-			s.nome_formato = tmp.nome;
-			tmp = eventoTipoSessoesPorId[s.idtiposessao];
-			s.nome_tipo = tmp.nome;
-			tmp = eventoVerticaisPorId[s.idvertical];
-			s.nome_vertical = tmp.nome;
-		}
-
-		$("#formAlterarSessao").validate({
-			rules: {
-				cbSessaoData: {
-					required: true
-				},
-				cbSessaoHorario: {
-					required: true
-				},
-				cbSessaoLocal: {
-					required: true
-				},
-				txtSessaoNome: {
-					required: true,
-					minlength: 3,
-					maxlength: 100
-				},
-				txtSessaoNomeCurto: {
-					maxlength: 45
-				},
-				txtSessaoUrlRemota: {
-					maxlength: 100
-				},
-				txtSessaoDescricao: {
-					maxlength: 200
-				},
-				cbSessaoOculta: {
-					required: true
-				},
-				cbSessaoCurso: {
-					required: true
-				},
-				cbSessaoFormato: {
-					required: true
-				},
-				cbSessaoTipo: {
-					required: true
-				},
-				cbSessaoVertical: {
-					required: true
-				},
-				txtSessaoPublicoAlvo: {
-					maxlength: 100
-				},
-				txtSessaoTags: {
-					maxlength: 100
-				},
-				txtSessaoPalestranteNovoEmail: {
-					email: true,
-					maxlength: 100
-				}
-			},
-			submitHandler: function (form) {
-				if ($.active || JsonWebApi.active)
-					return;
-
-				var sessao, i, stags, s = {
-					idevento: idevento,
-					ideventodata: parseInt($("#cbSessaoData").val()),
-					ideventohorario: parseInt($("#cbSessaoHorario").val()),
-					ideventolocal: parseInt($("#cbSessaoLocal").val()),
-					nome: trim($("#txtSessaoNome").val()),
-					nome_curto: trim($("#txtSessaoNomeCurto").val()),
-					url_remota: trim($("#txtSessaoUrlRemota").val()),
-					descricao: trim($("#txtSessaoDescricao").val()),
-					oculta: parseInt($("#cbSessaoOculta").val()),
-					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
-					idcurso: parseInt($("#cbSessaoCurso").val()),
-					idformato: parseInt($("#cbSessaoFormato").val()),
-					idtiposessao: parseInt($("#cbSessaoTipo").val()),
-					idvertical: parseInt($("#cbSessaoVertical").val()),
-					publico_alvo: trim($("#txtSessaoPublicoAlvo").val()),
-					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
-					idspalestrante: []
-				};
-
-				if (!s.nome_curto)
-					s.nome_curto = (s.nome.length <= 45 ? s.nome : s.nome.substr(0, 45));
-
-				stags = s.tags.split(",");
-				for (var i = 0; i < stags.length; i++) {
-					stags[i] = trim(stags[i]);
-					if (!stags[i]) {
-						stags.splice(i, 1);
-						i--;
-					}
-				}
-				s.tags = stags.join(", ");
-
-				$("#tabelaSessaoPalestranteBody>tr").each(function (i, tr) { s.idspalestrante.push(parseInt(tr.getAttribute("data-id"))); });
-
-				Notification.wait();
-
-				if (trClicada && (sessao = tabela.row(trClicada).data())) {
-					s.id = sessao.id;
-
-					JsonWebApi.post("/api/sessao/alterar", s, function (response) {
-						if (response.success) {
-							sessao.ideventodata = s.ideventodata;
-							sessao.ideventohorario = s.ideventohorario;
-							sessao.ideventolocal = s.ideventolocal;
-							sessao.nome = s.nome;
-							sessao.nome_curto = s.nome_curto;
-							sessao.url_remota = s.url_remota;
-							sessao.descricao = s.descricao;
-							sessao.oculta = s.oculta;
-							sessao.permiteinscricao = s.permiteinscricao;
-							sessao.idcurso = s.idcurso;
-							sessao.idformato = s.idformato;
-							sessao.idtiposessao = s.idtiposessao;
-							sessao.idvertical = s.idvertical;
-							sessao.publico_alvo = s.publico_alvo;
-							sessao.tags = s.tags;
-							sessao.idspalestrante = s.idspalestrante;
-							preencherDadosSessao(sessao);
-							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
-							tabela.row(trClicada).invalidate().draw();
-							if (naoFecharModal) {
-								naoFecharModal = false;
-							} else {
-								trClicada = null;
-								$("#modalAlterarSessao").modal("hide");
-							}
-						} else {
-							Notification.error(response.value, true);
-						}
-					});
-				} else {
-					JsonWebApi.post("/api/sessao/criar", s, function (response) {
-						if (response.success) {
-							resetForm("#formAlterarSessao");
-							_("cbSessaoPermiteInscricao").value = "1";
-							$("#tabelaSessaoPalestranteBody").empty();
-							$("#tabelaSessaoPalestrante").hide();
-							s.id = parseInt(response.value);
-							s.inscritos = 0;
-							s.presentes = 0;
-							s.avaliacoes = "-";
-							s.media = "-";
-							preencherDadosSessao(s);
-							eventoSessoesPorId[s.id] = s;
-							eventoSessoes.push(s);
-							Notification.success("Sessão criada com sucesso! " + emoji.happy);
-							tabela.row.add(s).draw();
-						} else {
-							Notification.error(response.value, true);
-						}
-						trClicada = null;
-					});
-				}
-			}
-		});
-
 		window.criarSessao = function () {
 			if ($.active || JsonWebApi.active)
 				return;
 
-			trClicada = null;
+			trSessaoClicada = null;
 			aceites = null;
 
 			resetForm("#formAlterarSessao");
@@ -715,10 +418,10 @@
 		};
 
 		window.excluirSessao = function () {
-			if ($.active || JsonWebApi.active || !trClicada)
+			if ($.active || JsonWebApi.active || !trSessaoClicada)
 				return;
 
-			var sessao = tabela.row(trClicada).data();
+			var sessao = tabelaSessoes.row(trSessaoClicada).data();
 
 			var nome = $("#txtModalExcluirSessao").val().toUpperCase();
 			if (nome !== sessao.nome.toUpperCase()) {
@@ -740,16 +443,16 @@
 						}
 					}
 					Notification.success("Sessão excluída com sucesso! \uD83D\uDE04");
-					tabela.row(trClicada).remove().draw();
+					tabelaSessoes.row(trSessaoClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);
 				}
-				trClicada = null;
+				trSessaoClicada = null;
 			}, "id", sessao.id);
 		};
 
 		function criarGridData(data) {
-			var div, html, i, j, k, s, h, tr, local, cor, estilo, ideventodata = data.id, ideventohorario, ideventolocal;
+			var div, html, i, j, k, s, h, tr, primeiro, local, cor, estilo, ideventodata = data.id, ideventohorario, ideventolocal;
 
 			div = document.createElement("div");
 			div.className = "table-responsive";
@@ -774,6 +477,7 @@
 
 					ideventohorario = eventoHorarios[j].id;
 
+					primeiro = true;
 					for (k = 0; k < eventoSessoes.length; k++) {
 						s = eventoSessoes[k];
 
@@ -782,8 +486,18 @@
 							s.ideventolocal !== ideventolocal)
 							continue;
 
+						if (!primeiro)
+							tr += " / ";
+						else
+							primeiro = false;
+
+						if (s.sugestao)
+							tr += '<span class="col-h">';
+
 						tr += encode(s.nome_curto || s.nome);
-						break;
+
+						if (s.sugestao)
+							tr += '</span>';
 					}
 
 					tr += '</td>';
@@ -1121,7 +835,7 @@
 						}
 						window.adicionarPalestrante(p.id);
 
-						if (trClicada) {
+						if (trSessaoClicada) {
 							naoFecharModal = true;
 							$("#formAlterarSessao").submit();
 						}

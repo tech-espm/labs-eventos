@@ -1,6 +1,13 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import Evento = require("../models/evento");
+import Curso = require("../models/curso");
+import Data = require("../models/data");
+import Formato = require("../models/formato");
+import Horario = require("../models/horario");
+import Local = require("../models/local");
+import TipoSessao = require("../models/tipoSessao");
+import Vertical = require("../models/vertical");
 import Usuario = require("../models/usuario");
 import appsettings = require("../appsettings");
 
@@ -43,6 +50,32 @@ router.get("/perfil", wrap(async (req: express.Request, res: express.Response) =
 	} else {
 		res.render("home/perfil", { titulo: "Meu Perfil", usuario: u });
 	}
+}));
+
+router.get("/sugestao/:url", wrap(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	let url = (req.params["url"] as string || "").normalize().trim().toLowerCase();
+	let evento = Evento.idsPorUrl["/" + url];
+	if (!evento || !evento.id || !evento.senhasugestao) {
+		next();
+		return;
+	}
+	res.render("evento/sessao-externa", {
+		layout: "layout-externo",
+		usuario: null,
+		imagemFundo: true,
+		panelHeadingPersonalizado: true,
+		titulo: "Sugestão de Sessão",
+		idevento: evento.id,
+		evento: await Evento.obter(evento.id),
+		cursos: JSON.stringify(await Curso.listar()),
+		datas: JSON.stringify(await Data.listar(evento.id)),
+		formatos: JSON.stringify(await Formato.listar()),
+		horarios: JSON.stringify(await Horario.listar(evento.id)),
+		eventoLocais: JSON.stringify(await Local.eventoListar(evento.id)),
+		locais: JSON.stringify(await Local.listar()),
+		tipoSessoes: JSON.stringify(await TipoSessao.listar()),
+		verticais: JSON.stringify(await Vertical.listar())
+	});
 }));
 
 router.get("/logout", wrap(async (req: express.Request, res: express.Response) => {

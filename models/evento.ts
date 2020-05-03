@@ -40,6 +40,7 @@ export = class Evento {
 	public emailpadrao: string;
 	public senharecepcao: string;
 	public senhacheckin: string;
+	public senhasugestao: string;
 	public termoaceite: string;
 
 	private static urlRegExp = /[^a-z0-9_\-]/gi;
@@ -76,9 +77,6 @@ export = class Evento {
 		ev.aspectratiopalestrante = (ev.aspectratiopalestrante || "").normalize().trim().toUpperCase();
 		if (ev.aspectratiopalestrante && (ev.aspectratiopalestrante.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratiopalestrante)))
 			return "O aspect ratio das imagens dos palestrantes é inválido";
-		ev.permitealuno = ((ev.permitealuno && !isNaN(ev.permitealuno)) ? 1 : 0);
-		ev.permitefuncionario = ((ev.permitefuncionario && !isNaN(ev.permitefuncionario)) ? 1 : 0);
-		ev.permiteexterno = ((ev.permiteexterno && !isNaN(ev.permiteexterno)) ? 1 : 0);
 		if (!ev.permitealuno && !ev.permitefuncionario && !ev.permiteexterno)
 			return "Nenhuma permissão especificada";
 		ev.emailpadrao = (ev.emailpadrao || "").normalize().trim().toUpperCase();
@@ -90,6 +88,9 @@ export = class Evento {
 		ev.senhacheckin = (ev.senhacheckin || "").normalize();
 		if (ev.senhacheckin.length > 45)
 			return "Senha do check-in muito longa";
+		ev.senhasugestao = (ev.senhasugestao || "").normalize();
+		if (ev.senhasugestao.length > 45)
+			return "Senha das sugestões muito longa";
 		ev.termoaceite = (ev.termoaceite || "").normalize().trim();
 		if (ev.termoaceite.length > 4000)
 			return "Termo de aceite de uso de imagem muito longo";
@@ -105,11 +106,11 @@ export = class Evento {
 	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
 		let idsPorUrl = {};
 		let eventosPorId = {};
-		let lista = await sql.query("select id, nome, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao from evento") as Evento[];
+		let lista = await sql.query("select id, nome, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao, senhasugestao from evento") as Evento[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				let evt = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao };
+				let evt = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao, senhasugestao: e.senhasugestao };
 				idsPorUrl[evt.url] = evt;
 				eventosPorId[e.id] = evt;
 			}
@@ -210,12 +211,13 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select senharecepcao, senhacheckin from evento where id = " + ev.id) as Evento[];
+			lista = await sql.query("select senharecepcao, senhacheckin, senhasugestao from evento where id = " + ev.id) as Evento[];
 		});
 
 		if (lista && lista[0]) {
 			ev.senharecepcao = lista[0].senharecepcao;
 			ev.senhacheckin = lista[0].senhacheckin;
+			ev.senhasugestao = lista[0].senhasugestao;
 		}
 	}
 
@@ -230,7 +232,7 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, titulo, descricao, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, termoaceite) values (?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
+				await sql.query("insert into evento (nome, url, titulo, descricao, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite) values (?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, (select id from tipoempresa limit 1), 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
@@ -275,7 +277,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("update evento set nome = ?, url = ?, titulo = ?, descricao = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.termoaceite]);
+				await sql.query("update evento set nome = ?, url = ?, titulo = ?, descricao = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, senhasugestao = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
 				res = sql.linhasAfetadas.toString();
 				if (sql.linhasAfetadas) {
 					Usuario.alterarNomeDoEventoEmCache(ev.id, ev.nome);
