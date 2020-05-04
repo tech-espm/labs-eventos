@@ -95,7 +95,8 @@
 						<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
 					</label>
 				</div>
-				<div class="row">
+				<hr class="<%- (titulo !== 'Controlar Evento' ? 'hidden' : '') %>" />
+				<div class="<%- (titulo !== 'Controlar Evento' ? 'row hidden' : 'row') %>">
 					<div class="col-sm-4">
 						<div class="form-group">
 							<label for="senharecepcao">Senha da Recepção</label>
@@ -120,7 +121,7 @@
 					</div>
 					<div class="col-sm-4">
 						<div class="form-group">
-							<label for="senhasugestao">Senha das Sugestões</label>
+							<label for="senhasugestao">Senha das Sugestões <i class="fa fa-info-circle" id="tooltipSenhaSugestao" data-toggle="tooltip" data-placement="top" data-html="true" title="Para que as sugestões funcionem, por favor, garanta as três condições a seguir:<br/>- Ao menos uma data foi criada para o evento<br/>- Ao menos um horário foi criado para o evento<br/>- Ao menos um local da unidade VIRTUAL foi associado ao evento"></i></label>
 							<div class="input-group">
 								<input id="senhasugestao" name="senhasugestao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhasugestao : '') %>" />
 								<span class="input-group-btn">
@@ -130,6 +131,16 @@
 						</div>
 					</div>
 				</div>
+				<% if (titulo === "Controlar Evento") { %>
+				<div class="col-xs-space-bottom">
+					Os links de acesso às funcionalidades de recepção, check-in e sugestões estão listados a seguir:
+				</div>
+				<ul>
+					<li class="col-xs-space-bottom"><b>Recepção</b><br /><a href="#" id="aRecepcao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyRecepcao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+					<li class="col-xs-space-bottom"><b>Check-In</b><br /><a href="#" id="aCheckIn" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyCheckIn" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+					<li><b>Sugestões</b><br /><a href="#" id="aSugestao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopySugestao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+				</ul>
+				<% } %>
 			</div>
 			<div class="panel-footer">
 				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Evento') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
@@ -141,6 +152,13 @@
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
+	//<% if (titulo === "Controlar Evento") { %>
+	(function () {
+		var a;
+		if ((a = document.getElementsByTagName("h1")) && a.length && a[0])
+			a[0].textContent = "<%= item.nome %>";
+	})();
+	//<% } %>
 
 	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
 	// será utilizado como include para outra página, precisamos executar a
@@ -149,9 +167,27 @@
 		window.idempresapadrao = <%- (item ? item.idempresapadrao : 0) %>;
 
 		$("#tooltipFundoCertificado").tooltip();
+		$("#tooltipSenhaSugestao").tooltip();
 		$("#url").mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9_\-]/, optional: true } } });
 		$("#aspectratioempresa").mask("09999:09999");
 		$("#aspectratiopalestrante").mask("09999:09999");
+
+		function atualizarUrls(url, senha) {
+			var link;
+			link = "recepcao/" + url;
+			$("#aRecepcao").text(link).attr("href", (link = location.origin + "/" + link));
+			$("#btnCopyRecepcao").attr("data-clipboard-text", link);
+			link = "checkin/" + url;
+			$("#aCheckIn").text(link).attr("href", (link = location.origin + "/" + link));
+			$("#btnCopyCheckIn").attr("data-clipboard-text", link);
+			link = "sugestao/" + url + "/";
+			$("#aSugestao").text(link + "<senha>").attr("href", (link = location.origin + "/" + link + senha));
+			$("#btnCopySugestao").attr("data-clipboard-text", link);
+		}
+
+		//<% if (titulo === "Controlar Evento") { %>
+		atualizarUrls("<%= item.url %>", "<%= item.senhasugestao %>");
+		//<% } %>
 
 		$("#form").validate({
 			rules: {
@@ -219,8 +255,13 @@
 						var url = trim($("#url").val()).toLowerCase(), a;
 						if (window.eventoUrlListener)
 							window.eventoUrlListener(url);
+						//<% if (titulo === "Controlar Evento") { %>
 						if ((a = document.getElementById("aLandingPageTitulo")))
 							a.setAttribute("href", "/" + url);
+						if ((a = document.getElementsByTagName("h1")) && a.length && a[0])
+							a[0].textContent = trimValue("nome");
+						atualizarUrls(url, trimValue("senhasugestao"));
+						//<% } %>
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
 						$("#fundocertificado").val("");

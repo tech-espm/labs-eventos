@@ -1,20 +1,40 @@
 ﻿<div class="row">
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6') %>">
-		<div class="form-group">
-			<label for="cbSessaoData"><%- (usuario ? "Data" : "Sugestão de Data") %></label>
-			<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
+		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+			<label for="cbSessaoData">Data</label>
+			<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1">
+				<% if (usuario) { %>
+				<option value="">SELECIONE...</option>
+				<% } %>
+			</select>
+		</div>
+		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
+			<label for="txtSessaoSugestaoData">Sugestão de Data</label>
+			<input id="txtSessaoSugestaoData" name="txtSessaoSugestaoData" class="form-control" type="text" spellcheck="false" maxlength="11" />
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6') %>">
-		<div class="form-group">
-			<label for="cbSessaoHorario"><%- (usuario ? "Horário" : "Sugestão de Horário") %></label>
-			<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4 col-xs-6') %>">
+		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+			<label for="cbSessaoHorario">Horário</label>
+			<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1">
+				<% if (usuario) { %>
+				<option value="">SELECIONE...</option>
+				<% } %>
+			</select>
+		</div>
+		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
+			<label for="txtSessaoSugestaoInicio">Sugestão de Horário de Início</label>
+			<input id="txtSessaoSugestaoInicio" name="txtSessaoSugestaoInicio" class="form-control" type="text" spellcheck="false" maxlength="5" />
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'hidden') %>">
-		<div class="form-group">
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6 col-sm-4') %>">
+		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
 			<label for="cbSessaoLocal">Local</label>
 			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+		</div>
+		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
+			<label for="txtSessaoSugestaoTermino">Sugestão de Horário de Término</label>
+			<input id="txtSessaoSugestaoTermino" name="txtSessaoSugestaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
 		</div>
 	</div>
 	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'hidden') %>">
@@ -141,9 +161,9 @@
 		};
 
 		window.preencherFormSessao = function (sessao) {
-			preencherCb(_("cbSessaoData"), eventoDatas, sessao ? sessao.ideventodata : "0", function (e) { return format2(e.dia) + "/" + format2(e.mes) + "/" + e.ano; });
-			preencherCb(_("cbSessaoHorario"), eventoHorarios, sessao ? sessao.ideventohorario : "0", function (e) { return e.inicio + " - " + e.termino; });
-			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal");
+			preencherCb(_("cbSessaoData"), eventoDatas, sessao ? sessao.ideventodata : "0", function (e) { return format2(e.dia) + "/" + format2(e.mes) + "/" + e.ano; }, null, <%- (usuario ? "false" : "true") %>);
+			preencherCb(_("cbSessaoHorario"), eventoHorarios, sessao ? sessao.ideventohorario : "0", function (e) { return e.inicio + " - " + e.termino; }, null, <%- (usuario ? "false" : "true") %>);
+			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal", <%- (usuario ? "false" : "true") %>);
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
 			_("divSessaoUrlRemota").style.display = ((sessao && localInternet(sessao.ideventolocal)) ? "" : "none");
@@ -160,9 +180,11 @@
 			$("#txtSessaoTags").val(sessao ? sessao.tags : "");
 		};
 
+		//<% if (usuario) { %>
 		prepareCbSearch(_("cbSessaoData"));
 		prepareCbSearch(_("cbSessaoHorario"));
 		prepareCbSearch(_("cbSessaoLocal"));
+		//<% } %>
 		prepareCbSearch(_("cbSessaoCurso"));
 		prepareCbSearch(_("cbSessaoFormato"));
 		prepareCbSearch(_("cbSessaoTipo"));
@@ -202,6 +224,18 @@
 				},
 				cbSessaoLocal: {
 					required: true
+				},
+				txtSessaoSugestaoData: {
+					maxlength: 11,
+					required: <%- (usuario ? "false" : "true") %>
+				},
+				txtSessaoSugestaoInicio: {
+					maxlength: 5,
+					required: <%- (usuario ? "false" : "true") %>
+				},
+				txtSessaoSugestaoTermino: {
+					maxlength: 5,
+					required: <%- (usuario ? "false" : "true") %>
 				},
 				txtSessaoNome: {
 					required: true,
@@ -251,16 +285,16 @@
 				//<% if (!usuario) { for (let i = 0; i < 6; i++) { %>
 				"txtPalestranteNome<%- i %>": {
 					maxlength: 100,
-					required: function () { return (!!trimValue("txtPalestranteEmail<%- i %>") || !!trimValue("txtPalestranteEmpresa<%- i %>")); }
+					required: function () { return (!!trim($("#txtPalestranteEmail<%- i %>").val()) || !!trim($("#txtPalestranteEmpresa<%- i %>").val())); }
 				},
 				"txtPalestranteEmail<%- i %>": {
 					maxlength: 100,
 					email: true,
-					required: function () { return (!!trimValue("txtPalestranteNome<%- i %>") || !!trimValue("txtPalestranteEmpresa<%- i %>")); }
+					required: function () { return (!!trim($("#txtPalestranteNome<%- i %>").val()) || !!trim($("#txtPalestranteEmpresa<%- i %>").val())); }
 				},
 				"txtPalestranteEmpresa<%- i %>": {
 					maxlength: 100,
-					required: function () { return (!!trimValue("txtPalestranteNome<%- i %>") || !!trimValue("txtPalestranteEmail<%- i %>")); }
+					required: function () { return (!!trim($("#txtPalestranteNome<%- i %>").val()) || !!trim($("#txtPalestranteEmail<%- i %>").val())); }
 				},
 				//<% } } %>
 			},
@@ -290,14 +324,17 @@
 				};
 
 				//<% if (!usuario) { %>
-				s.url = trimValue("txtSessaoUrl");
-				s.senha = trimValue("txtSessaoSenha");
+				s.url = trim($("#txtSessaoUrl").val());
+				s.senha = trim($("#txtSessaoSenha").val());
+				s.descricao = "Sugestão de Data: " + trim($("#txtSessaoSugestaoData").val()) + "\n" +
+					"Sugestão de Horário: " + trim($("#txtSessaoSugestaoInicio").val()) + " - " + trim($("#txtSessaoSugestaoTermino").val()) + "\n" +
+					s.descricao;
 				s.palestrantes = [
 				//<% for (let i = 0; i < 6; i++) { %>
 					{
-						nome: trimValue("txtPalestranteNome<%- i %>"),
-						email: trimValue("txtPalestranteEmail<%- i %>"),
-						empresa: trimValue("txtPalestranteEmpresa<%- i %>"),
+						nome: trim($("#txtPalestranteNome<%- i %>").val()),
+						email: trim($("#txtPalestranteEmail<%- i %>").val()),
+						empresa: trim($("#txtPalestranteEmpresa<%- i %>").val()),
 					},
 				//<% } %>
 				];
@@ -383,7 +420,8 @@
 
 							// <% } else { %>
 
-							setCbSearch(_("cbSessaoLocal"), obterIdEventoLocalPadraoInternet());
+							_("cbSessaoLocal").value = obterIdEventoLocalPadraoInternet();
+							_("divSessaoUrlRemota").style.display = "";
 							Notification.success("Sugestão de sessão criada com sucesso! " + emoji.happy);
 
 							// <% } %>
@@ -406,7 +444,11 @@
 
 		//<% if (!usuario) { %>
 		preencherFormSessao(null);
-		setCbSearch(_("cbSessaoLocal"), obterIdEventoLocalPadraoInternet());
+		prepareDatePicker("#txtSessaoSugestaoData");
+		$("#txtSessaoSugestaoInicio").mask("00:00");
+		$("#txtSessaoSugestaoTermino").mask("00:00");
+		_("cbSessaoLocal").value = obterIdEventoLocalPadraoInternet();
+		_("divSessaoUrlRemota").style.display = "";
 		//<% } %>
 	});
 

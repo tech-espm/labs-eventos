@@ -141,18 +141,20 @@
 		}
 	}
 
-	function preencherCb(cb, array, valor, formatador, id) {
+	function preencherCb(cb, array, valor, formatador, id, ignorarPadrao) {
 		if (!id)
 			id = "id";
 		var $cb = $(cb);
 		$cb.empty();
-		$cb.append("<option value=\"\">SELECIONE...</option>");
+		if (!ignorarPadrao)
+			$cb.append("<option value=\"\">SELECIONE...</option>");
 		for (var i = 0; i < array.length; i++) {
 			var e = array[i];
 			$cb.append("<option value=\"" + e[id] + "\">" + (formatador ? formatador(e) : encode(e.nome)) + "</option>");
 		}
 
-		setCbSearch(cb, valor);
+		if (!ignorarPadrao)
+			setCbSearch(cb, valor);
 	}
 
 	//]]>

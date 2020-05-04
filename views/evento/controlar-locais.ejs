@@ -34,8 +34,10 @@
 	$(function () {
 		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 
+		locais.sort(function (a, b) { return (a.nome < b.nome ? -1 : 1); });
+
 		var tabela = prepareDataTable("tabela-locais", {
-			order: [[2, "asc"]],
+			order: [[1, "desc"]],
 			deferRender: true,
 			columns: [
 				{ title: "Associação", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Associar ao evento\" type=\"button\" class=\"btn btn-outline btn-success btn-evento-associar\"><i class=\"fa fa-nomargin fa-check\"></i></button> <button title=\"Desassociar do evento\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger btn-evento-desassociar\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
