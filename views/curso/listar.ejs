@@ -18,7 +18,7 @@
 			</div>
 			<div class="modal-body">
 				<p>
-					Tem certeza que deseja excluir o curso <span id="lblNome"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
+					Tem certeza que deseja excluir a âncora <span id="lblNome"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
 				</p>
 			</div>
 			<div class="modal-footer">
@@ -42,7 +42,7 @@
 			{ title: "Nome", render: encode, data: "nome" },
 		],
 		data: <%- lista %>,
-		export: { title: "Cursos" }
+		export: { title: "Âncoras" }
 	});
 
 	var trClicada;
@@ -75,7 +75,7 @@
 
 		JsonWebApi.get("/api/curso/excluir", function (response) {
 			if (response.success) {
-				Notification.success("Curso excluído com sucesso! \uD83D\uDE04");
+				Notification.success("Âncora excluída com sucesso! \uD83D\uDE04");
 				tabela.row(trClicada).remove().draw();
 			} else {
 				Notification.error(response.value, true);

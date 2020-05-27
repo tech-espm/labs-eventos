@@ -53,7 +53,7 @@
 	<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
 </div>
 <div class="row">
-	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-6') %>">
+	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
 		<div class="form-group">
 			<label for="txtSessaoNomeCurto">Nome Curto</label>
 			<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
@@ -65,42 +65,48 @@
 			<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-sm-3' : 'hidden') %>">
+	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
 		<div class="form-group">
 			<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
 			<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
 		</div>
 	</div>
-	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-6') %>">
+	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
 		<div class="form-group">
-			<label for="cbSessaoCurso">Curso Âncora</label>
+			<label for="cbSessaoPermiteAcom">Permite ACOM</label>
+			<select id="cbSessaoPermiteAcom" name="cbSessaoPermiteAcom" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-3">
+		<div class="form-group">
+			<label for="cbSessaoCurso">Âncora</label>
 			<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+		</div>
+	</div>
+	<div class="col-sm-3">
+		<div class="form-group">
+			<label for="cbSessaoFormato">Formato</label>
+			<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+		</div>
+	</div>
+	<div class="col-sm-3">
+		<div class="form-group">
+			<label for="cbSessaoTipo">Tipo de Sessão</label>
+			<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+		</div>
+	</div>
+	<div class="col-sm-3">
+		<div class="form-group">
+			<label for="cbSessaoVertical">Vertical</label>
+			<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 		</div>
 	</div>
 </div>
 <div class="form-group">
 	<label for="txtSessaoDescricao">Descrição</label>
 	<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
-</div>
-<div class="row">
-	<div class="col-sm-4">
-		<div class="form-group">
-			<label for="cbSessaoFormato">Formato</label>
-			<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-		</div>
-	</div>
-	<div class="col-sm-4">
-		<div class="form-group">
-			<label for="cbSessaoTipo">Tipo de Sessão</label>
-			<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-		</div>
-	</div>
-	<div class="col-sm-4">
-		<div class="form-group">
-			<label for="cbSessaoVertical">Vertical</label>
-			<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-		</div>
-	</div>
 </div>
 <div class="form-group">
 	<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
@@ -172,6 +178,7 @@
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoSugestao").val(sessao ? sessao.sugestao : "0");
 			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
+			$("#cbSessaoPermiteAcom").val(sessao ? sessao.permiteacom : "1");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
 			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
@@ -251,12 +258,16 @@
 						// <% if (usuario) { %>
 						return false;
 						// <% } else { %>
-						return (!!obterIdEventoLocalPadraoInternet() && parseInt(_("cbSessaoLocal").value) === obterIdEventoLocalPadraoInternet());
+						return false;
+						//return (!!obterIdEventoLocalPadraoInternet() && parseInt(_("cbSessaoLocal").value) === obterIdEventoLocalPadraoInternet());
 						// <% } %>
 					}
 				},
 				txtSessaoDescricao: {
 					maxlength: 200
+				},
+				cbSessaoPermiteAcom: {
+					required: true
 				},
 				cbSessaoOculta: {
 					required: true
@@ -314,6 +325,7 @@
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					sugestao: parseInt($("#cbSessaoSugestao").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
+					permiteacom: parseInt($("#cbSessaoPermiteAcom").val()),
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
@@ -374,6 +386,7 @@
 							sessao.oculta = s.oculta;
 							sessao.sugestao = s.sugestao;
 							sessao.permiteinscricao = s.permiteinscricao;
+							sessao.permiteacom = s.permiteacom;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;
 							sessao.idtiposessao = s.idtiposessao;
@@ -405,6 +418,7 @@
 							// <% if (usuario) { %>
 
 							_("cbSessaoPermiteInscricao").value = "1";
+							_("cbSessaoPermiteAcom").value = "1";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value);

@@ -2,7 +2,7 @@
 <div class="row">
 	<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
 		<form id="form" class="panel panel-default" action="#">
-			<div class="panel-heading">Informações Básicas do Curso</div>
+			<div class="panel-heading">Informações Básicas da Âncora</div>
 			<div class="panel-body no-bottom">
 				<input type="hidden" id="id" name="id" value="<%=(item ? item.id : 0) %>" />
 				<div class="form-group">
@@ -11,7 +11,7 @@
 				</div>
 			</div>
 			<div class="panel-footer">
-				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Curso') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
+				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Âncora') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
 			</div>
 		</form>
 	</div>
@@ -41,7 +41,7 @@
 
 			JsonWebApi.postFormData("/api/curso/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Curso alterado com sucesso! \uD83D\uDE04");
+					Notification.success("Âncora alterada com sucesso! \uD83D\uDE04");
 				else
 					Notification.error(response.value, true);
 			});
@@ -51,7 +51,7 @@
 			JsonWebApi.postFormData("/api/curso/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Curso criado com sucesso! \uD83D\uDE04");
+					Notification.success("Âncora criada com sucesso! \uD83D\uDE04");
 				} else {
 					Notification.error(response.value, true);
 				}

@@ -96,16 +96,27 @@
 				<th class="col-min text-center">Início</th>
 				<th class="col-min text-center">Término</th>
 				<th class="col-min text-center">Duração (h)</th>
+				<% if (!palestrante) { %>
+				<th class="col-min text-center">ACOM</th>
+				<% } %>
 			</tr>
 		</thead>
 		<tbody>
-			<% for (var i = 0; i < presencas.length; i++) { var presenca = presencas[i]; %>
+			<% var totalAcom = 0; for (var i = 0; i < presencas.length; i++) { var presenca = presencas[i]; if (presenca.permiteacom) { totalAcom += presenca.duracao; } %>
 			<tr>
 				<td class="text-left"><%=presenca.nome %></td>
 				<td class="col-min text-center"><%-(presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) %></td>
 				<td class="col-min text-center"><%=presenca.inicio %></td>
 				<td class="col-min text-center"><%=presenca.termino %></td>
 				<td class="col-min text-center"><%-(presenca.duracao.toFixed(1).replace(".", ",")) %></td>
+				<% if (!palestrante) { %>
+				<td class="col-min text-center"><%-(presenca.permiteacom ? "SIM" : "NÃO") %></td>
+				<% } %>
+			</tr>
+			<% } %>
+			<% if (!palestrante) { %>
+			<tr>
+				<td colspan="6" class="text-right"><b>Total de horas ACOM:</b> <%-(totalAcom.toFixed(1).replace(".", ",")) %> h</td>
 			</tr>
 			<% } %>
 		</tbody>

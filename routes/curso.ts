@@ -10,7 +10,7 @@ router.all("/criar", wrap(async (req: express.Request, res: express.Response) =>
 	if (!u || !u.admin) {
 		res.redirect("/acesso");
 	} else {
-		res.render("curso/alterar", { titulo: "Criar Curso", usuario: u, item: null });
+		res.render("curso/alterar", { titulo: "Criar Âncora", usuario: u, item: null });
 	}
 }));
 
@@ -24,7 +24,7 @@ router.all("/alterar", wrap(async (req: express.Request, res: express.Response) 
 		if (isNaN(id) || !(item = await Curso.obter(id)))
 			res.render("home/nao-encontrado", { usuario: u });
 		else
-			res.render("curso/alterar", { titulo: "Editar Curso", usuario: u, item: item });
+			res.render("curso/alterar", { titulo: "Editar Âncora", usuario: u, item: item });
 	}
 }));
 
@@ -33,7 +33,7 @@ router.get("/listar", wrap(async (req: express.Request, res: express.Response) =
 	if (!u || !u.admin) {
 		res.redirect("/acesso");
 	} else {
-		res.render("curso/listar", { titulo: "Gerenciar Cursos", usuario: u, lista: JSON.stringify(await Curso.listar()) });
+		res.render("curso/listar", { titulo: "Gerenciar Âncoras", usuario: u, lista: JSON.stringify(await Curso.listar()) });
 	}
 }));
 

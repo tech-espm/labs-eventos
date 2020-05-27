@@ -41,7 +41,7 @@ export = class Curso {
 				await sql.query("insert into curso (nome) values (?)", [c.nome]);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
-					res = "O curso \"" + c.nome + "\" já existe";
+					res = "A âncora \"" + c.nome + "\" já existe";
 				else
 					throw e;
 			}
@@ -61,7 +61,7 @@ export = class Curso {
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
-					res = "O curso \"" + c.nome + "\" já existe";
+					res = "A âncora \"" + c.nome + "\" já existe";
 				else
 					throw e;
 			}
@@ -81,7 +81,7 @@ export = class Curso {
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
 				if (e.code && (e.code === "ER_ROW_IS_REFERENCED" || e.code === "ER_ROW_IS_REFERENCED_2"))
-					res = "O curso é referenciado por uma ou mais sessões";
+					res = "A âncora é referenciada por uma ou mais sessões";
 				else
 					throw e;
 			}

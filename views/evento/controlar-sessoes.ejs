@@ -98,7 +98,7 @@
 				<p>
 					Tem certeza que deseja excluir a sessão <span id="lblExcluirSessao"></span>? Esta operação <b class="col-h">NÃO</b> pode ser desfeita!
 					<br />
-					<b class="col-h">Se houverem inscritos na sessão, suas inscrições também serão excluídas!</b>
+					<b class="col-h">Se houver inscritos na sessão, suas inscrições também serão excluídas!</b>
 				</p>
 				<p>
 					Para confirmar a exclusão, por favor, digite abaixo o nome da sessão conforme exibido acima:
@@ -197,10 +197,11 @@
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
-				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
+				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
-				{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+				{ title: "Âncora", render: encode, data: "nome_curso" },
+				{ title: "ACOM", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.permiteacom ? "ACOM" : "-"); } },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
 				{ title: "Vertical", render: encode, data: "nome_vertical" },
@@ -591,6 +592,29 @@
 				if (response.success) {
 					Notification.hide();
 
+					var i, duracao, partes, inicio, termino, presenca, presencas = response.value;
+
+					for (i = 0; i < presencas.length; i++) {
+						presenca = presencas[i];
+
+						duracao = 0;
+
+						partes = presenca.inicio.split(":");
+						if (partes.length === 2) {
+							inicio = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
+							if (!isNaN(inicio)) {
+								partes = presenca.termino.split(":");
+								if (partes.length === 2) {
+									termino = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
+									if (!isNaN(termino) && termino > inicio)
+										duracao = (termino - inicio) / 60;
+								}
+							}
+						}
+
+						presenca.duracao = duracao;
+					}
+
 					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
 
 					prepareDataTable("tabelaInscritosGeral", {
@@ -600,22 +624,25 @@
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
 							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Duração (h)", "class": "col-min text-center", "type": "number", data: { sort: "duracao", _: function (row, type, set, meta) { return row.duracao.toFixed(1).replace(".", ","); } } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
+							{ title: "Unidade", render: encode, data: "sigla_unidade" },
 							{ title: "Local", render: encode, data: "nome_local" },
-							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+							{ title: "Âncora", render: encode, data: "nome_curso" },
 							{ title: "Participante", render: encode, data: "nome" },
 							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
 							{ title: "Login", render: encode, data: "login" },
 							{ title: "RG", render: encode, data: "rg" },
 							{ title: "E-mail", render: encode, data: "email" },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
-							{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? "SIM" : "NÃO"); } }
+							{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? "SIM" : "NÃO"); } },
+							{ title: "ACOM", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.permiteacom ? "SIM" : "NÃO"); } }
 						],
-						data: response.value,
-						export: { title: "Inscritos" }
+						data: presencas,
+						export: { title: "Participantes e Presenças" }
 					});
 
-					$("#modalGridDataTitle").text("Inscritos");
+					$("#modalGridDataTitle").text("Participantes e Presenças");
 
 					$("#modalGridData").modal({
 						backdrop: "static",
@@ -684,7 +711,7 @@
 							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
-							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+							{ title: "Âncora", render: encode, data: "nome_curso" },
 							{ title: "Nota", "class": "col-min text-right", "type": "number", data: "avaliacao" },
 							{ title: "Data da Avaliação", "class": "col-min text-right", "type": "customdateint", data: "data_avaliacao" },
 							{ title: "Comentário", render: encode, data: "comentario" },
@@ -726,7 +753,7 @@
 							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
-							{ title: "Curso Âncora", render: encode, data: "nome_curso" },
+							{ title: "Âncora", render: encode, data: "nome_curso" },
 							{ title: "Palestrante", render: encode, data: "nome" },
 							{ title: "E-mail", render: encode, data: "email" },
 							{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "SIM" : "NÃO"); } },
