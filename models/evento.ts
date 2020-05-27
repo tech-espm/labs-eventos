@@ -459,8 +459,8 @@ export = class Evento {
 				return;
 
 			lista = await sql.query(ideventosessao > 0 ?
-				("select p.id, p.nome, p.login, p.rg, p.email, p.tipo from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
-				("select p.id, p.nome, p.login, p.rg, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante")) as Participante[];
+				("select p.id, p.nome, p.login, p.email, p.tipo from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
+				("select p.id, p.nome, p.login, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante")) as Participante[];
 		});
 
 		return (lista || []);
@@ -470,7 +470,7 @@ export = class Evento {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, c.nome nome_curso, h.inicio, h.termino, p.id, p.nome, p.login, p.rg, p.email, p.tipo, esp.presente, s.permiteacom from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
+			lista = await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, c.nome nome_curso, h.inicio, h.termino, p.id, p.nome, p.login, p.email, p.tipo, esp.presente, s.permiteacom from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
 		});
 
 		return (lista || []);

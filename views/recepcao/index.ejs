@@ -174,7 +174,6 @@
 					columns: [
 						{ title: "Nome", render: encode, data: "nome" },
 						{ title: "Login", render: encode, data: "login" },
-						{ title: "RG", render: encode, data: "rg" },
 						{ title: "E-mail", render: encode, data: "email" },
 						{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
 					],
@@ -276,7 +275,7 @@
 									for (i = data.length - 1; i >= 0; i--) {
 										p = data[i];
 										if (p.id === id) {
-											mostrarAlerta(p.nome + (p.rg ? (" - RG " + p.rg) : ""), false);
+											mostrarAlerta(p.nome, false);
 											return;
 										}
 									}

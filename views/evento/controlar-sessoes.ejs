@@ -632,7 +632,6 @@
 							{ title: "Participante", render: encode, data: "nome" },
 							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
 							{ title: "Login", render: encode, data: "login" },
-							{ title: "RG", render: encode, data: "rg" },
 							{ title: "E-mail", render: encode, data: "email" },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
 							{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? "SIM" : "NÃO"); } },
