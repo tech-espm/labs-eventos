@@ -9,6 +9,10 @@
 					<label for="nome">Nome</label>
 					<input id="nome" name="nome" maxlength="50" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
 				</div>
+				<div class="form-group">
+					<label for="emailresponsavel">E-mail do Responsável</label>
+					<input id="emailresponsavel" name="emailresponsavel" maxlength="100" class="form-control upper" type="email" spellcheck="false" value="<%=(item ? item.emailresponsavel : '') %>" />
+				</div>
 			</div>
 			<div class="panel-footer">
 				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Âncora') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
@@ -28,6 +32,10 @@
 				required: true,
 				minlength: 3,
 				maxlength: 50
+			},
+			emailresponsavel: {
+				email: true,
+				maxlength: 100
 			}
 		},
 

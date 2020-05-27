@@ -3,11 +3,14 @@
 export = class Profissao {
 	public id: number;
 	public nome: string;
+	public ordem: number;
 
 	private static validar(p: Profissao): string {
 		p.nome = (p.nome || "").normalize().trim().toUpperCase();
 		if (p.nome.length < 3 || p.nome.length > 100)
 			return "Nome inválido";
+		if (isNaN(p.ordem))
+			p.ordem = 0;
 		return null;
 	}
 
@@ -15,7 +18,7 @@ export = class Profissao {
 		let lista: Profissao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome from profissao order by nome asc") as Profissao[];
+			lista = await sql.query("select id, nome, ordem from profissao order by ordem asc, nome asc") as Profissao[];
 		});
 
 		return (lista || []);
@@ -25,7 +28,7 @@ export = class Profissao {
 		let lista: Profissao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome from profissao where id = " + id) as Profissao[];
+			lista = await sql.query("select id, nome, ordem from profissao where id = " + id) as Profissao[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -38,7 +41,7 @@ export = class Profissao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into profissao (nome) values (?)", [p.nome]);
+				await sql.query("insert into profissao (nome, ordem) values (?, ?)", [p.nome, p.ordem]);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "A profissão \"" + p.nome + "\" já existe";
@@ -57,7 +60,7 @@ export = class Profissao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("update profissao set nome = ? where id = " + p.id, [p.nome]);
+				await sql.query("update profissao set nome = ?, ordem = ? where id = " + p.id, [p.nome, p.ordem]);
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")

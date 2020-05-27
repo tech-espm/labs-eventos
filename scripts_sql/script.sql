@@ -20,6 +20,7 @@ INSERT INTO usuario (login, nome, tipo, senha, token, idevento_logado) VALUES ('
 CREATE TABLE curso (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(50) NOT NULL,
+  emailresponsavel varchar(100) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_UN (nome)
 );
@@ -54,6 +55,7 @@ CREATE TABLE instrucao (
 CREATE TABLE profissao (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
+  ordem int NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_UN (nome)
 );
@@ -239,6 +241,8 @@ CREATE TABLE eventosessao (
   sugestao tinyint(4) NOT NULL,
   publico_alvo varchar(100) NOT NULL,
   tags varchar(100) NOT NULL,
+  permiteinscricao tinyint(4) NOT NULL,
+  permiteacom tinyint(4) NOT NULL,
   PRIMARY KEY (id),
   --UNIQUE KEY ideventodatahorariolocal_eventosessao_UN (idevento,ideventodata,ideventohorario,ideventolocal),
   KEY ideventodatahorariolocal_eventosessao_FK_idx (idevento,ideventodata,ideventohorario,ideventolocal),
@@ -294,15 +298,14 @@ CREATE TABLE participante (
   id int NOT NULL AUTO_INCREMENT,
   nome varchar(100) NOT NULL,
   login varchar(50) DEFAULT NULL,
-  rg varchar(25) DEFAULT NULL,
   email varchar(100) NOT NULL,
   codigoCurso varchar(25) DEFAULT NULL,
   nomeCurso varchar(50) DEFAULT NULL,
   serie varchar(25) DEFAULT NULL,
   tipo tinyint(4) NOT NULL,
-  idindustria int DEFAULT NULL,
   idinstrucao int DEFAULT NULL,
   idprofissao int DEFAULT NULL,
+  empresa varchar(100) DEFAULT NULL,
   senha varchar(100) NOT NULL,
   token char(32) DEFAULT NULL,
   data_criacao datetime NOT NULL,

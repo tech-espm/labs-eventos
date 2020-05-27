@@ -21,6 +21,8 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	if (!u)
 		return;
 	let p = req.body as Profissao;
+	if (p)
+		p.ordem = parseInt(req.body.ordem);
 	jsonRes(res, 400, p ? await Profissao.criar(p) : "Dados inválidos!");
 }));
 
@@ -29,8 +31,10 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 	if (!u)
 		return;
 	let p = req.body as Profissao;
-	if (p)
+	if (p) {
 		p.id = parseInt(req.body.id);
+		p.ordem = parseInt(req.body.ordem);
+	}
 	jsonRes(res, 400, (p && !isNaN(p.id)) ? await Profissao.alterar(p) : "Dados inválidos!");
 }));
 

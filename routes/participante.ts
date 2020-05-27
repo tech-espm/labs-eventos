@@ -73,7 +73,7 @@ router.all("/redefinirSenha", wrap(async (req: express.Request, res: express.Res
 }));
 
 router.all("/modal", wrap(async (req: express.Request, res: express.Response) => {
-	res.render("participante/modal", { layout: "layout-vazio", industrias: await Industria.listar(), instrucoes: await Instrucao.listar(), profissoes: await Profissao.listar() });
+	res.render("participante/modal", { layout: "layout-vazio", instrucoes: await Instrucao.listar(), profissoes: await Profissao.listar() });
 }));
 
 router.all("/", wrap(async (req: express.Request, res: express.Response) => {

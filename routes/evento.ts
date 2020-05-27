@@ -197,7 +197,7 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			locais: JSON.stringify(await Local.listar()),
 			eventoLocais: JSON.stringify(await Local.eventoListar(u.idevento_logado)),
 			palestrantes: JSON.stringify(await Palestrante.listar(u.idevento_logado)),
-			cursos: JSON.stringify(await Curso.listar()),
+			cursos: JSON.stringify(await Curso.listarExterno()),
 			formatos: JSON.stringify(await Formato.listar()),
 			tipoSessoes: JSON.stringify(await TipoSessao.listar()),
 			verticais: JSON.stringify(await Vertical.listar()),

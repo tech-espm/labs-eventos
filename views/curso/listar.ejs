@@ -40,6 +40,7 @@
 		columns: [
 			{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Editar\" href=\"/curso/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			{ title: "Nome", render: encode, data: "nome" },
+			{ title: "E-mail do Responsável", render: encode, data: "emailresponsavel" },
 		],
 		data: <%- lista %>,
 		export: { title: "Âncoras" }

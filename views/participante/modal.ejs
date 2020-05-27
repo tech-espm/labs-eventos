@@ -14,10 +14,6 @@
 					Por favor, não se esqueça de trazer um documento com foto no dia do evento 😊
 				</div>
 				<div class="form-group">
-					<label for="modalRG">RG</label>
-					<input id="modalRG" name="rg" type="text" spellcheck="false" class="form-control upper" maxlength="25" />
-				</div>
-				<div class="form-group">
 					<label for="modalEmail">E-mail</label>
 					<input id="modalEmail" name="email" type="email" spellcheck="false" class="form-control upper" maxlength="100" />
 				</div>
@@ -36,15 +32,6 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="modalIdindustria">Indústria</label>
-					<select id="modalIdindustria" name="idindustria" size="1" class="form-control">
-						<option value="">SELECIONE...</option>
-						<% for (var i = 0; i < industrias.length; i++) { %>
-						<option value="<%=industrias[i].id %>"><%=industrias[i].nome %></option>
-						<% } %>
-					</select>
-				</div>
-				<div class="form-group">
 					<label for="modalIdinstrucao">Grau de Instrução</label>
 					<select id="modalIdinstrucao" name="idinstrucao" size="1" class="form-control">
 						<option value="">SELECIONE...</option>
@@ -53,14 +40,18 @@
 						<% } %>
 					</select>
 				</div>
-				<div class="form-group no-margin-bottom">
-					<label for="modalIdprofissao">Profissão</label>
+				<div class="form-group">
+					<label for="modalIdprofissao">Ocupação/Nível Corporativo</label>
 					<select id="modalIdprofissao" name="idprofissao" size="1" class="form-control">
 						<option value="">SELECIONE...</option>
 						<% for (var i = 0; i < profissoes.length; i++) { %>
 						<option value="<%=profissoes[i].id %>"><%=profissoes[i].nome %></option>
 						<% } %>
 					</select>
+				</div>
+				<div class="form-group no-margin-bottom">
+					<label for="modalEmpresa">Empresa/Universidade/Escola</label>
+					<input id="modalEmpresa" name="empresa" type="text" spellcheck="false" class="form-control upper" maxlength="100" />
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -83,11 +74,6 @@
 				maxlength: 100,
 				required: true
 			},
-			rg: {
-				minlength: 5,
-				maxlength: 25,
-				required: true
-			},
 			email: {
 				minlength: 3,
 				maxlength: 100,
@@ -102,13 +88,14 @@
 			senha2: {
 				equalTo: "#modalSenha"
 			},
-			idindustria: {
-				required: true
-			},
 			idinstrucao: {
 				required: true
 			},
 			idprofissao: {
+				required: true
+			},
+			empresa: {
+				maxlength: 100,
 				required: true
 			}
 		},

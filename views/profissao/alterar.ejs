@@ -9,6 +9,10 @@
 					<label for="nome">Nome</label>
 					<input id="nome" name="nome" maxlength="100" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
 				</div>
+				<div class="form-group">
+					<label for="ordem">Ordem</label>
+					<input id="ordem" name="ordem" class="form-control upper" type="number" value="<%=(item ? item.ordem : '') %>" />
+				</div>
 			</div>
 			<div class="panel-footer">
 				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Profissão') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
@@ -28,6 +32,10 @@
 				required: true,
 				minlength: 3,
 				maxlength: 100
+			},
+			ordem: {
+				required: true,
+				number: true
 			}
 		},
 

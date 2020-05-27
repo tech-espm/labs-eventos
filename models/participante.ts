@@ -20,16 +20,15 @@ export = class Participante {
 
 	public id: number;
 	public nome: string;
-	public rg: string;
 	public login: string;
 	public email: string;
 	public codigoCurso: string;
 	public nomeCurso: string;
 	public serie: string;
 	public tipo: number;
-	public idindustria: number;
 	public idinstrucao: number;
 	public idprofissao: number;
+	public empresa: string;
 
 	// Utilizado apenas durante a criação
 	public senha: string;
@@ -208,22 +207,19 @@ export = class Participante {
 			p.nomeCurso = null;
 			p.serie = null;
 
-			p.rg = (p.rg || "").normalize();
-			if (p.rg.length < 5 || p.rg.length > 25)
-				return "RG inválido";
 			if (p.email.endsWith("@ESPM.BR") || p.email.endsWith("@ACAD.ESPM.BR"))
 				return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
-			if (isNaN(p.idindustria) || p.idindustria <= 0)
-				return "Indústria inválida";
 			if (isNaN(p.idinstrucao) || p.idinstrucao <= 0)
 				return "Nível de instrução inválido";
 			if (isNaN(p.idprofissao) || p.idprofissao <= 0)
-				return "Profissão inválida";
+				return "Ocupação inválida";
+			p.empresa = (p.empresa || "").normalize().trim().toUpperCase();
+			if (!p.empresa || p.empresa.length > 100)
+				return "Empresa inválida";
 		} else {
-			p.rg = null;
-			p.idindustria = null;
 			p.idinstrucao = null;
 			p.idprofissao = null;
+			p.empresa = null;
 			p.login = (p.login || "").normalize().trim().toUpperCase();
 			if (p.login.length < 3 || p.login.length > 50)
 				return "Login inválido";
@@ -259,7 +255,7 @@ export = class Participante {
 		let lista: Participante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, login, email, tipo, idindustria, idinstrucao, idprofissao from participante where id = " + id) as Participante[];
+			lista = await sql.query("select id, nome, login, email, tipo, idinstrucao, idprofissao, empresa from participante where id = " + id) as Participante[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -282,7 +278,7 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into participante (nome, login, rg, email, codigoCurso, nomeCurso, serie, tipo, idindustria, idinstrucao, idprofissao, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.rg, p.email, p.codigoCurso, p.nomeCurso, p.serie, p.tipo, p.idindustria, p.idinstrucao, p.idprofissao, await GeradorHash.criarHash(p.senha)]);
+				await sql.query("insert into participante (nome, login, email, codigoCurso, nomeCurso, serie, tipo, idinstrucao, idprofissao, empresa, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.codigoCurso, p.nomeCurso, p.serie, p.tipo, p.idinstrucao, p.idprofissao, p.empresa, await GeradorHash.criarHash(p.senha)]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (e) {
 				if (e.code) {
@@ -292,7 +288,7 @@ export = class Participante {
 							break;
 						case "ER_NO_REFERENCED_ROW":
 						case "ER_NO_REFERENCED_ROW_2":
-							r = "Indústria/Nível de instrução/Profissão não encontrada";
+							r = "Nível de instrução/Ocupação não encontrada";
 							break;
 						default:
 							throw e;

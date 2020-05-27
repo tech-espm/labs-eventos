@@ -23,7 +23,6 @@ router.get("/logout", wrap(async (req: express.Request, res: express.Response) =
 router.post("/criar", wrap(async (req: express.Request, res: express.Response) => {
 	let p = req.body as Participante;
 	if (p) {
-		p.idindustria = parseInt(req.body.idindustria);
 		p.idinstrucao = parseInt(req.body.idinstrucao);
 		p.idprofissao = parseInt(req.body.idprofissao);
 	}
