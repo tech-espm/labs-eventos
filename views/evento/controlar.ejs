@@ -11,8 +11,6 @@
 					<li role="presentation"><a id="a-usuarios" href="#tab-usuarios" role="tab" data-toggle="pill" aria-controls="tab-usuarios" aria-expanded="false"><i class="fa fa-user"></i>Usuários</a></li>
 					<% } %>
 					<li role="presentation"><a id="a-locais" href="#tab-locais" role="tab" data-toggle="pill" aria-controls="tab-locais" aria-expanded="false"><i class="fa fa-map-marker"></i>Locais</a></li>
-					<li role="presentation"><a id="a-datas" href="#tab-datas" role="tab" data-toggle="pill" aria-controls="tab-datas" aria-expanded="false"><i class="fa fa-calendar-o"></i>Datas</a></li>
-					<li role="presentation"><a id="a-horarios" href="#tab-horarios" role="tab" data-toggle="pill" aria-controls="tab-horarios" aria-expanded="false"><i class="fa fa-clock-o"></i>Horários</a></li>
 					<li role="presentation"><a id="a-empresas" href="#tab-empresas" role="tab" data-toggle="pill" aria-controls="tab-empresas" aria-expanded="false"><i class="fa fa-industry"></i>Empresas</a></li>
 					<li role="presentation"><a id="a-palestrantes" href="#tab-palestrantes" role="tab" data-toggle="pill" aria-controls="tab-palestrantes" aria-expanded="false"><i class="fa fa-microphone"></i>Palestrantes</a></li>
 					<li role="presentation"><a id="a-sessoes" href="#tab-sessoes" role="tab" data-toggle="pill" aria-controls="tab-sessoes" aria-expanded="false"><i class="fa fa-group"></i>Sessões</a></li>
@@ -38,8 +36,6 @@
 			<div role="tabpanel" class="tab-pane fade" id="tab-usuarios"></div>
 			<% } %>
 			<div role="tabpanel" class="tab-pane fade" id="tab-locais"></div>
-			<div role="tabpanel" class="tab-pane fade" id="tab-datas"></div>
-			<div role="tabpanel" class="tab-pane fade" id="tab-horarios"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-empresas"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-palestrantes"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-sessoes"></div>
@@ -301,8 +297,6 @@
 	prepararAba("#a-usuarios", "#tab-usuarios", "/evento/controlar-usuarios");
 	//<% } %>
 	prepararAba("#a-locais", "#tab-locais", "/evento/controlar-locais");
-	prepararAba("#a-datas", "#tab-datas", "/evento/controlar-datas");
-	prepararAba("#a-horarios", "#tab-horarios", "/evento/controlar-horarios");
 	prepararAba("#a-empresas", "#tab-empresas", "/evento/controlar-empresas");
 	prepararAba("#a-palestrantes", "#tab-palestrantes", "/evento/controlar-palestrantes");
 	prepararAba("#a-sessoes", "#tab-sessoes", "/evento/controlar-sessoes");

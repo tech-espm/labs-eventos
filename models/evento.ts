@@ -7,6 +7,7 @@ import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
 import Upload = require("../infra/upload");
 import emailValido = require("../utils/emailValido");
+import converterDataISO = require("../utils/converterDataISO");
 import appsettings = require("../appsettings");
 import Empresa = require("./empresa");
 import Participante = require("./participante");
@@ -26,6 +27,8 @@ export = class Evento {
 	public url: string;
 	public titulo: string;
 	public descricao: string;
+	public inicio: string;
+	public termino: string;
 	public versao: number;
 	public versaobanner: number;
 	public versaologo: number;
@@ -72,6 +75,14 @@ export = class Evento {
 		ev.descricao = (ev.descricao || "").normalize().trim();
 		if (ev.descricao.length > 250)
 			return "Descrição inválida";
+		ev.descricao = (ev.descricao || "").normalize().trim();
+		if (ev.descricao.length > 250)
+			return "Descrição inválida";
+		if (!(ev.inicio = converterDataISO(ev.inicio)))
+			return "Data inicial inválida";
+		// Por uma incrível coincidência, uma data ISO pode ser comparada com outra direto como string! :)
+		if (!(ev.termino = converterDataISO(ev.termino)) || ev.termino < ev.inicio)
+			return "Data final inválida";
 		ev.aspectratioempresa = (ev.aspectratioempresa || "").normalize().trim().toUpperCase();
 		if (ev.aspectratioempresa && (ev.aspectratioempresa.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratioempresa)))
 			return "O aspect ratio das imagens das empresas é inválido";
@@ -127,7 +138,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, url, titulo, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
+			lista = await sql.query("select id, nome, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -137,7 +148,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.titulo, ev.descricao, ev.versao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
+			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.titulo, ev.descricao, date_format(ev.inicio, '%d/%m/%Y') inicio, date_format(ev.termino, '%d/%m/%Y') termino, ev.versao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -190,7 +201,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			lista = await sql.query(
-				"select id, nome, url, titulo, descricao, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, termoaceite from evento where id = " + id +
+				"select id, nome, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, termoaceite from evento where id = " + id +
 				(apenasDoUsuario ? (" and exists (select 1 from eventousuario where idevento = " + id + " and idusuario = " + idusuario + ")") : "")
 			) as Evento[];
 		});
@@ -235,7 +246,7 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, titulo, descricao, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite) values (?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
+				await sql.query("insert into evento (nome, url, titulo, descricao, inicio, termino, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite) values (?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, ?, 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id, idTipoEmpresaPadrao]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
@@ -280,7 +291,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("update evento set nome = ?, url = ?, titulo = ?, descricao = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, senhasugestao = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.titulo, ev.descricao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
+				await sql.query("update evento set nome = ?, url = ?, titulo = ?, descricao = ?, inicio = ?, termino = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, senhasugestao = ?, termoaceite = ? where id = " + ev.id, [ev.nome, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite]);
 				res = sql.linhasAfetadas.toString();
 				if (sql.linhasAfetadas) {
 					Usuario.alterarNomeDoEventoEmCache(ev.id, ev.nome);
@@ -470,7 +481,7 @@ export = class Evento {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, c.nome nome_curso, h.inicio, h.termino, p.id, p.nome, p.login, p.email, p.tipo, esp.presente, s.permiteacom from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
+			lista = await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.id, p.nome, p.login, p.email, p.tipo, esp.presente, s.permiteacom from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
 		});
 
 		return (lista || []);
@@ -480,7 +491,7 @@ export = class Evento {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome nome_sessao, l.nome nome_local, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, c.nome nome_curso, h.inicio, h.termino, p.nome, p.email, p.oculto, p.confirmado from eventosessaopalestrante esp inner join eventopalestrante p on p.id = esp.ideventopalestrante inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
+			lista = await sql.query("select s.nome nome_sessao, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.nome, p.email, p.oculto, p.confirmado from eventosessaopalestrante esp inner join eventopalestrante p on p.id = esp.ideventopalestrante inner join eventosessao s on s.id = esp.ideventosessao inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
 		});
 
 		return (lista || []);

@@ -3,10 +3,8 @@ import wrap = require("express-async-error-wrapper");
 import jsonRes = require("../utils/jsonRes");
 import Usuario = require("../models/usuario");
 import Evento = require("../models/evento");
-import Data = require("../models/data");
 import TipoEmpresa = require("../models/tipoEmpresa");
 import Empresa = require("../models/empresa");
-import Horario = require("../models/horario");
 import Local = require("../models/local");
 import Palestrante = require("../models/palestrante");
 import Curso = require("../models/curso");
@@ -86,20 +84,6 @@ router.get("/controlar-arquivos", wrap(async (req: express.Request, res: express
 	}
 }));
 
-router.get("/controlar-datas", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		res.render("evento/controlar-datas", {
-			layout: "layout-vazio",
-			usuario: u,
-			idevento: u.idevento_logado,
-			datas: JSON.stringify(await Data.listar(u.idevento_logado))
-		});
-	}
-}));
-
 router.get("/controlar-empresas", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
@@ -113,20 +97,6 @@ router.get("/controlar-empresas", wrap(async (req: express.Request, res: express
 			caminhoAbsolutoPastaExterno: Empresa.caminhoAbsolutoPastaExterno(u.idevento_logado),
 			tipoEmpresas: await TipoEmpresa.listar(),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado))
-		});
-	}
-}));
-
-router.get("/controlar-horarios", wrap(async (req: express.Request, res: express.Response) => {
-	let u = await Usuario.cookie(req);
-	if (!u || !u.idevento_logado || !u.nomeevento_logado) {
-		jsonRes(res, 400, "Sem acesso!");
-	} else {
-		res.render("evento/controlar-horarios", {
-			layout: "layout-vazio",
-			usuario: u,
-			idevento: u.idevento_logado,
-			horarios: JSON.stringify(await Horario.listar(u.idevento_logado))
 		});
 	}
 }));
@@ -191,9 +161,7 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			idevento: u.idevento_logado,
 			urlEvento: (evt ? evt.url : ""),
 			extensaoImagem: Palestrante.extensaoImagem,
-			datas: JSON.stringify(await Data.listar(u.idevento_logado)),
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
-			horarios: JSON.stringify(await Horario.listar(u.idevento_logado)),
 			locais: JSON.stringify(await Local.listar()),
 			eventoLocais: JSON.stringify(await Local.eventoListar(u.idevento_logado)),
 			palestrantes: JSON.stringify(await Palestrante.listar(u.idevento_logado)),
