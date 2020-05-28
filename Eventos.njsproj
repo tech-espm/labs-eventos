@@ -329,7 +329,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.6.js" />
-    <Compile Include="public\js\main-1.0.7.js" />
+    <Compile Include="public\js\main-1.0.8.js" />
     <Compile Include="public\landing\js\bootstrap.min.js" />
     <Compile Include="public\landing\js\jquery.min.js" />
     <Compile Include="public\landing\js\main.js" />

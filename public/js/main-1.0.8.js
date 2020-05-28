@@ -185,6 +185,9 @@ window.formatNumber = (function () {
 window.formatHour = function (x) {
 	return format2(x >>> 6) + ":" + format2(x & 63);
 };
+window.formatHourDec = function (x) {
+	return format2((x / 100) | 0) + ":" + format2(x % 100);
+};
 //https://github.com/igorescobar/jQuery-Mask-Plugin
 //https://igorescobar.github.io/jQuery-Mask-Plugin/
 window.maskCNPJ = function (field) {

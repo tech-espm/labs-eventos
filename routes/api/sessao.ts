@@ -39,12 +39,12 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	if (s) {
 		s.idcurso = parseInt(req.body.idcurso);
 		s.idevento = u.idevento_logado;
-		s.ideventodata = parseInt(req.body.ideventodata);
-		s.ideventohorario = parseInt(req.body.ideventohorario);
 		s.ideventolocal = parseInt(req.body.ideventolocal);
 		s.idformato = parseInt(req.body.idformato);
 		s.idtiposessao = parseInt(req.body.idtiposessao);
 		s.idvertical = parseInt(req.body.idvertical);
+		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
+		s.termino = parseInt((req.body.termino || "").replace(":", ""));
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
@@ -70,12 +70,12 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 	if (s) {
 		s.idcurso = parseInt(req.body.idcurso);
 		s.idevento = parseInt(req.body.idevento);
-		s.ideventodata = parseInt(req.body.ideventodata);
-		s.ideventohorario = parseInt(req.body.ideventohorario);
 		s.ideventolocal = parseInt(req.body.ideventolocal);
 		s.idformato = parseInt(req.body.idformato);
 		s.idtiposessao = parseInt(req.body.idtiposessao);
 		s.idvertical = parseInt(req.body.idvertical);
+		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
+		s.termino = parseInt((req.body.termino || "").replace(":", ""));
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
 		s.permiteacom = parseInt(req.body.permiteacom);
 		s.oculta = 0;
@@ -93,12 +93,12 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		s.id = parseInt(req.body.id);
 		s.idcurso = parseInt(req.body.idcurso);
 		s.idevento = u.idevento_logado;
-		s.ideventodata = parseInt(req.body.ideventodata);
-		s.ideventohorario = parseInt(req.body.ideventohorario);
 		s.ideventolocal = parseInt(req.body.ideventolocal);
 		s.idformato = parseInt(req.body.idformato);
 		s.idtiposessao = parseInt(req.body.idtiposessao);
 		s.idvertical = parseInt(req.body.idvertical);
+		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
+		s.termino = parseInt((req.body.termino || "").replace(":", ""));
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);

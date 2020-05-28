@@ -223,6 +223,7 @@ CREATE TABLE eventosessao (
   permiteinscricao tinyint(4) NOT NULL,
   permiteacom tinyint(4) NOT NULL,
   PRIMARY KEY (id),
+  KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
   KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),
   KEY idcurso_eventosessao_FK_idx (idcurso),
   KEY ideventolocal_eventosessao_FK_idx (ideventolocal),
