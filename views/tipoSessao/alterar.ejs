@@ -39,7 +39,7 @@
 
 			//<% if (item) { %>
 
-			JsonWebApi.postFormData("/api/tipoSessao/alterar", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/tipoSessao/alterar", form, function (response) {
 				if (response.success)
 					Notification.success("Tipo de sessão alterado com sucesso! \uD83D\uDE04");
 				else
@@ -48,7 +48,7 @@
 
 			//<% } else { %>
 
-			JsonWebApi.postFormData("/api/tipoSessao/criar", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/tipoSessao/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
 					Notification.success("Tipo de sessão criado com sucesso! \uD83D\uDE04");

@@ -87,7 +87,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i><br /><small>(Baixe o fundo padrão <a target="_blank" href="/imagens/fundo-certificado.png" download="fundo-certificado.png">preenchido <i class="fa fa-download fa-nomargin"></i></a> ou <a target="_blank" href="/imagens/fundo-certificado-branco.png" download="fundo-certificado-branco.png">em branco <i class="fa fa-download fa-nomargin"></i></a>)</small></label>
+					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i><br /><small>(Baixe o fundo padrão <a target="_blank" href="<%- root %>/imagens/fundo-certificado.png" download="fundo-certificado.png">preenchido <i class="fa fa-download fa-nomargin"></i></a> ou <a target="_blank" href="<%- root %>/imagens/fundo-certificado-branco.png" download="fundo-certificado-branco.png">em branco <i class="fa fa-download fa-nomargin"></i></a>)</small></label>
 					<input id="fundocertificado" name="fundocertificado" class="form-control" type="file" accept="image/*" />
 				</div>
 				<div class="form-group">
@@ -276,7 +276,7 @@
 
 				//<% if (item) { %>
 
-				JsonWebApi.postFormData("/api/evento/alterar", new FormData(form), function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/evento/alterar", new FormData(form), function (response) {
 					if (response.success) {
 						var url = trim($("#url").val()).toLowerCase(), a;
 						if (window.eventoUrlListener)
@@ -299,9 +299,9 @@
 
 				//<% } else { %>
 
-				JsonWebApi.postFormData("/api/evento/criar", new FormData(form), function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/evento/criar", new FormData(form), function (response) {
 					if (response.success) {
-						JsonWebApi.get("/api/usuario/eventoSelecionar", function (response) {
+						JsonWebApi.get("<%- root %>/api/usuario/eventoSelecionar", function (response) {
 							if (response.success) {
 								location.href = "/evento";
 							} else {

@@ -23,6 +23,7 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import appsettings = require("./appsettings");
 import ClusterEventos = require("./infra/clusterEventos");
 import Empresa = require("./models/empresa");
 import Local = require("./models/local");
@@ -37,6 +38,11 @@ import lru = require("lru-cache");
 ejs.cache = lru(200);
 
 const app = express();
+
+app.locals = {
+	urlBase: appsettings.urlBase,
+	root: appsettings.root
+};
 
 // Não queremos o header X-Powered-By
 app.disable("x-powered-by");

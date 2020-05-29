@@ -3,7 +3,7 @@
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>I</span>NFORMAÇÕES</div>
-			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
+			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%- root %>/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>
 		</div>
 		<div class="panel-body">
 			<ul class="nav nav-pills text-center" role="tablist">
@@ -66,7 +66,7 @@
 					<div class="form-group no-margin-bottom">
 						<label for="txtPalestranteImagemAtual">Imagem Atual</label>
 						<div class="text-center">
-							<img alt="Imagem do Palestrante" id="txtPalestranteImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
+							<img alt="Imagem do Palestrante" id="txtPalestranteImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="<%- root %>/evt/<%-evento.id %>/palestrantes/<%-palestrante.id %>.png?v=<%-palestrante.versao %>" />
 						</div>
 					</div>
 				</div>
@@ -93,7 +93,7 @@
 					<div class="form-group no-margin-bottom">
 						<label for="txtEmpresaImagemAtual">Logotipo Atual</label>
 						<div class="text-center">
-							<img alt="Logotipo da Empresa" id="txtEmpresaImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=<%-empresa.versao %>" />
+							<img alt="Logotipo da Empresa" id="txtEmpresaImagemAtual" style="border: 1px solid #ddd; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); max-height: 200px; max-width: 100%;" src="<%- root %>/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=<%-empresa.versao %>" />
 						</div>
 					</div>
 				</div>
@@ -144,7 +144,7 @@ function textColorForBackground(i) {
 			<p class="text-center">Caso necessite comprovar sua participação no evento, seu certificado estará disponível aqui, depois da conclusão do evento.</p>
 			<% } else { %>
 			<p class="text-center">Caso necessite comprovar sua participação no evento, seu certificado pode ser emitido pelo link abaixo:</p>
-			<a class="btn btn-lg btn-outline btn-default btn-block" href="/evento/certificado/<%-idcertificado %>" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a>
+			<a class="btn btn-lg btn-outline btn-default btn-block" href="<%- root %>/evento/certificado/<%-idcertificado %>" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a>
 			<% } %>
 			<hr />
 			<div class="table-responsive">
@@ -246,7 +246,7 @@ function textColorForBackground(i) {
 		if ($.active || JsonWebApi.active || preparandoImagem || !btnAceite || !idsessaoAceite)
 			return;
 
-		JsonWebApi.get("/api/palestrante/concederAceite/<%-hash %>/" + idsessaoAceite, function (response) {
+		JsonWebApi.get("<%- root %>/api/palestrante/concederAceite/<%-hash %>/" + idsessaoAceite, function (response) {
 			if (response.success) {
 				btnAceite.parentNode.innerHTML = "Aceite concedido em<br />" + response.value;
 				Notification.success("Aceite concedido com sucesso! " + emoji.happy);
@@ -274,7 +274,7 @@ function textColorForBackground(i) {
 				versaoEmpresa++;
 				formData.append("versao", versaoEmpresa);
 
-				JsonWebApi.postFormData("/api/palestrante/alterarEmpresaExterno/<%-hash %>", formData, function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/palestrante/alterarEmpresaExterno/<%-hash %>", formData, function (response) {
 					if (response.success) {
 						txtEmpresaImagem.value = "";
 						_("txtEmpresaImagemAtual").setAttribute("src", "/evt/<%-evento.id %>/empresas/<%-empresa.id %>.png?v=" + versaoEmpresa);
@@ -422,7 +422,7 @@ function textColorForBackground(i) {
 			prepararImagem(txtEmpresaImagem.files[0]);
 		}
 
-		JsonWebApi.get("/api/palestrante/alterarUrlEmpresaExterno/<%-hash %>", function (response) {
+		JsonWebApi.get("<%- root %>/api/palestrante/alterarUrlEmpresaExterno/<%-hash %>", function (response) {
 			if (response.success)
 				atualizarImagem();
 			else
@@ -520,7 +520,7 @@ function textColorForBackground(i) {
 					versao++;
 				formData.append("versao", versao);
 
-				JsonWebApi.postFormData("/api/palestrante/alterarExterno/<%-hash %>", formData, function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/palestrante/alterarExterno/<%-hash %>", formData, function (response) {
 					if (response.success) {
 						txtPalestranteImagem.value = "";
 						if (atualizarVersao)

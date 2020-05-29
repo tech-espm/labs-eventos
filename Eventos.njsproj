@@ -250,6 +250,7 @@
     <Content Include="package.json" />
     <TypeScriptCompile Include="appsettings.ts" />
     <TypeScriptCompile Include="utils\converterDataISO.ts" />
+    <TypeScriptCompile Include="utils\ajustarInicioTermino.ts" />
     <TypeScriptCompile Include="utils\emailValido.ts" />
     <TypeScriptCompile Include="utils\intToHex.ts" />
   </ItemGroup>

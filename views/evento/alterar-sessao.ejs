@@ -126,8 +126,6 @@
 	// função apenas quando o documento estiver ok
 	$(function () {
 		var idevento = <%- idevento %>, idEventoLocalPadraoInternet = 0;
-		carregarDatas(<%- datas %>);
-		carregarHorarios(<%- horarios %>);
 		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 		carregarCursos(<%- cursos %>);
 		carregarFormatos(<%- formatos %>);
@@ -374,7 +372,7 @@
 				if (trSessaoClicada && (sessao = tabelaSessoes.row(trSessaoClicada).data())) {
 					s.id = sessao.id;
 
-					JsonWebApi.post("/api/sessao/alterar", s, function (response) {
+					JsonWebApi.post("<%- root %>/api/sessao/alterar", s, function (response) {
 						if (response.success) {
 							sessao.ideventodata = s.ideventodata;
 							sessao.ideventohorario = s.ideventohorario;

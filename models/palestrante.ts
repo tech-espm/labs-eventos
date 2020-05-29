@@ -6,6 +6,7 @@ import Sql = require("../infra/sql");
 import FS = require("../infra/fs");
 import Upload = require("../infra/upload");
 import GeradorHash = require("../utils/geradorHash");
+import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import emailValido = require("../utils/emailValido");
 import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
@@ -350,11 +351,11 @@ export = class Palestrante {
 		let r = (Math.random() * 0x3fffffff) | 0;
 		let sid = (intToHex(id) + intToHex(idevento)).toLowerCase();
 		let sidHash = (intToHex(r) + intToHex(id ^ r ^ Palestrante.HashId) + intToHex(idevento ^ r ^ Palestrante.HashIdEvento)).toLowerCase();
-		return "https://credenciamento.espm.br/evento/palestrante/" + sidHash + await GeradorHash.criarHashHex(sid);
+		return appsettings.urlBase + "/evento/palestrante/" + sidHash + await GeradorHash.criarHashHex(sid);
 	}
 
 	public static async gerarLinkCertificado(id: number, idevento: number): Promise<string> {
-		return "https://credenciamento.espm.br/evento/certificado/" + await Palestrante.idPalestranteParaIdCertificado(id, idevento);
+		return appsettings.urlBase + "/evento/certificado/" + await Palestrante.idPalestranteParaIdCertificado(id, idevento);
 	}
 
 	public static async validarHashExterno(hash: string): Promise<[number, number]> {
@@ -417,7 +418,7 @@ export = class Palestrante {
 		let lista = [];
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.nome, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, h.inicio, h.termino, u.sigla sigla_unidade, l.nome nome_local, el.cor, date_format(esp.aceite, '%d/%m/%Y %H:%i') aceite from eventosessao s inner join eventosessaopalestrante esp on esp.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join eventohorario h on h.id = s.ideventohorario where s.idevento = " + idevento + " and esp.idevento = " + idevento + " and esp.ideventopalestrante = " + id + " order by d.ano asc, d.mes asc, d.dia asc, h.ordem asc, l.nome asc");
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, u.sigla sigla_unidade, l.nome nome_local, el.cor, date_format(esp.aceite, '%d/%m/%Y %H:%i') aceite from eventosessao s inner join eventosessaopalestrante esp on esp.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade where s.idevento = " + idevento + " and esp.idevento = " + idevento + " and esp.ideventopalestrante = " + id + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc"));
 		});
 
 		return lista;

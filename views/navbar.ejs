@@ -7,21 +7,21 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		</button>
-		<a class="navbar-brand" href="/"><img alt="Logo" src="/imagens/logo-cabecalho.png" /></a>
+		<a class="navbar-brand" href="<%- root %>/"><img alt="Logo" src="<%- root %>/imagens/logo-cabecalho.png" /></a>
 	</div>
 
 	<ul class="nav navbar-top-links navbar-right">
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
-				<img class="profile-img" alt="Perfil" src="/imagens/user.png" width="40" height="40" /><%=usuario.login %> <i class="fa fa-caret-down"></i>
+				<img class="profile-img" alt="Perfil" src="<%- root %>/imagens/user.png" width="40" height="40" /><%=usuario.login %> <i class="fa fa-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu dropdown-user">
 				<li>
-					<a href="/perfil"><i class="fa fa-user fa-fw"></i>Meu Perfil</a>
+					<a href="<%- root %>/perfil"><i class="fa fa-user fa-fw"></i>Meu Perfil</a>
 				</li>
 				<li class="divider"></li>
 				<li>
-					<a href="/logout"><i class="fa fa-sign-out fa-fw"></i>Sair</a>
+					<a href="<%- root %>/logout"><i class="fa fa-sign-out fa-fw"></i>Sair</a>
 				</li>
 			</ul>
 		</li>
@@ -34,8 +34,8 @@
 				<li class="sidebar-spacer"></li>
 
 				<li>
-					<!-- <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> -->
-					<a href="/"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a>
+					<!-- <a href="<%- root %>/" class="active"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> -->
+					<a href="<%- root %>/"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a>
 				</li>
 
 				<li class="sidebar-spacer"></li>
@@ -47,7 +47,7 @@
 						<% if (usuario.admin) { %>
 
 						<li>
-							<a href="/evento/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/evento/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<% } %>
@@ -55,13 +55,13 @@
 						<% if (usuario.idevento_logado && usuario.nomeevento_logado) { %>
 
 						<li>
-							<a href="/evento"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
+							<a href="<%- root %>/evento"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
 						</li>
 
 						<% } else if (!usuario.admin) { %>
 
 						<li>
-							<a href="/"><i class="fa fa-bullhorn fa-fw"></i>Nenhum evento selecionado</a>
+							<a href="<%- root %>/"><i class="fa fa-bullhorn fa-fw"></i>Nenhum evento selecionado</a>
 						</li>
 
 						<% } %>
@@ -69,7 +69,7 @@
 						<% if (usuario.admin) { %>
 
 						<li>
-							<a href="/evento/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/evento/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 						<% } %>
@@ -86,11 +86,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/curso/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/curso/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/curso/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/curso/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -101,11 +101,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/formato/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/formato/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/formato/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/formato/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -116,11 +116,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/industria/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/industria/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/industria/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/industria/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -131,11 +131,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/local/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/local/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/local/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/local/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -146,11 +146,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/instrucao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/instrucao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/instrucao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/instrucao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -161,11 +161,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/profissao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/profissao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/profissao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/profissao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -176,11 +176,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/tipoSessao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/tipoSessao/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/tipoSessao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/tipoSessao/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -191,11 +191,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/tipoEmpresa/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/tipoEmpresa/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/tipoEmpresa/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/tipoEmpresa/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -206,11 +206,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/unidade/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/unidade/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/unidade/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/unidade/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -221,11 +221,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/vertical/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/vertical/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/vertical/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/vertical/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>
@@ -238,11 +238,11 @@
 					<ul class="nav nav-second-level collapse">
 
 						<li>
-							<a href="/usuario/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
+							<a href="<%- root %>/usuario/criar"><i class="fa fa-plus fa-fw"></i>Criar</a>
 						</li>
 
 						<li>
-							<a href="/usuario/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
+							<a href="<%- root %>/usuario/listar"><i class="fa fa-tasks fa-fw"></i>Gerenciar</a>
 						</li>
 
 					</ul>

@@ -3,7 +3,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body text-center">
-				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline" style="white-space: normal;" target="_blank" href="/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
+				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
 				<hr />
 				<ul class="nav nav-pills" role="tablist">
 					<li role="presentation" class="active"><a id="a-basica" href="#tab-basica" role="tab" data-toggle="pill" aria-controls="tab-basica" aria-expanded="true"><i class="fa fa-edit"></i>Informações Básicas</a></li>
@@ -162,13 +162,13 @@
 		tabLandingPageVisivel = false;
 
 	function gerarLinkDeCompartilhamento(nome) {
-		return "https://credenciamento.espm.br/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
+		return "<%- urlBase %>/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
 	}
 
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),
 			tab = $(idTab),
-			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
+			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"<%- root %>/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
 			htmlErro = "<div class=\"alert alert-danger\">Algo deu errado durante o carregamento. Por favor, tente novamente em alguns instantes.</div>";
 
 		a[0].setAttribute("data-aba-ok", "");

@@ -105,7 +105,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.postFormData("/api/participante/criar", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/participante/criar", form, function (response) {
 				if (response.success) {
 					modalCriarOk = true;
 					location.reload(true);

@@ -3,7 +3,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body text-center">
-				<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="/arquivos-landing-page.zip"><i class="fa fa-download"></i>Baixar os arquivos da landing page padrão</a>
+				<a class="btn btn-primary" style="white-space: normal;" target="_blank" href="<%- root %>/arquivos-landing-page.zip"><i class="fa fa-download"></i>Baixar os arquivos da landing page padrão</a>
 			</div>
 		</div>
 
@@ -39,7 +39,7 @@
 
 		<div class="panel panel-default" id="divLandingPageOK" <%-(landingPageExiste ? "" : "style=\"display: none;\"")%>>
 			<div class="panel-body text-center">
-				<a class="btn btn-primary" id="aLandingPageDownload" style="white-space: normal;" href="/api/evento/landingPageDownload" target="_blank" download="landing-page-<%=evento.url %>.ejs"><i class="fa fa-download"></i>Baixar o arquivo EJS da landing page atual</a>
+				<a class="btn btn-primary" id="aLandingPageDownload" style="white-space: normal;" href="<%- root %>/api/evento/landingPageDownload" target="_blank" download="landing-page-<%=evento.url %>.ejs"><i class="fa fa-download"></i>Baixar o arquivo EJS da landing page atual</a>
 			</div>
 		</div>
 
@@ -129,7 +129,7 @@
 				formData.append("arquivo", file, nome);
 
 				// Para prevenir problemas com browsers estranhos, vamos enviar o nome via query string, também...
-				JsonWebApi.postFormData("/api/evento/atualizarLandingPage", formData, function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/evento/atualizarLandingPage", formData, function (response) {
 					if (response.success) {
 						$("#divLandingPageOK").show();
 						$("#divLandingPageVazia").hide();

@@ -61,7 +61,7 @@
 
 <section class="sheet text-center">
 
-	<img src="/evt/<%-evento.id %>/fundo-certificado.png?v=<%-evento.versao %>" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; pointer-events: none; z-index: 0;" />
+	<img src="<%- root %>/evt/<%-evento.id %>/fundo-certificado.png?v=<%-evento.versao %>" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; pointer-events: none; z-index: 0;" />
 
 	<div style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; z-index: 1;">
 		<p style="margin: 70mm 0 0;">Certificamos que</p>
@@ -81,7 +81,7 @@
 			Link para verificação de autenticidade do certificado:
 		</span>
 		<br />
-		credenciamento.espm.br/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
+		<%- urlBase %>/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
 	</div>
 
 </section>
@@ -126,7 +126,7 @@
 
 <%- contentFor("styles") %>
 <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700&display=swap&subset=latin-ext" rel="stylesheet" />
-<link rel="stylesheet" type="text/css" href="/lib/paper-css/css/paper.min.css" />
+<link rel="stylesheet" type="text/css" href="<%- root %>/lib/paper-css/css/paper.min.css" />
 <style type="text/css">
 	body {
 		font-family: 'PT Sans', sans-serif;
@@ -226,7 +226,7 @@
 	<div class="panel panel-default no-margin-bottom">
 		<div class="panel-body">
 			<div>
-				<img alt="ESPM" width="150" src="/imagens/logo.png" />
+				<img alt="ESPM" width="150" src="<%- root %>/imagens/logo.png" />
 			</div>
 			<h1>Certificado de Participação</h1>
 			<p>A ESPM certifica que <b><%=participante.nome %></b> (<b><%=participante.email %></b>) <%-(palestrante ? "ministrou as" : "participou das") %> sessões descritas abaixo, com uma carga horária total de <b id="lblHoras"></b>, nos respectivos dias e horários, como parte do evento <b><%=evento.nome %></b>.</p>
@@ -253,7 +253,7 @@
 						Link para verificação de autenticidade do certificado:
 					</span>
 					<br />
-					credenciamento.espm.br/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
+					<%- urlBase %>/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
 				</small>
 			</div>
 		</div>

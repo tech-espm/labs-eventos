@@ -166,7 +166,7 @@
 
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoAlterarCor", { ideventolocal: local.ideventolocal, cor: cor }, function (response) {
+				JsonWebApi.post("<%- root %>/api/local/eventoAlterarCor", { ideventolocal: local.ideventolocal, cor: cor }, function (response) {
 					if (response.success) {
 						if (response.value) {
 							$("#modalLocalCor").modal("hide");
@@ -197,7 +197,7 @@
 			if (this.getAttribute("data-excluir")) {
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoDesassociar", { ideventolocal: local.ideventolocal }, function (response) {
+				JsonWebApi.post("<%- root %>/api/local/eventoDesassociar", { ideventolocal: local.ideventolocal }, function (response) {
 					if (response.success) {
 						local.ideventolocal = 0;
 						delete locaisSelecionados[local.id];
@@ -227,7 +227,7 @@
 
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoAlterarCapacidade", { ideventolocal: local.ideventolocal, capacidade: capacidade }, function (response) {
+				JsonWebApi.post("<%- root %>/api/local/eventoAlterarCapacidade", { ideventolocal: local.ideventolocal, capacidade: capacidade }, function (response) {
 					if (response.success) {
 						if (response.value)
 							Notification.success("Capacidade do local para o evento alterada com sucesso! \uD83D\uDE04");
@@ -270,7 +270,7 @@
 
 				Notification.wait();
 
-				JsonWebApi.post("/api/local/eventoAssociar", { idlocal: local.id, capacidade: local.capacidade, cor: local.cor }, function (response) {
+				JsonWebApi.post("<%- root %>/api/local/eventoAssociar", { idlocal: local.id, capacidade: local.capacidade, cor: local.cor }, function (response) {
 					if (response.success) {
 						local.ideventolocal = parseInt(response.value);
 						locaisSelecionados[local.id] = local;
