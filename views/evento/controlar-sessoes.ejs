@@ -592,27 +592,11 @@
 				if (response.success) {
 					Notification.hide();
 
-					var i, duracao, partes, inicio, termino, presenca, presencas = response.value;
+					var i, presenca, presencas = response.value;
 
 					for (i = 0; i < presencas.length; i++) {
 						presenca = presencas[i];
-
-						duracao = 0;
-
-						partes = presenca.inicio.split(":");
-						if (partes.length === 2) {
-							inicio = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-							if (!isNaN(inicio)) {
-								partes = presenca.termino.split(":");
-								if (partes.length === 2) {
-									termino = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-									if (!isNaN(termino) && termino > inicio)
-										duracao = (termino - inicio) / 60;
-								}
-							}
-						}
-
-						presenca.duracao = duracao;
+						presenca.duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
 					}
 
 					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
@@ -622,8 +606,8 @@
 						deferRender: true,
 						columns: [
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-							{ title: "Início", "class": "col-min text-right", data: "inicio" },
-							{ title: "Término", "class": "col-min text-right", data: "termino" },
+							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
+							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
 							{ title: "Duração (h)", "class": "col-min text-center", "type": "number", data: { sort: "duracao", _: function (row, type, set, meta) { return row.duracao.toFixed(1).replace(".", ","); } } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
@@ -748,8 +732,8 @@
 						deferRender: true,
 						columns: [
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-							{ title: "Início", "class": "col-min text-right", data: "inicio" },
-							{ title: "Término", "class": "col-min text-right", data: "termino" },
+							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
+							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },

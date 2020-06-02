@@ -49,7 +49,7 @@ export = class Sessao {
 			return "Data inválida";
 		if (isNaN(s.inicio) || s.inicio < 0 || s.inicio > 2359 || (s.inicio % 100) > 59)
 			return "Horário de início inválido";
-		if (isNaN(s.termino) || s.termino < 0 || s.termino > 2359 || (s.termino % 100) > 59)
+		if (isNaN(s.termino) || s.termino < 0 || s.termino > 2359 || (s.termino % 100) > 59 || s.termino < s.inicio)
 			return "Horário de término inválido";
 		s.url_remota = (s.url_remota || "").normalize().trim();
 		if (s.url_remota.length > 100)
@@ -176,6 +176,10 @@ export = class Sessao {
 	}
 
 	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<string> {
+		const inicioTermino = await sql.query("select date_format(inicio, '%Y-%m-%d') inicio, date_format(termino, '%Y-%m-%d') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
+		if (inicioTermino && inicioTermino.length)
+			return "A data da sessão deve estar entre as datas permitidas para o evento: de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino;
+
 		// Infelizmente não podemos mais utilizar uma constraint unique, porque
 		// é possível cadastrar mais de uma sessão virtual no mesmo evento/data/horário/local,
 		// assim como também é possível cadastrar mais de uma sugestão de sessão qualquer no
@@ -183,7 +187,7 @@ export = class Sessao {
 		if (s.sugestao)
 			return null;
 
-		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > 0" + (s.id ? ("and s.id <> " + s.id) : "") + "limit 1") ?
+		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > 0 " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
 			"Já existe uma sessão no evento neste dia, horário e local" : null);
 	}
 

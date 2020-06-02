@@ -1,48 +1,32 @@
 ﻿<div class="row">
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
-		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-			<label for="cbSessaoData">Data</label>
-			<select id="cbSessaoData" name="cbSessaoData" class="form-control upper" size="1">
-				<% if (usuario) { %>
-				<option value="">SELECIONE...</option>
-				<% } %>
-			</select>
-		</div>
-		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
-			<label for="txtSessaoSugestaoData">Sugestão de Data</label>
-			<input id="txtSessaoSugestaoData" name="txtSessaoSugestaoData" class="form-control" type="text" spellcheck="false" maxlength="11" />
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4 col-xs-6') %>">
-		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-			<label for="cbSessaoHorario">Horário</label>
-			<select id="cbSessaoHorario" name="cbSessaoHorario" class="form-control upper" size="1">
-				<% if (usuario) { %>
-				<option value="">SELECIONE...</option>
-				<% } %>
-			</select>
-		</div>
-		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
-			<label for="txtSessaoSugestaoInicio">Sugestão de Horário de Início</label>
-			<input id="txtSessaoSugestaoInicio" name="txtSessaoSugestaoInicio" class="form-control" type="text" spellcheck="false" maxlength="5" />
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-xs-6 col-sm-4') %>">
-		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-			<label for="cbSessaoLocal">Local</label>
-			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
-		</div>
-		<div class="<%- (usuario ? 'hidden' : 'form-group') %>">
-			<label for="txtSessaoSugestaoTermino">Sugestão de Horário de Término</label>
-			<input id="txtSessaoSugestaoTermino" name="txtSessaoSugestaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
-		</div>
-	</div>
 	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'hidden') %>">
 		<div class="form-group">
 			<label for="cbSessaoSugestao">Sugestão</label>
 			<select id="cbSessaoSugestao" name="cbSessaoSugestao" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
 		</div>
 	</div>
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
+		<div class="form-group">
+			<label for="txtSessaoData"><%- (usuario ? "Data" : "Sugestão de Data") %></label>
+			<input id="txtSessaoData" name="txtSessaoData" class="form-control" type="text" spellcheck="false" maxlength="11" />
+		</div>
+	</div>
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
+		<div class="form-group">
+			<label for="txtSessaoInicio"><%- (usuario ? "Horário de Início" : "Sugestão de Horário de Início") %></label>
+			<input id="txtSessaoInicio" name="txtSessaoInicio" class="form-control" type="text" spellcheck="false" maxlength="5" />
+		</div>
+	</div>
+	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
+		<div class="form-group">
+			<label for="txtSessaoTermino"><%- (usuario ? "Horário de Término" : "Sugestão de Horário de Término") %></label>
+			<input id="txtSessaoTermino" name="txtSessaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
+		</div>
+	</div>
+</div>
+<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+	<label for="cbSessaoLocal">Local</label>
+	<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
 </div>
 <div class="form-group" id="divSessaoUrlRemota" style="display: none;">
 	<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
@@ -165,11 +149,12 @@
 		};
 
 		window.preencherFormSessao = function (sessao) {
-			preencherCb(_("cbSessaoData"), eventoDatas, sessao ? sessao.ideventodata : "0", function (e) { return format2(e.dia) + "/" + format2(e.mes) + "/" + e.ano; }, null, <%- (usuario ? "false" : "true") %>);
-			preencherCb(_("cbSessaoHorario"), eventoHorarios, sessao ? sessao.ideventohorario : "0", function (e) { return e.inicio + " - " + e.termino; }, null, <%- (usuario ? "false" : "true") %>);
 			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal", <%- (usuario ? "false" : "true") %>);
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
+			setDatePickerValue("#txtSessaoData", sessao ? sessao.data : "");
+			$("#txtSessaoInicio").val(sessao ? sessao.inicio : "");
+			$("#txtSessaoTermino").val(sessao ? sessao.termino : "");
 			_("divSessaoUrlRemota").style.display = ((sessao && localInternet(sessao.ideventolocal)) ? "" : "none");
 			$("#txtSessaoUrlRemota").val(sessao ? sessao.url_remota : "");
 			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
@@ -186,8 +171,6 @@
 		};
 
 		//<% if (usuario) { %>
-		prepareCbSearch(_("cbSessaoData"));
-		prepareCbSearch(_("cbSessaoHorario"));
 		prepareCbSearch(_("cbSessaoLocal"));
 		//<% } %>
 		prepareCbSearch(_("cbSessaoCurso"));
@@ -200,12 +183,7 @@
 		fixUrlOnBlur(_("txtSessaoUrlRemota"));
 
 		function preencherDadosSessao(s) {
-			var tmp = eventoDatasPorId[s.ideventodata];
-			s.data = format2(tmp.dia) + "/" + format2(tmp.mes) + "/" + tmp.ano;
-			tmp = eventoHorariosPorId[s.ideventohorario];
-			s.inicio = tmp.inicio;
-			s.termino = tmp.termino;
-			tmp = eventoLocaisPorIdEventoLocal[s.ideventolocal];
+			var tmp = eventoLocaisPorIdEventoLocal[s.ideventolocal];
 			s.idlocal = tmp.id;
 			s.nome_local = tmp.nome;
 			s.sigla_unidade = tmp.sigla_unidade;
@@ -221,26 +199,8 @@
 
 		$("#formAlterarSessao").validate({
 			rules: {
-				cbSessaoData: {
-					required: true
-				},
-				cbSessaoHorario: {
-					required: true
-				},
 				cbSessaoLocal: {
 					required: true
-				},
-				txtSessaoSugestaoData: {
-					maxlength: 11,
-					required: <%- (usuario ? "false" : "true") %>
-				},
-				txtSessaoSugestaoInicio: {
-					maxlength: 5,
-					required: <%- (usuario ? "false" : "true") %>
-				},
-				txtSessaoSugestaoTermino: {
-					maxlength: 5,
-					required: <%- (usuario ? "false" : "true") %>
 				},
 				txtSessaoNome: {
 					required: true,
@@ -249,6 +209,18 @@
 				},
 				txtSessaoNomeCurto: {
 					maxlength: 45
+				},
+				txtSessaoData: {
+					required: true,
+					maxlength: 11
+				},
+				txtSessaoInicio: {
+					maxlength: 5,
+					required: true
+				},
+				txtSessaoTermino: {
+					maxlength: 5,
+					required: true
 				},
 				txtSessaoUrlRemota: {
 					maxlength: 100,
@@ -313,13 +285,14 @@
 
 				var sessao, i, stags, s = {
 					idevento: idevento,
-					ideventodata: parseInt($("#cbSessaoData").val()),
-					ideventohorario: parseInt($("#cbSessaoHorario").val()),
 					ideventolocal: parseInt($("#cbSessaoLocal").val()),
-					nome: trim($("#txtSessaoNome").val()),
-					nome_curto: trim($("#txtSessaoNomeCurto").val()),
-					url_remota: trim($("#txtSessaoUrlRemota").val()),
-					descricao: trim($("#txtSessaoDescricao").val()),
+					nome: trim($("#txtSessaoNome").val().normalize()),
+					nome_curto: trim($("#txtSessaoNomeCurto").val().normalize()),
+					data: trim($("#txtSessaoData").val().normalize()),
+					inicio: trim($("#txtSessaoInicio").val().normalize()),
+					termino: trim($("#txtSessaoTermino").val().normalize()),
+					url_remota: trim($("#txtSessaoUrlRemota").val().normalize()),
+					descricao: trim($("#txtSessaoDescricao").val().normalize()),
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					sugestao: parseInt($("#cbSessaoSugestao").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
@@ -328,7 +301,7 @@
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
 					idvertical: parseInt($("#cbSessaoVertical").val()),
-					publico_alvo: trim($("#txtSessaoPublicoAlvo").val()),
+					publico_alvo: trim($("#txtSessaoPublicoAlvo").val().normalize()),
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
 					idspalestrante: []
 				};
@@ -336,9 +309,6 @@
 				//<% if (!usuario) { %>
 				s.url = trim($("#txtSessaoUrl").val());
 				s.senha = trim($("#txtSessaoSenha").val());
-				s.descricao = "Sugestão de Data: " + trim($("#txtSessaoSugestaoData").val()) + "\n" +
-					"Sugestão de Horário: " + trim($("#txtSessaoSugestaoInicio").val()) + " - " + trim($("#txtSessaoSugestaoTermino").val()) + "\n" +
-					s.descricao;
 				s.palestrantes = [
 				//<% for (let i = 0; i < 6; i++) { %>
 					{
@@ -374,11 +344,12 @@
 
 					JsonWebApi.post("<%- root %>/api/sessao/alterar", s, function (response) {
 						if (response.success) {
-							sessao.ideventodata = s.ideventodata;
-							sessao.ideventohorario = s.ideventohorario;
 							sessao.ideventolocal = s.ideventolocal;
 							sessao.nome = s.nome;
 							sessao.nome_curto = s.nome_curto;
+							sessao.data = s.data;
+							sessao.inicio = s.inicio;
+							sessao.termino = s.termino;
 							sessao.url_remota = s.url_remota;
 							sessao.descricao = s.descricao;
 							sessao.oculta = s.oculta;
@@ -454,11 +425,12 @@
 			}
 		});
 
+		prepareDatePickerNumber("#txtSessaoData");
+		$("#txtSessaoInicio").mask("00:00");
+		$("#txtSessaoTermino").mask("00:00");
+
 		//<% if (!usuario) { %>
 		preencherFormSessao(null);
-		prepareDatePickerNumber("#txtSessaoSugestaoData");
-		$("#txtSessaoSugestaoInicio").mask("00:00");
-		$("#txtSessaoSugestaoTermino").mask("00:00");
 		_("cbSessaoLocal").value = obterIdEventoLocalPadraoInternet();
 		_("divSessaoUrlRemota").style.display = "";
 		//<% } %>

@@ -3,10 +3,14 @@
 		return ((x < 10) ? ("0" + x) : x);
 	}
 
+	function formatHourDec(x) {
+		return format2((x / 100) | 0) + ":" + format2(x % 100);
+	}
+
 	var duracaoTotal = 0, meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"], linhaData = "São Paulo, ";
 
 	(function () {
-		var i, presenca, partes, inicio, termino, duracao;
+		var i, presenca, partes, duracao;
 
 		if (presencas[0].data) {
 			for (i = 0; i < presencas.length; i++) {
@@ -33,20 +37,10 @@
 		for (i = 0; i < presencas.length; i++) {
 			presenca = presencas[i];
 
-			duracao = 0;
+			duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
 
-			partes = presenca.inicio.split(":");
-			if (partes.length === 2) {
-				inicio = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-				if (!isNaN(inicio)) {
-					partes = presenca.termino.split(":");
-					if (partes.length === 2) {
-						termino = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-						if (!isNaN(termino) && termino > inicio)
-							duracao = (termino - inicio) / 60;
-					}
-				}
-			}
+			// Para poder mostrar hora(s) sem problemas de arredondamento, inclusive na soma total
+			duracao = parseFloat(duracao.toFixed(1));
 
 			presenca.duracao = duracao;
 
@@ -106,8 +100,8 @@
 			<tr>
 				<td class="text-left"><%=presenca.nome %></td>
 				<td class="col-min text-center"><%-(presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) %></td>
-				<td class="col-min text-center"><%=presenca.inicio %></td>
-				<td class="col-min text-center"><%=presenca.termino %></td>
+				<td class="col-min text-center"><%=formatHourDec(presenca.inicio) %></td>
+				<td class="col-min text-center"><%=formatHourDec(presenca.termino) %></td>
 				<td class="col-min text-center"><%-(presenca.duracao.toFixed(1).replace(".", ",")) %></td>
 				<% if (!palestrante) { %>
 				<td class="col-min text-center"><%-(presenca.permiteacom ? "SIM" : "NÃO") %></td>
@@ -168,95 +162,5 @@
 
 	document.body.className = "A4 landscape";
 
-	/*
-	var presencas = <%- presencas %>;
-
-	(function () {
-		var i, presenca, partes, inicio, termino, duracao, duracaoTotal = 0, html = "";
-
-		presencas.sort(function (a, b) {
-			if (a.ano !== b.ano)
-				return a.ano - b.ano;
-			if (a.mes !== b.mes)
-				return a.mes - b.mes;
-			if (a.dia !== b.dia)
-				return a.dia - b.dia;
-			return a.ordem - b.ordem;
-		});
-
-		for (i = 0; i < presencas.length; i++) {
-			presenca = presencas[i];
-
-			duracao = 0;
-
-			partes = presenca.inicio.split(":");
-			if (partes.length === 2) {
-				inicio = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-				if (!isNaN(inicio)) {
-					partes = presenca.termino.split(":");
-					if (partes.length === 2) {
-						termino = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-						if (!isNaN(termino) && termino > inicio)
-							duracao = (termino - inicio) / 60;
-					}
-				}
-			}
-
-			html += '<tr><td class="text-left">' + encode(presenca.nome) + '</td>';
-			html += '<td class="col-min text-center">' + (presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) + '</td>';
-			html += '<td class="col-min text-center">' + presenca.inicio + '</td>';
-			html += '<td class="col-min text-center">' + presenca.termino + '</td>';
-			html += '<td class="col-min text-center">' + duracao.toFixed(1).replace(".", ",") + '</td></tr>';
-
-			duracaoTotal += duracao;
-		}
-
-		// Para poder mostrar hora(s) sem problemas de arredondamento
-		duracaoTotal = parseFloat(duracaoTotal.toFixed(1));
-
-		$("#lblHoras").text(duracaoTotal.toFixed(1).replace(".", ",") + (duracaoTotal === 1 ? " hora" : " horas"));
-		$("#tabela").html(html);
-	})();
-	*/
 	//]]>
 </script>
-
-<!--
-<div class="painel-msg">
-	<div class="panel panel-default no-margin-bottom">
-		<div class="panel-body">
-			<div>
-				<img alt="ESPM" width="150" src="<%- root %>/imagens/logo.png" />
-			</div>
-			<h1>Certificado de Participação</h1>
-			<p>A ESPM certifica que <b><%=participante.nome %></b> (<b><%=participante.email %></b>) <%-(palestrante ? "ministrou as" : "participou das") %> sessões descritas abaixo, com uma carga horária total de <b id="lblHoras"></b>, nos respectivos dias e horários, como parte do evento <b><%=evento.nome %></b>.</p>
-			<div class="table-responsive" style="margin-bottom: 15px;">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th class="text-left">Sessão</th>
-							<th class="col-min text-center">Data</th>
-							<th class="col-min text-center">Início</th>
-							<th class="col-min text-center">Término</th>
-							<th class="col-min text-center">Duração (h)</th>
-						</tr>
-					</thead>
-					<tbody id="tabela"></tbody>
-				</table>
-			</div>
-			<div>
-				<small>
-					<span class="no-print">
-						Você pode <a href="#" onclick="window.print(); return false;"><i class="fa fa-print"></i>imprimir</a> o certificado, ou compartilhar o link abaixo para verificação de autenticidade do certificado:
-					</span>
-					<span class="print-only">
-						Link para verificação de autenticidade do certificado:
-					</span>
-					<br />
-					<%- urlBase %>/<%-(palestrante ? "evento" : "participante") %>/certificado/<%-idcertificado %>
-				</small>
-			</div>
-		</div>
-	</div>
-</div>
--->
