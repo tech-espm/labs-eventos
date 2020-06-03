@@ -134,20 +134,7 @@
 	</div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="modalGridData">
-	<div class="modal-dialog modal-flex" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="modalGridDataTitle">Grade de Alocações</h4>
-			</div>
-			<div class="modal-body" id="modalGridDataBody"></div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
-			</div>
-		</div>
-	</div>
-</div>
+<div class="grid-data" id="modalGridData" style="display: none"></div>
 
 <script type="text/javascript">
 	//<![CDATA[
@@ -162,6 +149,9 @@
 		carregarEmpresas(<%- empresas %>);
 		carregarPalestrantes(<%- palestrantes %>);
 		var totalIP = carregarSessoes(<%- sessoes %>, <%- presencas %>);
+		var gridDataFadeRodando = false;
+		var modalGridDataSelect, modalGridDataBody, modalGridDataTable, modalGridDataLocal, modalGridDataHorario, modalGridDataCanto;
+		var aceites, clonar;
 
 		window.tabelaSessoes = prepareDataTable("tabela-sessoes", {
 			order: [],
@@ -302,8 +292,6 @@
 				$("#formAlterarSessao").submit();
 			}
 		};
-
-		var aceites, clonar;
 
 		window.trSessaoClicada = null;
 		window.naoFecharModal = false;
@@ -452,17 +440,19 @@
 			}, "id", sessao.id);
 		};
 
-		function criarGridData(data) {
-			var div, html, i, j, k, s, h, tr, primeiro, local, cor, estilo, ideventodata = data.id, ideventohorario, ideventolocal;
+		function gridDataFadeOk() {
+			gridDataFadeRodando = false;
+		}
+
+		function criarGridData(data, dataInt, eventoHorarios) {
+			var div, html, i, j, k, s, h, tr, primeiro, local, cor, ideventolocal;
 
 			div = document.createElement("div");
 			div.className = "table-responsive";
 
-			html = '<table id="gridData' + ideventodata + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
-			for (i = 0; i < eventoHorarios.length; i++) {
-				h = eventoHorarios[i];
-				html += '<th>' + h.inicio + ' - ' + h.termino + '</th>';
-			}
+			html = '<table id="gridData' + dataInt + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th>' + eventoHorarios[i] + '</th>';
 			html += '</tr></thead><tbody>'
 
 			for (i = 0; i < eventoLocais.length; i++) {
@@ -476,7 +466,7 @@
 				for (j = 0; j < eventoHorarios.length; j++) {
 					tr += '<td>';
 
-					ideventohorario = eventoHorarios[j].id;
+					/*ideventohorario = eventoHorarios[j].id;
 
 					primeiro = true;
 					for (k = 0; k < eventoSessoes.length; k++) {
@@ -499,7 +489,7 @@
 
 						if (s.sugestao)
 							tr += '</span>';
-					}
+					}*/
 
 					tr += '</td>';
 				}
@@ -516,70 +506,132 @@
 			return div;
 		}
 
+		function preencherGridData() {
+			var hheader = 50, wcol1 = 64, wcol2 = 128;
+		}
+
+		function ajustarGridData() {
+			modalGridDataLocal.style.left = modalGridDataBody.scrollLeft + "px";
+			modalGridDataHorario.style.top = modalGridDataBody.scrollTop + "px";
+			modalGridDataCanto.style.left = modalGridDataBody.scrollLeft + "px";
+			modalGridDataCanto.style.top = modalGridDataBody.scrollTop + "px";
+		};
+
+		function ocultarGridData(e) {
+			if (gridDataFadeRodando)
+				return;
+			if (e) {
+				if ("key" in e) {
+					switch (e.key) {
+						case "Escape":
+							break;
+						default:
+							return;
+					}
+				} else if ("keyCode" in e) {
+					if (e.keyCode !== 27) // escape
+						return;
+				} else {
+					if (e.which !== 27) // escape
+						return;
+				}
+			}
+			gridDataFadeRodando = true;
+			window.removeEventListener("resize", ajustarGridData);
+			document.removeEventListener("keydown", ocultarGridData, true);
+			document.body.style.overflow = "";
+			$("#modalGridData").fadeOut(400, gridDataFadeOk);
+		};
+
 		window.mostrarGridData = function () {
-			if ($.active || JsonWebApi.active)
+			if ($.active || JsonWebApi.active || gridDataFadeRodando)
 				return;
 
-			var i, html, data, tabContent, tabPanel, $modalGridDataBody = $("#modalGridDataBody");
+			var i, j, html, data, dataInt, local, cor, $modalGridData = $("#modalGridData"), hashDatas = {}, eventoDatas = [], eventoHorarios = [];
 
-			html = '<ul class="nav nav-pills text-center col-xs-space-bottom" role="tablist">';
+			for (i = 0; i < 24; i += 0.5)
+				eventoHorarios.push(formatHourDec(((i | 0) * 100) + ((i * 60) % 60)));
 
-			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
-
-				if (i)
-					html += ' ';
-
-				html += '<li role="presentation"';
-
-				if (!i)
-					html += ' class="active"';
-
-				html += '><a id="a-gridData' + data.id + '" href="#tab-gridData' + data.id + '" role="tab" data-toggle="pill" aria-controls="tab-gridData' + data.id + '"';
-
-				html += (i ? ' aria-expanded="false"' : ' aria-expanded="true"');
-
-				html += '><i class="fa fa-calendar-o"></i>' + format2(data.dia) + '/' + format2(data.mes) + '</a></li>';
+			for (i = eventoSessoes.length - 1; i >= 0; i--) {
+				data = eventoSessoes[i].data;
+				dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](data);
+				if (!hashDatas[dataInt])
+					hashDatas[dataInt] = {
+						data: data,
+						dataInt: dataInt
+					};
 			}
 
-			html += '</ul>';
+			for (i in hashDatas)
+				eventoDatas.push(hashDatas[i]);
 
-			$modalGridDataBody.html(html);
+			eventoDatas.sort(function (a, b) { return a.dataInt - b.dataInt; });
 
-			tabContent = document.createElement("div");
-			tabContent.className = "tab-content";
-
-			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
-
-				tabPanel = document.createElement("div");
-				tabPanel.className = (i ? "tab-pane" : "tab-pane active");
-				tabPanel.setAttribute("id", "tab-gridData" + data.id);
-				tabPanel.setAttribute("role", "tabpanel");
-
-				tabPanel.appendChild(criarGridData(data));
-
-				tabContent.appendChild(tabPanel);
-			}
-
-			$modalGridDataBody.append(tabContent);
+			html = '<div class="grid-data-header form-inline"><label for="modalGridDataSelect"><i class="fa fa-calendar"></i></label> <select size="1" id="modalGridDataSelect" class="form-control" style="display: inline-block; width: auto; vertical-align: middle;">';
 
 			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
+				data = eventoDatas[i].data;
+				dataInt = eventoDatas[i].dataInt;
 
-				prepareDataTable("gridData" + data.id, {
-					order: [[0, "asc"]],
-					deferRender: false,
-					export: { title: "Sessões de " + format2(data.dia) + "-" + format2(data.mes) }
-				});
+				html += '<option value="' + dataInt + '">' + data + '</option>';
 			}
 
-			$("#modalGridDataTitle").text("Grade de Alocações");
+			html += '</select> <button type="button" class="btn btn-outline btn-primary" id="modalGridDataFechar"><i class="fa fa-times"></i>Fechar</button></div><div class="grid-data-body" id="modalGridDataBody">';
 
-			$("#modalGridData").modal({
-				backdrop: "static",
-				keyboard: true
-			});
+			html += '<table id="modalGridDataTable" class="table table-hover no-margin-bottom" style="width: auto; min-width: auto; max-width: 9999999px; background-color: #fff;"><thead><tr><th class="col2">Locais</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th class="col1" style="text-align: center;">' + eventoHorarios[i] + '</th>';
+			html += '</tr></thead><tbody>';
+			for (i = 0; i < eventoLocais.length; i++) {
+				local = eventoLocais[i];
+				cor = local.cor;
+				if (cor < 0)
+					cor = 0xffffff;
+				html += '<tr><td class="col2" style="color: ' + textColorForBackground(cor) + '; background-color: ' + intToColor(cor) + ';">' + encode(local.nome) + '</td>';
+				for (j = 0; j < eventoHorarios.length; j++)
+					html += '<td class="col1"></td>';
+				html += '</tr>';
+			}
+			html += '</tbody></table>';
+
+			html += '<table id="modalGridDataLocal" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead><tbody>'
+			for (i = 0; i < eventoLocais.length; i++) {
+				local = eventoLocais[i];
+				cor = local.cor;
+				if (cor < 0)
+					cor = 0xffffff;
+				html += '<tr><td class="col2" style="color: ' + textColorForBackground(cor) + '; background-color: ' + intToColor(cor) + ';">' + encode(local.nome) + '</td></tr>';
+			}
+			html += '</tbody></table>';
+
+			html += '<table id="modalGridDataHorario" class="table table-hover no-margin-bottom float" style="width: auto; min-width: auto; max-width: 9999999px;"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th class="col1" style="text-align: center; background-color: #fff;">' + eventoHorarios[i] + '</th>';
+			html += '</tr></thead></table>';
+
+			html += '<table id="modalGridDataCanto" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead></table>';
+
+			html += '</div>';
+
+			$modalGridData.html(html);
+
+			document.getElementById("modalGridDataFechar").onclick = function () { ocultarGridData(); };
+			modalGridDataSelect = document.getElementById("modalGridDataSelect");
+			modalGridDataBody = document.getElementById("modalGridDataBody");
+			modalGridDataTable = document.getElementById("modalGridDataTable");
+			modalGridDataLocal = document.getElementById("modalGridDataLocal");
+			modalGridDataHorario = document.getElementById("modalGridDataHorario");
+			modalGridDataCanto = document.getElementById("modalGridDataCanto");
+
+			preencherGridData();
+
+			modalGridDataSelect.onchange = preencherGridData;
+			gridDataFadeRodando = true;
+			modalGridDataBody.onscroll = ajustarGridData;
+			window.addEventListener("resize", ajustarGridData);
+			document.addEventListener("keydown", ocultarGridData, true);
+			document.body.style.overflow = "hidden";
+			$modalGridData.fadeIn(400, gridDataFadeOk);
 		};
 
 		window.mostrarGridInscritosGeral = function () {
@@ -599,7 +651,7 @@
 						presenca.duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
 					}
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
 
 					prepareDataTable("tabelaInscritosGeral", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
@@ -683,7 +735,7 @@
 						});
 					}
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaAvaliacoesIndividuais"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaAvaliacoesIndividuais"></table></div>');
 
 					prepareDataTable("tabelaAvaliacoesIndividuais", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
@@ -725,7 +777,7 @@
 				if (response.success) {
 					Notification.hide();
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaPalestrantesGeral"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaPalestrantesGeral"></table></div>');
 
 					prepareDataTable("tabelaPalestrantesGeral", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"], [6, "asc"]],

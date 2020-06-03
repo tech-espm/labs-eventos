@@ -70,17 +70,68 @@
 		visibility: hidden;
 	}
 
-	.grid-data th, .grid-data td {
+	.grid-data {
+		position: fixed;
+		z-index: 1050; /* Igual ao modal do Bootstrap */
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #f0f0f0;
+	}
+
+	.grid-data-header {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		height: 50px;
+		padding: 8px 8px 0;
 		text-align: center;
 	}
 
-		.grid-data th:not(:last-child), .grid-data td:not(:last-child) {
+	.grid-data-body {
+		position: absolute;
+		left: 0;
+		top: 50px;
+		right: 0;
+		bottom: 0;
+		overflow: scroll scroll;
+	}
+
+		.grid-data-body th, .grid-data-body td {
 			border-right: 1px solid #ddd;
+			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			vertical-align: middle;
+			min-height: 50px;
+			max-height: 50px;
+			height: 50px;
 		}
 
-		.grid-data th.left, .grid-data td.left {
-			text-align: left;
+		.grid-data-body .col1 {
+			min-width: 64px;
+			max-width: 64px;
+			width: 64px;
 		}
+
+		.grid-data-body .col2 {
+			min-width: 128px;
+			max-width: 128px;
+			width: 128px;
+		}
+
+		.grid-data-body .float {
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+
+		/*.grid-data-body th:not(:last-child), .grid-data td:not(:last-child) {
+			border-right: 1px solid #ddd;
+		}*/
 
 	.content-section {
 		counter-reset: content-section;

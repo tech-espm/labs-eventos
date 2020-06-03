@@ -205,9 +205,11 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 		}
 		if (evento && evento.id) {
 			if (evento.habilitado) {
+				const hoje = new Date();
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
 					permiteinscricao: evento.permiteinscricao,
+					hojeInt: (hoje.getFullYear() * 10000) + ((hoje.getMonth() + 1) * 100) + hoje.getDate(),
 					idempresapadrao: evento.idempresapadrao,
 					id: evento.id,
 					nome: evento.nome,

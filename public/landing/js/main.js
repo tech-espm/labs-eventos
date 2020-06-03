@@ -56,6 +56,42 @@ window.encode = (function () {
 		return (x ? x.replace(lt, "&lt;").replace(gt, "&gt;") : "");
 	};
 })();
+window.prepareCopyHandler = function (modal, selector) {
+	function copyError() {
+		Notification.error("Por favor, tecle Ctrl+C / Command+C para copiar " + emoji.sad);
+	}
+
+	var lastTooltipBtn = null,
+		lastTooltipTimeout = 0,
+		opt = (modal ? { container: _(modal) } : undefined),
+		clipboard = new ClipboardJS(selector || ".btn-copyjs", opt);
+	clipboard.on("success", function (e) {
+		var btn = e.trigger;
+
+		if (!btn.tooltipOK) {
+			btn.tooltipOK = true;
+			btn.setAttribute("title", "Copiado!");
+			$(btn).tooltip({ trigger: "manual" });
+			btn.setAttribute("title", "Copiar");
+		}
+
+		if (lastTooltipTimeout) {
+			$(lastTooltipBtn).tooltip("hide");
+			clearTimeout(lastTooltipTimeout);
+			lastTooltipTimeout = 0;
+		}
+
+		$(lastTooltipBtn = btn).tooltip("show");
+		lastTooltipTimeout = setTimeout(function () {
+			if (lastTooltipTimeout) {
+				$(lastTooltipBtn).tooltip("hide");
+				lastTooltipBtn = null;
+				lastTooltipTimeout = 0;
+			}
+		}, 2000);
+	});
+	clipboard.on("error", copyError);
+};
 window.customFilterHandler = function (table, input) {
 	var lastSearch = "", handler = function () {
 		var s = trim(input.value.normalize()).toUpperCase();
@@ -149,6 +185,9 @@ window.formatNumber = (function () {
 window.formatHour = function (x) {
 	return format2(x >>> 6) + ":" + format2(x & 63);
 };
+window.formatHourDec = function (x) {
+	return format2((x / 100) | 0) + ":" + format2(x % 100);
+};
 //https://github.com/igorescobar/jQuery-Mask-Plugin
 //https://igorescobar.github.io/jQuery-Mask-Plugin/
 window.maskCNPJ = function (field) {
@@ -162,6 +201,19 @@ window.maskPhone = function (field) {
 };
 window.maskHour = function (field) {
 	$(field).mask("00:00");
+};
+window.maskTextId = function (field) {
+	$(field).mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9\.]/, optional: true } } });
+};
+window.maskMobilePhone = function (field) {
+	var reg = /\D/g, behavior = function (val) {
+		return ((val.replace(reg, "").length === 11) ? "(00) 00000-0000" : "(00) 0000-00009");
+	}, opt = {
+		onKeyPress: function (val, e, field, options) {
+			field.mask(behavior.apply({}, arguments), options);
+		}
+	};
+	$(field).mask(behavior, opt);
 };
 window.addFilterButton = function (parent, icon, text, handler, title, btnClass) {
 	var p = _(parent), label, btn, i;
@@ -372,7 +424,7 @@ window.prepareDataTableMain = (function () {
 
 			if (menu) {
 				if (!docOk) {
-					document.body.addEventListener("click", docHandler, false);
+					(("onclick" in document) ? document : document.body).addEventListener("click", docHandler, false);
 					docOk = true;
 				}
 				if (!wrapper)
@@ -587,6 +639,45 @@ window.resetForm = function (f) {
 		validator.formSubmitted = false;
 	}
 };
+window.validateCPF = function (cpf) {
+	cpf = trim(cpf || "").replace(/\./g, "").replace(/\-/g, "");
+	if (cpf.length !== 11)
+		return null;
+
+	var i, sum = 0, modulus;
+
+	for (i = 0; i < 9; i++)
+		sum += (cpf.charCodeAt(i) - 0x30) * (10 - i);
+	modulus = sum % 11;
+	if (modulus < 2)
+		modulus = 0;
+	else
+		modulus = 11 - modulus;
+
+	if ((cpf.charCodeAt(9) - 0x30) !== modulus)
+		return null;
+
+	sum = modulus * 2;
+	for (i = 0; i < 9; i++)
+		sum += (cpf.charCodeAt(i) - 0x30) * (11 - i);
+	modulus = sum % 11;
+	if (modulus < 2)
+		modulus = 0;
+	else
+		modulus = 11 - modulus;
+
+	return ((cpf.charCodeAt(10) - 0x30) === modulus) ? cpf : null;
+};
+window.validateEmail = function (email) {
+	if (!email)
+		return false;
+
+	var at = email.indexOf("@"),
+		at2 = email.lastIndexOf("@"),
+		dot = email.lastIndexOf(".");
+
+	return (at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
+};
 window.createItem = function (parent, icon, className, text, badge, clickHandler, name0, value0) {
 	var i, btn = document.createElement("button"), c = (className || "btn-outline btn-default");
 	btn.setAttribute("type", "button");
@@ -712,11 +803,14 @@ window.capitalizarFrase = function (s, classe, tag) {
 	return html;
 };
 (function () {
-	var fullScreenFrame = null;
+	var fullScreenFrame = null, offsetY = 0;
 
 	window.openFullScreenFrame = function (url) {
 		if (fullScreenFrame)
 			return;
+		offsetY = (("scrollY" in window) ? window.scrollY : window.pageYOffset);
+		if (isNaN(offsetY) || !offsetY)
+			offsetY = 0;
 		fullScreenFrame = document.createElement("iframe");
 		fullScreenFrame.className = "fullscreen-iframe";
 		fullScreenFrame.setAttribute("src", url);
@@ -741,6 +835,8 @@ window.capitalizarFrase = function (s, classe, tag) {
 		_("wrapper").style.display = "";
 		document.body.style.overflow = "";
 		tmp.className = "fullscreen-iframe";
+		if (("scrollTo" in window))
+			window.scrollTo(0, offsetY);
 		setTimeout(function () { document.body.removeChild(tmp); }, 410);
 	}
 
@@ -1114,10 +1210,14 @@ window.Notification = {
 	timeoutVisible: 0,
 	timeoutGone: 0,
 	isVisible: false,
-	wait: function (msg, basePath) {
-		var div = document.createElement("div");
-		div.innerHTML = "<img alt=\"Aguarde\" src=\"" + (basePath || "/") + "imagens/loading-grey-t.gif\"> " + (msg || "Por favor, aguarde...");
-		return Notification.show(div, "default", -1);
+	pathBase: "/",
+	imagePath: "Images",
+	defaultWaitAlt: "Aguarde",
+	defaultWaitMessage: "Por favor, aguarde...",
+	wait: function (msg) {
+		var span = document.createElement("span");
+		span.innerHTML = "<img alt=\"" + Notification.defaultWaitAlt + "\" src=\"" + Notification.pathBase + Notification.imagePath + "/loading-grey-t.gif\"> " + (msg || Notification.defaultWaitMessage);
+		return Notification.show(span, "default", -1);
 	},
 	success: function (message, important) {
 		return Notification.show(message, "success", important ? 5000 : 2500, true);
@@ -1237,7 +1337,7 @@ window.BlobDownloader = {
 	supported: (("Blob" in window) && ("URL" in window) && ("createObjectURL" in window.URL) && ("revokeObjectURL" in window.URL)),
 
 	alertNotSupported: function () {
-		Notification.error("Infelizmente seu navegador não suporta essa funcionalidade \uD83D\uDE22", true);
+		Notification.error("Infelizmente seu navegador não suporta essa funcionalidade " + emoji.sad, true);
 		return false;
 	},
 
@@ -1254,7 +1354,7 @@ window.BlobDownloader = {
 				BlobDownloader.saveAs.call(window.navigator, blob, filename);
 				return;
 			} catch (ex) {
-				Notification.error("Ocorreu um erro durante o download dos dados \uD83D\uDE22", true);
+				Notification.error("Ocorreu um erro durante o download dos dados " + emoji.sad, true);
 			}
 		}
 
@@ -1339,7 +1439,7 @@ window.BlobDownloader = {
 			if (data.timerID)
 				clearTimeout(data.timerID);
 
-			if (data.dropDown.className != "dropdown") {
+			if (data.menuVisible) {
 				data.version++;
 				data.timerID = setTimeout(cbSearch_BlurTimeout, 300, { data: data, version: data.version });
 			}
@@ -1439,7 +1539,7 @@ window.BlobDownloader = {
 			case 38: // up
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.selection--;
 					data.updateSelection();
 				} else {
@@ -1449,7 +1549,7 @@ window.BlobDownloader = {
 			case 40: // down
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.selection++;
 					data.updateSelection();
 				} else {
@@ -1459,11 +1559,11 @@ window.BlobDownloader = {
 			case 13: // enter
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className == "dropdown")
+				if (!data.menuVisible)
 					data.open(data.cbSearchInput.value);
 				return false;
 			case 27: // escape
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.close();
 					return cancelEvent(e);
 				}
@@ -1531,21 +1631,21 @@ window.BlobDownloader = {
 			case 40: // down
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown")
+				if (data.menuVisible)
 					return false;
 				data.lastSearch = null;
 				break;
 			case 13: // enter
 				if (e.preventDefault)
 					e.preventDefault();
-				if (data.dropDown.className != "dropdown") {
+				if (data.menuVisible) {
 					data.select();
 					return false;
 				}
 				data.lastSearch = null;
 				break;
-			//case 27: // escape
-			//	return cancelEvent(e);
+			case 27: // escape
+				return cancelEvent(e);
 		}
 
 		var normalized = cbSearch_Normalize(this.value);
@@ -1590,10 +1690,10 @@ window.BlobDownloader = {
 	}
 
 	function cbSearch_DataOpen(normalized) {
-		var i, li, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null;
+		var i, li, left, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null, rect;
 
-		while (this.menu.firstChild)
-			this.menu.removeChild(this.menu.firstChild);
+		while (menu.firstChild)
+			menu.removeChild(menu.firstChild);
 
 		for (i = 0; i < list.length; i++) {
 			li = list[i];
@@ -1632,13 +1732,31 @@ window.BlobDownloader = {
 
 		this.selection = 0;
 
-		if (ok)
-			this.dropDown.className = "dropdown open";
-		else
-			this.dropDown.className = "dropdown";
+		if (ok) {
+			rect = this.dropDown.getBoundingClientRect();
+			left = ((window.scrollX + rect.left) | 0);
+			menu.style.left = left + "px";
+			menu.style.top = ((window.scrollY + rect.bottom + 2) | 0) + "px";
+			if (!this.menuVisible) {
+				document.body.appendChild(menu);
+				this.menuVisible = true;
+			}
+			rect = menu.getBoundingClientRect();
+			if (rect.right > window.innerWidth)
+				menu.style.left = ((left - (rect.right - window.innerWidth) - 32) | 0) + "px";
+		} else {
+			if (this.menuVisible) {
+				if (menu.parentNode)
+					menu.parentNode.removeChild(menu);
+				this.menuVisible = false;
+			}
+		}
 	}
 
 	function cbSearch_DataClose() {
+		if (this.menuVisible && this.menu.parentNode)
+			this.menu.parentNode.removeChild(this.menu);
+		this.menuVisible = false;
 		while (this.menu.firstChild)
 			this.menu.removeChild(this.menu.firstChild);
 		this.version++;
@@ -1648,7 +1766,6 @@ window.BlobDownloader = {
 		}
 		this.lastSearch = null;
 		this.selection = -1;
-		this.dropDown.className = "dropdown";
 	}
 
 	window.setCbSearch = function (select, value) {
@@ -1687,6 +1804,7 @@ window.BlobDownloader = {
 				version: 0,
 				dropDown: outerdiv,
 				menu: document.createElement("ul"),
+				menuVisible: false,
 				select: cbSearch_DataSelect,
 				updateSelection: cbSearch_DataUpdateSelection,
 				open: cbSearch_DataOpen,
@@ -1731,6 +1849,11 @@ window.BlobDownloader = {
 		data.menu.className = "dropdown-menu";
 		data.menu.style.maxHeight = "140px";// 10 (padding) + (26 x item count)
 		data.menu.style.overflowY = "auto";
+		data.menu.style.height = "auto";
+		data.menu.style.width = "auto";
+		data.menu.style.right = "auto";
+		data.menu.style.bottom = "auto";
+		data.menu.style.display = "block";
 
 		button.appendChild(i);
 		span.appendChild(button);
@@ -1744,7 +1867,6 @@ window.BlobDownloader = {
 
 		outerdiv.appendChild(select);
 		outerdiv.appendChild(groupdiv);
-		outerdiv.appendChild(data.menu);
 
 		parent.appendChild(outerdiv);
 
