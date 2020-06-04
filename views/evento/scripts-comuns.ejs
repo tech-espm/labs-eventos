@@ -22,14 +22,6 @@
 		return (a.nome < b.nome ? -1 : (a.nome > b.nome ? 1 : 0));
 	}
 
-	function comparadorOrdem(a, b) {
-		return a.ordem - b.ordem;
-	}
-
-	function comparadorAnoMesDia(a, b) {
-		return ((a.ano === b.ano) ? ((a.mes === b.mes) ? (a.dia - b.dia) : (a.mes - b.mes)) : (a.ano - b.ano));
-	}
-
 	function carregarEmpresas(empresas) {
 		window.eventoEmpresas = empresas;
 		window.eventoEmpresasPorId = {};
