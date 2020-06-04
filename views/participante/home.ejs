@@ -288,7 +288,6 @@
 						if (i)
 							html += "<hr />";
 
-						debugger;
 						var terminoEvento = (new Date((inscricao.dataInt / 10000) | 0, (((inscricao.dataInt / 100) | 0) % 100) - 1, inscricao.dataInt % 100, (inscricao.termino / 100) | 0, inscricao.termino % 100, 0, 0)).getTime();
 						// Libera as avaliações por 10 dias, a partir de 10 minutos antes do final do evento
 						terminoEvento -= (10 * 60 * 1000);
