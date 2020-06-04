@@ -581,7 +581,7 @@
 							var mime = (imagemVazia ? "image/png" : "image/jpeg"); //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
-								var data = canvas.toDataURL(mime, 1);
+								var data = canvas.toDataURL(mime, 0.89);
 
 								// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
 								var binStr = atob(data.split(",")[1]),
@@ -596,7 +596,7 @@
 								canvas.toBlob(function (blob) {
 									formData.append("imagem", blob);
 									terminar(true);
-								}, mime, 1);
+								}, mime, 0.89);
 							}
 						};
 						image.onerror = erroImagem;
