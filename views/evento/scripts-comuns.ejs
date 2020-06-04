@@ -30,30 +30,12 @@
 		return ((a.ano === b.ano) ? ((a.mes === b.mes) ? (a.dia - b.dia) : (a.mes - b.mes)) : (a.ano - b.ano));
 	}
 
-	function carregarDatas(datas) {
-		window.eventoDatas = datas;
-		window.eventoDatasPorId = {};
-		if (eventoDatas) {
-			for (var i = 0; i < eventoDatas.length; i++)
-				eventoDatasPorId[eventoDatas[i].id] = eventoDatas[i];
-		}
-	}
-
 	function carregarEmpresas(empresas) {
 		window.eventoEmpresas = empresas;
 		window.eventoEmpresasPorId = {};
 		if (eventoEmpresas) {
 			for (var i = 0; i < eventoEmpresas.length; i++)
 				eventoEmpresasPorId[eventoEmpresas[i].id] = eventoEmpresas[i];
-		}
-	}
-
-	function carregarHorarios(horarios) {
-		window.eventoHorarios = horarios;
-		window.eventoHorariosPorId = {};
-		if (eventoHorarios) {
-			for (var i = 0; i < eventoHorarios.length; i++)
-				eventoHorariosPorId[eventoHorarios[i].id] = eventoHorarios[i];
 		}
 	}
 

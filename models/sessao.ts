@@ -176,9 +176,9 @@ export = class Sessao {
 	}
 
 	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<string> {
-		const inicioTermino = await sql.query("select date_format(inicio, '%Y-%m-%d') inicio, date_format(termino, '%Y-%m-%d') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
+		const inicioTermino = await sql.query("select date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
 		if (inicioTermino && inicioTermino.length)
-			return "A data da sessão deve estar entre as datas permitidas para o evento: de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino;
+			return "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino;
 
 		// Infelizmente não podemos mais utilizar uma constraint unique, porque
 		// é possível cadastrar mais de uma sessão virtual no mesmo evento/data/horário/local,

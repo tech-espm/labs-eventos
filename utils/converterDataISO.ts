@@ -2,13 +2,22 @@
 export = function converterDataISO(data: string): string {
 	if (!data || !(data = data.trim()) || data.length > 10)
 		return null;
-	const b1 = data.indexOf("/");
-	const b2 = data.lastIndexOf("/");
-	if (b1 <= 0 || b2 <= b1)
-		return null;
-	const dia = parseInt(data.substring(0, b1));
-	const mes = parseInt(data.substring(b1 + 1, b2));
-	const ano = parseInt(data.substring(b2 + 1));
+	let b1 = data.indexOf("/");
+	let b2 = data.lastIndexOf("/");
+	let dia: number, mes: number, ano: number;
+	if (b1 <= 0 || b2 <= b1) {
+		let b1 = data.indexOf("-");
+		let b2 = data.lastIndexOf("-");
+		if (b1 <= 0 || b2 <= b1)
+			return null;
+		ano = parseInt(data.substring(0, b1));
+		mes = parseInt(data.substring(b1 + 1, b2));
+		dia = parseInt(data.substring(b2 + 1));
+	} else {
+		dia = parseInt(data.substring(0, b1));
+		mes = parseInt(data.substring(b1 + 1, b2));
+		ano = parseInt(data.substring(b2 + 1));
+	}
 	if (isNaN(dia) || isNaN(mes) || isNaN(ano) ||
 		dia < 1 || mes < 1 || ano < 1 ||
 		dia > 31 || mes > 12 || ano > 9999)

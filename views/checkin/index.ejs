@@ -10,12 +10,8 @@
 			<div class="row">
 				<div class="col-sm-6">
 					<div class="form-group">
-						<label for="cbData">Dia</label>
-						<select id="cbData" name="cbData" class="form-control" size="1">
-							<% for (var i = 0; i < datas.length; i++) { %>
-							<option value="<%-datas[i].id %>"><%=datas[i].dia %></option>
-							<% } %>
-						</select>
+						<label for="txtData">Data</label>
+						<input id="txtData" name="txtData" class="form-control" type="text" spellcheck="false" maxlength="11" autocomplete="off" />
 					</div>
 				</div>
 				<div class="col-sm-6">
@@ -189,28 +185,18 @@
 		alertaDepoisDaConfirmacaoErro = false,
 		modalAlertaVisivel = false,
 		modalConfirmarPresencaVisivel = false,
-		cbData = _("cbData"),
+		txtData = _("txtData"),
 		cbLocal = _("cbLocal"),
 		$cbSessao = $("#cbSessao"),
 		sessoes = <%-JSON.stringify(sessoes) %>;
 
-	sessoes.sort(function (a, b) {
-		if (a.inicio < b.inicio)
-			return -1;
-		if (a.inicio > b.inicio)
-			return 1;
-		if (a.termino < b.termino)
-			return -1;
-		return 1;
-	});
-
 	function atualizarSessoes() {
-		var i, s, ideventodata = parseInt(cbData.value), ideventolocal = parseInt(cbLocal.value);
+		var i, s, dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](txtData.value), ideventolocal = parseInt(cbLocal.value);
 
 		$cbSessao.empty();
 
 		for (i = 0; i < sessoes.length; i++) {
-			if ((s = sessoes[i]).ideventodata !== ideventodata ||
+			if ((s = sessoes[i]).dataInt !== dataInt ||
 				s.ideventolocal !== ideventolocal)
 				continue;
 			$cbSessao.append('<option value="' + s.id + '">' + encode(s.inicio) + ' às ' + encode(s.termino) + ' - ' + encode(s.nome_curto) + '</option>');
@@ -218,12 +204,6 @@
 
 		limparInscritos();
 	}
-
-	cbData.onchange = atualizarSessoes;
-	cbLocal.onchange = atualizarSessoes;
-	$cbSessao[0].onchange = limparInscritos;
-
-	atualizarSessoes();
 
 	$("#modalAlerta").on("show.bs.modal", function () {
 		modalAlertaVisivel = true;
@@ -546,6 +526,43 @@
 	}
 
 	(function () {
+		var i, s, hoje = new Date();
+
+		prepareDatePickerNumber(txtData);
+		setDatePickerValue(txtData, format2(hoje.getDate()) + "/" + format2(hoje.getMonth() + 1) + "/" + hoje.getFullYear());
+
+		for (i = sessoes.length - 1; i >= 0; i--) {
+			s = sessoes[i];
+			if (s.oculta || s.sugestao) {
+				sessoes.splice(i, 1);
+				continue;
+			}
+			s.dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](s.data);
+			s.inicioInt = parseInt(s.inicio.replace(":", ""), 10);
+			s.terminoInt = parseInt(s.termino.replace(":", ""), 10);
+		}
+
+		sessoes.sort(function (a, b) {
+			if (a.dataInt < b.dataInt)
+				return -1;
+			if (a.dataInt > b.dataInt)
+				return 1;
+			if (a.inicioInt < b.inicioInt)
+				return -1;
+			if (a.inicioInt > b.inicioInt)
+				return 1;
+			if (a.terminoInt < b.terminoInt)
+				return -1;
+			return 1;
+		});
+
+		txtData.onchange = function () { if (txtData.value.length === 10) atualizarSessoes(); };
+		$(txtData).datepicker().on("changeDate", atualizarSessoes);
+		cbLocal.onchange = atualizarSessoes;
+		$cbSessao[0].onchange = limparInscritos;
+
+		atualizarSessoes();
+
 		if (!navigator.getUserMedia && !navigator.mediaDevices) {
 			Notification.error("Aparentemente seu browser não possui a API necessária para acessar a câmera! " + emoji.sad, true);
 		} else {

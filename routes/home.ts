@@ -2,9 +2,7 @@
 import wrap = require("express-async-error-wrapper");
 import Evento = require("../models/evento");
 import Curso = require("../models/curso");
-import Data = require("../models/data");
 import Formato = require("../models/formato");
-import Horario = require("../models/horario");
 import Local = require("../models/local");
 import TipoSessao = require("../models/tipoSessao");
 import Vertical = require("../models/vertical");
@@ -72,9 +70,7 @@ router.get("/sugestao/:url/:senha", wrap(async (req: express.Request, res: expre
 		senha: senha,
 		evento: await Evento.obter(evento.id),
 		cursos: JSON.stringify(await Curso.listarExterno()),
-		datas: JSON.stringify(await Data.listar(evento.id)),
 		formatos: JSON.stringify(await Formato.listar()),
-		horarios: JSON.stringify(await Horario.listar(evento.id)),
 		eventoLocais: JSON.stringify(await Local.eventoListar(evento.id)),
 		locais: JSON.stringify(await Local.listar()),
 		tipoSessoes: JSON.stringify(await TipoSessao.listar()),
