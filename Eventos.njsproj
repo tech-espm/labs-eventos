@@ -104,7 +104,7 @@
     <Content Include="public\lib\paper-css\css\paper.min.css" />
     <Content Include="public\lib\slick\css\slick-1.8.1.css" />
     <Content Include="utils\geradorHash.ts" />
-    <Content Include="public\lib\bootstrap-datepicker\css\bootstrap-datepicker-1.0.0.min.css" />
+    <Content Include="public\lib\bootstrap-datepicker\css\bootstrap-datepicker-1.0.1.min.css" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="public\lib\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
@@ -122,10 +122,8 @@
     <Content Include="views\evento\controlar-sessoes.ejs" />
     <Content Include="views\evento\controlar-palestrantes.ejs" />
     <Content Include="views\evento\controlar-empresas.ejs" />
-    <Content Include="views\evento\controlar-horarios.ejs" />
     <Content Include="views\evento\controlar-landing-page.ejs" />
     <Content Include="views\evento\controlar-arquivos.ejs" />
-    <Content Include="views\evento\controlar-datas.ejs" />
     <Content Include="views\evento\controlar-locais.ejs" />
     <Content Include="views\evento\controlar-usuarios.ejs" />
     <Content Include="views\evento\controlar.ejs" />
@@ -200,14 +198,12 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="models\palestrante.ts" />
     <TypeScriptCompile Include="models\empresa.ts" />
-    <TypeScriptCompile Include="models\horario.ts" />
     <TypeScriptCompile Include="models\evento.ts" />
     <TypeScriptCompile Include="models\formato.ts" />
     <TypeScriptCompile Include="models\curso.ts" />
     <TypeScriptCompile Include="models\local.ts" />
     <TypeScriptCompile Include="models\instrucao.ts" />
     <TypeScriptCompile Include="models\industria.ts" />
-    <TypeScriptCompile Include="models\data.ts" />
     <TypeScriptCompile Include="models\tipoEmpresa.ts" />
     <TypeScriptCompile Include="models\tipoSessao.ts" />
     <TypeScriptCompile Include="models\unidade.ts" />
@@ -218,14 +214,12 @@
     <TypeScriptCompile Include="routes\api\sessao.ts" />
     <TypeScriptCompile Include="routes\api\palestrante.ts" />
     <TypeScriptCompile Include="routes\api\empresa.ts" />
-    <TypeScriptCompile Include="routes\api\horario.ts" />
     <TypeScriptCompile Include="routes\api\evento.ts" />
     <TypeScriptCompile Include="routes\api\formato.ts" />
     <TypeScriptCompile Include="routes\api\curso.ts" />
     <TypeScriptCompile Include="routes\api\local.ts" />
     <TypeScriptCompile Include="routes\api\instrucao.ts" />
     <TypeScriptCompile Include="routes\api\industria.ts" />
-    <TypeScriptCompile Include="routes\api\data.ts" />
     <TypeScriptCompile Include="routes\api\tipoEmpresa.ts" />
     <TypeScriptCompile Include="routes\api\tipoSessao.ts" />
     <TypeScriptCompile Include="routes\api\unidade.ts" />
@@ -255,6 +249,8 @@
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="appsettings.ts" />
+    <TypeScriptCompile Include="utils\converterDataISO.ts" />
+    <TypeScriptCompile Include="utils\ajustarInicioTermino.ts" />
     <TypeScriptCompile Include="utils\emailValido.ts" />
     <TypeScriptCompile Include="utils\intToHex.ts" />
   </ItemGroup>
@@ -334,18 +330,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="public\js\admin-1.0.6.js" />
-    <Compile Include="public\js\main-1.0.7.js" />
+    <Compile Include="public\js\main-1.0.8.js" />
     <Compile Include="public\landing\js\bootstrap.min.js" />
     <Compile Include="public\landing\js\jquery.min.js" />
     <Compile Include="public\landing\js\main.js" />
     <Compile Include="public\landing\js\slick.min.js" />
-    <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.4.min.js" />
+    <Compile Include="public\lib\bootstrap-datepicker\js\bootstrap-datepicker-1.0.6.min.js" />
     <Compile Include="public\lib\bootstrap\js\bootstrap-1.0.1.min.js" />
     <Compile Include="public\lib\clipboardjs\js\clipboard.min.js" />
-    <Compile Include="public\lib\data-tables\js\data-tables-1.0.13.min.js" />
+    <Compile Include="public\lib\data-tables\js\data-tables-1.0.15.min.js" />
     <Compile Include="public\lib\jquery-mask\js\jquery-mask-1.0.0.min.js" />
     <Compile Include="public\lib\jquery-ui\js\jquery-ui-1.0.0.min.js" />
-    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.2.min.js" />
+    <Compile Include="public\lib\jquery-validate\js\jquery-validate-1.0.3.min.js" />
     <Compile Include="public\lib\jquery-validate\js\messages_pt_BR.min.js" />
     <Compile Include="public\lib\jquery\js\jquery-1.0.1.min.js" />
     <Compile Include="public\lib\metis-menu\js\metis-menu-1.0.1.min.js" />

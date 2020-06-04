@@ -1,7 +1,6 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import Evento = require("../models/evento");
-import Industria = require("../models/industria");
 import Instrucao = require("../models/instrucao");
 import Participante = require("../models/participante");
 import Profissao = require("../models/profissao");

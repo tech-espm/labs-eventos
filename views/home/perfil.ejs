@@ -73,7 +73,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.postFormData("/api/usuario/alterarPerfil", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/usuario/alterarPerfil", form, function (response) {
 				if (response.success)
 					Notification.success("Perfil alterado com sucesso! \uD83D\uDE04");
 				else

@@ -38,7 +38,7 @@
 		order: [[1, "asc"]],
 		deferRender: true,
 		columns: [
-			{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Editar\" href=\"/curso/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+			{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<a target=\"_blank\" title=\"Editar\" href=\"<%- root %>/curso/alterar?id=" + row.id + "\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></a> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 			{ title: "Nome", render: encode, data: "nome" },
 			{ title: "E-mail do Responsável", render: encode, data: "emailresponsavel" },
 		],
@@ -74,7 +74,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/curso/excluir", function (response) {
+		JsonWebApi.get("<%- root %>/api/curso/excluir", function (response) {
 			if (response.success) {
 				Notification.success("Âncora excluída com sucesso! \uD83D\uDE04");
 				tabela.row(trClicada).remove().draw();

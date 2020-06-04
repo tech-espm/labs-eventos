@@ -231,7 +231,7 @@
 			} else if (this.getAttribute("data-link")) {
 				Notification.wait();
 
-				JsonWebApi.get("/api/palestrante/gerarLinkExterno/" + palestrante.id, function (response) {
+				JsonWebApi.get("<%- root %>/api/palestrante/gerarLinkExterno/" + palestrante.id, function (response) {
 					if (response.success) {
 						Notification.hide();
 
@@ -267,7 +267,7 @@
 			} else if (this.getAttribute("data-certificado")) {
 				Notification.wait();
 
-				JsonWebApi.get("/api/palestrante/gerarLinkCertificado/" + palestrante.id, function (response) {
+				JsonWebApi.get("<%- root %>/api/palestrante/gerarLinkCertificado/" + palestrante.id, function (response) {
 					if (response.success) {
 						Notification.hide();
 
@@ -425,7 +425,7 @@
 						formData.append("id", p.id);
 						formData.append("versao", p.versao);
 
-						JsonWebApi.postFormData("/api/palestrante/alterar", formData, function (response) {
+						JsonWebApi.postFormData("<%- root %>/api/palestrante/alterar", formData, function (response) {
 							if (response.success) {
 								$("#modalAlterarPalestrante").modal("hide");
 								palestrante.idempresa = p.idempresa;
@@ -455,7 +455,7 @@
 					} else {
 						formData.append("versao", p.versao);
 
-						JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
+						JsonWebApi.postFormData("<%- root %>/api/palestrante/criar", formData, function (response) {
 							if (response.success) {
 								resetForm("#formAlterarPalestrante");
 								setCbSearch(_("cbPalestranteEmpresa"), idempresapadrao.toString());
@@ -581,7 +581,7 @@
 							var mime = (imagemVazia ? "image/png" : "image/jpeg"); //(!urlImagemTwitter && endsWith(arquivo.name.toLowerCase(), ".png")) ? "image/png" : "image/jpeg";
 
 							if (!HTMLCanvasElement.prototype.toBlob) {
-								var data = canvas.toDataURL(mime, 1);
+								var data = canvas.toDataURL(mime, 0.89);
 
 								// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas#JavaScript
 								var binStr = atob(data.split(",")[1]),
@@ -596,7 +596,7 @@
 								canvas.toBlob(function (blob) {
 									formData.append("imagem", blob);
 									terminar(true);
-								}, mime, 1);
+								}, mime, 0.89);
 							}
 						};
 						image.onerror = erroImagem;
@@ -661,7 +661,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/palestrante/excluir", function (response) {
+			JsonWebApi.get("<%- root %>/api/palestrante/excluir", function (response) {
 				if (response.success) {
 					delete eventoPalestrantesPorId[palestrante.id];
 					for (var i = eventoPalestrantes.length - 1; i >= 0; i--) {
@@ -737,7 +737,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/palestrante/listarSessoesEAceitesGeral", function (response) {
+			JsonWebApi.get("<%- root %>/api/palestrante/listarSessoesEAceitesGeral", function (response) {
 				if (response.success) {
 
 					var i, j,
@@ -785,9 +785,9 @@
 						html += '<tr data-ideventopalestrante="' + ideventopalestrante + '">';
 						html += '<td><button type="button" onclick="enviarEmail(this.parentNode.parentNode, true)" class="btn btn-outline btn-primary"><i class="fa fa-envelope-o"></i>Reenviar E-mail</button></td>';
 						html += '<td class="col-min"><img alt="Imagem da Palestrante" class="palestrante-img" src="' + caminhoAbsolutoPastaExterno + '/' + ideventopalestrante + '.' + extensaoImagem + '?v=' + (eventoPalestrantesPorId[ideventopalestrante] || placeholder).versao + '" /></td>';
-						html += '<td class="left">' + encode(palestrante.nome) + '</td>';
-						html += (faltaEmail ? '<td class="left"><span class="col-h">SIM</span></td>' : '<td class="left">NÃO</td>');
-						html += (aceiteCompleto ? '<td class="left">SIM</td>' : '<td class="left"><span class="col-h">NÃO</span></td>');
+						html += '<td>' + encode(palestrante.nome) + '</td>';
+						html += (faltaEmail ? '<td><span class="col-h">SIM</span></td>' : '<td>NÃO</td>');
+						html += (aceiteCompleto ? '<td>SIM</td>' : '<td><span class="col-h">NÃO</span></td>');
 						html += (maiorEmail ? '<td class="text-right">' + maiorEmail + '</td>' : '<td class="text-right"></td>');
 						html += '</tr>';
 					}
@@ -854,7 +854,7 @@
 					return false;
 			}
 
-			JsonWebApi.get("/api/palestrante/enviarEmailLinkExterno/" + row.getAttribute("data-ideventopalestrante"), function (response) {
+			JsonWebApi.get("<%- root %>/api/palestrante/enviarEmailLinkExterno/" + row.getAttribute("data-ideventopalestrante"), function (response) {
 				if (response.success) {
 					concluirRow(row, response.value, gridAceite);
 					if (callback)

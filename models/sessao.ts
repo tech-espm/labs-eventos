@@ -1,19 +1,21 @@
 ﻿import Sql = require("../infra/sql");
-import Horario = require("./horario");
+import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
+import converterDataISO = require("../utils/converterDataISO");
 import PalestranteResumido = require("./palestranteResumido");
 
 export = class Sessao {
 	public id: number;
 	public idcurso: number;
 	public idevento: number;
-	public ideventodata: number;
-	public ideventohorario: number;
 	public ideventolocal: number;
 	public idformato: number;
 	public idtiposessao: number;
 	public idvertical: number;
 	public nome: string;
 	public nome_curto: string;
+	public data: string;
+	public inicio: number;
+	public termino: number;
 	public url_remota: string;
 	public descricao: string;
 	public oculta: number;
@@ -29,10 +31,6 @@ export = class Sessao {
 			return "Âncora inválida";
 		if (isNaN(s.idevento) || s.idevento <= 0)
 			return "Evento inválido";
-		if (isNaN(s.ideventodata) || s.ideventodata <= 0)
-			return "Data inválida";
-		if (isNaN(s.ideventohorario) || s.ideventohorario <= 0)
-			return "Horário inválido";
 		if (isNaN(s.ideventolocal) || s.ideventolocal <= 0)
 			return "Local inválido";
 		if (isNaN(s.idformato) || s.idformato <= 0)
@@ -47,6 +45,12 @@ export = class Sessao {
 		s.nome_curto = (s.nome_curto || "").normalize().trim();
 		if (s.nome_curto.length < 3 || s.nome_curto.length > 100)
 			return "Nome curto inválido";
+		if (!(s.data = converterDataISO(s.data)))
+			return "Data inválida";
+		if (isNaN(s.inicio) || s.inicio < 0 || s.inicio > 2359 || (s.inicio % 100) > 59)
+			return "Horário de início inválido";
+		if (isNaN(s.termino) || s.termino < 0 || s.termino > 2359 || (s.termino % 100) > 59 || s.termino < s.inicio)
+			return "Horário de término inválido";
 		s.url_remota = (s.url_remota || "").normalize().trim();
 		if (s.url_remota.length > 100)
 			return "URL da sessão remota inválida";
@@ -94,7 +98,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0" : "") + " order by d.ano asc, d.mes asc, d.dia asc, h.ordem asc, l.nome asc") as Sessao[];
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
 		});
 
 		return (lista || []);
@@ -104,7 +108,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, s.ideventodata, concat(lpad(d.dia, 2, 0), '/', lpad(d.mes, 2, 0), '/', d.ano) data, s.ideventohorario, h.inicio, h.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventodata d on d.id = s.ideventodata inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join eventohorario h on h.id = s.ideventohorario inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento) as Sessao[];
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)) as Sessao[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -172,6 +176,10 @@ export = class Sessao {
 	}
 
 	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<string> {
+		const inicioTermino = await sql.query("select date_format(inicio, '%Y-%m-%d') inicio, date_format(termino, '%Y-%m-%d') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
+		if (inicioTermino && inicioTermino.length)
+			return "A data da sessão deve estar entre as datas permitidas para o evento: de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino;
+
 		// Infelizmente não podemos mais utilizar uma constraint unique, porque
 		// é possível cadastrar mais de uma sessão virtual no mesmo evento/data/horário/local,
 		// assim como também é possível cadastrar mais de uma sugestão de sessão qualquer no
@@ -179,9 +187,8 @@ export = class Sessao {
 		if (s.sugestao)
 			return null;
 
-		const id = await sql.scalar(`select s.id from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = ${s.idevento} and s.ideventodata = ${s.ideventodata} and s.ideventohorario = ${s.ideventohorario} and s.ideventolocal = ${s.ideventolocal} and s.sugestao = 0 and l.idunidade > 0 ${(s.id ? ("and s.id <> " + s.id) : "")} limit 1`);
-
-		return (id ? "Já existe uma sessão no evento neste dia, horário e local" : "");
+		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > 0 " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
+			"Já existe uma sessão no evento neste dia, horário e local" : null);
 	}
 
 	public static async criar(s: Sessao): Promise<string> {
@@ -197,7 +204,7 @@ export = class Sessao {
 				if ((res = await Sessao.validarEncavalamento(s, sql)))
 					return;
 
-				await sql.query("insert into eventosessao (idcurso, idevento, ideventodata, ideventohorario, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [s.idcurso, s.idevento, s.ideventodata, s.ideventohorario, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom]);
+				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
 				await Sessao.inserirPalestrantes(sql, s);
@@ -264,7 +271,7 @@ export = class Sessao {
 				if ((res = await Sessao.validarEncavalamento(s, sql)))
 					return;
 
-				await sql.query("update eventosessao set idcurso = ?, ideventodata = ?, ideventohorario = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventodata, s.ideventohorario, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom]);
+				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom]);
 				res = sql.linhasAfetadas.toString();
 
 				await Sessao.inserirPalestrantes(sql, s);
@@ -297,26 +304,16 @@ export = class Sessao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let sessao: [{ ideventodata: number, inicio: string, termino: string }] = await sql.query("select s.ideventodata, h.inicio, h.termino from eventosessao s inner join eventohorario h on h.id = s.ideventohorario inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ ideventodata: number, inicio: string, termino: string }];
+				const sessao = await sql.query("select date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ data: string, inicio: number, termino: number }];
 
 				if (!sessao || !sessao[0]) {
 					res = "Sessão não encontrada";
 					return;
 				}
 
-				let inicio = Horario.converterEmInteiro(sessao[0].inicio);
-				let termino = Horario.converterEmInteiro(sessao[0].termino);
-
-				let horariosInscricoes: [{ inicio: string, termino: string }] = await sql.query("select h.inicio, h.termino from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao inner join eventohorario h on h.id = s.ideventohorario where esp.idevento = " + idevento + " and esp.idparticipante = " + idparticipante + " and s.ideventodata = " + sessao[0].ideventodata) as [{ inicio: string, termino: string }];
-				if (horariosInscricoes && horariosInscricoes.length) {
-					for (let i = horariosInscricoes.length - 1; i >= 0; i--) {
-						let inicio2 = Horario.converterEmInteiro(horariosInscricoes[i].inicio);
-						let termino2 = Horario.converterEmInteiro(horariosInscricoes[i].termino);
-						if (inicio < termino2 && inicio2 < termino) {
-							res = "Você já possui outra inscrição na mesma data e horário";
-							return;
-						}
-					}
+				if (await sql.scalar("select 1 from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.idevento = " + idevento + " and esp.idparticipante = " + idparticipante + " and s.data = '" + sessao[0].data + "' and s.inicio < " + sessao[0].termino + " and " + sessao[0].inicio + " < s.termino limit 1")) {
+					res = "Você já possui outra inscrição na mesma data e horário";
+					return;
 				}
 
 				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, presente, data_inscricao) select ?, ?, ?, 0, now() from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.oculta = 0 and s.sugestao = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);

@@ -185,6 +185,9 @@ window.formatNumber = (function () {
 window.formatHour = function (x) {
 	return format2(x >>> 6) + ":" + format2(x & 63);
 };
+window.formatHourDec = function (x) {
+	return format2((x / 100) | 0) + ":" + format2(x % 100);
+};
 //https://github.com/igorescobar/jQuery-Mask-Plugin
 //https://igorescobar.github.io/jQuery-Mask-Plugin/
 window.maskCNPJ = function (field) {
@@ -1641,8 +1644,8 @@ window.BlobDownloader = {
 				}
 				data.lastSearch = null;
 				break;
-			//case 27: // escape
-			//	return cancelEvent(e);
+			case 27: // escape
+				return cancelEvent(e);
 		}
 
 		var normalized = cbSearch_Normalize(this.value);
@@ -1687,7 +1690,7 @@ window.BlobDownloader = {
 	}
 
 	function cbSearch_DataOpen(normalized) {
-		var i, li, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null, rect;
+		var i, li, left, a, ok = false, cbSearchSelect = this.cbSearchSelect, list = cbSearchSelect.getElementsByTagName("OPTION"), menu = this.menu, txt, norm, value = null, rect;
 
 		while (menu.firstChild)
 			menu.removeChild(menu.firstChild);
@@ -1730,13 +1733,17 @@ window.BlobDownloader = {
 		this.selection = 0;
 
 		if (ok) {
+			rect = this.dropDown.getBoundingClientRect();
+			left = ((window.scrollX + rect.left) | 0);
+			menu.style.left = left + "px";
+			menu.style.top = ((window.scrollY + rect.bottom + 2) | 0) + "px";
 			if (!this.menuVisible) {
-				rect = this.dropDown.getBoundingClientRect();
-				menu.style.left = rect.left + "px";
-				menu.style.top = ((rect.bottom + 2) | 0) + "px";
 				document.body.appendChild(menu);
 				this.menuVisible = true;
 			}
+			rect = menu.getBoundingClientRect();
+			if (rect.right > window.innerWidth)
+				menu.style.left = ((left - (rect.right - window.innerWidth) - 32) | 0) + "px";
 		} else {
 			if (this.menuVisible) {
 				if (menu.parentNode)

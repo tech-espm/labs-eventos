@@ -121,6 +121,8 @@ CREATE TABLE evento (
   url varchar(50) NOT NULL,
   titulo varchar(100) NOT NULL,
   descricao varchar(250) NOT NULL,
+  inicio datetime NOT NULL,
+  termino datetime NOT NULL,
   versao int NOT NULL,
   versaobanner int NOT NULL,
   versaologo int NOT NULL,
@@ -143,18 +145,6 @@ CREATE TABLE evento (
   UNIQUE KEY url_UN (url)
 );
 
--- DROP TABLE IF EXISTS eventodata;
-CREATE TABLE eventodata (
-  id int NOT NULL AUTO_INCREMENT,
-  idevento int NOT NULL,
-  ano int NOT NULL,
-  mes int NOT NULL,
-  dia int NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY idevento_ano_mes_dia_eventodata_UN (idevento,ano,mes,dia),
-  CONSTRAINT idevento_eventodata_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
-);
-
 -- DROP TABLE IF EXISTS eventoempresa;
 CREATE TABLE eventoempresa (
   id int NOT NULL AUTO_INCREMENT,
@@ -169,18 +159,6 @@ CREATE TABLE eventoempresa (
   KEY idtipo_eventoempresa_FK_idx (idtipo),
   CONSTRAINT idevento_eventoempresa_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idtipo_eventoempresa_FK FOREIGN KEY (idtipo) REFERENCES tipoempresa (id) ON DELETE RESTRICT ON UPDATE RESTRICT
-);
-
--- DROP TABLE IF EXISTS eventohorario;
-CREATE TABLE eventohorario (
-  id int NOT NULL AUTO_INCREMENT,
-  idevento int NOT NULL,
-  inicio varchar(50) NOT NULL,
-  termino varchar(50) NOT NULL,
-  ordem int NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY idevento_inicio_termino_eventohorario_UN (idevento,inicio,termino),
-  CONSTRAINT idevento_eventohorario_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
 -- DROP TABLE IF EXISTS eventolocal;
@@ -228,14 +206,15 @@ CREATE TABLE eventosessao (
   id int NOT NULL AUTO_INCREMENT,
   idcurso int NOT NULL,
   idevento int NOT NULL,
-  ideventodata int NOT NULL,
-  ideventohorario int NOT NULL,
   ideventolocal int NOT NULL,
   idformato int NOT NULL,
   idtiposessao int NOT NULL,
   idvertical int NOT NULL,
   nome varchar(100) NOT NULL,
   nome_curto varchar(45) NOT NULL,
+  data datetime NOT NULL,
+  inicio smallint NOT NULL,
+  termino smallint NOT NULL,
   url_remota varchar(100) NOT NULL,
   oculta tinyint(4) NOT NULL,
   sugestao tinyint(4) NOT NULL,
@@ -244,19 +223,15 @@ CREATE TABLE eventosessao (
   permiteinscricao tinyint(4) NOT NULL,
   permiteacom tinyint(4) NOT NULL,
   PRIMARY KEY (id),
-  --UNIQUE KEY ideventodatahorariolocal_eventosessao_UN (idevento,ideventodata,ideventohorario,ideventolocal),
-  KEY ideventodatahorariolocal_eventosessao_FK_idx (idevento,ideventodata,ideventohorario,ideventolocal),
+  KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
+  KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),
   KEY idcurso_eventosessao_FK_idx (idcurso),
-  KEY ideventodata_eventosessao_FK_idx (ideventodata),
-  KEY ideventohorario_eventosessao_FK_idx (ideventohorario),
   KEY ideventolocal_eventosessao_FK_idx (ideventolocal),
   KEY idformato_eventosessao_FK_idx (idformato),
   KEY idtiposessao_eventosessao_FK_idx (idtiposessao),
   KEY idvertical_eventosessao_FK_idx (idvertical),
   CONSTRAINT idcurso_eventosessao_FK FOREIGN KEY (idcurso) REFERENCES curso (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idevento_eventosessao_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT ideventodata_eventosessao_FK FOREIGN KEY (ideventodata) REFERENCES eventodata (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT ideventohorario_eventosessao_FK FOREIGN KEY (ideventohorario) REFERENCES eventohorario (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT ideventolocal_eventosessao_FK FOREIGN KEY (ideventolocal) REFERENCES eventolocal (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idformato_eventosessao_FK FOREIGN KEY (idformato) REFERENCES formato (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idtiposessao_eventosessao_FK FOREIGN KEY (idtiposessao) REFERENCES tiposessao (id) ON DELETE RESTRICT ON UPDATE RESTRICT,

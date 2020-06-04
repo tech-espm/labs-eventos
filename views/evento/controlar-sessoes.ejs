@@ -134,20 +134,7 @@
 	</div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="modalGridData">
-	<div class="modal-dialog modal-flex" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="modalGridDataTitle">Grade de Alocações</h4>
-			</div>
-			<div class="modal-body" id="modalGridDataBody"></div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
-			</div>
-		</div>
-	</div>
-</div>
+<div class="grid-data" id="modalGridData" style="display: none"></div>
 
 <script type="text/javascript">
 	//<![CDATA[
@@ -162,6 +149,9 @@
 		carregarEmpresas(<%- empresas %>);
 		carregarPalestrantes(<%- palestrantes %>);
 		var totalIP = carregarSessoes(<%- sessoes %>, <%- presencas %>);
+		var gridDataFadeRodando = false;
+		var modalGridDataSelect, modalGridDataBody, modalGridDataTable, modalGridDataLocal, modalGridDataHorario, modalGridDataCanto;
+		var aceites, clonar;
 
 		window.tabelaSessoes = prepareDataTable("tabela-sessoes", {
 			order: [],
@@ -195,8 +185,8 @@
 				{ title: "Capacidade Real", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
 				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-				{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
-				{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+				{ title: "Início", "class": "col-min text-right", data: "inicio" },
+				{ title: "Término", "class": "col-min text-right", data: "termino" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
@@ -219,7 +209,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/evento/listarInscricoesEPresencas", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarInscricoesEPresencas", function (response) {
 				if (response.success) {
 					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
 
@@ -238,7 +228,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/evento/listarAvaliacoesEMedias", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEMedias", function (response) {
 				if (response.success) {
 					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
 
@@ -270,7 +260,7 @@
 				'<tr class="ui-sortable-handle" data-id="' + id + '">' +
 				'<td class="col-min content-enum"></td>' +
 				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerPalestrante(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
-				'<td class="col-min"><img alt="Imagem da Palestrante" style="max-width: 100px; max-height: 75px;" src="/evt/' + idevento + '/palestrantes/' + id + '.' + extensaoImagem + '?v=' + palestrante.versao + '"></td>' +
+				'<td class="col-min"><img alt="Imagem da Palestrante" style="max-width: 100px; max-height: 75px;" src="<%- root %>/evt/' + idevento + '/palestrantes/' + id + '.' + extensaoImagem + '?v=' + palestrante.versao + '"></td>' +
 				'<td class="col-50">' + encode(palestrante.nome) + '</td>' +
 				'<td class="col-50">' + encode(palestrante.email) + '</td>' +
 				'<td class="col-25">' + encode(palestrante.nome_empresa) + '</td>' +
@@ -302,8 +292,6 @@
 				$("#formAlterarSessao").submit();
 			}
 		};
-
-		var aceites, clonar;
 
 		window.trSessaoClicada = null;
 		window.naoFecharModal = false;
@@ -381,7 +369,7 @@
 
 					$("#lblAlterarSessao").text("Salvar Alterações");
 
-					JsonWebApi.get("/api/sessao/listarAceites", function (response) {
+					JsonWebApi.get("<%- root %>/api/sessao/listarAceites", function (response) {
 						if (response.success) {
 							Notification.hide();
 							if (response.value && response.value.length) {
@@ -434,7 +422,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/sessao/excluir", function (response) {
+			JsonWebApi.get("<%- root %>/api/sessao/excluir", function (response) {
 				if (response.success) {
 					delete eventoSessoesPorId[sessao.id];
 					for (var i = eventoSessoes.length - 1; i >= 0; i--) {
@@ -452,17 +440,19 @@
 			}, "id", sessao.id);
 		};
 
-		function criarGridData(data) {
-			var div, html, i, j, k, s, h, tr, primeiro, local, cor, estilo, ideventodata = data.id, ideventohorario, ideventolocal;
+		function gridDataFadeOk() {
+			gridDataFadeRodando = false;
+		}
+
+		function criarGridData(data, dataInt, eventoHorarios) {
+			var div, html, i, j, k, s, h, tr, primeiro, local, cor, ideventolocal;
 
 			div = document.createElement("div");
 			div.className = "table-responsive";
 
-			html = '<table id="gridData' + ideventodata + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
-			for (i = 0; i < eventoHorarios.length; i++) {
-				h = eventoHorarios[i];
-				html += '<th>' + h.inicio + ' - ' + h.termino + '</th>';
-			}
+			html = '<table id="gridData' + dataInt + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th>' + eventoHorarios[i] + '</th>';
 			html += '</tr></thead><tbody>'
 
 			for (i = 0; i < eventoLocais.length; i++) {
@@ -476,7 +466,7 @@
 				for (j = 0; j < eventoHorarios.length; j++) {
 					tr += '<td>';
 
-					ideventohorario = eventoHorarios[j].id;
+					/*ideventohorario = eventoHorarios[j].id;
 
 					primeiro = true;
 					for (k = 0; k < eventoSessoes.length; k++) {
@@ -499,7 +489,7 @@
 
 						if (s.sugestao)
 							tr += '</span>';
-					}
+					}*/
 
 					tr += '</td>';
 				}
@@ -516,70 +506,132 @@
 			return div;
 		}
 
+		function preencherGridData() {
+			var hheader = 50, wcol1 = 64, wcol2 = 128;
+		}
+
+		function ajustarGridData() {
+			modalGridDataLocal.style.left = modalGridDataBody.scrollLeft + "px";
+			modalGridDataHorario.style.top = modalGridDataBody.scrollTop + "px";
+			modalGridDataCanto.style.left = modalGridDataBody.scrollLeft + "px";
+			modalGridDataCanto.style.top = modalGridDataBody.scrollTop + "px";
+		};
+
+		function ocultarGridData(e) {
+			if (gridDataFadeRodando)
+				return;
+			if (e) {
+				if ("key" in e) {
+					switch (e.key) {
+						case "Escape":
+							break;
+						default:
+							return;
+					}
+				} else if ("keyCode" in e) {
+					if (e.keyCode !== 27) // escape
+						return;
+				} else {
+					if (e.which !== 27) // escape
+						return;
+				}
+			}
+			gridDataFadeRodando = true;
+			window.removeEventListener("resize", ajustarGridData);
+			document.removeEventListener("keydown", ocultarGridData, true);
+			document.body.style.overflow = "";
+			$("#modalGridData").fadeOut(400, gridDataFadeOk);
+		};
+
 		window.mostrarGridData = function () {
-			if ($.active || JsonWebApi.active)
+			if ($.active || JsonWebApi.active || gridDataFadeRodando)
 				return;
 
-			var i, html, data, tabContent, tabPanel, $modalGridDataBody = $("#modalGridDataBody");
+			var i, j, html, data, dataInt, local, cor, $modalGridData = $("#modalGridData"), hashDatas = {}, eventoDatas = [], eventoHorarios = [];
 
-			html = '<ul class="nav nav-pills text-center col-xs-space-bottom" role="tablist">';
+			for (i = 0; i < 24; i += 0.5)
+				eventoHorarios.push(formatHourDec(((i | 0) * 100) + ((i * 60) % 60)));
 
-			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
-
-				if (i)
-					html += ' ';
-
-				html += '<li role="presentation"';
-
-				if (!i)
-					html += ' class="active"';
-
-				html += '><a id="a-gridData' + data.id + '" href="#tab-gridData' + data.id + '" role="tab" data-toggle="pill" aria-controls="tab-gridData' + data.id + '"';
-
-				html += (i ? ' aria-expanded="false"' : ' aria-expanded="true"');
-
-				html += '><i class="fa fa-calendar-o"></i>' + format2(data.dia) + '/' + format2(data.mes) + '</a></li>';
+			for (i = eventoSessoes.length - 1; i >= 0; i--) {
+				data = eventoSessoes[i].data;
+				dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](data);
+				if (!hashDatas[dataInt])
+					hashDatas[dataInt] = {
+						data: data,
+						dataInt: dataInt
+					};
 			}
 
-			html += '</ul>';
+			for (i in hashDatas)
+				eventoDatas.push(hashDatas[i]);
 
-			$modalGridDataBody.html(html);
+			eventoDatas.sort(function (a, b) { return a.dataInt - b.dataInt; });
 
-			tabContent = document.createElement("div");
-			tabContent.className = "tab-content";
-
-			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
-
-				tabPanel = document.createElement("div");
-				tabPanel.className = (i ? "tab-pane" : "tab-pane active");
-				tabPanel.setAttribute("id", "tab-gridData" + data.id);
-				tabPanel.setAttribute("role", "tabpanel");
-
-				tabPanel.appendChild(criarGridData(data));
-
-				tabContent.appendChild(tabPanel);
-			}
-
-			$modalGridDataBody.append(tabContent);
+			html = '<div class="grid-data-header form-inline"><label for="modalGridDataSelect"><i class="fa fa-calendar"></i></label> <select size="1" id="modalGridDataSelect" class="form-control" style="display: inline-block; width: auto; vertical-align: middle;">';
 
 			for (i = 0; i < eventoDatas.length; i++) {
-				data = eventoDatas[i];
+				data = eventoDatas[i].data;
+				dataInt = eventoDatas[i].dataInt;
 
-				prepareDataTable("gridData" + data.id, {
-					order: [[0, "asc"]],
-					deferRender: false,
-					export: { title: "Sessões de " + format2(data.dia) + "-" + format2(data.mes) }
-				});
+				html += '<option value="' + dataInt + '">' + data + '</option>';
 			}
 
-			$("#modalGridDataTitle").text("Grade de Alocações");
+			html += '</select> <button type="button" class="btn btn-outline btn-primary" id="modalGridDataFechar"><i class="fa fa-times"></i>Fechar</button></div><div class="grid-data-body" id="modalGridDataBody">';
 
-			$("#modalGridData").modal({
-				backdrop: "static",
-				keyboard: true
-			});
+			html += '<table id="modalGridDataTable" class="table table-hover no-margin-bottom" style="width: auto; min-width: auto; max-width: 9999999px; background-color: #fff;"><thead><tr><th class="col2">Locais</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th class="col1" style="text-align: center;">' + eventoHorarios[i] + '</th>';
+			html += '</tr></thead><tbody>';
+			for (i = 0; i < eventoLocais.length; i++) {
+				local = eventoLocais[i];
+				cor = local.cor;
+				if (cor < 0)
+					cor = 0xffffff;
+				html += '<tr><td class="col2" style="color: ' + textColorForBackground(cor) + '; background-color: ' + intToColor(cor) + ';">' + encode(local.nome) + '</td>';
+				for (j = 0; j < eventoHorarios.length; j++)
+					html += '<td class="col1"></td>';
+				html += '</tr>';
+			}
+			html += '</tbody></table>';
+
+			html += '<table id="modalGridDataLocal" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead><tbody>'
+			for (i = 0; i < eventoLocais.length; i++) {
+				local = eventoLocais[i];
+				cor = local.cor;
+				if (cor < 0)
+					cor = 0xffffff;
+				html += '<tr><td class="col2" style="color: ' + textColorForBackground(cor) + '; background-color: ' + intToColor(cor) + ';">' + encode(local.nome) + '</td></tr>';
+			}
+			html += '</tbody></table>';
+
+			html += '<table id="modalGridDataHorario" class="table table-hover no-margin-bottom float" style="width: auto; min-width: auto; max-width: 9999999px;"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th>';
+			for (i = 0; i < eventoHorarios.length; i++)
+				html += '<th class="col1" style="text-align: center; background-color: #fff;">' + eventoHorarios[i] + '</th>';
+			html += '</tr></thead></table>';
+
+			html += '<table id="modalGridDataCanto" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead></table>';
+
+			html += '</div>';
+
+			$modalGridData.html(html);
+
+			document.getElementById("modalGridDataFechar").onclick = function () { ocultarGridData(); };
+			modalGridDataSelect = document.getElementById("modalGridDataSelect");
+			modalGridDataBody = document.getElementById("modalGridDataBody");
+			modalGridDataTable = document.getElementById("modalGridDataTable");
+			modalGridDataLocal = document.getElementById("modalGridDataLocal");
+			modalGridDataHorario = document.getElementById("modalGridDataHorario");
+			modalGridDataCanto = document.getElementById("modalGridDataCanto");
+
+			preencherGridData();
+
+			modalGridDataSelect.onchange = preencherGridData;
+			gridDataFadeRodando = true;
+			modalGridDataBody.onscroll = ajustarGridData;
+			window.addEventListener("resize", ajustarGridData);
+			document.addEventListener("keydown", ocultarGridData, true);
+			document.body.style.overflow = "hidden";
+			$modalGridData.fadeIn(400, gridDataFadeOk);
 		};
 
 		window.mostrarGridInscritosGeral = function () {
@@ -588,42 +640,26 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/evento/listarInscritosGeral", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarInscritosGeral", function (response) {
 				if (response.success) {
 					Notification.hide();
 
-					var i, duracao, partes, inicio, termino, presenca, presencas = response.value;
+					var i, presenca, presencas = response.value;
 
 					for (i = 0; i < presencas.length; i++) {
 						presenca = presencas[i];
-
-						duracao = 0;
-
-						partes = presenca.inicio.split(":");
-						if (partes.length === 2) {
-							inicio = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-							if (!isNaN(inicio)) {
-								partes = presenca.termino.split(":");
-								if (partes.length === 2) {
-									termino = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
-									if (!isNaN(termino) && termino > inicio)
-										duracao = (termino - inicio) / 60;
-								}
-							}
-						}
-
-						presenca.duracao = duracao;
+						presenca.duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
 					}
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
 
 					prepareDataTable("tabelaInscritosGeral", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
 						deferRender: true,
 						columns: [
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
-							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
+							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
 							{ title: "Duração (h)", "class": "col-min text-center", "type": "number", data: { sort: "duracao", _: function (row, type, set, meta) { return row.duracao.toFixed(1).replace(".", ","); } } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
@@ -659,7 +695,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/participante/gerarLinkCertificado/" + idParticipante, function (response) {
+			JsonWebApi.get("<%- root %>/api/participante/gerarLinkCertificado/" + idParticipante, function (response) {
 				if (response.success) {
 					Notification.hide();
 
@@ -676,7 +712,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/evento/listarAvaliacoesEMedias", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEMedias", function (response) {
 				if (response.success) {
 					Notification.hide();
 
@@ -699,15 +735,15 @@
 						});
 					}
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaAvaliacoesIndividuais"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaAvaliacoesIndividuais"></table></div>');
 
 					prepareDataTable("tabelaAvaliacoesIndividuais", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
 						deferRender: true,
 						columns: [
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
-							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Início", "class": "col-min text-right", data: "inicio" },
+							{ title: "Término", "class": "col-min text-right", data: "termino" },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
@@ -737,19 +773,19 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("/api/evento/listarPalestrantesGeral", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarPalestrantesGeral", function (response) {
 				if (response.success) {
 					Notification.hide();
 
-					$("#modalGridDataBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaPalestrantesGeral"></table></div>');
+					$("#modalGridData").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaPalestrantesGeral"></table></div>');
 
 					prepareDataTable("tabelaPalestrantesGeral", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"], [6, "asc"]],
 						deferRender: true,
 						columns: [
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
-							{ title: "Início", "class": "col-min text-right", "type": "customtime", render: encode, data: "inicio" },
-							{ title: "Término", "class": "col-min text-right", "type": "customtime", render: encode, data: "termino" },
+							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
+							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
@@ -842,7 +878,7 @@
 				formData.append("versao", p.versao);
 				formData.append("imagem", new Blob([gerarPNGVazio()], { type: "image/png" }));
 
-				JsonWebApi.postFormData("/api/palestrante/criar", formData, function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/palestrante/criar", formData, function (response) {
 					if (response.success) {
 						txtSessaoPalestranteNovoNome.value = "";
 						txtSessaoPalestranteNovoEmail.value = "";
@@ -903,7 +939,7 @@
 				formData.append("versao", e.versao);
 				formData.append("imagem", new Blob([gerarPNGVazio()], { type: "image/png" }));
 
-				JsonWebApi.postFormData("/api/empresa/criar", formData, function (response) {
+				JsonWebApi.postFormData("<%- root %>/api/empresa/criar", formData, function (response) {
 					if (response.success) {
 						e.id = parseInt(response.value);
 						idempresa = e.id;

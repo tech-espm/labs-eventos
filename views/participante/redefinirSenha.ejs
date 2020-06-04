@@ -53,7 +53,7 @@
 
 			Notification.wait();
 
-			JsonWebApi.postFormData("/api/participante/definirSenha", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/participante/definirSenha", form, function (response) {
 				if (response.success) {
 					resetForm(form);
 					$("#email").val("");

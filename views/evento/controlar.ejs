@@ -3,7 +3,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body text-center">
-				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline" style="white-space: normal;" target="_blank" href="/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
+				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
 				<hr />
 				<ul class="nav nav-pills" role="tablist">
 					<li role="presentation" class="active"><a id="a-basica" href="#tab-basica" role="tab" data-toggle="pill" aria-controls="tab-basica" aria-expanded="true"><i class="fa fa-edit"></i>Informações Básicas</a></li>
@@ -11,8 +11,6 @@
 					<li role="presentation"><a id="a-usuarios" href="#tab-usuarios" role="tab" data-toggle="pill" aria-controls="tab-usuarios" aria-expanded="false"><i class="fa fa-user"></i>Usuários</a></li>
 					<% } %>
 					<li role="presentation"><a id="a-locais" href="#tab-locais" role="tab" data-toggle="pill" aria-controls="tab-locais" aria-expanded="false"><i class="fa fa-map-marker"></i>Locais</a></li>
-					<li role="presentation"><a id="a-datas" href="#tab-datas" role="tab" data-toggle="pill" aria-controls="tab-datas" aria-expanded="false"><i class="fa fa-calendar-o"></i>Datas</a></li>
-					<li role="presentation"><a id="a-horarios" href="#tab-horarios" role="tab" data-toggle="pill" aria-controls="tab-horarios" aria-expanded="false"><i class="fa fa-clock-o"></i>Horários</a></li>
 					<li role="presentation"><a id="a-empresas" href="#tab-empresas" role="tab" data-toggle="pill" aria-controls="tab-empresas" aria-expanded="false"><i class="fa fa-industry"></i>Empresas</a></li>
 					<li role="presentation"><a id="a-palestrantes" href="#tab-palestrantes" role="tab" data-toggle="pill" aria-controls="tab-palestrantes" aria-expanded="false"><i class="fa fa-microphone"></i>Palestrantes</a></li>
 					<li role="presentation"><a id="a-sessoes" href="#tab-sessoes" role="tab" data-toggle="pill" aria-controls="tab-sessoes" aria-expanded="false"><i class="fa fa-group"></i>Sessões</a></li>
@@ -38,8 +36,6 @@
 			<div role="tabpanel" class="tab-pane fade" id="tab-usuarios"></div>
 			<% } %>
 			<div role="tabpanel" class="tab-pane fade" id="tab-locais"></div>
-			<div role="tabpanel" class="tab-pane fade" id="tab-datas"></div>
-			<div role="tabpanel" class="tab-pane fade" id="tab-horarios"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-empresas"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-palestrantes"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-sessoes"></div>
@@ -74,17 +70,68 @@
 		visibility: hidden;
 	}
 
-	.grid-data th, .grid-data td {
+	.grid-data {
+		position: fixed;
+		z-index: 1050; /* Igual ao modal do Bootstrap */
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #f0f0f0;
+	}
+
+	.grid-data-header {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		height: 50px;
+		padding: 8px 8px 0;
 		text-align: center;
 	}
 
-		.grid-data th:not(:last-child), .grid-data td:not(:last-child) {
+	.grid-data-body {
+		position: absolute;
+		left: 0;
+		top: 50px;
+		right: 0;
+		bottom: 0;
+		overflow: scroll scroll;
+	}
+
+		.grid-data-body th, .grid-data-body td {
 			border-right: 1px solid #ddd;
+			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			vertical-align: middle;
+			min-height: 50px;
+			max-height: 50px;
+			height: 50px;
 		}
 
-		.grid-data th.left, .grid-data td.left {
-			text-align: left;
+		.grid-data-body .col1 {
+			min-width: 64px;
+			max-width: 64px;
+			width: 64px;
 		}
+
+		.grid-data-body .col2 {
+			min-width: 128px;
+			max-width: 128px;
+			width: 128px;
+		}
+
+		.grid-data-body .float {
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+
+		/*.grid-data-body th:not(:last-child), .grid-data td:not(:last-child) {
+			border-right: 1px solid #ddd;
+		}*/
 
 	.content-section {
 		counter-reset: content-section;
@@ -166,13 +213,13 @@
 		tabLandingPageVisivel = false;
 
 	function gerarLinkDeCompartilhamento(nome) {
-		return "https://credenciamento.espm.br/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
+		return "<%- urlBase %>/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
 	}
 
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),
 			tab = $(idTab),
-			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
+			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"<%- root %>/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
 			htmlErro = "<div class=\"alert alert-danger\">Algo deu errado durante o carregamento. Por favor, tente novamente em alguns instantes.</div>";
 
 		a[0].setAttribute("data-aba-ok", "");
@@ -301,8 +348,6 @@
 	prepararAba("#a-usuarios", "#tab-usuarios", "/evento/controlar-usuarios");
 	//<% } %>
 	prepararAba("#a-locais", "#tab-locais", "/evento/controlar-locais");
-	prepararAba("#a-datas", "#tab-datas", "/evento/controlar-datas");
-	prepararAba("#a-horarios", "#tab-horarios", "/evento/controlar-horarios");
 	prepararAba("#a-empresas", "#tab-empresas", "/evento/controlar-empresas");
 	prepararAba("#a-palestrantes", "#tab-palestrantes", "/evento/controlar-palestrantes");
 	prepararAba("#a-sessoes", "#tab-sessoes", "/evento/controlar-sessoes");

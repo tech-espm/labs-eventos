@@ -3,8 +3,8 @@
 	<div class="panel panel-default no-margin-bottom">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>R</span>ECEPÇÃO</div>
-			<!--<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>-->
-			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="/participante" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Novos cadastros</a></div>
+			<!--<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%- root %>/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>-->
+			<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%- root %>/participante" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Novos cadastros</a></div>
 		</div>
 		<div class="panel-body" id="panelBody">
 			<div class="row">
@@ -95,23 +95,23 @@
 	2011 Lazar Laszlo  http://lazarsoft.info
 	https://github.com/LazarSoft/jsqrcode
 -->
-<script type="text/javascript" src="/lib/qr/js/grid.js"></script>
-<script type="text/javascript" src="/lib/qr/js/version.js"></script>
-<script type="text/javascript" src="/lib/qr/js/detector.js"></script>
-<script type="text/javascript" src="/lib/qr/js/formatinf.js"></script>
-<script type="text/javascript" src="/lib/qr/js/errorlevel.js"></script>
-<script type="text/javascript" src="/lib/qr/js/bitmat.js"></script>
-<script type="text/javascript" src="/lib/qr/js/datablock.js"></script>
-<script type="text/javascript" src="/lib/qr/js/bmparser.js"></script>
-<script type="text/javascript" src="/lib/qr/js/datamask.js"></script>
-<script type="text/javascript" src="/lib/qr/js/rsdecoder.js"></script>
-<script type="text/javascript" src="/lib/qr/js/gf256poly.js"></script>
-<script type="text/javascript" src="/lib/qr/js/gf256.js"></script>
-<script type="text/javascript" src="/lib/qr/js/decoder.js"></script>
-<script type="text/javascript" src="/lib/qr/js/qrcode.js"></script>
-<script type="text/javascript" src="/lib/qr/js/findpat.js"></script>
-<script type="text/javascript" src="/lib/qr/js/alignpat.js"></script>
-<script type="text/javascript" src="/lib/qr/js/databr.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/grid.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/version.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/detector.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/formatinf.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/errorlevel.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/bitmat.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/datablock.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/bmparser.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/datamask.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/rsdecoder.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/gf256poly.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/gf256.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/decoder.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/qrcode.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/findpat.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/alignpat.js"></script>
+<script type="text/javascript" src="<%- root %>/lib/qr/js/databr.js"></script>
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
@@ -157,7 +157,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/1", function (response) {
+		JsonWebApi.get("<%- root %>/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/1", function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
@@ -264,7 +264,7 @@
 					if (!isNaN(i = parseInt(result, 16)) && i >= 0 && result === formatHex8(i)) {
 						Notification.wait();
 
-						JsonWebApi.get("/api/participante/idQRParaIdParticipante/" + result, function (response) {
+						JsonWebApi.get("<%- root %>/api/participante/idQRParaIdParticipante/" + result, function (response) {
 							Notification.hide();
 
 							if (response.success) {

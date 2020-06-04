@@ -59,7 +59,7 @@
 
 			//<% if (item) { %>
 
-			JsonWebApi.postFormData("/api/usuario/alterar", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/usuario/alterar", form, function (response) {
 				if (response.success)
 					Notification.success("Usuário alterado com sucesso! \uD83D\uDE04");
 				else
@@ -68,7 +68,7 @@
 
 			//<% } else { %>
 
-			JsonWebApi.postFormData("/api/usuario/criar", form, function (response) {
+			JsonWebApi.postFormData("<%- root %>/api/usuario/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
 					Notification.success("Usuário criado com sucesso (senha padrão: 1234)! \uD83D\uDE04");

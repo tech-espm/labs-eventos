@@ -23,10 +23,9 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import appsettings = require("./appsettings");
 import ClusterEventos = require("./infra/clusterEventos");
-import Data = require("./models/data");
 import Empresa = require("./models/empresa");
-import Horario = require("./models/horario");
 import Local = require("./models/local");
 import Sessao = require("./models/sessao");
 import Palestrante = require("./models/palestrante");
@@ -39,6 +38,11 @@ import lru = require("lru-cache");
 ejs.cache = lru(200);
 
 const app = express();
+
+app.locals = {
+	urlBase: appsettings.urlBase,
+	root: appsettings.root
+};
 
 // Não queremos o header X-Powered-By
 app.disable("x-powered-by");
@@ -174,8 +178,6 @@ app.use("/checkin", require("./routes/checkin"));
 app.use("/recepcao", require("./routes/recepcao"));
 // API
 app.use("/api/evento", require("./routes/api/evento"));
-app.use("/api/data", require("./routes/api/data"));
-app.use("/api/horario", require("./routes/api/horario"));
 app.use("/api/empresa", require("./routes/api/empresa"));
 app.use("/api/palestrante", require("./routes/api/palestrante"));
 app.use("/api/sessao", require("./routes/api/sessao"));
@@ -203,9 +205,11 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 		}
 		if (evento && evento.id) {
 			if (evento.habilitado) {
+				const hoje = new Date();
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
 					permiteinscricao: evento.permiteinscricao,
+					hojeInt: (hoje.getFullYear() * 10000) + ((hoje.getMonth() + 1) * 100) + hoje.getDate(),
 					idempresapadrao: evento.idempresapadrao,
 					id: evento.id,
 					nome: evento.nome,
@@ -220,9 +224,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					urlParticipante: "/participante",
 					inscricoes: (evento.permiteinscricao ? await Evento.listarInscricoes(evento.id) : []),
 					participante: await Participante.cookie(req),
-					datas: await Data.listar(evento.id),
 					empresas: await Empresa.listar(evento.id),
-					horarios: await Horario.listar(evento.id),
 					locais: await Local.eventoListar(evento.id),
 					sessoes: await Sessao.listar(evento.id, true),
 					palestrantes: await Palestrante.listar(evento.id, true)

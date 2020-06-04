@@ -53,7 +53,7 @@
 			Notification.wait();
 
 			if (this.getAttribute("data-excluir")) {
-				JsonWebApi.post("/api/usuario/eventoDesassociar", { idsusuario: [usuario.id] }, function (response) {
+				JsonWebApi.post("<%- root %>/api/usuario/eventoDesassociar", { idsusuario: [usuario.id] }, function (response) {
 					if (response.success) {
 						delete usuariosSelecionados[usuario.id];
 						Notification.success("Usuário desassociado do evento com sucesso! \uD83D\uDE04");
@@ -65,7 +65,7 @@
 					trClicada = null;
 				});
 			} else {
-				JsonWebApi.post("/api/usuario/eventoAssociar", { login: usuario.login }, function (response) {
+				JsonWebApi.post("<%- root %>/api/usuario/eventoAssociar", { login: usuario.login }, function (response) {
 					if (response.success) {
 						usuariosSelecionados[usuario.id] = 1;
 						Notification.success("Usuário associado ao evento com sucesso! \uD83D\uDE04");

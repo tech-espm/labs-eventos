@@ -312,14 +312,14 @@ export = class Participante {
 	}
 
 	public static async gerarLinkCertificado(id: number, idevento: number): Promise<string> {
-		return "https://credenciamento.espm.br/participante/certificado/" + await Participante.idParticipanteParaIdCertificado(id, idevento);
+		return appsettings.urlBase + "/participante/certificado/" + await Participante.idParticipanteParaIdCertificado(id, idevento);
 	}
 
 	public static async listarEventos(p: Participante): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, (select ((d.ano * 100) + d.mes) from eventodata d where d.idevento = e.id limit 1) data from (select distinct p.idevento from eventosessaoparticipante p where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
+			lista = await sql.query("select e.id, e.nome, e.url, e.descricao, ((year(e.inicio) * 100) + month(e.inicio)) data from (select distinct p.idevento from eventosessaoparticipante p where p.idparticipante = " + p.id + ") tmp inner join evento e on e.id = tmp.idevento");
 
 			for (let i = lista.length - 1; i >= 0; i--)
 				lista[i].idcertificado = Participante.idParticipanteParaIdCertificado(p.id, lista[i].id);
@@ -332,7 +332,7 @@ export = class Participante {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, s.nome, s.tags, d.ano, d.mes, d.dia, h.inicio, h.termino, h.ordem, l.nome nome_local, el.cor, u.nome nome_unidade, p.presente, a.avaliacao from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
+			lista = await sql.query("select p.id, s.nome, s.tags, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, l.nome nome_local, el.cor, u.nome nome_unidade, p.presente, a.avaliacao from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
 		});
 
 		return (lista || []);
@@ -342,7 +342,7 @@ export = class Participante {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome, d.ano, d.mes, d.dia, h.inicio, h.termino, h.ordem, s.permiteacom from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventodata d on d.id = s.ideventodata inner join eventohorario h on h.id = s.ideventohorario where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.presente = 1");
+			lista = await sql.query("select s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.permiteacom from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.presente = 1");
 		});
 
 		return (lista || []);
@@ -374,14 +374,14 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let data = await sql.query("select d.ano, d.mes, d.dia from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao inner join eventodata d on d.id = s.ideventodata where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.presente = 1");
-				if (!data || !data.length) {
+				let data = await sql.scalar("select date_format(s.data, '%Y-%m-%d') data from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.presente = 1") as string;
+				if (!data) {
 					res = "Sessão não encontrada";
 					return;
 				}
 
 				let agora = (new Date()).getTime();
-				let dataSessao = (new Date(data[0].ano, data[0].mes - 1, data[0].dia)).getTime();
+				let dataSessao = (new Date(data)).getTime();
 				if (agora < dataSessao) {
 					res = "Avaliação ainda não está liberada";
 					return;
@@ -422,7 +422,7 @@ export = class Participante {
 			try {
 				let transporter = nodemailer.createTransport(appsettings.mailConfig);
 
-				let link = `https://credenciamento.espm.br/participante/redefinirSenha?e=${encodeURIComponent(email)}&t=${token}`;
+				let link = `${appsettings.urlBase}/participante/redefinirSenha?e=${encodeURIComponent(email)}&t=${token}`;
 
 				await transporter.sendMail({
 					from: appsettings.mailFromRedefinicao,

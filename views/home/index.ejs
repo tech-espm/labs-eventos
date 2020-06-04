@@ -4,7 +4,7 @@
 		<div class="panel panel-default">
 			<div class="panel-body placeholder-chooser">
 				<% if (usuario.nomeevento_logado) { %>
-				<a class="btn btn-primary" style="white-space: normal;" href="/evento"><i class="fa fa-bullhorn fa-fw"></i>Trabalhar no evento "<%=usuario.nomeevento_logado %>"</a>
+				<a class="btn btn-primary" style="white-space: normal;" href="<%- root %>/evento"><i class="fa fa-bullhorn fa-fw"></i>Trabalhar no evento "<%=usuario.nomeevento_logado %>"</a>
 				<br />
 				<br />
 				Se quiser trabalhar com outro evento, por favor, selecione um dos eventos da lista abaixo, clicando sobre sua linha.
@@ -38,7 +38,7 @@
 			//{ title: "Id", visible: false, searchable: false, data: "id" },
 			{
 				title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) {
-					return "<a target=\"_blank\" title=\"Landing Page\" href=\"/" + row.url + "\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-external-link\"></i></a>";
+					return "<a target=\"_blank\" title=\"Landing Page\" href=\"<%- root %>/" + row.url + "\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-external-link\"></i></a>";
 					//" <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>";
 				}
 			},
@@ -67,7 +67,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("/api/usuario/eventoSelecionar", function (response) {
+		JsonWebApi.get("<%- root %>/api/usuario/eventoSelecionar", function (response) {
 			if (response.success)
 				location.href = "/evento";
 			else
