@@ -1,4 +1,12 @@
-﻿
+﻿<%
+	function format2(x) {
+		return ((x < 10) ? ("0" + x) : x);
+	}
+
+	function formatHourDec(x) {
+		return format2((x / 100) | 0) + ":" + format2(x % 100);
+	}
+%>
 <div class="painel-msg" style="<%=((sessoes && sessoes.length) ? 'padding-bottom: 15px;' : '' ) %>">
 	<form class="panel panel-default no-margin-bottom" id="form" method="post" action=".">
 		<div class="panel-heading clearfix">
@@ -166,7 +174,7 @@ function textColorForBackground(i) {
 							<td><button type="button" class="btn btn-primary" onclick="mostrarModalConcederAceite(this, <%-sessoes[i].id %>)"><i class="fa fa-check"></i>Conceder Aceite</button></td>
 							<% } %>
 							<td><%=sessoes[i].nome %></td>
-							<td class="text-center"><%=sessoes[i].data %>&nbsp;das<br /><%=sessoes[i].inicio %> às <%=sessoes[i].termino %></td>
+							<td class="text-center"><%=sessoes[i].data %>&nbsp;das<br /><%=formatHourDec(sessoes[i].inicio) %> às <%=formatHourDec(sessoes[i].termino) %></td>
 							<td>Unidade <%=sessoes[i].sigla_unidade %><br /><span class="badge badge-sala" style="background-color: <%-intToColor(sessoes[i].cor) %>; color: <%-textColorForBackground(sessoes[i].cor) %>;"><%=sessoes[i].nome_local %></span></td>
 						</tr>
 					<% } %>
