@@ -543,17 +543,11 @@
 		}
 
 		sessoes.sort(function (a, b) {
-			if (a.dataInt < b.dataInt)
-				return -1;
-			if (a.dataInt > b.dataInt)
-				return 1;
-			if (a.inicioInt < b.inicioInt)
-				return -1;
-			if (a.inicioInt > b.inicioInt)
-				return 1;
-			if (a.terminoInt < b.terminoInt)
-				return -1;
-			return 1;
+			if (a.dataInt !== b.dataInt)
+				return a.dataInt - b.dataInt;
+			if (a.inicioInt !== b.inicioInt)
+				return a.inicioInt - b.inicioInt;
+			return a.terminoInt - b.terminoInt;
 		});
 
 		txtData.onchange = function () { if (txtData.value.length === 10) atualizarSessoes(); };

@@ -269,16 +269,15 @@
 				if (!inscricoes || !inscricoes.length) {
 					html = '<div class="text-center">Não foram encontradas inscrições para esse evento \uD83D\uDE22</div>';
 				} else {
+					for (i = inscricoes.length - 1; i >= 0; i--)
+						inscricoes[i].dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](inscricoes[i].data);
+
 					inscricoes.sort(function (a, b) {
-						if (a.ano !== b.ano)
-							return a.ano - b.ano;
-						if (a.mes !== b.mes)
-							return a.mes - b.mes;
-						if (a.dia !== b.dia)
-							return a.dia - b.dia;
-						if (a.ordem !== b.ordem)
-							return a.ordem - b.ordem;
-						return ((a.nome < b.nome) ? -1 : 1);
+						if (a.dataInt !== b.dataInt)
+							return a.dataInt - b.dataInt;
+						if (a.inicio !== b.inicio)
+							return a.inicio - b.inicio;
+						return a.termino - b.termino;
 					});
 
 					var agora = (new Date()).getTime();
@@ -289,8 +288,8 @@
 						if (i)
 							html += "<hr />";
 
-						var partes = inscricao.termino.split(":");
-						var terminoEvento = (new Date(inscricao.ano, inscricao.mes - 1, inscricao.dia, parseInt(partes[0]), parseInt(partes[1]), 0, 0)).getTime();
+						debugger;
+						var terminoEvento = (new Date((inscricao.dataInt / 10000) | 0, (((inscricao.dataInt / 100) | 0) % 100) - 1, inscricao.dataInt % 100, (inscricao.termino / 100) | 0, inscricao.termino % 100, 0, 0)).getTime();
 						// Libera as avaliações por 10 dias, a partir de 10 minutos antes do final do evento
 						terminoEvento -= (10 * 60 * 1000);
 						terminoEvento = agora - terminoEvento;
@@ -327,7 +326,7 @@
 							html += '<br/>';
 						}
 
-						html += '<i class="fa fa-calendar"></i>' + format2(inscricao.dia) + months[inscricao.mes - 1] + inscricao.ano + '<br /><i class="fa fa-clock-o"></i>' + inscricao.inicio + ' - ' + inscricao.termino + '</p>';
+						html += '<i class="fa fa-calendar"></i>' + inscricao.data + '<br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.inicio) + ' - ' + formatHourDec(inscricao.termino) + '</p>';
 						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
 						html += '<p><i class="fa fa-map-marker"></i>Sala/Auditório: <span class="badge badge-sala" style="background-color: ' + intToColor(inscricao.cor) + '; color: ' + textColorForBackground(inscricao.cor) + ';">' + inscricao.nome_local + '</span></p>';
 					}
