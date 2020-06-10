@@ -18,7 +18,7 @@
 					<select id="idunidade" name="idunidade" class="form-control" size="1">
 						<option value="">SELECIONE...</option>
 						<% for (let i = 0; i < unidades.length; i++) { %>
-						<option value="<%=unidades[i].id %>" <%=((item && item.idunidade === unidades[i].id) ? 'selected="selected"' : '') %>><%=(unidades[i].nome + (unidades[i].sigla === '-' ? '' : (' (' + unidades[i].sigla + ')'))) %></option>
+						<option value="<%=unidades[i].id %>" <%-((item && item.idunidade === unidades[i].id) ? 'selected="selected"' : '') %>><%=(unidades[i].nome + (unidades[i].sigla === '-' ? '' : (' (' + unidades[i].sigla + ')'))) %></option>
 						<% } %>
 					</select>
 				</div>

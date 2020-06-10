@@ -17,8 +17,8 @@
 					<label for="tipo">Tipo</label>
 					<select id="tipo" name="tipo" class="form-control" size="1">
 						<option value="">SELECIONE...</option>
-						<option value="0" <%=((item && item.tipo === 0) ? 'selected="selected"' : '') %>>ADMIN</option>
-						<option value="1" <%=((item && item.tipo === 1) ? 'selected="selected"' : '') %>>COMUM</option>
+						<option value="0" <%-((item && item.tipo === 0) ? 'selected="selected"' : '') %>>ADMIN</option>
+						<option value="1" <%-((item && item.tipo === 1) ? 'selected="selected"' : '') %>>COMUM</option>
 					</select>
 				</div>
 			</div>
