@@ -172,7 +172,7 @@
 			order: [],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link de Controle de Presença\" type=\"button\" data-presenca=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-check-square-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{
 					title: "Palestrantes", data: function (row, type, set, meta) {
@@ -226,13 +226,13 @@
 
 			JsonWebApi.get("<%- root %>/api/evento/listarInscricoesEPresencas", function (response) {
 				if (response.success) {
-					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
+					Notification.success("Informações atualizadas com sucesso! " + emoji.happy);
 
 					atualizarInscricoesEPresencas(response.value);
 
 					tabelaSessoes.rows().invalidate().draw();
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 		};
@@ -245,13 +245,13 @@
 
 			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEMedias", function (response) {
 				if (response.success) {
-					Notification.success("Informações atualizadas com sucesso! \uD83D\uDE04");
+					Notification.success("Informações atualizadas com sucesso! " + emoji.happy);
 
 					atualizarAvaliacoesEMedias(response.value);
 
 					tabelaSessoes.rows().invalidate().draw();
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 		};
@@ -339,7 +339,7 @@
 			if ($.active || JsonWebApi.active)
 				return;
 
-			var sessao = tabelaSessoes.row(trSessaoClicada = this.parentNode.parentNode).data();
+			var a, str, sessao = tabelaSessoes.row(trSessaoClicada = this.parentNode.parentNode).data();
 
 			if (this.getAttribute("data-excluir")) {
 				$("#lblExcluirSessao").text(sessao.nome);
@@ -351,9 +351,27 @@
 					keyboard: true
 				});
 			} else if (this.getAttribute("data-share")) {
-				var str = gerarLinkDeCompartilhamento(sessao.nome);
+				str = gerarLinkDeCompartilhamento(sessao.nome);
 
-				var a = _("aLinkSessao");
+				a = _("aLinkSessao");
+				a.setAttribute("href", str);
+				a.textContent = str;
+
+				a = _("btnLinkSessao");
+				a.setAttribute("data-clipboard-text", str);
+
+				$("#modalLinkSessao").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else if (this.getAttribute("data-presenca")) {
+				if (!sessao.senhacontrole) {
+					Notification.error("A senha do controle de presença está em branco " + emoji.sad, true);
+					return;
+				}
+				str = gerarLinkDeControleDePresenca(sessao.id, sessao.senhacontrole);
+
+				a = _("aLinkSessao");
 				a.setAttribute("href", str);
 				a.textContent = str;
 
@@ -446,7 +464,7 @@
 							break;
 						}
 					}
-					Notification.success("Sessão excluída com sucesso! \uD83D\uDE04");
+					Notification.success("Sessão excluída com sucesso! " + emoji.happy);
 					tabelaSessoes.row(trSessaoClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);
@@ -699,7 +717,7 @@
 						keyboard: true
 					});
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 		};
@@ -777,7 +795,7 @@
 						keyboard: true
 					});
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 		};
@@ -820,7 +838,7 @@
 						keyboard: true
 					});
 				} else {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 		};

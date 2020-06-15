@@ -267,7 +267,7 @@
 				var i, inscricao, inscricoes = response.value, html = "";
 
 				if (!inscricoes || !inscricoes.length) {
-					html = '<div class="text-center">Não foram encontradas inscrições para esse evento \uD83D\uDE22</div>';
+					html = '<div class="text-center">Não foram encontradas inscrições para esse evento ' + emoji.sad + '</div>';
 				} else {
 					for (i = inscricoes.length - 1; i >= 0; i--)
 						inscricoes[i].dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](inscricoes[i].data);
@@ -338,7 +338,7 @@
 					keyboard: false
 				});
 			} else {
-				Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+				Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 			}
 		}, "idevento", idevento);
 	}

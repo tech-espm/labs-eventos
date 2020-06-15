@@ -175,7 +175,7 @@
 							tabela.row(trClicada).invalidate().draw();
 							trClicada = null;
 
-							Notification.success("Cor do local para o evento alterada com sucesso! \uD83D\uDE04");
+							Notification.success("Cor do local para o evento alterada com sucesso! " + emoji.happy);
 						} else {
 							Notification.error("O local deve ser associado ao evento para que sua cor possa ser alterada", true);
 						}
@@ -202,7 +202,7 @@
 						local.ideventolocal = 0;
 						delete locaisSelecionados[local.id];
 						atualizarEventoLocais();
-						Notification.success("Local desassociado do evento com sucesso! \uD83D\uDE04");
+						Notification.success("Local desassociado do evento com sucesso! " + emoji.happy);
 						$(trClicada).removeClass("col-h2");
 						tabela.row(trClicada).invalidate().draw();
 					} else {
@@ -230,7 +230,7 @@
 				JsonWebApi.post("<%- root %>/api/local/eventoAlterarCapacidade", { ideventolocal: local.ideventolocal, capacidade: capacidade }, function (response) {
 					if (response.success) {
 						if (response.value)
-							Notification.success("Capacidade do local para o evento alterada com sucesso! \uD83D\uDE04");
+							Notification.success("Capacidade do local para o evento alterada com sucesso! " + emoji.happy);
 						else
 							Notification.error("O local deve ser associado ao evento para que sua capacidade possa ser alterada", true);
 					} else {
@@ -275,7 +275,7 @@
 						local.ideventolocal = parseInt(response.value);
 						locaisSelecionados[local.id] = local;
 						atualizarEventoLocais();
-						Notification.success("Local associado ao evento com sucesso! \uD83D\uDE04");
+						Notification.success("Local associado ao evento com sucesso! " + emoji.happy);
 						$(trClicada).addClass("col-h2");
 						tabela.row(trClicada).invalidate().draw();
 					} else {

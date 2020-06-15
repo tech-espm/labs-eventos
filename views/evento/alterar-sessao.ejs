@@ -100,6 +100,15 @@
 	<label for="txtSessaoTags">Tags <small>(Separadas por vírgula)</small></label>
 	<input id="txtSessaoTags" name="txtSessaoTags" type="text" class="form-control upper" maxlength="100" />
 </div>
+<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+	<label for="txtSessaoSenhaControle">Senha de Controle de Presença</label>
+	<div class="input-group">
+		<input id="txtSessaoSenhaControle" name="txtSessaoSenhaControle" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" />
+		<span class="input-group-btn">
+			<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('txtSessaoSenhaControleIcon').className = (_('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('txtSessaoSenhaControle').setAttribute('type', _('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="txtSessaoSenhaControleIcon" class="fa fa-nomargin fa-eye"></i></button>
+		</span>
+	</div>
+</div>
 
 <script type="text/javascript">
 	//<![CDATA[
@@ -168,6 +177,7 @@
 			preencherCb(_("cbSessaoVertical"), eventoVerticais, sessao ? sessao.idvertical : "0");
 			$("#txtSessaoPublicoAlvo").val(sessao ? sessao.publico_alvo : "");
 			$("#txtSessaoTags").val(sessao ? sessao.tags : "");
+			$("#txtSessaoSenhaControle").val(sessao ? sessao.senhacontrole : "");
 		};
 
 		//<% if (usuario) { %>
@@ -263,6 +273,9 @@
 				txtSessaoTags: {
 					maxlength: 100
 				},
+				txtSessaoSenhaControle: {
+					maxlength: 45
+				},
 				//<% if (!usuario) { for (let i = 0; i < 6; i++) { %>
 				"txtPalestranteNome<%- i %>": {
 					maxlength: 100,
@@ -303,6 +316,7 @@
 					idvertical: parseInt($("#cbSessaoVertical").val()),
 					publico_alvo: trim($("#txtSessaoPublicoAlvo").val().normalize()),
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
+					senhacontrole: trim($("#txtSessaoSenhaControle").val().normalize()),
 					idspalestrante: []
 				};
 
@@ -362,6 +376,7 @@
 							sessao.idvertical = s.idvertical;
 							sessao.publico_alvo = s.publico_alvo;
 							sessao.tags = s.tags;
+							sessao.senhacontrole = s.senhacontrole;
 							sessao.idspalestrante = s.idspalestrante;
 							preencherDadosSessao(sessao);
 							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
@@ -428,6 +443,7 @@
 		prepareDatePickerNumber("#txtSessaoData");
 		$("#txtSessaoInicio").mask("00:00");
 		$("#txtSessaoTermino").mask("00:00");
+		$("#txtSessaoSenhaControle").mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9_\-]/, optional: true } } });
 
 		//<% if (!usuario) { %>
 		preencherFormSessao(null);

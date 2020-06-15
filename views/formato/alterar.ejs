@@ -41,7 +41,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/formato/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Formato alterado com sucesso! \uD83D\uDE04");
+					Notification.success("Formato alterado com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -51,7 +51,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/formato/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Formato criado com sucesso! \uD83D\uDE04");
+					Notification.success("Formato criado com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

@@ -111,7 +111,7 @@
 
 		JsonWebApi.get("<%- root %>/api/evento/excluir", function (response) {
 			if (response.success) {
-				Notification.success("Evento excluído com sucesso! \uD83D\uDE04");
+				Notification.success("Evento excluído com sucesso! " + emoji.happy);
 				tabela.row(trClicada).remove().draw();
 			} else {
 				Notification.error(response.value, true);

@@ -72,7 +72,7 @@
 
 				if (files) {
 					if (proximoIndice >= 1) {
-						Notification.success("Arquivo da landing page enviado com sucesso! \uD83D\uDE04");
+						Notification.success("Arquivo da landing page enviado com sucesso! " + emoji.happy);
 						return;
 					}
 					file = files[proximoIndice];
@@ -82,7 +82,7 @@
 					}
 				} else if (dt.items) {
 					if (proximoIndice >= 1) {
-						Notification.success("Arquivo da landing page enviado com sucesso! \uD83D\uDE04");
+						Notification.success("Arquivo da landing page enviado com sucesso! " + emoji.happy);
 						return;
 					}
 					file = dt.items[proximoIndice];
@@ -93,7 +93,7 @@
 					file = file.getAsFile();
 				} else {
 					if (proximoIndice >= dt.files.length) {
-						Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+						Notification.success("Arquivos enviados com sucesso! " + emoji.happy);
 						return;
 					}
 					file = dt.files[proximoIndice];

@@ -104,7 +104,7 @@
 
 		JsonWebApi.get("<%- root %>/api/usuario/excluir", function (response) {
 			if (response.success) {
-				Notification.success("Usuário excluído com sucesso! \uD83D\uDE04");
+				Notification.success("Usuário excluído com sucesso! " + emoji.happy);
 				tabela.row(trClicada).remove().draw();
 			} else {
 				Notification.error(response.value, true);
@@ -125,7 +125,7 @@
 
 		JsonWebApi.get("<%- root %>/api/usuario/redefinirSenha", function (response) {
 			if (response.success)
-				Notification.success("Senha redefinida com sucesso! \uD83D\uDE04");
+				Notification.success("Senha redefinida com sucesso! " + emoji.happy);
 			else
 				Notification.error(response.value, true);
 			trClicada = null;

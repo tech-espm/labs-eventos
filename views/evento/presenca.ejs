@@ -1,0 +1,130 @@
+﻿<div class="painel-msg">
+	<div class="panel panel-default no-margin-bottom">
+		<div class="panel-heading">
+			<span>C</span>ONTROLE DE <span>P</span>RESENÇA
+		</div>
+		<div class="panel-body">
+			<!--
+				s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.senhapresenca
+			-->
+			<h2 class="no-margin-top"><%=nome %> - <%=sessao.nome %></h2>
+			<p class="text-right"><%=sessao.data %> das <%=sessao.inicio %> às <%=sessao.termino %></p>
+			<form id="form">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group no-margin-bottom col-sm-space-bottom">
+							<label for="txtSenhaPresenca">Senha da Presença</label>
+							<input type="text" maxlength="45" autocomplete="off" spellcheck="false" id="txtSenhaPresenca" name="txtSenhaPresenca" class="form-control" placeholder="EM BRANCO DESATIVA" value="<%- sessao.senhapresenca %>" />
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group no-margin-bottom">
+							<label class="hidden-xs">&nbsp;</label>
+							<button type="submit" class="btn btn-primary btn-block">Salvar Senha</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			<div id="qrcodecontainer" class="text-center" style="display: none;">
+				<hr />
+				<b>Link para marcar a presença</b> <button id="btnCopiar" type="button" class="btn btn-primary btn-copyjs btn-xs" data-clipboard-text=""><i class="fa fa-copy"></i>Copiar</button>
+				<br />
+				<span id="link" style="word-break: break-all;"></span>
+				<hr />
+				<div class="col-xs-space-bottom">
+					<a id="download" href="" download="QR.png" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i>Baixar Imagem</a>
+				</div>
+				<div id="qrcode"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	#qrcode > * {
+		margin: 15px auto 30px;
+		width: 400px;
+		max-width: 100%;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<!--
+	qrcode.js
+	https://github.com/davidshimjs/qrcodejs
+-->
+<script type="text/javascript" src="<%- root %>/lib/qrcodejs/js/qrcode-1.0.0.min.js"></script>
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	prepareCopyHandler();
+	$("#txtSenhaPresenca").mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9_\-]/, optional: true } } });
+
+	var prefixoUrlPresenca = "<%- urlBase %>/participante/p<%- urlEvento %>/<%- sessao.id %>/", senhaPresenca = "<%- sessao.senhapresenca %>", gerandoQR = false, qrcode = null;
+
+	function gerarQR(mostrarNotification) {
+		var link = prefixoUrlPresenca + senhaPresenca;
+		gerandoQR = true;
+		if (!qrcode) {
+			qrcode = new QRCode("qrcode", {
+				text: link,
+				width: 400,
+				height: 400,
+				colorDark: "#000000",
+				colorLight: "#ffffff"//,
+				//correctLevel: QRCode.CorrectLevel.H
+			});
+		} else {
+			qrcode.clear();
+			qrcode.makeCode(link);
+		}
+		$("#qrcode").attr("title", "");
+		setTimeout(() => {
+			gerandoQR = false;
+			if (mostrarNotification)
+				Notification.success("Senha salva com sucesso! " + emoji.happy);
+			else
+				Notification.hide();
+			if (senhaPresenca) {
+				$("#link").text(link.substr(link.indexOf("://") + 3));
+				$("#btnCopiar").attr("data-clipboard-text", link);
+				$("#qrcodecontainer").show();
+				$("#download").attr("href", $("#qrcode img").attr("src"));
+			}
+		}, 100);
+	}
+
+	if (senhaPresenca) {
+		Notification.wait();
+		gerarQR(false);
+	}
+
+	$("#form").validate({
+		rules: {
+			txtSenhaPresenca: {
+				maxlength: 45
+			}
+		},
+		submitHandler: function (form) {
+			if ($.active || JsonWebApi.active || gerandoQR)
+				return;
+
+			senhaPresenca = trim($("#txtSenhaPresenca").val().normalize());
+			$("#txtSenhaPresenca").val(senhaPresenca);
+
+			$("#qrcodecontainer").hide();
+
+			Notification.wait();
+
+			JsonWebApi.get("<%- root %>/api/sessao/alterarSenhaPresenca", function (response) {
+				if (response.success)
+					gerarQR(true);
+				else
+					Notification.error(response.value, true);
+			}, "id", "<%- sessao.id %>", "idevento", "<%-idevento %>", "senhacontrole", "<%-sessao.senhacontrole %>", "senhapresenca", senhaPresenca);
+		}
+	});
+	//]]>
+</script>

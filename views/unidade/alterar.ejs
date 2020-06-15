@@ -50,7 +50,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/unidade/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Unidade alterada com sucesso! \uD83D\uDE04");
+					Notification.success("Unidade alterada com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -60,7 +60,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/unidade/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Unidade criada com sucesso! \uD83D\uDE04");
+					Notification.success("Unidade criada com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

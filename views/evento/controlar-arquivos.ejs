@@ -175,7 +175,7 @@
 
 			JsonWebApi.get("<%- root %>/api/evento/renomearArquivo", function (response) {
 				if (response.success) {
-					Notification.success("Arquivo renomeado com sucesso! \uD83D\uDE04");
+					Notification.success("Arquivo renomeado com sucesso! " + emoji.happy);
 					arquivo.nome = nomeNovo;
 					tabela.row(trClicada).invalidate().draw();
 				} else {
@@ -211,7 +211,7 @@
 
 			JsonWebApi.get("<%- root %>/api/evento/excluirArquivo", function (response) {
 				if (response.success) {
-					Notification.success("Arquivo excluído com sucesso! \uD83D\uDE04");
+					Notification.success("Arquivo excluído com sucesso! " + emoji.happy);
 					tabela.row(trClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);
@@ -250,7 +250,7 @@
 				var i, file, nomeReal, nome;
 
 				if (proximoIndice >= files.length) {
-					Notification.success("Arquivos enviados com sucesso! \uD83D\uDE04");
+					Notification.success("Arquivos enviados com sucesso! " + emoji.happy);
 					return;
 				}
 				file = files[proximoIndice];

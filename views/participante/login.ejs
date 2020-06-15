@@ -118,7 +118,7 @@
 			Notification.wait();
 
 			$.ajax({
-				url: "/participante/modal",
+				url: "<%- root %>/participante/modal",
 				success: function (data) {
 					Notification.hide();
 
@@ -131,7 +131,7 @@
 					});
 				},
 				error: function () {
-					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde \uD83D\uDE22", true);
+					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
 
@@ -150,7 +150,7 @@
 
 		var email;
 		if (!isEmail(email = $("#email").val())) {
-			Notification.error("Por favor, insira um e-mail válido para prosseguir \uD83D\uDE22", true);
+			Notification.error("Por favor, insira um e-mail válido para prosseguir " + emoji.sad, true);
 			return;
 		}
 
@@ -158,7 +158,7 @@
 
 		JsonWebApi.get("<%- root %>/api/participante/redefinirSenha", function (response) {
 			if (response.success)
-				Notification.success("As instruções para redefinir sua senha foram encaminhadas para seu e-mail! \uD83D\uDE04");
+				Notification.success("As instruções para redefinir sua senha foram encaminhadas para seu e-mail! " + emoji.happy);
 			else
 				Notification.error(response.value, true);
 		}, "email", email);

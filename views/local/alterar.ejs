@@ -62,7 +62,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/local/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Local alterado com sucesso! \uD83D\uDE04");
+					Notification.success("Local alterado com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -72,7 +72,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/local/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Local criado com sucesso! \uD83D\uDE04");
+					Notification.success("Local criado com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

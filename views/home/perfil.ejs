@@ -75,7 +75,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/usuario/alterarPerfil", form, function (response) {
 				if (response.success)
-					Notification.success("Perfil alterado com sucesso! \uD83D\uDE04");
+					Notification.success("Perfil alterado com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});

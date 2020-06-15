@@ -49,7 +49,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/profissao/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Profissão alterada com sucesso! \uD83D\uDE04");
+					Notification.success("Profissão alterada com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -59,7 +59,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/profissao/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Profissão criada com sucesso! \uD83D\uDE04");
+					Notification.success("Profissão criada com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

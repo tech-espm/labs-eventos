@@ -348,14 +348,16 @@ export = class Participante {
 		return (lista || []);
 	}
 
-	public static async marcarPresenca(senha: string, idevento: number, ideventosessao: number, idparticipante: number): Promise<number> {
+	public static async marcarPresenca(senha: string, idevento: number, ideventosessao: number, idparticipante: number, ignorarSenha: boolean): Promise<number> {
 		let res = 0;
 
 		await Sql.conectar(async (sql: Sql) => {
-			let senhas = await sql.query("select senhacheckin from evento where id = " + idevento);
+			if (!ignorarSenha) {
+				let senhas = await sql.query("select senhacheckin from evento where id = " + idevento);
 
-			if (!senhas || !senhas[0] || senhas[0].senhacheckin !== senha)
-				return;
+				if (!senhas || !senhas[0] || senhas[0].senhacheckin !== senha)
+					return;
+			}
 
 			await sql.query("update eventosessaoparticipante set presente = 1 where idevento = " + idevento + " and ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante);
 

@@ -222,7 +222,7 @@
 								empresa.nome_tipo = e.nome_tipo;
 								empresa.versao = e.versao;
 								eventoEmpresas.sort(comparadorNome);
-								Notification.success("Empresa alterada com sucesso! \uD83D\uDE04");
+								Notification.success("Empresa alterada com sucesso! " + emoji.happy);
 								tabela.row(trClicada).invalidate().draw();
 								trClicada = null;
 							} else {
@@ -239,7 +239,7 @@
 								eventoEmpresasPorId[e.id] = e;
 								eventoEmpresas.push(e);
 								eventoEmpresas.sort(comparadorNome);
-								Notification.success("Empresa criada com sucesso! \uD83D\uDE04");
+								Notification.success("Empresa criada com sucesso! " + emoji.happy);
 								tabela.row.add(e).draw();
 							} else {
 								Notification.error(response.value, true);
@@ -251,7 +251,7 @@
 
 				function erroImagem() {
 					preparandoImagem = false;
-					Notification.error("Ocorreu um erro durante o processamento da imagem \uD83D\uDE22", true);
+					Notification.error("Ocorreu um erro durante o processamento da imagem " + emoji.sad, true);
 				}
 
 				function prepararImagem(arquivo) {
@@ -422,7 +422,7 @@
 							break;
 						}
 					}
-					Notification.success("Empresa excluída com sucesso! \uD83D\uDE04");
+					Notification.success("Empresa excluída com sucesso! " + emoji.happy);
 					tabela.row(trClicada).remove().draw();
 				} else {
 					Notification.error(response.value, true);

@@ -40,6 +40,7 @@ ejs.cache = lru(200);
 const app = express();
 
 app.locals = {
+	// Essa urlBase é *DIFERENTE* da urlBase utilizada nas landing pages!
 	urlBase: appsettings.urlBase,
 	root: appsettings.root
 };
@@ -219,6 +220,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					descricao: evento.descricao,
 					emailpadrao: evento.emailpadrao,
 					url: req.path,
+					// Essa urlBase é *DIFERENTE* da urlBase utilizada nas landing pages!
 					urlBase: "/evt/" + evento.id + "/",
 					urlInscricao: "/participante/inscricao" + req.path + "/",
 					urlParticipante: "/participante",
@@ -275,7 +277,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 ClusterEventos.preparar(Evento.atualizarIdsPorUrlSemPropagacao);
 
 async function iniciar() {
-	app.set("port", process.env.PORT || 3000);
+	app.set("port", parseInt(process.env.PORT) || 3000);
 
 	try {
 		await Evento.atualizarIdsPorUrlSemPropagacao();

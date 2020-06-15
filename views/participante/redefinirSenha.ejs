@@ -58,7 +58,7 @@
 					resetForm(form);
 					$("#email").val("");
 					$("#token").val("");
-					Notification.success("Senha redefinida com sucesso! Agora você pode acessar o sistema utilizando sua nova senha! \uD83D\uDE04");
+					Notification.success("Senha redefinida com sucesso! Agora você pode acessar o sistema utilizando sua nova senha! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

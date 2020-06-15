@@ -242,4 +242,28 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 	}
 }));
 
+router.all("/presenca/:e/:s/:senha", wrap(async (req: express.Request, res: express.Response) => {
+	let e = req.params["e"] as string;
+	let s = req.params["s"] as string;
+	let senhacontrole = req.params["senha"] as string;
+	let evt = Evento.idsPorUrl["/" + e];
+	let sid = parseInt(s);
+	if (evt && evt.habilitado && sid && sid > 0) {
+		let mensagem: string = null;
+
+		const sessao = await Sessao.obter(sid, evt.id);
+		if (!sessao)
+			mensagem = "Não foi possível localizar a sessão no evento fornecido";
+		else if (!senhacontrole || senhacontrole !== sessao.senhacontrole)
+			mensagem = "Senha de controle de presença inválida";
+
+		if (mensagem)
+			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro", mensagem: mensagem });
+		else
+			res.render("evento/presenca", { layout: "layout-externo", imagemFundo: true, panelHeadingPersonalizado: true, titulo: "Controle de Presença", idevento: evt.id, urlEvento: evt.url, nome: evt.nome, sessao: sessao });
+	} else {
+		res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro", mensagem: "Não foi possível encontrar o evento selecionado" });
+	}
+}));
+
 export = router;

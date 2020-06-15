@@ -41,7 +41,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/industria/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Indústria alterada com sucesso! \uD83D\uDE04");
+					Notification.success("Indústria alterada com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -51,7 +51,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/industria/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Indústria criada com sucesso! \uD83D\uDE04");
+					Notification.success("Indústria criada com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

@@ -13,12 +13,14 @@ router.all("/login/:e?/:s?", wrap(async (req: express.Request, res: express.Resp
 	let p = await Participante.cookie(req);
 	let e = req.params["e"] as string;
 	let s = req.params["s"] as string;
+	let senhapresenca = req.cookies["participanteSenhaPresenca"] as string;
 	// Quando o evento for "home", deve redirecionar o usuário para
 	// a tela de gerenciamento de inscrições e certificados
 	if (!e)
 		e = "home";
 	if (p) {
-		res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? ("/participante/inscricao/" + e + "/" + s) : ("/" + e)));
+		res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
+		res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
 	} else if (req.body.email || req.body.senha) {
 		let mensagem: string = null;
 
@@ -26,8 +28,9 @@ router.all("/login/:e?/:s?", wrap(async (req: express.Request, res: express.Resp
 		if (mensagem) {
 			res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginUrl });
 		} else {
+			res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 			res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
-			res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? ("/participante/inscricao/" + e + "/" + s) : ("/" + e)));
+			res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
 		}
 	} else {
 		res.cookie("participanteEvt", e + "|" + s, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
@@ -119,6 +122,39 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 					res.render("participante/certificado", { layout: "layout-externo", imagemFundo: false, titulo: "Certificado de Participação", palestrante: false, participante: participante, evento: evento, idcertificado: idcertificado, presencas: presencas });
 			}
 		}
+	}
+}));
+
+router.all("/p/:e/:s/:senha", wrap(async (req: express.Request, res: express.Response) => {
+	let p = await Participante.cookie(req);
+	let e = req.params["e"] as string;
+	let s = req.params["s"] as string;
+	let senhapresenca = req.params["senha"] as string;
+	if (p) {
+		let evt = Evento.idsPorUrl["/" + e];
+		let sid = parseInt(s);
+		if (evt && evt.habilitado && sid && sid > 0) {
+			let mensagem: string = null;
+
+			if (!senhapresenca || senhapresenca !== await Sessao.obterSenhaPresenca(sid, evt.id)) {
+				mensagem = "Não foi possível marcar presença na sessão com o código fornecido";
+			} else {
+				if (!await Participante.marcarPresenca(null, evt.id, sid, p.id, true))
+					mensagem = "Não foi possível encontrar sua inscrição na sessão";
+			}
+
+			res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
+
+			if (mensagem)
+				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: mensagem, participante: p });
+			else
+				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Sucesso", mensagem: "Presença marcada com sucesso", participante: p, sucesso: true });
+		} else {
+			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: "Não foi possível encontrar o evento selecionado", participante: p });
+		}
+	} else {
+		res.cookie("participanteSenhaPresenca", senhapresenca || "", { maxAge: 1 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
+		res.redirect("/participante/login/" + e + "/" + s);
 	}
 }));
 

@@ -49,7 +49,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/curso/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Âncora alterada com sucesso! \uD83D\uDE04");
+					Notification.success("Âncora alterada com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -59,7 +59,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/curso/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Âncora criada com sucesso! \uD83D\uDE04");
+					Notification.success("Âncora criada com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

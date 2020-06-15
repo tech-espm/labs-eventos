@@ -291,7 +291,7 @@
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
 						$("#fundocertificado").val("");
-						Notification.success("Evento alterado com sucesso! \uD83D\uDE04");
+						Notification.success("Evento alterado com sucesso! " + emoji.happy);
 					} else {
 						Notification.error(response.value, true);
 					}
@@ -308,7 +308,7 @@
 								resetForm("#form");
 								$("#aspectratioempresa").val("4:3");
 								$("#aspectratiopalestrante").val("1:1");
-								Notification.success("Evento criado com sucesso! \uD83D\uDE04");
+								Notification.success("Evento criado com sucesso! " + emoji.happy);
 							}
 						}, "idevento", response.value);
 					} else {

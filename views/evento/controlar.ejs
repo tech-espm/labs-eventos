@@ -216,6 +216,10 @@
 		return "<%- urlBase %>/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
 	}
 
+	function gerarLinkDeControleDePresenca(idsessao, senhacontrole) {
+		return "<%- urlBase %>/evento/presenca/<%-item.url %>/" + idsessao + "/" + senhacontrole;
+	}
+
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),
 			tab = $(idTab),

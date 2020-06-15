@@ -222,6 +222,8 @@ CREATE TABLE eventosessao (
   tags varchar(100) NOT NULL,
   permiteinscricao tinyint(4) NOT NULL,
   permiteacom tinyint(4) NOT NULL,
+  senhacontrole varchar(45) NOT NULL,
+  senhapresenca varchar(45) NOT NULL,
   PRIMARY KEY (id),
   KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
   KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),

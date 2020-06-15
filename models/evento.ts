@@ -14,13 +14,36 @@ import Participante = require("./participante");
 import Usuario = require("./usuario");
 import TipoEmpresa = require("./tipoEmpresa");
 
+interface EventoSimples {
+	id: number;
+	nome: string;
+	titulo: string;
+	descricao: string;
+	versaobanner: number;
+	versaologo: number;
+	url: string;
+	idempresapadrao: number;
+	emailpadrao: string;
+	habilitado: number;
+	permiteinscricao: number;
+	senhasugestao: string;
+}
+
+interface EventosPorUrl {
+	[url: string]: EventoSimples;
+}
+
+interface EventosPorId {
+	[id: number]: EventoSimples;
+}
+
 export = class Evento {
 	public static readonly tamanhoMaximoFundoCertificadoEmKiB = 2048;
 	public static readonly tamanhoMaximoFundoCertificadoEmBytes = Evento.tamanhoMaximoFundoCertificadoEmKiB << 10;
 
 	public static readonly nomesReservados: string[] = [];
-	public static idsPorUrl = {};
-	public static eventosPorId = {};
+	public static idsPorUrl: EventosPorUrl = {};
+	public static eventosPorId: EventosPorId = {};
 
 	public id: number;
 	public nome: string;
@@ -116,13 +139,13 @@ export = class Evento {
 	}
 
 	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
-		let idsPorUrl = {};
-		let eventosPorId = {};
+		let idsPorUrl: EventosPorUrl = {};
+		let eventosPorId: EventosPorId = {};
 		let lista = await sql.query("select id, nome, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao, senhasugestao from evento") as Evento[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				let evt = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao, senhasugestao: e.senhasugestao };
+				let evt: EventoSimples = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao, senhasugestao: e.senhasugestao };
 				idsPorUrl[evt.url] = evt;
 				eventosPorId[e.id] = evt;
 			}

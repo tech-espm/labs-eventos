@@ -120,4 +120,10 @@ router.get("/excluir", wrap(async (req: express.Request, res: express.Response) 
 	jsonRes(res, 400, isNaN(id) ? "Dados inválidos!" : await Sessao.excluir(id, u.idevento_logado));
 }));
 
+router.get("/alterarSenhaPresenca", wrap(async (req: express.Request, res: express.Response) => {
+	let id = parseInt(req.query["id"]);
+	let idevento = parseInt(req.query["idevento"]);
+	jsonRes(res, 400, (isNaN(id) || isNaN(idevento)) ? "Dados inválidos!" : await Sessao.alterarSenhaPresenca(id, idevento, req.query["senhacontrole"] as string, req.query["senhapresenca"] as string));
+}));
+
 export = router;

@@ -59,7 +59,7 @@ router.get("/marcarPresenca", wrap(async (req: express.Request, res: express.Res
 	if (!evt || !evt.habilitado || !evt.permiteinscricao)
 		jsonRes(res, 400, "Dados inválidos");
 	else if (senha && idevento > 0 && ideventosessao > 0 && idparticipante > 0)
-		res.json(await Participante.marcarPresenca(senha, idevento, ideventosessao, idparticipante));
+		res.json(await Participante.marcarPresenca(senha, idevento, ideventosessao, idparticipante, false));
 	else
 		jsonRes(res, 400, "Dados inválidos");
 }));

@@ -50,7 +50,7 @@
 
 			JsonWebApi.postFormData("<%- root %>/api/tipoEmpresa/alterar", form, function (response) {
 				if (response.success)
-					Notification.success("Tipo de empresa alterado com sucesso! \uD83D\uDE04");
+					Notification.success("Tipo de empresa alterado com sucesso! " + emoji.happy);
 				else
 					Notification.error(response.value, true);
 			});
@@ -60,7 +60,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/tipoEmpresa/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Tipo de empresa criado com sucesso! \uD83D\uDE04");
+					Notification.success("Tipo de empresa criado com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}

@@ -76,7 +76,7 @@
 
 		JsonWebApi.get("<%- root %>/api/unidade/excluir", function (response) {
 			if (response.success) {
-				Notification.success("Unidade excluída com sucesso! \uD83D\uDE04");
+				Notification.success("Unidade excluída com sucesso! " + emoji.happy);
 				tabela.row(trClicada).remove().draw();
 			} else {
 				Notification.error(response.value, true);
