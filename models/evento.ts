@@ -493,7 +493,7 @@ export = class Evento {
 				return;
 
 			lista = await sql.query(ideventosessao > 0 ?
-				("select p.id, p.nome, p.login, p.email, p.tipo from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
+				("select p.id, p.nome, p.login, p.email, p.tipo, esp.presente from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
 				("select p.id, p.nome, p.login, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante")) as Participante[];
 		});
 

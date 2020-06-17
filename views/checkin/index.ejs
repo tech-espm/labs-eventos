@@ -128,6 +128,14 @@
 	canvas, video {
 		display: block;
 	}
+
+	.presente {
+		background-color: #0062cc;
+		font-weight: bold;
+		padding: 2px;
+		border-radius: 4px;
+		color: #fff;
+	}
 </style>
 
 <%- contentFor("scripts") %>
@@ -183,6 +191,7 @@
 		alertaDepoisDaConfirmacaoErro = false,
 		modalAlertaVisivel = false,
 		modalConfirmarPresencaVisivel = false,
+		trClicada = null,
 		txtData = _("txtData"),
 		cbLocal = _("cbLocal"),
 		$cbSessao = $("#cbSessao"),
@@ -250,6 +259,14 @@
 				alertaDepoisDaConfirmacao = "Presença marcada com sucesso " + emoji.happy;
 				alertaDepoisDaConfirmacaoErro = false;
 				$("#modalConfirmarPresenca").modal("hide");
+				if (trClicada) {
+					var participante = tabela.row(trClicada).data();
+					if (participante) {
+						participante.presente = 1;
+						tabela.row(trClicada).invalidate().draw();
+					}
+					trClicada = null;
+				}
 
 				idparticipanteSelecionado = 0;
 			} else {
@@ -288,9 +305,10 @@
 				_("divQR").className = "form-group";
 				$("#panelTabela").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover table-row-pointer" id="tabela"></table></div>');
 				tabela = prepareDataTable("tabela", {
-					order: [[0, "asc"]],
+					order: [[1, "asc"]],
 					deferRender: true,
 					columns: [
+						{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? ('<span class="presente">SIM</span>') : ''); } },
 						{ title: "Nome", render: encode, data: "nome" },
 						{ title: "Login", render: encode, data: "login" },
 						{ title: "E-mail", render: encode, data: "email" },
@@ -309,7 +327,7 @@
 					if (!ideventosessaoSelecionado || !senha)
 						return;
 
-					var participante = tabela.row(this).data();
+					var participante = tabela.row(trClicada = this).data();
 
 					if (!participante)
 						return;
