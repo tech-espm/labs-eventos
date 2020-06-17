@@ -264,7 +264,7 @@
 			if (response.success) {
 				Notification.hide();
 
-				var i, inscricao, inscricoes = response.value, html = "";
+				var i, inscricao, inscricoes = response.value, idInternet = -1, html = "";
 
 				if (!inscricoes || !inscricoes.length) {
 					html = '<div class="text-center">Não foram encontradas inscrições para esse evento ' + emoji.sad + '</div>';
@@ -328,6 +328,8 @@
 						html += '<i class="fa fa-calendar"></i>' + inscricao.data + '<br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.inicio) + ' - ' + formatHourDec(inscricao.termino) + '</p>';
 						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
 						html += '<p><i class="fa fa-map-marker"></i>Sala/Auditório: <span class="badge badge-sala" style="background-color: ' + intToColor(inscricao.cor) + '; color: ' + textColorForBackground(inscricao.cor) + ';">' + inscricao.nome_local + '</span></p>';
+						if ((inscricao.idlocal === idInternet || inscricao.idunidade === idInternet) && inscricao.url_remota)
+							html += '<p><a class="btn btn-primary" href="' + inscricao.url_remota + '" target="_blank"><i class="fa fa-external-link"></i>Clique para acessar</a></p>';
 					}
 				}
 

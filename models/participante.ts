@@ -332,7 +332,7 @@ export = class Participante {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, s.nome, s.tags, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, l.nome nome_local, el.cor, u.nome nome_unidade, p.presente, a.avaliacao from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
+			lista = await sql.query("select p.id, s.nome, s.tags, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.url_remota, l.id idlocal, l.nome nome_local, el.cor, u.id idunidade, u.nome nome_unidade, p.presente, a.avaliacao from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
 		});
 
 		return (lista || []);
