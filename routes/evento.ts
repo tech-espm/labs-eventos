@@ -31,7 +31,7 @@ router.all("/alterar", wrap(async (req: express.Request, res: express.Response) 
 	} else {
 		let id = parseInt(req.query["id"]);
 		let item: Evento = null;
-		if (isNaN(id) || !(item = await Evento.obter(id))) {
+		if (isNaN(id) || !(item = await Evento.obter(id, true))) {
 			res.render("home/nao-encontrado", { usuario: u });
 		} else {
 			await Evento.obterDadosDeEdicao(item);
@@ -57,7 +57,7 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		res.redirect("/");
 	} else {
 		let item: Evento = null;
-		if (!(item = await Evento.obter(u.idevento_logado))) {
+		if (!(item = await Evento.obter(u.idevento_logado, true))) {
 			res.render("home/nao-encontrado", { usuario: u });
 		} else {
 			await Evento.obterDadosDeEdicao(item);
@@ -109,7 +109,7 @@ router.get("/controlar-landing-page", wrap(async (req: express.Request, res: exp
 		res.render("evento/controlar-landing-page", {
 			layout: "layout-vazio",
 			usuario: u,
-			evento: await Evento.obter(u.idevento_logado),
+			evento: await Evento.obter(u.idevento_logado, false),
 			caminhoAbsolutoExterno: Evento.caminhoAbsolutoExterno(u.idevento_logado),
 			landingPageExiste: await Evento.landingPageExiste(u.idevento_logado)
 		});
@@ -213,7 +213,7 @@ router.all("/palestrante/:h", wrap(async (req: express.Request, res: express.Res
 		return;
 	}
 
-	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, panelHeadingPersonalizado: true, titulo: "Minhas Informações", palestrante: p, idcertificado: Palestrante.idPalestranteParaIdCertificado(id, idevento), empresa: await Empresa.obter(p.idempresa, idevento), evento: await Evento.obter(idevento), sessoes: await Palestrante.listarSessoesEAceites(id, idevento), hash: hash });
+	res.render("evento/palestrante-externo", { layout: "layout-externo", imagemFundo: true, panelHeadingPersonalizado: true, titulo: "Minhas Informações", palestrante: p, idcertificado: Palestrante.idPalestranteParaIdCertificado(id, idevento), empresa: await Empresa.obter(p.idempresa, idevento), evento: await Evento.obter(idevento, true), sessoes: await Palestrante.listarSessoesEAceites(id, idevento), hash: hash });
 }));
 
 router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Response) => {
@@ -226,7 +226,7 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 		if (!palestrante) {
 			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Participante não encontrado" });
 		} else {
-			let evento = await Evento.obter(ids[1]);
+			let evento = await Evento.obter(ids[1], true);
 			if (!evento) {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Evento não encontrado" });
 			} else if (!evento.certificadoliberado) {

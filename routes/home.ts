@@ -68,7 +68,7 @@ router.get("/sugestao/:url/:senha", wrap(async (req: express.Request, res: expre
 		idevento: evento.id,
 		url: url,
 		senha: senha,
-		evento: await Evento.obter(evento.id),
+		evento: await Evento.obter(evento.id, false),
 		cursos: JSON.stringify(await Curso.listarExterno()),
 		formatos: JSON.stringify(await Formato.listar()),
 		eventoLocais: JSON.stringify(await Local.eventoListar(evento.id)),

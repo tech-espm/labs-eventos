@@ -31,7 +31,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	if (!u)
 		return;
 	let id = parseInt(req.query["id"]);
-	res.json(isNaN(id) ? null : await Evento.obter(id, u.id, u.tipo !== Usuario.TipoAdmin));
+	res.json(isNaN(id) ? null : await Evento.obter(id, true, u.id, u.tipo !== Usuario.TipoAdmin));
 }));
 
 router.post("/criar", multer().single("fundocertificado"), wrap(async (req: express.Request, res: express.Response) => {
@@ -207,7 +207,7 @@ router.get("/landingPageDownload", wrap(async (req: express.Request, res: expres
 		return;
 	}
 
-	let e = await Evento.obter(u.idevento_logado);
+	let e = await Evento.obter(u.idevento_logado, false);
 	if (!e) {
 		jsonRes(res, 400, "Evento inexistente");
 		return;

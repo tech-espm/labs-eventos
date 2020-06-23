@@ -1,160 +1,227 @@
-﻿
+﻿<style type="text/css">
+	.nav-pills > li, .nav-pills > li + li {
+		margin: 2px 0;
+		float: none;
+	    display: inline-block;
+	}
+
+	.nav-pills > li:not(.active) > a:not(:hover) {
+		background-color: #fff;
+		color: #333;
+	}
+</style>
+
+<% let controlandoEvento = (titulo === "Controlar Evento"); %>
+
 <div class="row">
 	<!--<div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">-->
 	<div class="col-lg-12">
 		<form id="form" class="panel panel-default" action="#">
-			<% if (titulo !== "Controlar Evento") { %>
+			<% if (!controlandoEvento) { %>
 			<div class="panel-heading">Informações Básicas do Evento</div>
 			<% } %>
 			<div class="panel-body no-bottom">
 				<input type="hidden" id="id" name="id" value="<%=(item ? item.id : 0) %>" />
-				<div class="row">
-					<div class="col-sm-8">
-						<div class="form-group">
-							<label for="nome">Nome</label>
-							<input id="nome" name="nome" maxlength="100" class="form-control" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="url">URL <small>(Endereço da landing page)</small></label>
-							<input id="url" name="url" maxlength="50" class="form-control lower" type="text" spellcheck="false" value="<%=(item ? item.url : '') %>" />
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="emailpadrao">E-mail Padrão para Envios</label>
-							<input id="emailpadrao" name="emailpadrao" maxlength="100" class="form-control upper" type="email" spellcheck="false" value="<%=((item ? item.emailpadrao : '') || 'eventos@espm.br') %>" />
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="inicio">Data Inicial</label>
-							<input id="inicio" name="inicio" maxlength="10" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.inicio : '') %>" />
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="termino">Data Final</label>
-							<input id="termino" name="termino" maxlength="10" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.termino : '') %>" />
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="titulo">Título da Landing Page<br /><small>(Pode incluir o nome e a data do evento, por exemplo)</small></label>
-					<textarea id="titulo" name="titulo" maxlength="100" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.titulo : '') %></textarea>
-				</div>
-				<div class="form-group">
-					<label for="descricao">Descrição</label>
-					<textarea id="descricao" name="descricao" maxlength="250" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
-				</div>
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="habilitado">Landing Page</label>
-							<select id="habilitado" name="habilitado" class="form-control upper" size="1"><option value="0" <%-((!item || !item.habilitado) ? 'selected="selected"' : '') %>>DESABILITADA</option><option value="1" <%=((item && item.habilitado) ? 'selected="selected"' : '') %>>HABILITADA</option></select>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="certificadoliberado">Certificados</label>
-							<select id="certificadoliberado" name="certificadoliberado" class="form-control upper" size="1"><option value="0" <%-((!item || !item.certificadoliberado) ? 'selected="selected"' : '') %>>BLOQUEADOS</option><option value="1" <%=((item && item.certificadoliberado) ? 'selected="selected"' : '') %>>LIBERADOS</option></select>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="permiteinscricao">Inscrições</label>
-							<select id="permiteinscricao" name="permiteinscricao" class="form-control upper" size="1"><option value="0" <%-((!item || !item.permiteinscricao) ? 'selected="selected"' : '') %>>DESABILITADAS</option><option value="1" <%=((item && item.permiteinscricao) ? 'selected="selected"' : '') %>>HABILITADAS</option></select>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-sm-6">
-						<div class="form-group">
-							<label for="aspectratioempresa">Aspect Ratio das Imagens das Empresas</label>
-							<input id="aspectratioempresa" name="aspectratioempresa" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratioempresa : '4:3') %>" />
-							<input id="aspectratioempresavalido" type="hidden" value="<%=(item ? item.aspectratioempresa : '') %>" />
-						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="form-group">
-							<label for="aspectratiopalestrante">Aspect Ratio das Imagens dos Palestrantes</label>
-							<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '1:1') %>" />
-							<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i><br /><small>(Baixe o fundo padrão <a target="_blank" href="<%- root %>/imagens/fundo-certificado.png" download="fundo-certificado.png">preenchido <i class="fa fa-download fa-nomargin"></i></a> ou <a target="_blank" href="<%- root %>/imagens/fundo-certificado-branco.png" download="fundo-certificado-branco.png">em branco <i class="fa fa-download fa-nomargin"></i></a>)</small></label>
-					<input id="fundocertificado" name="fundocertificado" class="form-control" type="file" accept="image/*" />
-				</div>
-				<div class="form-group">
-					<label for="termoaceite">Termo de Aceite de Uso de Imagem</label>
-					<textarea id="termoaceite" name="termoaceite" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.termoaceite : '') %></textarea>
-				</div>
-				<div class="checkbox">
-					<label for="permitealuno">
-						<input id="permitealuno" name="permitealuno" type="checkbox" value="1" <%=((item && item.permitealuno) ? 'checked="checked"' : '') %> /> Permite inscrições de alunos
-					</label>
-				</div>
-				<div class="checkbox">
-					<label for="permitefuncionario">
-						<input id="permitefuncionario" name="permitefuncionario" type="checkbox" value="1" <%=((item && item.permitefuncionario) ? 'checked="checked"' : '') %> /> Permite inscrições de funcionários
-					</label>
-				</div>
-				<div class="checkbox">
-					<label for="permiteexterno">
-						<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
-					</label>
-				</div>
-				<hr class="<%- (titulo !== 'Controlar Evento' ? 'hidden' : '') %>" />
-				<div class="<%- (titulo !== 'Controlar Evento' ? 'row hidden' : 'row') %>">
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="senharecepcao">Senha da Recepção</label>
-							<div class="input-group">
-								<input id="senharecepcao" name="senharecepcao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senharecepcao : '') %>" />
-								<span class="input-group-btn">
-									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenharecepcao').className = (_('senharecepcao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senharecepcao').setAttribute('type', _('senharecepcao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenharecepcao" class="fa fa-nomargin fa-eye"></i></button>
-								</span>
-							</div>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="senhacheckin">Senha do Check-In</label>
-							<div class="input-group">
-								<input id="senhacheckin" name="senhacheckin" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhacheckin : '') %>" />
-								<span class="input-group-btn">
-									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhacheckin').className = (_('senhacheckin').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhacheckin').setAttribute('type', _('senhacheckin').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhacheckin" class="fa fa-nomargin fa-eye"></i></button>
-								</span>
-							</div>
-						</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="form-group">
-							<label for="senhasugestao">Senha das Sugestões <i class="fa fa-info-circle" id="tooltipSenhaSugestao" data-toggle="tooltip" data-placement="top" data-html="true" title="Para que as sugestões funcionem, por favor, garanta as três condições a seguir:<br/>- Ao menos uma data foi criada para o evento<br/>- Ao menos um horário foi criado para o evento<br/>- Ao menos um local da unidade VIRTUAL foi associado ao evento"></i></label>
-							<div class="input-group">
-								<input id="senhasugestao" name="senhasugestao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhasugestao : '') %>" />
-								<span class="input-group-btn">
-									<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhasugestao').className = (_('senhasugestao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhasugestao').setAttribute('type', _('senhasugestao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhasugestao" class="fa fa-nomargin fa-eye"></i></button>
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-				<% if (titulo === "Controlar Evento") { %>
-				<div class="col-xs-space-bottom">
-					Os links de acesso às funcionalidades de recepção, check-in e sugestões estão listados a seguir:
-				</div>
-				<ul>
-					<li class="col-xs-space-bottom"><b>Recepção</b><br /><a href="#" id="aRecepcao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyRecepcao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
-					<li class="col-xs-space-bottom"><b>Check-In</b><br /><a href="#" id="aCheckIn" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyCheckIn" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
-					<li><b>Sugestões</b><br /><a href="#" id="aSugestao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopySugestao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+				<ul class="nav nav-pills text-center" role="tablist">
+					<li role="presentation" class="active"><a id="a-evento-basica" href="#tab-evento-basica" role="tab" data-toggle="pill" aria-controls="tab-evento-basica" aria-expanded="true"><i class="fa fa-edit"></i>Geral</a></li>
+					<li role="presentation"><a id="a-evento-landing" href="#tab-evento-landing" role="tab" data-toggle="pill" aria-controls="tab-evento-landing" aria-expanded="false"><i class="fa fa-globe"></i>Landing Page</a></li>
+					<li role="presentation"><a id="a-evento-inscricao" href="#tab-evento-inscricao" role="tab" data-toggle="pill" aria-controls="tab-evento-inscricao" aria-expanded="false"><i class="fa fa-check-square-o"></i>Inscrições</a></li>
+					<li role="presentation"><a id="a-evento-certificado" href="#tab-evento-certificado" role="tab" data-toggle="pill" aria-controls="tab-evento-certificado" aria-expanded="false"><i class="fa fa-id-card-o"></i>Certificados</a></li>
+					<li role="presentation" class="<%- (!controlandoEvento ? 'hidden' : '') %>"><a id="a-evento-senha" href="#tab-evento-senha" role="tab" data-toggle="pill" aria-controls="tab-evento-senha" aria-expanded="false"><i class="fa fa-lock"></i>Senhas</a></li>
 				</ul>
-				<% } %>
+
+				<hr />
+
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade in active" id="tab-evento-basica">
+						<div class="row">
+							<div class="col-sm-8">
+								<div class="form-group">
+									<label for="nome">Nome</label>
+									<input id="nome" name="nome" maxlength="100" class="form-control" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="url">URL <small>(Endereço da landing page)</small></label>
+									<input id="url" name="url" maxlength="50" class="form-control lower" type="text" spellcheck="false" value="<%=(item ? item.url : '') %>" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="emailpadrao">E-mail Padrão para Envios</label>
+									<input id="emailpadrao" name="emailpadrao" maxlength="100" class="form-control upper" type="email" spellcheck="false" value="<%=((item ? item.emailpadrao : '') || 'eventos@espm.br') %>" />
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="inicio">Data Inicial</label>
+									<input id="inicio" name="inicio" maxlength="10" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.inicio : '') %>" />
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="termino">Data Final</label>
+									<input id="termino" name="termino" maxlength="10" class="form-control upper" type="text" spellcheck="false" value="<%=(item ? item.termino : '') %>" />
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="termoaceite">Termo de Aceite de Uso de Imagem</label>
+							<textarea id="termoaceite" name="termoaceite" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.termoaceite : '') %></textarea>
+						</div>
+					</div>
+
+					<div role="tabpanel" class="tab-pane fade" id="tab-evento-landing">
+						<div class="form-group">
+							<label for="habilitado">Acesso à Landing Page</label>
+							<select id="habilitado" name="habilitado" class="form-control upper" size="1"><option value="0" <%-((!item || !item.habilitado) ? 'selected="selected"' : '') %>>DESABILITADO</option><option value="1" <%=((item && item.habilitado) ? 'selected="selected"' : '') %>>HABILITADO</option></select>
+						</div>
+						<div class="form-group">
+							<label for="titulo">Título da Landing Page<br /><small>(Pode incluir o nome e a data do evento, por exemplo)</small></label>
+							<textarea id="titulo" name="titulo" maxlength="100" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.titulo : '') %></textarea>
+						</div>
+						<div class="form-group">
+							<label for="descricao">Descrição</label>
+							<textarea id="descricao" name="descricao" maxlength="250" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="aspectratioempresa">Aspect Ratio das Imagens das Empresas</label>
+									<input id="aspectratioempresa" name="aspectratioempresa" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratioempresa : '4:3') %>" />
+									<input id="aspectratioempresavalido" type="hidden" value="<%=(item ? item.aspectratioempresa : '') %>" />
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="aspectratiopalestrante">Aspect Ratio das Imagens dos Palestrantes</label>
+									<input id="aspectratiopalestrante" name="aspectratiopalestrante" maxlength="11" class="form-control upper" type="text" spellcheck="false" placeholder="LARGURA:ALTURA" value="<%=(item ? item.aspectratiopalestrante : '1:1') %>" />
+									<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div role="tabpanel" class="tab-pane fade" id="tab-evento-inscricao">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="permiteinscricao">Inscrições</label>
+									<select id="permiteinscricao" name="permiteinscricao" class="form-control upper" size="1"><option value="0" <%-((!item || !item.permiteinscricao) ? 'selected="selected"' : '') %>>DESABILITADAS</option><option value="1" <%=((item && item.permiteinscricao) ? 'selected="selected"' : '') %>>HABILITADAS</option></select>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="checkbox">
+									<label for="permitealuno">
+										<input id="permitealuno" name="permitealuno" type="checkbox" value="1" <%=((item && item.permitealuno) ? 'checked="checked"' : '') %> /> Permite inscrições de alunos
+									</label>
+								</div>
+								<div class="checkbox">
+									<label for="permitefuncionario">
+										<input id="permitefuncionario" name="permitefuncionario" type="checkbox" value="1" <%=((item && item.permitefuncionario) ? 'checked="checked"' : '') %> /> Permite inscrições de funcionários
+									</label>
+								</div>
+								<div class="checkbox">
+									<label for="permiteexterno">
+										<input id="permiteexterno" name="permiteexterno" type="checkbox" value="1" <%=((item && item.permiteexterno) ? 'checked="checked"' : '') %> /> Permite inscrições de participantes externos
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div role="tabpanel" class="tab-pane fade" id="tab-evento-certificado">
+						<div class="form-group">
+							<label for="certificadoliberado">Emissão dos Certificados</label>
+							<select id="certificadoliberado" name="certificadoliberado" class="form-control upper" size="1"><option value="0" <%-((!item || !item.certificadoliberado) ? 'selected="selected"' : '') %>>BLOQUEADA</option><option value="1" <%=((item && item.certificadoliberado) ? 'selected="selected"' : '') %>>LIBERADA</option></select>
+						</div>
+						<div class="form-group">
+							<label for="fundocertificado">Fundo do Certificado <i class="fa fa-info-circle" id="tooltipFundoCertificado" data-toggle="tooltip" data-placement="top" title="O arquivo enviado se encontrará na aba Arquivos, com o nome fundo-certificado.png"></i><br /><small>(Baixe o fundo padrão <a target="_blank" href="<%- root %>/imagens/fundo-certificado.png" download="fundo-certificado.png">preenchido <i class="fa fa-download fa-nomargin"></i></a> ou <a target="_blank" href="<%- root %>/imagens/fundo-certificado-branco.png" download="fundo-certificado-branco.png">em branco <i class="fa fa-download fa-nomargin"></i></a>)</small></label>
+							<input id="fundocertificado" name="fundocertificado" class="form-control" type="file" accept="image/*" />
+						</div>
+						<div class="form-group">
+							<label for="certificado1">Linha 1 do Certificado do Participante</label>
+							<input id="certificado1" name="certificado1" maxlength="50" class="form-control" type="text" value="<%=(item ? item.certificado1 : '') %>" />
+						</div>
+						<div class="form-group">
+							<label for="certificado2">Linha 2 do Certificado do Participante</label>
+							<input id="certificado2" name="certificado2" maxlength="400" class="form-control" type="text" value="<%=(item ? item.certificado2 : '') %>" />
+						</div>
+						<div class="form-group">
+							<label for="certificado1palestrante">Linha 1 do Certificado do Palestrante</label>
+							<input id="certificado1palestrante" name="certificado1palestrante" maxlength="50" class="form-control" type="text" value="<%=(item ? item.certificado1palestrante : '') %>" />
+						</div>
+						<div class="form-group">
+							<label for="certificado2palestrante">Linha 2 do Certificado do Palestrante</label>
+							<input id="certificado2palestrante" name="certificado2palestrante" maxlength="400" class="form-control" type="text" value="<%=(item ? item.certificado2palestrante : '') %>" />
+						</div>
+						<hr />
+						<div class="form-group">
+							Deixe em branco a linha 1 do certificado para utilizar o texto padrão:
+							<div class="text-center"><b>Certificamos que</b></div>
+							<br />
+							Deixe em branco a linha 2 do certificado do participante para utilizar o texto padrão:
+							<div class="text-center"><b>(sob o e-mail &lt;b&gt;{EMAIL}&lt;/b&gt;) participou das sessões descritas na página seguinte, com uma carga horária total de &lt;b&gt;{HORAS}&lt;/b&gt;, nos respectivos dias e horários, como parte do evento &lt;b&gt;{EVENTO}&lt;/b&gt;.</b></div>
+							<br />
+							Deixe em branco a linha 2 do certificado do palestrante para utilizar o texto padrão:
+							<div class="text-center"><b>(sob o e-mail &lt;b&gt;{EMAIL}&lt;/b&gt;) ministrou as sessões descritas na página seguinte, com uma carga horária total de &lt;b&gt;{HORAS}&lt;/b&gt;, nos respectivos dias e horários, como parte do evento &lt;b&gt;{EVENTO}&lt;/b&gt;.</b></div>
+							<hr />
+							É possível utilizar tags HTML tanto na linha 1 como na linha 2.
+							<br />
+							É possível utilizar as combinações a seguir como substitutos dos valores reais ao longo da linha 2: <b>{EMAIL}</b>, <b>{HORAS}</b> e <b>{EVENTO}</b>.
+						</div>
+					</div>
+
+					<div role="tabpanel" class="<%- (!controlandoEvento ? 'hidden' : 'tab-pane fade') %>" id="tab-evento-senha">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="senharecepcao">Senha da Recepção</label>
+									<div class="input-group">
+										<input id="senharecepcao" name="senharecepcao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senharecepcao : '') %>" />
+										<span class="input-group-btn">
+											<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenharecepcao').className = (_('senharecepcao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senharecepcao').setAttribute('type', _('senharecepcao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenharecepcao" class="fa fa-nomargin fa-eye"></i></button>
+										</span>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="senhacheckin">Senha do Check-In</label>
+									<div class="input-group">
+										<input id="senhacheckin" name="senhacheckin" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhacheckin : '') %>" />
+										<span class="input-group-btn">
+											<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhacheckin').className = (_('senhacheckin').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhacheckin').setAttribute('type', _('senhacheckin').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhacheckin" class="fa fa-nomargin fa-eye"></i></button>
+										</span>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="senhasugestao">Senha das Sugestões <i class="fa fa-info-circle" id="tooltipSenhaSugestao" data-toggle="tooltip" data-placement="top" data-html="true" title="Para que as sugestões funcionem, por favor, garanta as três condições a seguir:<br/>- Ao menos uma data foi criada para o evento<br/>- Ao menos um horário foi criado para o evento<br/>- Ao menos um local da unidade VIRTUAL foi associado ao evento"></i></label>
+									<div class="input-group">
+										<input id="senhasugestao" name="senhasugestao" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" value="<%=(item ? item.senhasugestao : '') %>" />
+										<span class="input-group-btn">
+											<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('iconsenhasugestao').className = (_('senhasugestao').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('senhasugestao').setAttribute('type', _('senhasugestao').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="iconsenhasugestao" class="fa fa-nomargin fa-eye"></i></button>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<% if (controlandoEvento) { %>
+								<div class="col-xs-space-bottom">
+									Os links de acesso às funcionalidades de recepção, check-in e sugestões estão listados a seguir:
+								</div>
+								<ul>
+									<li class="col-xs-space-bottom"><b>Recepção</b><br /><a href="#" id="aRecepcao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyRecepcao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+									<li class="col-xs-space-bottom"><b>Check-In</b><br /><a href="#" id="aCheckIn" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyCheckIn" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+									<li><b>Sugestões</b><br /><a href="#" id="aSugestao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopySugestao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+								</ul>
+								<% } %>
+							</div>
+						</div>
+					</div>
+				</div>
+
 			</div>
 			<div class="panel-footer">
 				<input value="<%=(item ? 'Salvar Alterações' : 'Criar Evento') %>" class="btn btn-primary btn-lg btn-block" type="submit" />
@@ -166,7 +233,7 @@
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
-	//<% if (titulo === "Controlar Evento") { %>
+	//<% if (controlandoEvento) { %>
 	(function () {
 		var a;
 		if ((a = document.getElementsByTagName("h1")) && a.length && a[0])
@@ -201,11 +268,12 @@
 			$("#btnCopySugestao").attr("data-clipboard-text", link);
 		}
 
-		//<% if (titulo === "Controlar Evento") { %>
+		//<% if (controlandoEvento) { %>
 		atualizarUrls("<%= item.url %>", "<%= item.senhasugestao %>");
 		//<% } %>
 
 		$("#form").validate({
+			ignore: "",
 			rules: {
 				nome: {
 					required: true,
@@ -265,9 +333,38 @@
 				},
 				termoaceite: {
 					maxlength: 4000
+				},
+				certificado1: {
+					maxlength: 50
+				},
+				certificado2: {
+					maxlength: 400
+				},
+				certificado1palestrante: {
+					maxlength: 50
+				},
+				certificado2palestrante: {
+					maxlength: 400
 				}
 			},
-
+			invalidHandler: function (event, validator) {
+				var i, pai, id, errorList = validator.errorList;
+				if (errorList && errorList.length) {
+					for (i = 0; i < errorList.length; i++) {
+						if (errorList[i] && errorList[i].element) {
+							pai = errorList[i].element.parentNode;
+							while (pai && pai !== document.body) {
+								if ((id = pai.getAttribute("id")) && !id.indexOf("tab-")) {
+									$("#a-" + id.substr(4)).tab("show");
+									return;
+								}
+								pai = pai.parentNode;
+							}
+						}
+					}
+				}
+				Notification.error("Um ou mais campos contém erros " + emoji.sad, true);
+			},
 			submitHandler: function (form) {
 				if ($.active || JsonWebApi.active)
 					return;
@@ -281,7 +378,7 @@
 						var url = trim($("#url").val()).toLowerCase(), a;
 						if (window.eventoUrlListener)
 							window.eventoUrlListener(url);
-						//<% if (titulo === "Controlar Evento") { %>
+						//<% if (controlandoEvento) { %>
 						if ((a = document.getElementById("aLandingPageTitulo")))
 							a.setAttribute("href", "/" + url);
 						if ((a = document.getElementsByTagName("h1")) && a.length && a[0])

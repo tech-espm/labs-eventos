@@ -51,6 +51,20 @@
 		duracaoTotal = parseFloat(duracaoTotal.toFixed(1));
 	})();
 
+	var linha1, linha2;
+
+	if (palestrante) {
+		linha1 = evento.certificado1palestrante;
+		linha2 = (evento.certificado2palestrante || "(sob o e-mail <b>{EMAIL}</b>) ministrou as sessões descritas na página seguinte, com uma carga horária total de <b>{HORAS}</b>, nos respectivos dias e horários, como parte do evento <b>{EVENTO}</b>.");
+	} else {
+		linha1 = evento.certificado1;
+		linha2 = (evento.certificado2 || "(sob o e-mail <b>{EMAIL}</b>) participou das sessões descritas na página seguinte, com uma carga horária total de <b>{HORAS}</b>, nos respectivos dias e horários, como parte do evento <b>{EVENTO}</b>.");
+	}
+
+	if (!linha1) linha1 = "Certificamos que";
+	linha2 = linha2.replace(/\{EMAIL\}/gi, participante.email)
+		.replace(/\{HORAS\}/gi, duracaoTotal.toFixed(1).replace(".", ",") + (duracaoTotal === 1 ? " hora" : " horas"))
+		.replace(/\{EVENTO\}/gi, evento.nome);
 %>
 
 <section class="sheet text-center">
@@ -58,11 +72,11 @@
 	<img src="<%- root %>/evt/<%-evento.id %>/fundo-certificado.png?v=<%-evento.versao %>" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; pointer-events: none; z-index: 0;" />
 
 	<div style="position: absolute; width: 100%; height: 100%; left: 0; top: 0; z-index: 1;">
-		<p style="margin: 70mm 0 0;">Certificamos que</p>
+		<p style="margin: 70mm 0 0;"><%-linha1 %></p>
 
 		<p style="margin: 5mm 10mm 0; font-size: 10mm; font-weight: 700; color: #a70230 !important; -webkit-print-color-adjust: exact;"><%=participante.nome %></p>
 
-		<p style="margin: 5mm 10mm 0;">(sob o e-mail <b><%=participante.email %></b>) <%-(palestrante ? "ministrou as" : "participou das") %> sessões descritas na página seguinte, com uma carga horária total de <b><%-(duracaoTotal.toFixed(1).replace(".", ",") + (duracaoTotal === 1 ? " hora" : " horas")) %></b>, nos respectivos dias e horários, como parte do evento <b><%=evento.nome %></b>.</p>
+		<p style="margin: 5mm 10mm 0;"><%-linha2 %></p>
 
 		<p style="margin: 10mm 10mm 0;"><%-linhaData %>.</p>
 	</div>

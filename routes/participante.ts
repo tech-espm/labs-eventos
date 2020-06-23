@@ -47,7 +47,7 @@ router.all("/inscricao/:e/:s", wrap(async (req: express.Request, res: express.Re
 		let sid = parseInt(s);
 		let evento: Evento;
 		if (evt && evt.habilitado && sid && sid > 0 &&
-			(evento = await Evento.obter(evt.id))) {
+			(evento = await Evento.obter(evt.id, false))) {
 
 			let r = Evento.permiteParticipante(evento, p.tipo);
 
@@ -109,7 +109,7 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 		if (!participante) {
 			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Participante não encontrado" });
 		} else {
-			let evento = await Evento.obter(ids[1]);
+			let evento = await Evento.obter(ids[1], true);
 			if (!evento) {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Evento não encontrado" });
 			} else if (!evento.certificadoliberado) {

@@ -84,7 +84,7 @@ router.post("/alterarEmpresaExterno/:h", multer().single("imagem"), wrap(async (
 	}
 	let versao = parseInt(req.body.versao);
 	let p = await Palestrante.obter(id, idevento);
-	let e = await Evento.obter(idevento);
+	let e = await Evento.obter(idevento, false);
 	jsonRes(res, 400, (p && e && p.idempresa !== e.idempresapadrao && !isNaN(versao) && versao > 0 && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Empresa.tamanhoMaximoImagemEmBytes)) ? await Empresa.alterarImagem(p.idempresa, idevento, versao, req["file"]) : "Dados inválidos!");
 }));
 
@@ -97,7 +97,7 @@ router.get("/alterarUrlEmpresaExterno/:h", multer().single("imagem"), wrap(async
 	}
 	let url_site = req.query["url_site"] as string;
 	let p = await Palestrante.obter(id, idevento);
-	let e = await Evento.obter(idevento);
+	let e = await Evento.obter(idevento, false);
 	jsonRes(res, 400, (p && e && p.idempresa !== e.idempresapadrao) ? await Empresa.alterarUrl(p.idempresa, idevento, url_site) : "Dados inválidos!");
 }));
 
@@ -176,7 +176,7 @@ router.get("/enviarEmailLinkExterno/:i", wrap(async (req: express.Request, res: 
 	let p: Palestrante;
 	let e: Evento;
 	if (isNaN(id) || id <= 0 ||
-		!(e = await Evento.obter(u.idevento_logado)) ||
+		!(e = await Evento.obter(u.idevento_logado, false)) ||
 		!(p = await Palestrante.obter(id, u.idevento_logado))) {
 		jsonRes(res, 400, "Dados inválidos!");
 		return;

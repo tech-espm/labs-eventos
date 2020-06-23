@@ -139,7 +139,11 @@ CREATE TABLE evento (
   senharecepcao varchar(45) NOT NULL,
   senhacheckin varchar(45) NOT NULL,
   senhasugestao varchar(45) NOT NULL,
-  termoaceite varchar(4000) NOT NULL,
+  termoaceite text NOT NULL,
+  certificado1 tinytext NOT NULL,
+  certificado2 text NOT NULL,
+  certificado1palestrante tinytext NOT NULL,
+  certificado2palestrante text NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_UN (nome),
   UNIQUE KEY url_UN (url)
