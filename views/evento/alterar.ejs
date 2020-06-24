@@ -144,7 +144,7 @@
 						</div>
 						<div class="form-group">
 							<label for="certificado1">Linha 1 do Certificado do Participante</label>
-							<input id="certificado1" name="certificado1" maxlength="50" class="form-control" type="text" value="<%=(item ? item.certificado1 : '') %>" />
+							<input id="certificado1" name="certificado1" maxlength="100" class="form-control" type="text" value="<%=(item ? item.certificado1 : '') %>" />
 						</div>
 						<div class="form-group">
 							<label for="certificado2">Linha 2 do Certificado do Participante</label>
@@ -152,7 +152,7 @@
 						</div>
 						<div class="form-group">
 							<label for="certificado1palestrante">Linha 1 do Certificado do Palestrante</label>
-							<input id="certificado1palestrante" name="certificado1palestrante" maxlength="50" class="form-control" type="text" value="<%=(item ? item.certificado1palestrante : '') %>" />
+							<input id="certificado1palestrante" name="certificado1palestrante" maxlength="100" class="form-control" type="text" value="<%=(item ? item.certificado1palestrante : '') %>" />
 						</div>
 						<div class="form-group">
 							<label for="certificado2palestrante">Linha 2 do Certificado do Palestrante</label>
@@ -335,13 +335,13 @@
 					maxlength: 4000
 				},
 				certificado1: {
-					maxlength: 50
+					maxlength: 100
 				},
 				certificado2: {
 					maxlength: 400
 				},
 				certificado1palestrante: {
-					maxlength: 50
+					maxlength: 100
 				},
 				certificado2palestrante: {
 					maxlength: 400

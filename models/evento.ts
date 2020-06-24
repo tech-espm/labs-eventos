@@ -131,13 +131,13 @@ export = class Evento {
 		if (ev.termoaceite.length > 4000)
 			return "Termo de aceite de uso de imagem muito longo";
 		ev.certificado1 = (ev.certificado1 || "").normalize().trim();
-		if (ev.certificado1.length > 50)
+		if (ev.certificado1.length > 100)
 			return "Linha 1 do certificado do participante muito longa";
 		ev.certificado2 = (ev.certificado2 || "").normalize().trim();
 		if (ev.certificado2.length > 400)
 			return "Linha 2 do certificado do participante muito longa";
 		ev.certificado1palestrante = (ev.certificado1palestrante || "").normalize().trim();
-		if (ev.certificado1palestrante.length > 50)
+		if (ev.certificado1palestrante.length > 100)
 			return "Linha 1 do certificado do palestrante muito longa";
 		ev.certificado2palestrante = (ev.certificado2palestrante || "").normalize().trim();
 		if (ev.certificado2palestrante.length > 400)
