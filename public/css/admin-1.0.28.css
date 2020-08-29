@@ -213,6 +213,18 @@
 	backface-visibility: hidden;
 }
 
+.sidebar-safari {
+	backface-visibility: hidden;
+}
+
+.sidebar-fake-bg {
+	backface-visibility: hidden;
+}
+
+.navbar-static-top {
+	backface-visibility: hidden;
+}
+
 @media(min-width:768px) {
 	.sidebar {
 		z-index: 1;
