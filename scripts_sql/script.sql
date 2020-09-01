@@ -294,7 +294,6 @@ CREATE TABLE participante (
   token_reset_senha char(64) DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY email_UN (email),
-  CONSTRAINT idindustria_FK FOREIGN KEY (idindustria) REFERENCES industria (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idinstrucao_FK FOREIGN KEY (idinstrucao) REFERENCES instrucao (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT idprofissao_FK FOREIGN KEY (idprofissao) REFERENCES profissao (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
