@@ -15,7 +15,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	res.json(isNaN(id) ? null : await Unidade.obter(id));
 }));
 
-router.post("/criar", wrap(async (req: express.Request, res: express.Response) => {
+/*router.post("/criar", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res, true);
 	if (!u)
 		return;
@@ -39,6 +39,6 @@ router.get("/excluir", wrap(async (req: express.Request, res: express.Response) 
 		return;
 	let id = parseInt(req.query["id"]);
 	jsonRes(res, 400, isNaN(id) ? "Dados inválidos!" : await Unidade.excluir(id));
-}));
+}));*/
 
 export = router;

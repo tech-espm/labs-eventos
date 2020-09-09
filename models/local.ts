@@ -9,13 +9,14 @@ export = class Local {
 	public nome: string;
 	public idunidade: number;
 	public capacidade_real: number;
+	public id_integra: string;
 
 	// Apenas para listar() e obter()
 	public nome_unidade: string;
 	public sigla_unidade: string;
 
 	private static validar(l: Local): string {
-		l.nome = (l.nome || "").normalize().trim().toUpperCase();
+		l.nome = (l.nome || "").normalize().trim();
 		if (l.nome.length < 3 || l.nome.length > 100)
 			return "Nome inválido";
 		if (isNaN(l.idunidade))
@@ -29,7 +30,7 @@ export = class Local {
 		let lista: Local[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select l.id, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade from local l inner join unidade u on u.id = l.idunidade order by l.nome asc, u.sigla asc") as Local[];
+			lista = await sql.query("select l.id, l.nome, l.idunidade, l.capacidade_real, l.id_integra, u.nome nome_unidade, u.sigla sigla_unidade from local l inner join unidade u on u.id = l.idunidade order by l.nome asc, u.sigla asc") as Local[];
 		});
 
 		return (lista || []);
@@ -39,7 +40,7 @@ export = class Local {
 		let lista: Local[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select l.id, l.nome, l.idunidade, l.capacidade_real, u.nome nome_unidade, u.sigla sigla_unidade from local l inner join unidade u on u.id = l.idunidade where l.id = " + id) as Local[];
+			lista = await sql.query("select l.id, l.nome, l.idunidade, l.capacidade_real, l.id_integra, u.nome nome_unidade, u.sigla sigla_unidade from local l inner join unidade u on u.id = l.idunidade where l.id = " + id) as Local[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -52,7 +53,7 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into local (nome, idunidade, capacidade_real) values (?, ?, ?)", [l.nome, l.idunidade, l.capacidade_real]);
+				await sql.query("insert into local (nome, idunidade, capacidade_real, id_integra) values (?, ?, ?, '')", [l.nome, l.idunidade, l.capacidade_real]);
 			} catch (e) {
 				if (e.code) {
 					switch (e.code) {

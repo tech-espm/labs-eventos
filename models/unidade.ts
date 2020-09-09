@@ -7,9 +7,10 @@ export = class Unidade {
 	public id: number;
 	public nome: string;
 	public sigla: string;
+	public id_integra: number;
 
 	private static validar(u: Unidade): string {
-		u.nome = (u.nome || "").normalize().trim().toUpperCase();
+		u.nome = (u.nome || "").normalize().trim();
 		if (u.nome.length < 3 || u.nome.length > 100)
 			return "Nome inválido";
 		u.sigla = (u.sigla || "").normalize().trim().toUpperCase();
@@ -22,7 +23,7 @@ export = class Unidade {
 		let lista: Unidade[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, sigla from unidade order by nome asc") as Unidade[];
+			lista = await sql.query("select id, nome, sigla, id_integra from unidade order by nome asc") as Unidade[];
 		});
 
 		return (lista || []);
@@ -32,7 +33,7 @@ export = class Unidade {
 		let lista: Unidade[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, sigla from unidade where id = " + id) as Unidade[];
+			lista = await sql.query("select id, nome, sigla, id_integra from unidade where id = " + id) as Unidade[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -45,7 +46,7 @@ export = class Unidade {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into unidade (nome, sigla) values (?, ?)", [u.nome, u.sigla]);
+				await sql.query("insert into unidade (nome, sigla, id_integra) values (?, ?, 0)", [u.nome, u.sigla]);
 			} catch (e) {
 				if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "O nome \"" + u.nome + "\" ou a sigla \"" + u.sigla + "\" já existem";
