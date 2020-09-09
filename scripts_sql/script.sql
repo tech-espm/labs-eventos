@@ -97,7 +97,7 @@ CREATE TABLE unidade (
   UNIQUE KEY sigla_UN (sigla)
 );
 
-INSERT INTO unidade (nome, sigla) VALUES ('A DEFINIR', '-'), ('VIRTUAL', 'VIRTUAL');
+INSERT INTO unidade (nome, sigla) VALUES ('A Definir', '-'), ('Virtual', 'VIRTUAL');
 UPDATE unidade SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS local;
@@ -113,7 +113,7 @@ CREATE TABLE local (
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A DEFINIR', 1, 1), ('ONLINE', -1, 9999999);
+INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A Definir', 1, 1), ('Online', -1, 9999999);
 UPDATE local SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS evento;
@@ -232,6 +232,7 @@ CREATE TABLE eventosessao (
   permiteacom tinyint(4) NOT NULL,
   senhacontrole varchar(45) NOT NULL,
   senhapresenca varchar(45) NOT NULL,
+  id_integra bigint NOT NULL,
   PRIMARY KEY (id),
   KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
   KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),

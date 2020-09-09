@@ -1,7 +1,11 @@
 ﻿import Sql = require("../infra/sql");
+import appsettings = require("../appsettings");
 import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import converterDataISO = require("../utils/converterDataISO");
+import IntegracaoReserva = require("./integracaoReserva");
 import PalestranteResumido = require("./palestranteResumido");
+import Unidade = require("./unidade");
+import Usuario = require("./usuario");
 
 export = class Sessao {
 	public id: number;
@@ -192,11 +196,29 @@ export = class Sessao {
 		if (s.sugestao)
 			return null;
 
-		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > 0 " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
+		const infos = await sql.query("select l.idunidade, l.id_integra from eventolocal el inner join local l on l.id = el.idlocal where el.id = " + s.ideventolocal);
+		if (!infos || !infos.length)
+			return "Unidade ou local não encontrados";
+
+		const info = infos[0];
+
+		if (info.idunidade === Unidade.idADefinir || info.idunidade === Unidade.idInternet)
+			return null;
+
+		if (appsettings.integracaoReservaPathCriarReserva) {
+			//const id_integra = (s.id ? await sql.scalar("select id_integra from eventosessao where id = " + s.id) as number : 0);
+
+			if (!info.id_integra)
+				return "O local selecionado não possui as informações necessárias para integração com o sistema de agendamento";
+
+			return (await IntegracaoReserva.localHorarioLivre(s.data, s.inicio, s.termino, info.id_integra) ? null : "Já existe uma sessão neste dia, horário e local");
+		}
+
+		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > " + Unidade.idADefinir + " " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
 			"Já existe uma sessão no evento neste dia, horário e local" : null);
 	}
 
-	public static async criar(s: Sessao): Promise<string> {
+	public static async criar(s: Sessao, u: Usuario): Promise<string> {
 		let res: string;
 		if ((res = Sessao.validar(s)))
 			return res;
@@ -209,16 +231,32 @@ export = class Sessao {
 				if ((res = await Sessao.validarEncavalamento(s, sql)))
 					return;
 
-				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
+				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, id_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', 0)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
 				await Sessao.inserirPalestrantes(sql, s);
 
 				res = s.id.toString();
 
+				if (!s.sugestao && u) {
+					if (appsettings.integracaoReservaPathCriarReserva) {
+						const id_integra_local = await sql.scalar("select l.id_integra from eventolocal el inner join local l on l.id = el.idlocal where el.id = " + s.ideventolocal) as string;
+						if (!id_integra_local) {
+							res = "O local selecionado não possui as informações necessárias para integração com o sistema de agendamento";
+							return;
+						}
+
+						const id_integra_sessao = await IntegracaoReserva.criarReserva(u.login, s.data, s.inicio, s.termino, id_integra_local, s.nome_curto);
+
+						await sql.query("update eventosessao set id_integra = " + id_integra_sessao + " where id = " + s.id);
+					}
+				}
+
 				await sql.commit();
 			} catch (e) {
-				if (e.code) {
+				if (e.jsonCode) {
+					res = "Falha na comunicação com o sistema de agendamento: " + e.jsonCode;
+				} else if (e.code) {
 					switch (e.code) {
 						case "ER_DUP_ENTRY":
 							res = "Já existe uma sessão no evento neste dia, horário e local";
@@ -259,7 +297,7 @@ export = class Sessao {
 			}
 		}
 
-		res = await Sessao.criar(s);
+		res = await Sessao.criar(s, null);
 
 		return res;
 	}
@@ -297,8 +335,25 @@ export = class Sessao {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			await sql.query("delete from eventosessao where id = " + id + " and idevento = " + idevento);
-			res = sql.linhasAfetadas.toString();
+			try {
+				await sql.beginTransaction();
+
+				const id_integra = await sql.scalar("select id_integra from eventosessao where id = " + id + " and idevento = " + idevento);
+
+				await sql.query("delete from eventosessao where id = " + id + " and idevento = " + idevento);
+
+				if (id_integra)
+					await IntegracaoReserva.excluirReserva(id_integra);
+
+				res = sql.linhasAfetadas.toString();
+
+				await sql.commit();
+			} catch (e) {
+				if (e.jsonCode)
+					res = "Falha na comunicação com o sistema de agendamento: " + e.jsonCode;
+				else
+					throw e;
+			}
 		});
 
 		return res;

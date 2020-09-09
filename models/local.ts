@@ -19,7 +19,7 @@ export = class Local {
 		l.nome = (l.nome || "").normalize().trim();
 		if (l.nome.length < 3 || l.nome.length > 100)
 			return "Nome inválido";
-		if (isNaN(l.idunidade))
+		if (isNaN(l.idunidade) || l.idunidade === Unidade.idADefinir || l.idunidade === Unidade.idInternet)
 			return "Unidade inválida";
 		if (isNaN(l.capacidade_real) || l.capacidade_real < 0)
 			return "Capacidade real inválida";

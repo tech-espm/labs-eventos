@@ -55,7 +55,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
-	jsonRes(res, 400, s ? await Sessao.criar(s) : "Dados inválidos!");
+	jsonRes(res, 400, s ? await Sessao.criar(s, u) : "Dados inválidos!");
 }));
 
 router.post("/criarExterno", wrap(async (req: express.Request, res: express.Response) => {

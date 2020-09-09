@@ -84,7 +84,7 @@ export = class Cas {
 					let xml = "";
 					response.setEncoding("utf8");
 					response.on("error", function () {
-						reject("Falha na comunicação com o servidor de login.");
+						reject("Falha na comunicação com o servidor de login");
 					});
 					response.on("data", function (chunk) {
 						xml += chunk;
