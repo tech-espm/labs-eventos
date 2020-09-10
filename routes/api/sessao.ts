@@ -109,7 +109,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
-	jsonRes(res, 400, (s && !isNaN(s.id)) ? await Sessao.alterar(s) : "Dados inválidos!");
+	jsonRes(res, 400, (s && !isNaN(s.id)) ? await Sessao.alterar(s, u) : "Dados inválidos!");
 }));
 
 router.get("/excluir", wrap(async (req: express.Request, res: express.Response) => {

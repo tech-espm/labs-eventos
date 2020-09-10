@@ -254,12 +254,17 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 //if (app.get("env") === "development") {
 	app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 		res.status(err.status || 500);
-		if (err.status == 404) {
-			res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Não encontrado" });
+
+		if (req.path.indexOf("/api/") >= 0) {
+			res.json(err.status == 404 ? "Não encontrado" : (err.message || err.toString()));
 		} else {
-			// Como é um ambiente de desenvolvimento, deixa o objeto do erro
-			// ir para a página, que possivelmente exibirá suas informações
-			res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: err });
+			if (err.status == 404) {
+				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Não encontrado" });
+			} else {
+				// Como é um ambiente de desenvolvimento, deixa o objeto do erro
+				// ir para a página, que possivelmente exibirá suas informações
+				res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: err });
+			}
 		}
 
 		// Como não estamos chamando next(err) aqui, o tratador

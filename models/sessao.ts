@@ -2,7 +2,7 @@
 import appsettings = require("../appsettings");
 import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import converterDataISO = require("../utils/converterDataISO");
-import IntegracaoReserva = require("./integracaoReserva");
+import IntegracaoAgendamento = require("./integracaoAgendamento");
 import PalestranteResumido = require("./palestranteResumido");
 import Unidade = require("./unidade");
 import Usuario = require("./usuario");
@@ -133,7 +133,7 @@ export = class Sessao {
 		return (lista || []);
 	}
 
-	public static async inserirPalestrantes(sql: Sql, s: Sessao): Promise<void> {
+	private static async sincronizarPalestrantes(sql: Sql, s: Sessao): Promise<void> {
 		let existentes: { id: number, ideventopalestrante: number, ordem: number }[] = await sql.query("select id, ideventopalestrante, ordem from eventosessaopalestrante where ideventosessao = " + s.id + " and idevento = " + s.idevento);
 
 		let excluir: number[] = [];
@@ -184,10 +184,10 @@ export = class Sessao {
 		}
 	}
 
-	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<string> {
+	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<{ erro?: string, idunidade?: number, id_integra_local?: string }> {
 		const inicioTermino = await sql.query("select date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
 		if (inicioTermino && inicioTermino.length)
-			return "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino;
+			return { erro: "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino };
 
 		// Infelizmente não podemos mais utilizar uma constraint unique, porque
 		// é possível cadastrar mais de uma sessão virtual no mesmo evento/data/horário/local,
@@ -196,26 +196,42 @@ export = class Sessao {
 		if (s.sugestao)
 			return null;
 
-		const infos = await sql.query("select l.idunidade, l.id_integra from eventolocal el inner join local l on l.id = el.idlocal where el.id = " + s.ideventolocal);
-		if (!infos || !infos.length)
-			return "Unidade ou local não encontrados";
+		const infosLocal = await sql.query("select l.idunidade, l.id_integra from eventolocal el inner join local l on l.id = el.idlocal where el.id = " + s.ideventolocal);
+		if (!infosLocal || !infosLocal.length)
+			return { erro: "Unidade ou local não encontrados" };
 
-		const info = infos[0];
+		const infoLocal = infosLocal[0];
 
-		if (info.idunidade === Unidade.idADefinir || info.idunidade === Unidade.idInternet)
+		if (infoLocal.idunidade === Unidade.idADefinir || infoLocal.idunidade === Unidade.idInternet)
 			return null;
 
-		if (appsettings.integracaoReservaPathCriarReserva) {
-			//const id_integra = (s.id ? await sql.scalar("select id_integra from eventosessao where id = " + s.id) as number : 0);
+		let r = {
+			erro: null,
+			idunidade: infoLocal.idunidade as number,
+			id_integra_local: infoLocal.id_integra as string
+		};
 
-			if (!info.id_integra)
-				return "O local selecionado não possui as informações necessárias para integração com o sistema de agendamento";
+		if (appsettings.integracaoAgendamento) {
+			const id_integra_sessao = (s.id ? await sql.scalar("select id_integra from eventosessao where id = " + s.id) as number : 0);
 
-			return (await IntegracaoReserva.localHorarioLivre(s.data, s.inicio, s.termino, info.id_integra) ? null : "Já existe uma sessão neste dia, horário e local");
+			r.erro = (!r.id_integra_local ?
+				"O local selecionado não possui as informações necessárias para integração com o sistema de agendamento" :
+				(await IntegracaoAgendamento.localHorarioLivre(s.data, s.inicio, s.termino, infoLocal.id_integra, id_integra_sessao || 0) ? null : "Já existe outro agendamento neste dia, horário e local")
+			);
+		} else {
+			r.erro = (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > " + Unidade.idADefinir + " " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
+				"Já existe uma sessão no evento neste dia, horário e local" :
+				null
+			);
 		}
 
-		return (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > " + Unidade.idADefinir + " " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
-			"Já existe uma sessão no evento neste dia, horário e local" : null);
+		return r;
+	}
+
+	private static async criarAgendamento(sql: Sql, s: Sessao, u: Usuario, id_integra_local: string): Promise<void> {
+		const id_integra_sessao = await IntegracaoAgendamento.criarAgendamento(u.login, s.data, s.inicio, s.termino, id_integra_local, s.nome_curto);
+
+		await sql.query("update eventosessao set id_integra = " + id_integra_sessao + " where id = " + s.id + " and idevento = " + s.idevento);
 	}
 
 	public static async criar(s: Sessao, u: Usuario): Promise<string> {
@@ -228,34 +244,25 @@ export = class Sessao {
 				await sql.beginTransaction();
 
 				s.id = 0;
-				if ((res = await Sessao.validarEncavalamento(s, sql)))
+
+				const infoLocal = await Sessao.validarEncavalamento(s, sql);
+				if (infoLocal && (res = infoLocal.erro))
 					return;
 
 				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, id_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', 0)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
-				await Sessao.inserirPalestrantes(sql, s);
+				await Sessao.sincronizarPalestrantes(sql, s);
+
+				if (appsettings.integracaoAgendamento && infoLocal && u)
+					await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
 
 				res = s.id.toString();
 
-				if (!s.sugestao && u) {
-					if (appsettings.integracaoReservaPathCriarReserva) {
-						const id_integra_local = await sql.scalar("select l.id_integra from eventolocal el inner join local l on l.id = el.idlocal where el.id = " + s.ideventolocal) as string;
-						if (!id_integra_local) {
-							res = "O local selecionado não possui as informações necessárias para integração com o sistema de agendamento";
-							return;
-						}
-
-						const id_integra_sessao = await IntegracaoReserva.criarReserva(u.login, s.data, s.inicio, s.termino, id_integra_local, s.nome_curto);
-
-						await sql.query("update eventosessao set id_integra = " + id_integra_sessao + " where id = " + s.id);
-					}
-				}
-
 				await sql.commit();
 			} catch (e) {
-				if (e.jsonCode) {
-					res = "Falha na comunicação com o sistema de agendamento: " + e.jsonCode;
+				if (e.agendamento) {
+					res = "Erro reportado pelo sistema de agendamento: " + e.agendamento;
 				} else if (e.code) {
 					switch (e.code) {
 						case "ER_DUP_ENTRY":
@@ -302,7 +309,7 @@ export = class Sessao {
 		return res;
 	}
 
-	public static async alterar(s: Sessao): Promise<string> {
+	public static async alterar(s: Sessao, u: Usuario): Promise<string> {
 		let res: string;
 		if ((res = Sessao.validar(s)))
 			return res;
@@ -311,17 +318,61 @@ export = class Sessao {
 			try {
 				await sql.beginTransaction();
 
-				if ((res = await Sessao.validarEncavalamento(s, sql)))
+				const infoLocal = await Sessao.validarEncavalamento(s, sql);
+				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ?, senhacontrole = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
-				res = sql.linhasAfetadas.toString();
+				// Quando info é null, ou é uma sessão com local a definir, online, ou sugestão
+				let ideventolocalOriginal = 0, inicioOriginal = 0, terminoOriginal = 0, dataOriginal: string = null, nome_curtoOriginal: string = null;
+				if (infoLocal && appsettings.integracaoAgendamento) {
+					const infosOriginais = await sql.query("select ideventolocal, inicio, termino, date_format(data, '%Y-%m-%d') data, nome_curto from eventosessao where id = " + s.id + " and idevento = " + s.idevento);
+					if (infosOriginais && infosOriginais.length) {
+						const infoOriginal = infosOriginais[0];
+						ideventolocalOriginal = infoOriginal.ideventolocal as number;
+						inicioOriginal = infoOriginal.inicio as number;
+						terminoOriginal = infoOriginal.termino as number;
+						dataOriginal = infoOriginal.data as string;
+						nome_curtoOriginal = infoOriginal.nome_curto as string;
+					}
+				}
 
-				await Sessao.inserirPalestrantes(sql, s);
+				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ?, senhacontrole = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
+
+				const linhasAfetadas = sql.linhasAfetadas;
+
+				await Sessao.sincronizarPalestrantes(sql, s);
+
+				if (appsettings.integracaoAgendamento) {
+					const id_integra_sessao = await sql.scalar("select id_integra from eventosessao s where id = " + s.id + " and idevento = " + s.idevento) as number;
+
+					if (id_integra_sessao) {
+						if (!infoLocal) {
+							// Como passou a ser uma sessão com local a definir, online, ou sugestão,
+							// mas antes não era, então exclui o agendamento existente.
+							await sql.query("update eventosessao set id_integra = 0 where id = " + s.id + " and idevento = " + s.idevento);
+							await IntegracaoAgendamento.excluirAgendamento(id_integra_sessao);
+						} else if (ideventolocalOriginal !== s.ideventolocal ||
+							dataOriginal !== s.data ||
+							inicioOriginal !== s.inicio ||
+							terminoOriginal !== s.termino ||
+							nome_curtoOriginal !== s.nome_curto) {
+							await IntegracaoAgendamento.alterarAgendamento(u.login, s.data, s.inicio, s.termino, s.nome_curto, infoLocal.id_integra_local, id_integra_sessao);
+						}
+					} else {
+						// Se era uma sessão com local a definir, online, ou sugestão, ou se era uma
+						// sessão legada que ainda não tinha o id_integra, cria o agendamento agora
+						if (infoLocal && u)
+							await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+					}
+				}
+
+				res = linhasAfetadas.toString();
 
 				await sql.commit();
 			} catch (e) {
-				if (e.code && e.code === "ER_DUP_ENTRY")
+				if (e.agendamento)
+					res = "Erro reportado pelo sistema de agendamento: " + e.agendamento;
+				else if (e.code && e.code === "ER_DUP_ENTRY")
 					res = "Já existe uma sessão no evento neste dia, horário e local";
 				else
 					throw e;
@@ -338,19 +389,21 @@ export = class Sessao {
 			try {
 				await sql.beginTransaction();
 
-				const id_integra = await sql.scalar("select id_integra from eventosessao where id = " + id + " and idevento = " + idevento);
+				const id_integra_sessao = await sql.scalar("select id_integra from eventosessao where id = " + id + " and idevento = " + idevento) as number;
 
 				await sql.query("delete from eventosessao where id = " + id + " and idevento = " + idevento);
 
-				if (id_integra)
-					await IntegracaoReserva.excluirReserva(id_integra);
+				const linhasAfetadas = sql.linhasAfetadas;
 
-				res = sql.linhasAfetadas.toString();
+				if (id_integra_sessao && appsettings.integracaoAgendamento)
+					await IntegracaoAgendamento.excluirAgendamento(id_integra_sessao);
+
+				res = linhasAfetadas.toString();
 
 				await sql.commit();
 			} catch (e) {
-				if (e.jsonCode)
-					res = "Falha na comunicação com o sistema de agendamento: " + e.jsonCode;
+				if (e.agendamento)
+					res = "Erro reportado pelo sistema de agendamento: " + e.agendamento;
 				else
 					throw e;
 			}

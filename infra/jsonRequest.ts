@@ -33,7 +33,7 @@ export = class JSONRequest {
 						});
 						response.on("end", function () {
 							try {
-								resolve(new JSONResponse(response.statusCode >= 200 && response.statusCode <= 299, response.statusCode, JSON.parse(json), null));
+								resolve(new JSONResponse(response.statusCode >= 200 && response.statusCode <= 299, response.statusCode, json ? JSON.parse(json) : null, null));
 							} catch (ex) {
 								resolve(new JSONResponse(false, response.statusCode, json, ex.message || ex.toString()));
 							}
@@ -66,7 +66,7 @@ export = class JSONRequest {
 						});
 						response.on("end", function () {
 							try {
-								resolve(new JSONResponse(response.statusCode >= 200 && response.statusCode <= 299, response.statusCode, JSON.parse(json), null));
+								resolve(new JSONResponse(response.statusCode >= 200 && response.statusCode <= 299, response.statusCode, json ? JSON.parse(json) : null, null));
 							} catch (ex) {
 								resolve(new JSONResponse(false, 0, null, ex.message || ex.toString()));
 							}
