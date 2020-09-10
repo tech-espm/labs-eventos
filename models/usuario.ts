@@ -257,6 +257,9 @@ export = class Usuario {
 		if (u.login.length < 3 || u.login.length > 50)
 			return "Login inválido";
 
+		if (!u.login.endsWith("@ESPM.BR"))
+			return "O login deve ser uma conta do domínio @ESPM.BR";
+
 		await Sql.conectar(async (sql: Sql) => {
 			try {
 				await sql.query("insert into usuario (login, nome, tipo, senha, idevento_logado) values (?, ?, ?, '" + Usuario.hashSenhaPadraoDeLogin(u.login) + "', 0)", [u.login, u.nome, u.tipo]);
