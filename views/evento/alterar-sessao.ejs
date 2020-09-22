@@ -358,6 +358,11 @@
 
 					JsonWebApi.post("<%- root %>/api/sessao/alterar", s, function (response) {
 						if (response.success) {
+							// Quando status_integra vem do servidor como -1, é para utilizarmos o valor
+							// atual da propriedade status_integra!
+							var status_integra = parseInt(response.value[1]);
+							if (status_integra >= 0)
+								sessao.status_integra = status_integra;
 							sessao.ideventolocal = s.ideventolocal;
 							sessao.nome = s.nome;
 							sessao.nome_curto = s.nome_curto;
@@ -405,7 +410,8 @@
 							_("cbSessaoPermiteAcom").value = "1";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
-							s.id = parseInt(response.value);
+							s.id = parseInt(response.value[0]);
+							s.status_integra = parseInt(response.value[1]);
 							s.inscritos = 0;
 							s.presentes = 0;
 							s.avaliacoes = "-";

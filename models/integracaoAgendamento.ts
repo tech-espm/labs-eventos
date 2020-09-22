@@ -19,6 +19,18 @@ export = class IntegracaoAgendamento {
 		return !(r.resultado as boolean);
 	}
 
+	public static async verificarStatusAprovacao(id_integra_sessao: number): Promise<number> {
+		const r = await JSONRequest.get(appsettings.integracaoAgendamentoPathVerificarStatusAprovacao + "?id=" + id_integra_sessao);
+
+		if (!r.sucesso)
+			IntegracaoAgendamento.throwErroAgendamento(r.erro || r.resultado);
+
+		if (!r.resultado || !("Aprovado" in r.resultado))
+			IntegracaoAgendamento.throwErroAgendamento("Status da aprovação do agendamento desconhecido");
+
+		return r.resultado.Aprovado as number;
+	}
+
 	public static async criarAgendamento(login: string, data: string, inicio: number, termino: number, id_integra_local: string, nome_curto: string): Promise<number> {
 		const r = await JSONRequest.post(appsettings.integracaoAgendamentoPathCriarAgendamento, JSON.stringify({
 			DataInicial: data,
@@ -49,7 +61,7 @@ export = class IntegracaoAgendamento {
 		}
 	}
 
-	public static async alterarAgendamento(login: string, data: string, inicio: number, termino: number, nome_curto: string, id_integra_local: string, id_integra_sessao: number): Promise<void> {
+	public static async alterarAgendamento(login: string, data: string, inicio: number, termino: number, nome_curto: string, id_integra_local: string, id_integra_sessao: number): Promise<number> {
 		const r = await JSONRequest.put(appsettings.integracaoAgendamentoPathAlterarAgendamento + "?id=" + id_integra_sessao, JSON.stringify({
 			Id: id_integra_sessao,
 			DataInicial: data,
@@ -64,6 +76,8 @@ export = class IntegracaoAgendamento {
 
 		if (!r.sucesso)
 			IntegracaoAgendamento.throwErroAgendamento(r.erro || r.resultado);
+
+		return IntegracaoAgendamento.verificarStatusAprovacao(id_integra_sessao);
 	}
 
 	public static async excluirAgendamento(id_integra_sessao: number): Promise<void> {

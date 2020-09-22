@@ -8,6 +8,10 @@ import Unidade = require("./unidade");
 import Usuario = require("./usuario");
 
 export = class Sessao {
+	public static readonly STATUS_PENDENTE: number = 0;
+	public static readonly STATUS_APROVADO: number = 1;
+	public static readonly STATUS_REPROVADO: number = 2;
+
 	public id: number;
 	public idcurso: number;
 	public idevento: number;
@@ -107,7 +111,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
 		});
 
 		return (lista || []);
@@ -228,14 +232,30 @@ export = class Sessao {
 		return r;
 	}
 
-	private static async criarAgendamento(sql: Sql, s: Sessao, u: Usuario, id_integra_local: string): Promise<void> {
+	private static async criarAgendamento(sql: Sql, s: Sessao, u: Usuario, id_integra_local: string): Promise<number> {
 		const id_integra_sessao = await IntegracaoAgendamento.criarAgendamento(u.login, s.data, s.inicio, s.termino, id_integra_local, s.nome_curto);
 
-		await sql.query("update eventosessao set id_integra = " + id_integra_sessao + " where id = " + s.id + " and idevento = " + s.idevento);
+		const status_integra = await IntegracaoAgendamento.verificarStatusAprovacao(id_integra_sessao);
+
+		await sql.query("update eventosessao set id_integra = " + id_integra_sessao + ", status_integra = " + status_integra + " where id = " + s.id + " and idevento = " + s.idevento);
+
+		return status_integra;
 	}
 
-	public static async criar(s: Sessao, u: Usuario): Promise<string> {
+	public static async alterarStatusIntegra(id_integra_sessao: number, status_integra: number): Promise<string> {
 		let res: string;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update eventosessao set status_integra = " + status_integra + " where id_integra = " + id_integra_sessao);
+
+			res = (sql.linhasAfetadas ? "1" : "Sessão não encontrada");
+		});
+
+		return res;
+	}
+
+	public static async criar(s: Sessao, u: Usuario): Promise<string | number[]> {
+		let res: string | number[];
 		if ((res = Sessao.validar(s)))
 			return res;
 
@@ -249,15 +269,16 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, id_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', 0)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
+				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, id_integra, status_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', 0, 1)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
 				await Sessao.sincronizarPalestrantes(sql, s);
 
+				let status_integra: number;
 				if (appsettings.integracaoAgendamento && infoLocal && u)
-					await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+					status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
 
-				res = s.id.toString();
+				res = [s.id, status_integra];
 
 				await sql.commit();
 			} catch (e) {
@@ -284,8 +305,8 @@ export = class Sessao {
 		return res;
 	}
 
-	public static async criarExterno(s: Sessao, pr: PalestranteResumido[]): Promise<string> {
-		let res: string;
+	public static async criarExterno(s: Sessao, pr: PalestranteResumido[]): Promise<string | number[]> {
+		let res: string | number[];
 		if ((res = Sessao.validar(s)))
 			return res;
 
@@ -309,8 +330,8 @@ export = class Sessao {
 		return res;
 	}
 
-	public static async alterar(s: Sessao, u: Usuario): Promise<string> {
-		let res: string;
+	public static async alterar(s: Sessao, u: Usuario): Promise<string | number[]> {
+		let res: string | number[];
 		if ((res = Sessao.validar(s)))
 			return res;
 
@@ -342,6 +363,10 @@ export = class Sessao {
 
 				await Sessao.sincronizarPalestrantes(sql, s);
 
+				// Vamos deixar como -1, para o front saber que seja lá qual é o valor
+				// em status_integra lá no front, basta deixar o mesmo valor.
+				let status_integra = -1;
+
 				if (appsettings.integracaoAgendamento) {
 					const id_integra_sessao = await sql.scalar("select id_integra from eventosessao s where id = " + s.id + " and idevento = " + s.idevento) as number;
 
@@ -349,24 +374,26 @@ export = class Sessao {
 						if (!infoLocal) {
 							// Como passou a ser uma sessão com local a definir, online, ou sugestão,
 							// mas antes não era, então exclui o agendamento existente.
-							await sql.query("update eventosessao set id_integra = 0 where id = " + s.id + " and idevento = " + s.idevento);
+							await sql.query("update eventosessao set id_integra = 0, status_integra = 1 where id = " + s.id + " and idevento = " + s.idevento);
 							await IntegracaoAgendamento.excluirAgendamento(id_integra_sessao);
+							status_integra = 1;
 						} else if (ideventolocalOriginal !== s.ideventolocal ||
 							dataOriginal !== s.data ||
 							inicioOriginal !== s.inicio ||
 							terminoOriginal !== s.termino ||
 							nome_curtoOriginal !== s.nome_curto) {
-							await IntegracaoAgendamento.alterarAgendamento(u.login, s.data, s.inicio, s.termino, s.nome_curto, infoLocal.id_integra_local, id_integra_sessao);
+							status_integra = await IntegracaoAgendamento.alterarAgendamento(u.login, s.data, s.inicio, s.termino, s.nome_curto, infoLocal.id_integra_local, id_integra_sessao);
+							await sql.query("update eventosessao set status_integra = " + status_integra + " where id = " + s.id + " and idevento = " + s.idevento);
 						}
 					} else {
 						// Se era uma sessão com local a definir, online, ou sugestão, ou se era uma
 						// sessão legada que ainda não tinha o id_integra, cria o agendamento agora
 						if (infoLocal && u)
-							await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+							status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
 					}
 				}
 
-				res = linhasAfetadas.toString();
+				res = [linhasAfetadas, status_integra];
 
 				await sql.commit();
 			} catch (e) {

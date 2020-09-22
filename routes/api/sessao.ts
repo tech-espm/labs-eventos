@@ -5,6 +5,7 @@ import Evento = require("../../models/evento");
 import Usuario = require("../../models/usuario");
 import PalestranteResumido = require("../../models/palestranteResumido");
 import Sessao = require("../../models/sessao");
+import appsettings = require("../../appsettings");
 
 const router = express.Router();
 
@@ -55,7 +56,18 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
-	jsonRes(res, 400, s ? await Sessao.criar(s, u) : "Dados inválidos!");
+
+	let r: string | number[] = "Dados inválidos!";
+
+	if (s) {
+		const r = await Sessao.criar(s, u);
+		if ((typeof r !== "string") && r.length) {
+			res.json(r);
+			return;
+		}
+	}
+
+	jsonRes(res, 400, r as string);
 }));
 
 router.post("/criarExterno", wrap(async (req: express.Request, res: express.Response) => {
@@ -81,7 +93,18 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 		s.oculta = 0;
 		s.sugestao = 1;
 	}
-	jsonRes(res, 400, s ? await Sessao.criarExterno(s, (req.body.palestrantes && req.body.palestrantes.length) ? req.body.palestrantes as PalestranteResumido[] : []) : "Dados inválidos!");
+
+	let r: string | number[] = "Dados inválidos!";
+
+	if (s) {
+		const r = await Sessao.criarExterno(s, (req.body.palestrantes && req.body.palestrantes.length) ? req.body.palestrantes as PalestranteResumido[] : []);
+		if ((typeof r !== "string") && r.length) {
+			res.json(r);
+			return;
+		}
+	}
+
+	jsonRes(res, 400, r as string);
 }));
 
 router.post("/alterar", wrap(async (req: express.Request, res: express.Response) => {
@@ -109,7 +132,18 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 				s.idspalestrante[i] = parseInt(p[i]);
 		}
 	}
-	jsonRes(res, 400, (s && !isNaN(s.id)) ? await Sessao.alterar(s, u) : "Dados inválidos!");
+
+	let r: string | number[] = "Dados inválidos!";
+
+	if (s && !isNaN(s.id)) {
+		const r = await Sessao.alterar(s, u);
+		if ((typeof r !== "string") && r.length) {
+			res.json(r);
+			return;
+		}
+	}
+
+	jsonRes(res, 400, r as string);
 }));
 
 router.get("/excluir", wrap(async (req: express.Request, res: express.Response) => {
@@ -124,6 +158,19 @@ router.get("/alterarSenhaPresenca", wrap(async (req: express.Request, res: expre
 	let id = parseInt(req.query["id"]);
 	let idevento = parseInt(req.query["idevento"]);
 	jsonRes(res, 400, (isNaN(id) || isNaN(idevento)) ? "Dados inválidos!" : await Sessao.alterarSenhaPresenca(id, idevento, req.query["senhacontrole"] as string, req.query["senhapresenca"] as string));
+}));
+
+router.get("/alterarStatusIntegra", wrap(async (req: express.Request, res: express.Response) => {
+	const id_integra_sessao = parseInt(req.query["id"]);
+	const status_integra = parseInt(req.query["status"]);
+	if (!id_integra_sessao || isNaN(id_integra_sessao) || id_integra_sessao <= 0)
+		res.status(400).json("Id inválido");
+	else if (status_integra !== Sessao.STATUS_PENDENTE && status_integra !== Sessao.STATUS_APROVADO && status_integra !== Sessao.STATUS_REPROVADO)
+		res.status(400).json("Status inválido");
+	else if (req.query["key"] !== appsettings.integracaoAgendamentoChaveExterna)
+		res.status(400).json("Chave inválida");
+	else
+		jsonRes(res, 400, await Sessao.alterarStatusIntegra(id_integra_sessao, status_integra));
 }));
 
 export = router;
