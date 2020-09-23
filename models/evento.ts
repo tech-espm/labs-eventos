@@ -535,18 +535,23 @@ export = class Evento {
 		return (lista || []);
 	}
 
-	public static async enviarEmail(id: number, emails: string[], assunto: string, texto: string): Promise<void> {
+	public static async enviarEmail(id: number, emails: string[], assunto: string, texto: string, html?: string): Promise<void> {
 		let emailpadrao = await Evento.obterEmailPadrao(id);
 
 		let transporter = nodemailer.createTransport(appsettings.mailConfig);
 
 		for (let i = 0; i < emails.length; i++) {
-			await transporter.sendMail({
+			const e = {
 				from: emailpadrao.toLowerCase(),
 				to: emails[i].toLowerCase(),
 				subject: assunto,
 				text: texto
-			});
+			};
+
+			if (html)
+				e["html"] = html;
+
+			await transporter.sendMail(e);
 		}
 	}
 

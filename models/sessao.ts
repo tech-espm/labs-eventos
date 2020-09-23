@@ -2,6 +2,7 @@
 import appsettings = require("../appsettings");
 import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import converterDataISO = require("../utils/converterDataISO");
+import Evento = require("./evento");
 import IntegracaoAgendamento = require("./integracaoAgendamento");
 import PalestranteResumido = require("./palestranteResumido");
 import Unidade = require("./unidade");
@@ -277,6 +278,8 @@ export = class Sessao {
 				let status_integra: number;
 				if (appsettings.integracaoAgendamento && infoLocal && u)
 					status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+				else
+					status_integra = Sessao.STATUS_APROVADO;
 
 				res = [s.id, status_integra];
 
@@ -444,7 +447,7 @@ export = class Sessao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const sessao = await sql.query("select date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ data: string, inicio: number, termino: number }];
+				const sessao = await sql.query("select s.nome, date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ nome: string, data: string, inicio: number, termino: number }];
 
 				if (!sessao || !sessao[0]) {
 					res = "Sessão não encontrada";
@@ -458,8 +461,34 @@ export = class Sessao {
 
 				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, presente, data_inscricao) select ?, ?, ?, 0, now() from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.oculta = 0 and s.sugestao = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);
 
-				if (!sql.linhasAfetadas)
+				if (!sql.linhasAfetadas) {
 					res = "A sessão está esgotada";
+				} else {
+					// Envia o e-mail de confirmação de participação
+					try {
+						const emailParticipante = await sql.scalar("select email from participante where id = " + idparticipante) as string;
+
+						if (emailParticipante && emailParticipante.indexOf("@") > 0)
+							await Evento.enviarEmail(idevento, [emailParticipante], 'Inscrição na sessão "' + sessao[0].nome + '"',
+`Olá!
+
+Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".
+
+Para acessar mais detalhes, acesse o endereço https://credenciamento.espm.br/participante
+
+Até breve!
+
+Tenha um excelente evento :)`,
+
+`<p>Olá!</p>
+<p>Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".</p>
+<p>Para acessar mais detalhes, acesse o endereço <a target="_blank" href="https://credenciamento.espm.br/participante">https://credenciamento.espm.br/participante</a></p>
+<p>Até breve!</p>
+<p>Tenha um excelente evento :)</p>`);
+					} catch (e) {
+						// 
+					}
+				}
 
 			} catch (e) {
 				// Ignora o erro se o participante já estava inscrito na sessão
