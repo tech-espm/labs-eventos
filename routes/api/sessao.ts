@@ -60,7 +60,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	let r: string | number[] = "Dados inválidos!";
 
 	if (s) {
-		const r = await Sessao.criar(s, u);
+		r = await Sessao.criar(s, u);
 		if ((typeof r !== "string") && r.length) {
 			res.json(r);
 			return;
@@ -97,7 +97,7 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 	let r: string | number[] = "Dados inválidos!";
 
 	if (s) {
-		const r = await Sessao.criarExterno(s, (req.body.palestrantes && req.body.palestrantes.length) ? req.body.palestrantes as PalestranteResumido[] : []);
+		r = await Sessao.criarExterno(s, (req.body.palestrantes && req.body.palestrantes.length) ? req.body.palestrantes as PalestranteResumido[] : []);
 		if ((typeof r !== "string") && r.length) {
 			res.json(r);
 			return;
@@ -136,7 +136,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 	let r: string | number[] = "Dados inválidos!";
 
 	if (s && !isNaN(s.id)) {
-		const r = await Sessao.alterar(s, u);
+		r = await Sessao.alterar(s, u);
 		if ((typeof r !== "string") && r.length) {
 			res.json(r);
 			return;
