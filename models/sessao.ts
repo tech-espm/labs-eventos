@@ -35,6 +35,7 @@ export = class Sessao {
 	public permiteacom: number;
 	public senhacontrole: string;
 	public senhapresenca: string;
+	public mensagemesgotada: string;
 	public idspalestrante: number[];
 
 	private static validar(s: Sessao): string {
@@ -99,6 +100,9 @@ export = class Sessao {
 		s.senhacontrole = (s.senhacontrole || "").normalize();
 		if (s.senhacontrole.length > 45)
 			return "Senha de controle inválida";
+		s.mensagemesgotada = (s.mensagemesgotada || "").trim();
+		if (s.mensagemesgotada.length > 250)
+			return "Mensagem de sessão esgotada inválida";
 		if (!s.idspalestrante)
 			s.idspalestrante = [];
 		for (let i = s.idspalestrante.length - 1; i >= 0; i--) {
@@ -112,7 +116,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.mensagemesgotada, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
 		});
 
 		return (lista || []);
@@ -122,7 +126,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.senhapresenca, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)) as Sessao[];
+			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.senhapresenca, s.mensagemesgotada, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)) as Sessao[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -270,7 +274,7 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, id_integra, status_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', 0, 1)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
+				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, permiteacom, senhacontrole, senhapresenca, mensagemesgotada, id_integra, status_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', ?, 0, 1)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.mensagemesgotada]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
 				await Sessao.sincronizarPalestrantes(sql, s);
@@ -360,7 +364,7 @@ export = class Sessao {
 					}
 				}
 
-				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ?, senhacontrole = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole]);
+				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, permiteacom = ?, senhacontrole = ?, mensagemesgotada = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permiteacom, s.senhacontrole, s.mensagemesgotada]);
 
 				const linhasAfetadas = sql.linhasAfetadas;
 

@@ -232,6 +232,7 @@ CREATE TABLE eventosessao (
   permiteacom tinyint(4) NOT NULL,
   senhacontrole varchar(45) NOT NULL,
   senhapresenca varchar(45) NOT NULL,
+  mensagemesgotada varchar(250) NOT NULL,
   id_integra bigint NOT NULL,
   status_integra tinyint(4) NOT NULL,
   PRIMARY KEY (id),
