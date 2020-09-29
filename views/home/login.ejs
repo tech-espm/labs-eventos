@@ -6,6 +6,10 @@
 				<hr />
 				<h4>Procurando por suas<br/><b>inscrições</b> e <b>certificados</b>?</h4>
 				<a href="<%- root %>/participante" class="btn btn-primary btn-sm btn-block">Acesse a área de <b>participantes</b> aqui 😊</a>
+				<% if (mensagem) { %>
+					<hr />
+					<div id="lblMessage" class="alert alert-danger no-margin-bottom"><%=mensagem %></div>
+				<% } %>
 				<!--
 				<hr />
 				<button id="btnLogin" onclick="showLogin()" type="button" class="btn btn-outline btn-default btn-sm btn-block <%= (mensagem ? 'hidden' : '' ) %>">Se preferir, você também pode efetuar login utilizando as credenciais do sistema de credenciamento</button>
@@ -18,9 +22,6 @@
 						<label for="senha">Senha</label>
 						<input name="senha" type="password" id="senha" class="form-control" />
 					</div>
-					<% if (mensagem) { %>
-					<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
-					<% } %>
 					<input type="submit" value="Login" class="btn btn-primary btn-block" />
 				</div>
 				-->
