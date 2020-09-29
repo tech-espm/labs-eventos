@@ -1,8 +1,11 @@
-﻿<form method="post" action="./">
+﻿<form method="post" action="<%- root %>/">
 	<div style="max-width: 400px; margin: 0 auto; padding: 10% 15px;">
 		<div class="panel panel-default no-margin-bottom">
-			<div class="panel-body">
-				<a href="<%- loginUrl %>" class="btn btn-primary btn-lg btn-block"><i class="fa fa-lock fa-nomargin"></i><br />Efetuar login com minhas credenciais da ESPM</a>
+			<div class="panel-body text-center">
+				<a href="<%- loginUrl %>" class="btn btn-primary btn-lg btn-block"><i class="fa fa-lock fa-nomargin"></i><br />Acessar área administrativa com minhas credenciais da ESPM</a>
+				<hr />
+				<h4>Procurando por suas<br/><b>inscrições</b> e <b>certificados</b>?</h4>
+				<a href="<%- root %>/participante" class="btn btn-primary btn-sm btn-block">Acesse a área de <b>participantes</b> aqui 😊</a>
 				<!--
 				<hr />
 				<button id="btnLogin" onclick="showLogin()" type="button" class="btn btn-outline btn-default btn-sm btn-block <%= (mensagem ? 'hidden' : '' ) %>">Se preferir, você também pode efetuar login utilizando as credenciais do sistema de credenciamento</button>

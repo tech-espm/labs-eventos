@@ -16,17 +16,18 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 	if (!u) {
 		res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 
-		let mensagem: string = null;
-
-		if (req.body.login || req.body.senha) {
-			[mensagem, u] = await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, null, res);
-			if (mensagem)
-				res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginUrl });
-			else
-				res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });
-		} else {
+		// Não é mais permitido fazer login no sistema utilizando sem ser via integração com o CAS.
+		//
+		//if (req.body.login || req.body.senha) {
+		//	let mensagem: string = null;
+		//	[mensagem, u] = await Usuario.efetuarLogin(req.body.login as string, req.body.senha as string, null, res);
+		//	if (mensagem)
+		//		res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginUrl });
+		//	else
+		//		res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });
+		//} else {
 			res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, loginUrl: appsettings.loginUrl });
-		}
+		//}
 	} else {
 		res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });
 	}
