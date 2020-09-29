@@ -451,7 +451,7 @@ export = class Sessao {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const sessao = await sql.query("select s.nome, date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ nome: string, data: string, inicio: number, termino: number }];
+				const sessao = await sql.query("select s.nome, date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino, ev.nome evento, ev.assuntoemailinscricao, ev.emailinscricao from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ nome: string, data: string, inicio: number, termino: number, evento: string, assuntoemailinscricao: string, emailinscricao: string }];
 
 				if (!sessao || !sessao[0]) {
 					res = "Sessão não encontrada";
@@ -472,9 +472,22 @@ export = class Sessao {
 					try {
 						const emailParticipante = await sql.scalar("select email from participante where id = " + idparticipante) as string;
 
-						if (emailParticipante && emailParticipante.indexOf("@") > 0)
-							await Evento.enviarEmail(idevento, [emailParticipante], 'Inscrição na sessão "' + sessao[0].nome + '"',
-`Olá!
+						const regEvento = /\{EVENTO\}/gi,
+							regSessao = /\{SESSAO\}/gi;
+
+						let assuntoemailinscricao = sessao[0].assuntoemailinscricao,
+							emailinscricao = sessao[0].emailinscricao,
+							html: string = undefined;
+						
+						if (!assuntoemailinscricao) {
+							assuntoemailinscricao = 'Inscrição na sessão "' + sessao[0].nome + '"';
+						} else {
+							assuntoemailinscricao = assuntoemailinscricao.replace(regEvento, sessao[0].evento)
+								.replace(regSessao, sessao[0].nome);
+						}
+
+						if (!emailinscricao) {
+							emailinscricao = `Olá!
 
 Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".
 
@@ -482,15 +495,22 @@ Para acessar mais detalhes, acesse o endereço https://credenciamento.espm.br/pa
 
 Até breve!
 
-Tenha um excelente evento :)`,
+Tenha um excelente evento :)`;
 
-`<p>Olá!</p>
+							html = `<p>Olá!</p>
 <p>Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".</p>
 <p>Para acessar mais detalhes, acesse o endereço <a target="_blank" href="https://credenciamento.espm.br/participante">https://credenciamento.espm.br/participante</a></p>
 <p>Até breve!</p>
-<p>Tenha um excelente evento :)</p>`);
+<p>Tenha um excelente evento :)</p>`;
+						} else {
+							emailinscricao = emailinscricao.replace(regEvento, sessao[0].evento)
+								.replace(regSessao, sessao[0].nome);
+						}
+
+						if (emailParticipante && emailParticipante.indexOf("@") > 0)
+							await Evento.enviarEmail(idevento, [emailParticipante], assuntoemailinscricao, emailinscricao, html);
 					} catch (e) {
-						// 
+						// Ignora algum possível erro no envio do e-mail para o participante, porque ele já foi inscrito com sucesso
 					}
 				}
 

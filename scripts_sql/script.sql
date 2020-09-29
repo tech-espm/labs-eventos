@@ -146,6 +146,8 @@ CREATE TABLE evento (
   certificado2 text NOT NULL,
   certificado1palestrante tinytext NOT NULL,
   certificado2palestrante text NOT NULL,
+  assuntoemailinscricao tinytext NOT NULL,
+  emailinscricao text NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY nome_UN (nome),
   UNIQUE KEY url_UN (url)

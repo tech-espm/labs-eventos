@@ -131,6 +131,26 @@
 								</div>
 							</div>
 						</div>
+						<div class="form-group">
+							<label for="assuntoemailinscricao">Assunto do E-mail de Confirmação de Inscrição</label>
+							<input id="assuntoemailinscricao" name="assuntoemailinscricao" maxlength="250" class="form-control" type="text" value="<%=(item ? item.assuntoemailinscricao : '') %>" />
+						</div>
+						<div class="form-group">
+							<label for="emailinscricao">E-mail de Confirmação de Inscrição</label>
+							<textarea id="emailinscricao" name="emailinscricao" maxlength="4000" class="form-control" rows="8" style="min-height: 100px; resize: vertical;"><%=(item ? item.emailinscricao : '') %></textarea>
+						</div>
+						<hr />
+						<div class="form-group">
+							Deixe em branco o assunto do e-mail de confirmação de inscrição para utilizar o texto padrão:
+							<div><b>Inscrição na sessão "{SESSAO}"</b></div>
+							<br />
+							Deixe em branco o e-mail de confirmação de inscrição para utilizar o texto padrão:
+							<div><b>Olá!<br/><br/>Este e-mail é apenas uma confirmação da sua inscrição na sessão "{SESSAO}".<br/><br/>Para acessar mais detalhes, acesse o endereço https://credenciamento.espm.br/participante<br/><br/>Até breve!<br/><br/>Tenha um excelente evento :)</b></div>
+							<hr />
+							<b>Não</b> é possível utilizar tags HTML no assunto e no e-mail.
+							<br />
+							É possível utilizar as combinações a seguir como substitutos dos valores reais no assunto e no e-mail: <b>{SESSAO}</b> e <b>{EVENTO}</b>.
+						</div>
 					</div>
 
 					<div role="tabpanel" class="tab-pane fade" id="tab-evento-certificado">
@@ -345,6 +365,12 @@
 				},
 				certificado2palestrante: {
 					maxlength: 400
+				},
+				assuntoemailinscricao: {
+					maxlength: 250
+				},
+				emailinscricao: {
+					maxlength: 4000
 				}
 			},
 			invalidHandler: function (event, validator) {
