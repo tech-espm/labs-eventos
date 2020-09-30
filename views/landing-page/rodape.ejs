@@ -1,0 +1,674 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="modalPalestrante">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="modalPalestranteTitulo"></h4>
+			</div>
+			<div class="modal-body" id="modalPalestranteCorpo"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-primary" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	"use strict";
+
+	var dataHojeInt = <%-hojeInt %>;
+	var idempresapadrao = <%-idempresapadrao %>;
+	var url = "<%-url %>";
+	var urlInscricao = "<%-urlInscricao %>";
+	var urlParticipante = "<%-urlParticipante %>";
+	var inscricoes = <%-JSON.stringify(inscricoes) %>;
+	var participante = <%-JSON.stringify(participante) %>;
+	var datas = [];
+	var empresas = <%-JSON.stringify(empresas) %>;
+	var locais = <%-JSON.stringify(locais) %>;
+	var sessoes = <%-JSON.stringify(sessoes) %>;
+	var palestrantes = <%-JSON.stringify(palestrantes) %>;
+	var inscricoesPorId = {};
+	var locaisPorId = {};
+	var horariosPorId = {};
+	var palestrantesPorId = {};
+	var localPlaceholder = { cor: 0xffffff };
+	var regA = /[ÁÀÃÂÄ]/gi, regE = /[ÉÈÊË]/gi, regI = /[ÍÌÎÏ]/gi, regO = /[ÓÒÕÔÖ]/gi, regU = /[ÚÙÛÜ]/gi, regC = /Ç/gi;
+
+	window.prepareCbSearchAllowLower = true;
+
+	function sessaoDataValidaInscricao(sessao) {
+		return sessao.dataInt >= dataHojeInt;
+	}
+
+	function ajustarNome(nome) {
+		return nome.toUpperCase().replace(regA, "A").replace(regE, "E").replace(regI, "I").replace(regO, "O").replace(regU, "U").replace(regC, "C");
+	}
+
+	function mostrarModalPadrao() {
+		var i, str, palestrante, sessao;
+		if (!location || !location.href || (i = location.href.indexOf("?")) < 0)
+			return;
+		str = location.href.substr(i + 1);
+		if (!str)
+			return;
+		if ((i = str.indexOf("&")) > 0)
+			str = str.substr(0, i);
+		str = str.replace(/\+/g, "%20").replace(/\=/g, "");
+		try {
+			str = decodeURIComponent(str);
+		} catch (ex) {
+		}
+		if (!str)
+			return;
+		str = trim(str);
+		if (!str)
+			return;
+		str = ajustarNome(str);
+
+		for (i = palestrantes.length - 1; i >= 0; i--) {
+			if ((palestrante = palestrantes[i]).nome_sort === str) {
+				mostrarPalestrante(palestrante.id);
+				break;
+			}
+		}
+
+		for (i = sessoes.length - 1; i >= 0; i--) {
+			if ((sessao = sessoes[i]).nome_sort === str) {
+				mostrarSessao(sessao);
+				break;
+			}
+		}
+	}
+
+	function carregar() {
+		carregarPalestrantes();
+		carregarEmpresas();
+
+		setTimeout(function () {
+			var iframeMap = document.getElementById("iframeMap");
+			if (iframeMap && (typeof iframeMapSrc) !== "undefined")
+				iframeMap.setAttribute("src", iframeMapSrc || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr");
+		}, 1000);
+	}
+
+	function gerarBadgeSalaSessao(sessao) {
+		var local = sessao.local;
+		return ((local.idunidade === -1 && sessao.url_remota) ?
+			('<a target="_blank" href="' + sessao.url_remota + '"') :
+			'<span') +
+			' class="badge badge-sala" style="background-color: ' + intToColor(local.cor) + '; color: ' + textColorForBackground(local.cor) + ';">' +
+			((local.idunidade === -1 && sessao.url_remota) ? ('<i class="fa fa-external-link"></i>Sessão via Internet (Clique para acessar)') : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local)) +
+			'<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino +
+			((local.idunidade === -1 && sessao.url_remota) ? '</a>' : '</span>');
+	}
+
+	function listarSessoesDoPalestrante(idpalestrante) {
+		var i, j, s, ids, ss = [];
+		for (i = 0; i < sessoes.length; i++) {
+			s = sessoes[i];
+			ids = s.idspalestrante;
+			if (!ids)
+				continue;
+			for (j = ids.length - 1; j >= 0; j--) {
+				if (ids[j] === idpalestrante) {
+					ss.push(s);
+					break;
+				}
+			}
+		}
+		return ss;
+	}
+
+	function mostrarPalestrante(id) {
+		var html = '', linha, ok = false, palestrante = palestrantesPorId[id], i, s, ss;
+
+		if (!palestrante)
+			return false;
+
+		html += '<p><img alt="Foto do Palestrante" style="max-width: 100%; border-radius: 4px; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5); box-shadow: 0 1px 3px rgba(0,0,0,0.5);" width="200" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /></p>';
+
+		html += '<p>' + encode(palestrante.nome);
+		if (palestrante.cargo || palestrante.nome_empresa) {
+			html += '<br/>';
+			if (palestrante.cargo && palestrante.nome_empresa)
+				html += encode(palestrante.cargo + " - " + palestrante.nome_empresa);
+			else if (palestrante.cargo)
+				html += encode(palestrante.cargo);
+			else
+				html += encode(palestrante.nome_empresa);
+		}
+		html += '</p>';
+
+		if (palestrante.url_site || palestrante.url_twitter || palestrante.url_facebook || palestrante.url_linkedin) {
+			html += '<p>';
+			ok = false;
+			if (palestrante.url_site) {
+				ok = true;
+				html += '<a target="_blank" href="' + palestrante.url_site + '">Site</a>';
+			}
+			if (palestrante.url_twitter) {
+				if (ok)
+					html += ' | ';
+				ok = true;
+				html += '<a target="_blank" href="' + palestrante.url_twitter + '">Twitter</a>';
+			}
+			if (palestrante.url_facebook) {
+				if (ok)
+					html += ' | ';
+				ok = true;
+				html += '<a target="_blank" href="' + palestrante.url_facebook + '">Facebook</a>';
+			}
+			if (palestrante.url_linkedin) {
+				if (ok)
+					html += ' | ';
+				ok = true;
+				html += '<a target="_blank" href="' + palestrante.url_linkedin + '">LinkedIn</a>';
+			}
+			html += '</p>';
+		}
+
+		if (palestrante.bio)
+			html += '<p>' + encode(palestrante.bio) + '</p>';
+		else if (palestrante.bio_curta)
+			html += '<p>' + encode(palestrante.bio_curta) + '</p>';
+
+		ss = listarSessoesDoPalestrante(id);
+		if (ss && ss.length) {
+			for (i = 0; i < ss.length; i++) {
+				s = ss[i];
+				linha = '<hr/><div class="row">';
+				linha += '<div class="col-sm-7">' + encode(s.nome);
+				if (<%- permiteinscricao %> && sessaoDataValidaInscricao(s)) {
+					if (s.permiteinscricao) {
+						if (s.lotada) {
+							linha += '<br/><span class="btn btn-outline btn-danger"><i class="fa fa-times"></i>Esgotada!</span>';
+							if (s.mensagemesgotada)
+								linha += '<div style="white-space: pre-wrap;">' + s.mensagemesgotada + '</div>';
+						} else {
+							linha += '<br/><a href="<%-urlInscricao %>' + s.id + '" class="btn btn-outline btn-primary" target="_blank"><i class="fa fa-check"></i>Quero me inscrever!</a>';
+						}
+					} else {
+						linha += '<br/><span class="btn btn-outline btn-primary free"><i class="fa fa-check"></i>Livre de inscrição!</span>';
+					}
+				}
+				linha += '</div><div class="col-sm-5">' + s.data + '<br/>' + gerarBadgeSalaSessao(s);
+				linha += '</div></div>';
+				html += linha;
+			}
+		}
+
+		$("#modalPalestranteTitulo").html(encode(palestrante.nome_curto));
+		$("#modalPalestranteCorpo").html(html);
+
+		$("#modalPalestrante").modal({
+			background: true,
+			keyboard: true
+		});
+
+		return false;
+	}
+
+	function mostrarSessao(s) {
+		if (!s)
+			return false;
+
+		$("#modalPalestranteTitulo").html(encode(s.nome_curto));
+		$("#modalPalestranteCorpo").html(gerarSessao(s, true));
+
+		$("#modalPalestrante").modal({
+			background: true,
+			keyboard: true
+		});
+
+		return false;
+	}
+
+	function carregarPalestrantes() {
+		var i, html = '';
+
+		for (i = 0; i < palestrantes.length; i++) {
+			if (!i)
+				html += '<div><div class="row">';
+			else if (!(i % 6))
+				html += '</div></div><div><div class="row">';
+			else if (!(i % 3))
+				html += '</div><div class="row">';
+			switch (palestrantes.length) {
+				case 1:
+					html += '<div class="col-sm-4 col-sm-offset-4">';
+					break;
+				case 2:
+					html += (i ? '<div class="col-sm-4">' : '<div class="col-sm-4 col-sm-offset-2">');
+					break;
+				default:
+					html += '<div class="col-sm-4">';
+					break;
+			}
+			html += '<div class="col-palestrante" onclick="mostrarPalestrante(' + palestrantes[i].id + ')" style="background-image: url(<%-urlBase %>palestrantes/' + palestrantes[i].id + '.png?v=' + palestrantes[i].versao + ');"><div>';
+			html += encode(palestrantes[i].nome_curto);
+			html += '</div></div></div>';
+		}
+
+		html += '</div></div>';
+
+		$("#carousel-palestrantes").html(html);
+
+		$("#carousel-palestrantes").slick({
+			accessibility: false,
+			adaptiveHeight: false,
+			autoplay: true,
+			arrows: true,
+			centerMode: false,
+			cssEase: "linear",
+			dots: false,
+			draggable: true,
+			fade: true,
+			focusOnSelect: false,
+			infinite: true,
+			mobileFirst: true,
+			pauseOnFocus: false,
+			pauseOnHover: false,
+			pauseOnDotsHover: false,
+			rows: 1,
+			slidesToShow: 1,
+			slidesToScroll: 1,
+			speed: 750,
+			swipe: true,
+			swipeToSlide: false,
+			touchMove: true,
+			variableWidth: false,
+			vertical: false,
+			verticalSwiping: false,
+			rtl: false,
+			waitForAnimate: true,
+			zIndex: 1,
+			prevArrow: '<a href="#carousel-palestrantes" class="left carousel-control"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span><span class="sr-only">Anterior</span></a>',
+			nextArrow: '<a href="#carousel-palestrantes" class="right carousel-control"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span><span class="sr-only">Próximo</span></a>'
+		});
+	}
+
+	function carregarEmpresas() {
+		var i, adicionado = 0, html = '', nome, e = empresas.slice();
+
+		for (i = 0; i < e.length; i++) {
+			if (e[i].id === idempresapadrao) {
+				e.splice(i, 1);
+				break;
+			}
+		}
+
+		for (i = 0; i < e.length; i++) {
+			if (e[i].id === idempresapadrao || !e[i].imagem_ok)
+				continue;
+			if (!adicionado)
+				html += '<div><div class="row">';
+			else if (!(adicionado % 3))
+				html += '</div></div><div><div class="row">';
+			adicionado++;
+			nome = encode(e[i].nome);
+			switch (e.length) {
+				case 1:
+					html += '<div class="col-sm-4 col-sm-offset-4">';
+					break;
+				case 2:
+					html += (i ? '<div class="col-sm-4">' : '<div class="col-sm-4 col-sm-offset-2">');
+					break;
+				default:
+					html += '<div class="col-sm-4">';
+					break;
+			}
+			html += '<img class="carousel-img" alt="' + nome + '" title="' + nome + '" src="<%-urlBase %>empresas/' + e[i].id + '.png?v=' + e[i].versao + '" /></div>';
+		}
+
+		html += '</div></div>';
+
+		$("#carousel-apoio").html(html);
+
+		$("#carousel-apoio").slick({
+			accessibility: false,
+			adaptiveHeight: false,
+			autoplay: true,
+			arrows: true,
+			centerMode: false,
+			cssEase: "linear",
+			dots: false,
+			draggable: true,
+			fade: true,
+			focusOnSelect: false,
+			infinite: true,
+			mobileFirst: true,
+			pauseOnFocus: false,
+			pauseOnHover: false,
+			pauseOnDotsHover: false,
+			rows: 1,
+			slidesToShow: 1,
+			slidesToScroll: 1,
+			speed: 750,
+			swipe: true,
+			swipeToSlide: false,
+			touchMove: true,
+			variableWidth: false,
+			vertical: false,
+			verticalSwiping: false,
+			rtl: false,
+			waitForAnimate: true,
+			zIndex: 1,
+			prevArrow: '<a href="#carousel-apoio" class="left carousel-control"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span><span class="sr-only">Anterior</span></a>',
+			nextArrow: '<a href="#carousel-apoio" class="right carousel-control"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span><span class="sr-only">Próximo</span></a>'
+		});
+	}
+
+	function gerarSessao(sessao, mostrarData) {
+		var j, tags, idspalestrante, palestrante, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
+
+		if (mostrarData)
+			htmlTemp += '<h2 class="section-subheader"><i class="fa fa-calendar"></i>' + sessao.data + '</h2>'
+
+		htmlTemp += '<div class="row"><div class="col-sm-12">';
+
+		htmlTemp += gerarBadgeSalaSessao(sessao);
+
+		tags = (sessao.tags ? sessao.tags.split(", ") : null);
+		if (tags && tags.length) {
+			htmlTemp += '<p>';
+			for (j = 0; j < tags.length; j++)
+				htmlTemp += ' <span class="badge">' + tags[j] + '</span>';
+			htmlTemp += '</p>';
+		}
+
+		if (sessao.descricao)
+			htmlTemp += '<p class="descricao">' + encode(sessao.descricao) + '</p>';
+
+		htmlTemp += '</div></div><div class="row"><div class="col-sm-12">';
+
+		palestrantes = [];
+		idspalestrante = sessao.idspalestrante;
+
+		if (idspalestrante && idspalestrante.length) {
+			for (j = 0; j < idspalestrante.length; j++) {
+				if ((palestrante = palestrantesPorId[idspalestrante[j]]))
+					palestrantes.push(palestrante);
+			}
+
+			palestrantes.sort(function (a, b) {
+				if (a.prioridade !== b.prioridade)
+					return a.prioridade - b.prioridade;
+				return (a.nome_curto_sort < b.nome_curto_sort ? -1 : 1);
+			});
+
+			for (j = 0; j < palestrantes.length; j++) {
+				palestrante = palestrantes[j];
+
+				htmlTemp += '<p><a class="palestrante-link" href="#" onclick="return mostrarPalestrante(' + palestrante.id + ');"><img class="palestrante-img" alt="Imagem do Palestrante" width="64" height="64" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /> ';
+				htmlTemp += '<span class="palestrante-nome">' + encode(palestrante.nome_curto) + '</span>';
+				htmlTemp += '</a></p>';
+			}
+		}
+
+		htmlTemp += '</div></div>';
+
+		if (<%- permiteinscricao %> && sessaoDataValidaInscricao(sessao)) {
+			if (sessao.permiteinscricao) {
+				if (!palestrantes.length) {
+					htmlTemp += '<span class="btn btn-outline btn-primary btn-lg free">Inscrições em breve...</span>';
+				} else {
+					if (sessao.lotada) {
+						htmlTemp += '<span class="btn btn-outline btn-danger btn-lg"><i class="fa fa-times"></i>Esgotada!</span>';
+						if (sessao.mensagemesgotada)
+							htmlTemp += '<div style="white-space: pre-wrap;">' + sessao.mensagemesgotada + '</div>';
+					} else {
+						htmlTemp += '<a href="<%-urlInscricao %>' + sessao.id + '" class="btn btn-outline btn-primary btn-lg" target="_blank"><i class="fa fa-check"></i>Quero me inscrever!</a>';
+					}
+				}
+			} else {
+				htmlTemp += '<span class="btn btn-outline btn-primary btn-lg free"><i class="fa fa-check"></i>Livre de inscrição!</span>';
+			}
+		}
+
+		return htmlTemp;
+	}
+
+	function carregarSessoesData(dataInt, periodo) {
+		var i, sessao, html = '';
+
+		for (i = 0; i < sessoes.length; i++) {
+			sessao = sessoes[i];
+			if (sessao.dataInt !== dataInt || sessao.periodo !== periodo)
+				continue;
+
+			html += '<div class="panel"><div class="panel-body panel-sessao">' + gerarSessao(sessao, false) + '</div></div>';
+		}
+
+		return html;
+	}
+
+	function carregarSessoes() {
+		var i, j, ok = false, id, nomePeriodo = { 1: "Dia Inteiro", 2: "Manhã", 4: "Tarde", 8: "Noite" }, periodos, data, html = '',
+			htmlPadrao = '<p class="text-center"><br/><br/><br/>Não há sessões aqui... Que tal escolher outro dia ou horário? 😉<br/><br/><br/></p>';
+
+		html += '<ul class="nav nav-pills" role="tablist">';
+		for (i = 0; i < datas.length; i++) {
+			data = datas[i];
+			periodos = data.periodos;
+			id = "tabData" + data.dataInt;
+
+			for (j = 1; j <= 8; j <<= 1) {
+				if ((periodos & j)) {
+					if (!ok) {
+						ok = true;
+						html += '<li role="presentation" class="active">';
+					} else {
+						html += '<li role="presentation">';
+					}
+					html += '<a href="#' + id + j + '" aria-controls="' + id + j + '" role="tab" data-toggle="pill"><i class="fa fa-calendar"></i>' + data.data + ' - ' + nomePeriodo[j] + '</a></li>';
+				}
+			}
+
+			html += '<br/>';
+
+		}
+		html += '</ul>';
+
+		ok = false;
+		html += '<div class="tab-content">';
+		for (i = 0; i < datas.length; i++) {
+			data = datas[i];
+			periodos = data.periodos;
+			id = "tabData" + data.dataInt;
+
+			for (j = 1; j <= 8; j <<= 1) {
+				if ((periodos & j)) {
+					if (!ok) {
+						ok = true;
+						html += '<div role="tabpanel" class="tab-pane fade active in" id="';
+					} else {
+						html += '<div role="tabpanel" class="tab-pane fade" id="';
+					}
+					html += id + j + '">';
+					html += (carregarSessoesData(data.dataInt, j) || htmlPadrao);
+					html += '</div>';
+				}
+			}
+		}
+		html += '</div>';
+
+		$("#container-agenda").append(html);
+	}
+
+	function buscar() {
+		var i, j, p, s, n, partes, vezes, html = '', str = ajustarNome(trim(document.getElementById("txtBusca").value.normalize()));
+		if (!str)
+			return;
+		partes = str.split(" ");
+		for (i = 0; i < sessoes.length; i++) {
+			s = sessoes[i];
+			n = s.nome_sort;
+			vezes = 0;
+			for (j = partes.length - 1; j >= 0; j--) {
+				p = partes[j];
+				if (p && n.indexOf(p) >= 0)
+					vezes++;
+			}
+			if (vezes === partes.length) {
+				if (html)
+					html += '<hr/>';
+				html += gerarSessao(s, true);
+			}
+		}
+
+		if (!html) {
+			Notification.error("Não foi possível encontrar sessões com essas palavras no título " + emoji.sad, true);
+		} else {
+			$("#modalPalestranteTitulo").html("Busca por Sessões");
+			$("#modalPalestranteCorpo").html(html);
+
+			$("#modalPalestrante").modal({
+				background: true,
+				keyboard: true
+			});
+		}
+	}
+
+	function converterDataInt(d) {
+		if (!d)
+			return -2147483648;
+		var s, s2, ano, mes, dia;
+		if ((s = d.indexOf(">")) > 0)
+			d = d.substring(s + 1, d.lastIndexOf("<"));
+		s = d.indexOf("/");
+		s2 = d.lastIndexOf("/");
+		if (s <= 0 || s2 <= s)
+			return -2147483648;
+		ano = parseInt(d.substring(s2 + 1));
+		mes = parseInt(d.substring(s + 1, s2));
+		dia = parseInt(d.substring(0, s));
+		return ((isNaN(ano) || isNaN(mes) || isNaN(dia)) ? -2147483648 : ((ano * 10000) + (mes * 100) + dia));
+	}
+
+	function obterPeriodo(inicioInt, terminoInt) {
+		// Períodos
+		// Inteiro = 1 (inicioInt <= 1100 && terminoInt >= 1700)
+		// Manhã = 2 (terminoInt < 1300)
+		// Tarde = 4 (terminoInt < 1900)
+		// Noite = 8
+		return ((inicioInt <= 1100 && terminoInt >= 1700) ? 1 : ((terminoInt < 1300) ? 2 : ((terminoInt < 1900) ? 4 : 8)));
+	}
+
+	(function () {
+		var i, j, p, s, ids, option, data, dataInt, hashDatas = {},
+			cbPalestrante = document.getElementById("cbPalestrante"),
+			hdrTitle = document.getElementById("hdr-title"),
+			hdrTitle2 = document.getElementById("hdr-title2");
+
+		if (hdrTitle) {
+			setTimeout(function () {
+				hdrTitle.style.opacity = 1;
+			}, 300);
+		}
+
+		if (hdrTitle2) {
+			setTimeout(function () {
+				hdrTitle2.style.opacity = 1;
+				carregar();
+			}, 1200);
+		} else {
+			setTimeout(function () {
+				carregar();
+			}, 1200);
+		}
+
+		for (i = locais.length - 1; i >= 0; i--)
+			locaisPorId[locais[i].id] = locais[i];
+
+		palestrantes.sort(function (a, b) {
+			if (a.prioridade !== b.prioridade)
+				return a.prioridade - b.prioridade;
+			return (a.nome_curto_sort < b.nome_curto_sort ? -1 : 1);
+		});
+
+		for (i = palestrantes.length - 1; i >= 0; i--) {
+			p = palestrantes[i];
+			palestrantesPorId[p.id] = p;
+			p.nome_sort = ajustarNome(p.nome);
+			p.nome_curto_sort = ajustarNome(p.nome_curto);
+		}
+		for (i = 0; i < palestrantes.length; i++) {
+			p = palestrantes[i];
+			option = document.createElement("option");
+			option.setAttribute("value", p.id);
+			option.textContent = p.nome_curto;
+			cbPalestrante.appendChild(option);
+		}
+		prepareCbSearch(cbPalestrante);
+		cbPalestrante.parentNode.childNodes[1].childNodes[1].className = "form-control select-arrow";
+		cbPalestrante.onchange = function () {
+			var id = parseInt(cbPalestrante.value);
+			if (id > 0)
+				mostrarPalestrante(id);
+		};
+		document.getElementById("txtBusca").onkeyup = function (e) {
+			if (e.key == "Enter" || e.keyCode === 13)
+				buscar();
+		};
+		document.getElementById("btnBusca").onclick = buscar;
+
+		if (inscricoes) {
+			for (i = inscricoes.length - 1; i >= 0; i--)
+				inscricoesPorId[inscricoes[i].ideventosessao] = inscricoes[i].inscritos;
+		}
+
+		for (i = sessoes.length - 1; i >= 0; i--) {
+			s = sessoes[i];
+			dataInt = converterDataInt(s.data);
+			s.dataInt = dataInt;
+			s.inicioInt = parseInt(s.inicio.replace(":", ""), 10);
+			s.terminoInt = parseInt(s.termino.replace(":", ""), 10);
+			s.periodo = obterPeriodo(s.inicioInt, s.terminoInt);
+			if (!(data = hashDatas[dataInt]))
+				hashDatas[dataInt] = {
+					data: s.data,
+					dataInt: dataInt,
+					periodos: s.periodo
+				};
+			else
+				data.periodos |= s.periodo;
+			s.ordem = (s.periodo * 100000000) + (s.inicioInt * 10000) + s.terminoInt;
+			s.nome_sort = ajustarNome(s.nome);
+			s.local = locaisPorId[s.idlocal];
+			s.lotada = false;
+			if (s.local) {
+				if (inscricoesPorId[s.id] >= s.local.capacidade)
+					s.lotada = true;
+			} else {
+				s.local = localPlaceholder;
+			}
+			if ((ids = s.idspalestrante)) {
+				ids = ids.split(",");
+				for (j = ids.length - 1; j >= 0; j--)
+					ids[j] = parseInt(ids[j]);
+				s.idspalestrante = ids;
+			} else {
+				s.idspalestrante = null;
+			}
+		}
+
+		sessoes.sort(function (a, b) {
+			if (a.dataInt !== b.dataInt)
+				return a.dataInt - b.dataInt;
+			if (a.ordem !== b.ordem)
+				return a.ordem - b.ordem;
+			return (a.nome_local < b.nome_local ? -1 : 1);
+		});
+
+		for (i in hashDatas)
+			datas.push(hashDatas[i]);
+
+		datas.sort(function (a, b) { return a.dataInt - b.dataInt; });
+
+		carregarSessoes();
+
+		mostrarModalPadrao();
+	})();
+
+</script>
