@@ -209,7 +209,6 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 				const hoje = new Date();
 				res.render("evt/" + evento.id, {
 					layout: "layout-vazio",
-					permiteinscricao: evento.permiteinscricao,
 					hojeInt: (hoje.getFullYear() * 10000) + ((hoje.getMonth() + 1) * 100) + hoje.getDate(),
 					idempresapadrao: evento.idempresapadrao,
 					id: evento.id,
@@ -219,6 +218,19 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					versaologo: evento.versaologo,
 					descricao: evento.descricao,
 					emailpadrao: evento.emailpadrao,
+					permiteinscricao: evento.permiteinscricao,
+					descricao_visivel: evento.descricao_visivel,
+					agenda_visivel: evento.agenda_visivel,
+					palestrantes_visivel: evento.palestrantes_visivel,
+					contato_visivel: evento.contato_visivel,
+					mapa_visivel: evento.mapa_visivel,
+					apoio_visivel: evento.apoio_visivel,
+					contatocorfundo: evento.contatocorfundo,
+					contatocortexto: evento.contatocortexto,
+					contatocoluna1: evento.contatocoluna1,
+					contatocoluna2: evento.contatocoluna2,
+					urlmapa: evento.urlmapa,
+					mensagemrodape: evento.mensagemrodape,
 					url: req.path,
 					// Essa urlBase é *DIFERENTE* da urlBase utilizada nas landing pages!
 					urlBase: "/evt/" + evento.id + "/",

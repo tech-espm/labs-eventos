@@ -9,6 +9,10 @@
 		background-color: #fff;
 		color: #333;
 	}
+
+	input[type=color] {
+		padding: 2px;
+	}
 </style>
 
 <% let controlandoEvento = (titulo === "Controlar Evento"); %>
@@ -25,6 +29,7 @@
 				<ul class="nav nav-pills text-center" role="tablist">
 					<li role="presentation" class="active"><a id="a-evento-basica" href="#tab-evento-basica" role="tab" data-toggle="pill" aria-controls="tab-evento-basica" aria-expanded="true"><i class="fa fa-edit"></i>Geral</a></li>
 					<li role="presentation"><a id="a-evento-landing" href="#tab-evento-landing" role="tab" data-toggle="pill" aria-controls="tab-evento-landing" aria-expanded="false"><i class="fa fa-globe"></i>Landing Page</a></li>
+					<li role="presentation"><a id="a-evento-aparencia" href="#tab-evento-aparencia" role="tab" data-toggle="pill" aria-controls="tab-evento-aparencia" aria-expanded="false"><i class="fa fa-paint-brush"></i>Aparência</a></li>
 					<li role="presentation"><a id="a-evento-inscricao" href="#tab-evento-inscricao" role="tab" data-toggle="pill" aria-controls="tab-evento-inscricao" aria-expanded="false"><i class="fa fa-check-square-o"></i>Inscrições</a></li>
 					<li role="presentation"><a id="a-evento-certificado" href="#tab-evento-certificado" role="tab" data-toggle="pill" aria-controls="tab-evento-certificado" aria-expanded="false"><i class="fa fa-id-card-o"></i>Certificados</a></li>
 					<li role="presentation" class="<%- (!controlandoEvento ? 'hidden' : '') %>"><a id="a-evento-senha" href="#tab-evento-senha" role="tab" data-toggle="pill" aria-controls="tab-evento-senha" aria-expanded="false"><i class="fa fa-lock"></i>Senhas</a></li>
@@ -35,10 +40,21 @@
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane fade in active" id="tab-evento-basica">
 						<div class="row">
-							<div class="col-sm-8">
+							<div class="col-sm-4">
 								<div class="form-group">
 									<label for="nome">Nome</label>
 									<input id="nome" name="nome" maxlength="100" class="form-control" type="text" spellcheck="false" value="<%=(item ? item.nome : '') %>" />
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="cidade">Cidade <small>(Para fins de certificado)</small></label>
+									<select id="cidade" name="cidade" class="form-control" size="1">
+										<option value="">SELECIONE...</option>
+										<option value="Porto Alegre" <%=((item && item.cidade == "Porto Alegre") ? 'selected="selected"' : '') %>">Porto Alegre</option>
+										<option value="Rio de Janeiro" <%=((item && item.cidade == "Rio de Janeiro") ? 'selected="selected"' : '') %>">Rio de Janeiro</option>
+										<option value="São Paulo" <%=((item && item.cidade == "São Paulo") ? 'selected="selected"' : '') %>">São Paulo</option>
+									</select>
 								</div>
 							</div>
 							<div class="col-sm-4">
@@ -87,6 +103,88 @@
 							<label for="descricao">Descrição</label>
 							<textarea id="descricao" name="descricao" maxlength="250" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
 						</div>
+						<div class="form-group">
+							<label for="contatocoluna1">HTML da Coluna 1 do Contato</label>
+							<textarea id="contatocoluna1" name="contatocoluna1" maxlength="4000" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna1 : '') %></textarea>
+						</div>
+						<div class="form-group">
+							<label for="contatocoluna2">HTML da Coluna 2 do Contato</label>
+							<textarea id="contatocoluna2" name="contatocoluna2" maxlength="4000" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna2 : '') %></textarea>
+						</div>
+						<div class="form-group">
+							<label for="urlmapa">URL do Mapa<br /><small>(Deixe em branco para utilizar <a target="_blank" href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr">este mapa padrão</a>)</small></label>
+							<input id="urlmapa" name="urlmapa" maxlength="400" class="form-control" type="url" value="<%=(item ? item.urlmapa : '') %>" />
+						</div>
+						<div class="form-group">
+							<label for="mensagemrodape">HTML do Rodapé</label>
+							<input id="mensagemrodape" name="mensagemrodape" maxlength="100" class="form-control" type="text" value="<%=(item ? item.mensagemrodape : '') %>" />
+						</div>
+					</div>
+
+					<div role="tabpanel" class="tab-pane fade" id="tab-evento-aparencia">
+						<input type="hidden" id="secoesocultas" name="secoesocultas" value="<%=(item ? item.secoesocultas : '') %>" />
+						<%/* Sincronizar value e data-value com models\evento.ts */%>
+						<div class="form-group">
+							<b>Visibilidade das Seções da Landing Page</b>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoDescricao">Descrição</label>
+									<select id="secaoDescricao" data-value="1" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="1">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoAgenda">Agenda</label>
+									<select id="secaoAgenda" data-value="2" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="2">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoPalestrantes">Palestrantes</label>
+									<select id="secaoPalestrantes" data-value="4" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="4">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoContato">Contato</label>
+									<select id="secaoContato" data-value="8" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="8">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoMapa">Mapa</label>
+									<select id="secaoMapa" data-value="16" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="16">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<label for="secaoApoio">Apoio</label>
+									<select id="secaoApoio" data-value="32" class="form-control" size="1">
+										<option value="0">MOSTRAR</option>
+										<option value="32">OCULTAR</option>
+									</select>
+								</div>
+							</div>
+						</div>
 						<div class="row">
 							<div class="col-sm-6">
 								<div class="form-group">
@@ -102,6 +200,27 @@
 									<input id="aspectratiopalestrantevalido" type="hidden" value="<%=(item ? item.aspectratiopalestrante : '') %>" />
 								</div>
 							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="contatocorfundo">Cor do Fundo do Contato</label>
+									<input id="contatocorfundo" name="contatocorfundo" maxlength="7" class="form-control upper" type="color" spellcheck="false" value="<%=(item ? item.contatocorfundo : '') %>" />
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label for="contatocortexto">Cor do Texto do Contato</label>
+									<input id="contatocortexto" name="contatocortexto" maxlength="7" class="form-control upper" type="color" spellcheck="false" value="<%=(item ? item.contatocortexto : '') %>" />
+								</div>
+							</div>
+						</div>
+						<hr />
+						<div class="form-group">
+							Para alterar o <b>fundo inicial</b>, o <b>logo na tela inicial</b>,
+							ou a <b>imagem que é exibida quando o link é compartilhado</b> via
+							Facebook ou WhatsApp, por favor, veja as instruções na aba "Arquivos"
+							das opções avançadas.
 						</div>
 					</div>
 
@@ -275,6 +394,22 @@
 		$("#aspectratioempresa").mask("09999:09999");
 		$("#aspectratiopalestrante").mask("09999:09999");
 
+		//<% if (item) { %>
+		function carregarVisibilidadeSecao(id) {
+			var secoesocultas = parseInt(document.getElementById("secoesocultas").value),
+				combo = document.getElementById(id),
+				mascara = parseInt(combo.getAttribute("data-value"));
+			combo.value = secoesocultas & mascara;
+		}
+
+		carregarVisibilidadeSecao("secaoDescricao");
+		carregarVisibilidadeSecao("secaoAgenda");
+		carregarVisibilidadeSecao("secaoPalestrantes");
+		carregarVisibilidadeSecao("secaoContato");
+		carregarVisibilidadeSecao("secaoMapa");
+		carregarVisibilidadeSecao("secaoApoio");
+		//<% } %>
+
 		function atualizarUrls(url, senha) {
 			var link;
 			link = "recepcao/" + url;
@@ -299,6 +434,9 @@
 					required: true,
 					minlength: 3,
 					maxlength: 100
+				},
+				cidade: {
+					required: true
 				},
 				url: {
 					required: true,
@@ -337,6 +475,16 @@
 				descricao: {
 					maxlength: 250
 				},
+				contatocoluna1: {
+					maxlength: 4000
+				},
+				contatocoluna2: {
+					maxlength: 4000
+				},
+				urlmapa: {
+					url: true,
+					maxlength: 400
+				},
 				aspectratioempresa: {
 					maxlength: 11,
 					aspectRatio: true
@@ -344,6 +492,14 @@
 				aspectratiopalestrante: {
 					maxlength: 11,
 					aspectRatio: true
+				},
+				contatocorfundo: {
+					required: true,
+					maxlength: 7
+				},
+				contatocortexto: {
+					required: true,
+					maxlength: 7
 				},
 				fundoCertificado: {
 					suporteArquivoAvancado: true,
@@ -394,6 +550,14 @@
 			submitHandler: function (form) {
 				if ($.active || JsonWebApi.active)
 					return;
+
+				document.getElementById("secoesocultas").value = 
+					parseInt(document.getElementById("secaoDescricao").value) |
+					parseInt(document.getElementById("secaoAgenda").value) |
+					parseInt(document.getElementById("secaoPalestrantes").value) |
+					parseInt(document.getElementById("secaoContato").value) |
+					parseInt(document.getElementById("secaoMapa").value) |
+					parseInt(document.getElementById("secaoApoio").value);
 
 				Notification.wait();
 

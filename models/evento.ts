@@ -17,6 +17,7 @@ import TipoEmpresa = require("./tipoEmpresa");
 interface EventoSimples {
 	id: number;
 	nome: string;
+	cidade: string;
 	titulo: string;
 	descricao: string;
 	versaobanner: number;
@@ -26,6 +27,19 @@ interface EventoSimples {
 	emailpadrao: string;
 	habilitado: number;
 	permiteinscricao: number;
+	descricao_visivel: boolean;
+	agenda_visivel: boolean;
+	palestrantes_visivel: boolean;
+	contato_visivel: boolean;
+	mapa_visivel: boolean;
+	apoio_visivel: boolean;
+	secoesocultas: number;
+	contatocorfundo: string;
+	contatocortexto: string;
+  	contatocoluna1: string;
+  	contatocoluna2: string;
+	urlmapa: string;
+	mensagemrodape: string;
 	senhasugestao: string;
 }
 
@@ -38,6 +52,14 @@ interface EventosPorId {
 }
 
 export = class Evento {
+	// Sincronizar esses valores com views\evento\alterar.ejs
+	public static readonly secaoDescricao = 1;
+	public static readonly secaoAgenda = 2;
+	public static readonly secaoPalestrantes = 4;
+	public static readonly secaoContato = 8;
+	public static readonly secaoMapa = 16;
+	public static readonly secaoApoio = 32;
+
 	public static readonly tamanhoMaximoFundoCertificadoEmKiB = 2048;
 	public static readonly tamanhoMaximoFundoCertificadoEmBytes = Evento.tamanhoMaximoFundoCertificadoEmKiB << 10;
 
@@ -47,6 +69,7 @@ export = class Evento {
 
 	public id: number;
 	public nome: string;
+	public cidade: string;
 	public url: string;
 	public titulo: string;
 	public descricao: string;
@@ -63,6 +86,13 @@ export = class Evento {
 	public permitealuno: number;
 	public permitefuncionario: number;
 	public permiteexterno: number;
+	public secoesocultas: number;
+	public contatocorfundo: string;
+	public contatocortexto: string;
+  	public contatocoluna1: string;
+  	public contatocoluna2: string;
+	public urlmapa: string;
+	public mensagemrodape: string;
 	public idempresapadrao: number;
 	public emailpadrao: string;
 	public senharecepcao: string;
@@ -91,6 +121,9 @@ export = class Evento {
 		ev.nome = (ev.nome || "").normalize().trim();
 		if (ev.nome.length < 3 || ev.nome.length > 100)
 			return "Nome inválido";
+		ev.cidade = (ev.cidade || "").normalize().trim();
+		if (ev.cidade.length < 3 || ev.cidade.length > 40)
+			return "Cidade inválida";
 		ev.url = (ev.url || "").normalize().trim().toLowerCase();
 		if (ev.url.length < 2 || ev.url.length > 50 || Evento.urlRegExp.test(ev.url))
 			return "URL inválida";
@@ -117,6 +150,26 @@ export = class Evento {
 			return "O aspect ratio das imagens dos palestrantes é inválido";
 		if (!ev.permitealuno && !ev.permitefuncionario && !ev.permiteexterno)
 			return "Nenhuma permissão especificada";
+		if (isNaN(ev.secoesocultas))
+			ev.secoesocultas = 0;
+		ev.contatocorfundo = (ev.contatocorfundo || "").normalize().trim();
+		if (!ev.contatocorfundo || ev.contatocorfundo.length > 7 || ev.contatocorfundo.charAt(0) !== "#")
+			return "Cor do fundo do contato inválida";
+		ev.contatocortexto = (ev.contatocortexto || "").normalize().trim();
+		if (!ev.contatocortexto || ev.contatocortexto.length > 7 || ev.contatocortexto.charAt(0) !== "#")
+			return "Cor do texto do contato inválida";
+		ev.contatocoluna1 = (ev.contatocoluna1 || "").normalize().trim();
+		if (ev.contatocoluna1.length > 4000)
+			return "HTML da coluna 1 do contato inválido";
+		ev.contatocoluna2 = (ev.contatocoluna2 || "").normalize().trim();
+		if (ev.contatocoluna2.length > 4000)
+			return "HTML da coluna 2 do contato inválido";
+		ev.urlmapa = (ev.urlmapa || "").normalize().trim();
+		if (ev.urlmapa.length > 400)
+			return "URL do mapa inválido";
+		ev.mensagemrodape = (ev.mensagemrodape || "").normalize().trim();
+		if (ev.mensagemrodape.length > 100)
+			return "HTML do rodapé inválido";
 		ev.emailpadrao = (ev.emailpadrao || "").normalize().trim().toUpperCase();
 		if (!ev.emailpadrao || ev.emailpadrao.length > 100 || !emailValido(ev.emailpadrao))
 			return "E-mail padrão para envios inválido";
@@ -162,11 +215,38 @@ export = class Evento {
 	private static async atualizarIdsPorUrl(sql: Sql, propagarParaCluster: boolean): Promise<void> {
 		let idsPorUrl: EventosPorUrl = {};
 		let eventosPorId: EventosPorId = {};
-		let lista = await sql.query("select id, nome, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao, senhasugestao from evento") as Evento[];
+		let lista = await sql.query("select id, nome, cidade, titulo, descricao, versaobanner, versaologo, url, idempresapadrao, emailpadrao, habilitado, permiteinscricao, secoesocultas, contatocorfundo, contatocortexto, contatocoluna1, contatocoluna2, urlmapa, mensagemrodape, senhasugestao from evento") as EventoSimples[];
 		if (lista && lista.length) {
 			for (let i = lista.length - 1; i >= 0; i--) {
 				let e = lista[i];
-				let evt: EventoSimples = { id: e.id, nome: e.nome, titulo: e.titulo, descricao: e.descricao, versaobanner: e.versaobanner, versaologo: e.versaologo, url: "/" + e.url, idempresapadrao: e.idempresapadrao, emailpadrao: e.emailpadrao.toLowerCase(), habilitado: e.habilitado, permiteinscricao: e.permiteinscricao, senhasugestao: e.senhasugestao };
+				let evt: EventoSimples = {
+					id: e.id,
+					nome: e.nome,
+					cidade: e.cidade,
+					titulo: e.titulo,
+					descricao: e.descricao,
+					versaobanner: e.versaobanner,
+					versaologo: e.versaologo,
+					url: "/" + e.url,
+					idempresapadrao: e.idempresapadrao,
+					emailpadrao: e.emailpadrao.toLowerCase(),
+					habilitado: e.habilitado,
+					permiteinscricao: e.permiteinscricao,
+					descricao_visivel: !(e.secoesocultas & Evento.secaoDescricao),
+					agenda_visivel: !(e.secoesocultas & Evento.secaoAgenda),
+					palestrantes_visivel: !(e.secoesocultas & Evento.secaoPalestrantes),
+					contato_visivel: !(e.secoesocultas & Evento.secaoContato),
+					mapa_visivel: !(e.secoesocultas & Evento.secaoMapa),
+					apoio_visivel: !(e.secoesocultas & Evento.secaoApoio),
+					secoesocultas: e.secoesocultas,
+					contatocorfundo: e.contatocorfundo,
+					contatocortexto: e.contatocortexto,
+				  	contatocoluna1: e.contatocoluna1,
+				  	contatocoluna2: e.contatocoluna2,
+					urlmapa: e.urlmapa,
+					mensagemrodape: e.mensagemrodape,
+					senhasugestao: e.senhasugestao
+				};
 				idsPorUrl[evt.url] = evt;
 				eventosPorId[e.id] = evt;
 			}
@@ -182,7 +262,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
+			lista = await sql.query("select id, nome, cidade, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao from evento order by nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -192,7 +272,7 @@ export = class Evento {
 		let lista: Evento[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ev.id, ev.nome, ev.url, ev.titulo, ev.descricao, date_format(ev.inicio, '%d/%m/%Y') inicio, date_format(ev.termino, '%d/%m/%Y') termino, ev.versao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
+			lista = await sql.query("select ev.id, ev.nome, ev.cidade, ev.url, ev.titulo, ev.descricao, date_format(ev.inicio, '%d/%m/%Y') inicio, date_format(ev.termino, '%d/%m/%Y') termino, ev.versao, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.idempresapadrao, ev.emailpadrao from eventousuario evu inner join evento ev on ev.id = evu.idevento where evu.idusuario = " + idusuario + " order by ev.nome asc") as Evento[];
 		});
 
 		return (lista || []);
@@ -245,7 +325,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			lista = await sql.query(
-				"select id, nome, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao " +
+				"select id, nome, cidade, url, titulo, descricao, date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino, versao, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, secoesocultas, contatocorfundo, contatocortexto, contatocoluna1, contatocoluna2, urlmapa, mensagemrodape, idempresapadrao, emailpadrao " +
 				(incluirAceiteCertificadoEEmail ? " , termoaceite, certificado1, certificado2, certificado1palestrante, certificado2palestrante, assuntoemailinscricao, emailinscricao " : "") +
 				" from evento where id = " + id +
 				(apenasDoUsuario ? (" and exists (select 1 from eventousuario where idevento = " + id + " and idusuario = " + idusuario + ")") : "")
@@ -292,7 +372,7 @@ export = class Evento {
 			await sql.beginTransaction();
 
 			try {
-				await sql.query("insert into evento (nome, url, titulo, descricao, inicio, termino, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite, certificado1, certificado2, certificado1palestrante, certificado2palestrante, assuntoemailinscricao, emailinscricao) values (?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [ev.nome, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite, ev.certificado1, ev.certificado2, ev.certificado1palestrante, ev.certificado2palestrante, ev.assuntoemailinscricao, ev.emailinscricao]);
+				await sql.query("insert into evento (nome, cidade, url, titulo, descricao, inicio, termino, versao, versaobanner, versaologo, habilitado, certificadoliberado, permiteinscricao, aspectratioempresa, aspectratiopalestrante, permitealuno, permitefuncionario, permiteexterno, secoesocultas, contatocorfundo, contatocortexto, contatocoluna1, contatocoluna2, urlmapa, mensagemrodape, idempresapadrao, emailpadrao, senharecepcao, senhacheckin, senhasugestao, termoaceite, certificado1, certificado2, certificado1palestrante, certificado2palestrante, assuntoemailinscricao, emailinscricao) values (?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [ev.nome, ev.cidade, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.secoesocultas, ev.contatocorfundo, ev.contatocortexto, ev.contatocoluna1, ev.contatocoluna2, ev.urlmapa, ev.mensagemrodape, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite, ev.certificado1, ev.certificado2, ev.certificado1palestrante, ev.certificado2palestrante, ev.assuntoemailinscricao, ev.emailinscricao]);
 				ev.id = await sql.scalar("select last_insert_id()") as number;
 				await sql.query("insert into eventoempresa (idevento, idtipo, nome, nome_curto, url_site, imagem_ok, versao) values (?, ?, 'A DEFINIR', 'A DEFINIR', '', 0, 0)", [ev.id, idTipoEmpresaPadrao]);
 				ev.idempresapadrao = await sql.scalar("select last_insert_id()") as number;
@@ -337,7 +417,7 @@ export = class Evento {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("update evento set nome = ?, url = ?, titulo = ?, descricao = ?, inicio = ?, termino = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, senhasugestao = ?, termoaceite = ?, certificado1 = ?, certificado2 = ?, certificado1palestrante = ?, certificado2palestrante = ?, assuntoemailinscricao = ?, emailinscricao = ? where id = " + ev.id, [ev.nome, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite, ev.certificado1, ev.certificado2, ev.certificado1palestrante, ev.certificado2palestrante, ev.assuntoemailinscricao, ev.emailinscricao]);
+				await sql.query("update evento set nome = ?, cidade = ?, url = ?, titulo = ?, descricao = ?, inicio = ?, termino = ?, versao = versao + 1, habilitado = ?, certificadoliberado = ?, permiteinscricao = ?, aspectratioempresa = ?, aspectratiopalestrante = ?, permitealuno = ?, permitefuncionario = ?, permiteexterno = ?, secoesocultas = ?, contatocorfundo = ?, contatocortexto = ?, contatocoluna1 = ?, contatocoluna2 = ?, urlmapa = ?, mensagemrodape = ?, emailpadrao = ?, senharecepcao = ?, senhacheckin = ?, senhasugestao = ?, termoaceite = ?, certificado1 = ?, certificado2 = ?, certificado1palestrante = ?, certificado2palestrante = ?, assuntoemailinscricao = ?, emailinscricao = ? where id = " + ev.id, [ev.nome, ev.cidade, ev.url, ev.titulo, ev.descricao, ev.inicio, ev.termino, ev.habilitado, ev.certificadoliberado, ev.permiteinscricao, ev.aspectratioempresa, ev.aspectratiopalestrante, ev.permitealuno, ev.permitefuncionario, ev.permiteexterno, ev.secoesocultas, ev.contatocorfundo, ev.contatocortexto, ev.contatocoluna1, ev.contatocoluna2, ev.urlmapa, ev.mensagemrodape, ev.emailpadrao, ev.senharecepcao, ev.senhacheckin, ev.senhasugestao, ev.termoaceite, ev.certificado1, ev.certificado2, ev.certificado1palestrante, ev.certificado2palestrante, ev.assuntoemailinscricao, ev.emailinscricao]);
 				res = sql.linhasAfetadas.toString();
 				if (sql.linhasAfetadas) {
 					Usuario.alterarNomeDoEventoEmCache(ev.id, ev.nome);

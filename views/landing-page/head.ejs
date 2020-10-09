@@ -1,3 +1,45 @@
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://credenciamento.espm.br<%-url %>" />
+<meta property="og:title" content="<%=nome %>" />
+<meta property="og:site_name" content="<%=nome %>" />
+<meta property="og:description" content="<%=nome %>" />
+<meta property="og:image" content="https://credenciamento.espm.br<%-urlBase %>share.jpg" />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content="1920" />
+<meta property="og:image:height" content="1080" />
+<meta name="author" content="ESPM" />
+<meta name="description" content="<%=nome %>" />
+<meta name="keywords" content="evento, espm" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-title" content="<%=nome %>" />
+<link rel="apple-touch-icon" sizes="57x57" href="<%-urlBase %>apple-icon-57x57.png" />
+<link rel="apple-touch-icon" sizes="60x60" href="<%-urlBase %>apple-icon-60x60.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="<%-urlBase %>apple-icon-72x72.png" />
+<link rel="apple-touch-icon" sizes="76x76" href="<%-urlBase %>apple-icon-76x76.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="<%-urlBase %>apple-icon-114x114.png" />
+<link rel="apple-touch-icon" sizes="120x120" href="<%-urlBase %>apple-icon-120x120.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="<%-urlBase %>apple-icon-144x144.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="<%-urlBase %>apple-icon-152x152.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="<%-urlBase %>apple-icon-180x180.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="<%-urlBase %>favicon-512x512.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="<%-urlBase %>favicon-192x192.png" />
+<link rel="icon" type="image/png" sizes="96x96" href="<%-urlBase %>favicon-96x96.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="<%-urlBase %>favicon-48x48.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="<%-urlBase %>favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="<%-urlBase %>favicon-16x16.png" />
+<link rel="Shortcut Icon" href="<%-urlBase %>favicon.png" />
+<link rel="manifest" href="<%-urlBase %>manifest.json" />
+<meta name="msapplication-config" content="<%-urlBase %>browserconfig.xml" />
+<meta name="theme-color" content="#222222" />
+
+<title><%=nome %></title>
+
 <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap" rel="stylesheet">
 	
 <link rel="stylesheet" href="/landing/css/bootstrap.min.css?1.0.27" />
@@ -46,10 +88,6 @@
 		background-color: transparent;
 	}
 
-	.section-subheader span {
-		font-size: 22px;
-	}
-
 	#hdr-banner {
 		position: relative;
 		padding: 100px 0 0;
@@ -60,8 +98,6 @@
 		overflow: hidden;
 		background-size: cover;
 		background-position: left center;
-		-webkit-box-shadow: 0 0 15px rgba(0,0,0,0.5);
-		box-shadow: 0 0 15px rgba(0,0,0,0.5);
 	}
 
 	#hdr-logo {
@@ -250,6 +286,8 @@
 		color: #7a7a7a;
 		font-size: 27px;
 		padding: 60px;
+		-webkit-box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+		box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
 	}
 
 	#section-palestrantes {
@@ -266,19 +304,18 @@
 
 	#section-contato {
 		position: relative;
-		padding: 100px 0 0;
-		background-color: #4b0f6b;
-		color: #fff;
+		padding: 100px 0;
+		background-color: <%-contatocorfundo %>;
+		color: <%-contatocortexto %>;
 	}
 
 		#section-contato a , #section-contato .section-header {
 			font-weight: 600;
-			color: #fff;
+			color: <%-contatocortexto %>;
 		}
 
 	#section-apoio {
 		position: relative;
-		background-color: #fff;
 		color: #000;
 		padding: 100px 0;
 	}

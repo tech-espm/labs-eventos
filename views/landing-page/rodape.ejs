@@ -87,8 +87,8 @@
 
 		setTimeout(function () {
 			var iframeMap = document.getElementById("iframeMap");
-			if (iframeMap && (typeof iframeMapSrc) !== "undefined")
-				iframeMap.setAttribute("src", iframeMapSrc || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr");
+			if (iframeMap)
+				iframeMap.setAttribute("src", "<%=urlmapa %>" || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr");
 		}, 1000);
 	}
 
@@ -593,25 +593,27 @@
 			p.nome_sort = ajustarNome(p.nome);
 			p.nome_curto_sort = ajustarNome(p.nome_curto);
 		}
-		for (i = 0; i < palestrantes.length; i++) {
-			p = palestrantes[i];
-			option = document.createElement("option");
-			option.setAttribute("value", p.id);
-			option.textContent = p.nome_curto;
-			cbPalestrante.appendChild(option);
-		}
-		prepareCbSearch(cbPalestrante);
-		cbPalestrante.parentNode.childNodes[1].childNodes[1].className = "form-control select-arrow";
-		cbPalestrante.onchange = function () {
-			var id = parseInt(cbPalestrante.value);
-			if (id > 0)
-				mostrarPalestrante(id);
-		};
-		document.getElementById("txtBusca").onkeyup = function (e) {
-			if (e.key == "Enter" || e.keyCode === 13)
-				buscar();
-		};
-		document.getElementById("btnBusca").onclick = buscar;
+		//<% if (agenda_visivel) { %>
+			for (i = 0; i < palestrantes.length; i++) {
+				p = palestrantes[i];
+				option = document.createElement("option");
+				option.setAttribute("value", p.id);
+				option.textContent = p.nome_curto;
+				cbPalestrante.appendChild(option);
+			}
+			prepareCbSearch(cbPalestrante);
+			cbPalestrante.parentNode.childNodes[1].childNodes[1].className = "form-control select-arrow";
+			cbPalestrante.onchange = function () {
+				var id = parseInt(cbPalestrante.value);
+				if (id > 0)
+					mostrarPalestrante(id);
+			};
+			document.getElementById("txtBusca").onkeyup = function (e) {
+				if (e.key == "Enter" || e.keyCode === 13)
+					buscar();
+			};
+			document.getElementById("btnBusca").onclick = buscar;
+		//<% } %>
 
 		if (inscricoes) {
 			for (i = inscricoes.length - 1; i >= 0; i--)

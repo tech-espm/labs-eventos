@@ -46,6 +46,7 @@ router.post("/criar", multer().single("fundocertificado"), wrap(async (req: expr
 		ev.permitealuno = (parseInt(req.body.permitealuno) ? 1 : 0);
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);
+		ev.secoesocultas = parseInt(req.body.secoesocultas);
 	}
 	jsonRes(res, 400, (ev && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Evento.tamanhoMaximoFundoCertificadoEmBytes)) ? await Evento.criar(ev, req["file"]) : "Dados inválidos!");
 }));
@@ -69,6 +70,7 @@ router.post("/alterar", multer().single("fundocertificado"), wrap(async (req: ex
 		ev.permitealuno = (parseInt(req.body.permitealuno) ? 1 : 0);
 		ev.permitefuncionario = (parseInt(req.body.permitefuncionario) ? 1 : 0);
 		ev.permiteexterno = (parseInt(req.body.permiteexterno) ? 1 : 0);
+		ev.secoesocultas = parseInt(req.body.secoesocultas);
 	}
 	jsonRes(res, 400, (ev && (!req["file"] || !req["file"].buffer || !req["file"].size || req["file"].size <= Evento.tamanhoMaximoFundoCertificadoEmBytes)) ? await Evento.alterar(ev, req["file"]) : "Dados inválidos!");
 }));

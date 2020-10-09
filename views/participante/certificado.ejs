@@ -7,7 +7,9 @@
 		return format2((x / 100) | 0) + ":" + format2(x % 100);
 	}
 
-	var duracaoTotal = 0, meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"], linhaData = "São Paulo, ";
+	var duracaoTotal = 0,
+		meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
+		linhaData = evento.cidade + ", ";
 
 	(function () {
 		var i, presenca, partes, duracao;

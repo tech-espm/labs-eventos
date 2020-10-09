@@ -1,0 +1,8 @@
+<div class="row">
+	<% if (contatocoluna1 && contatocoluna2) { %>
+		<div class="col-sm-6 text-center"><%-contatocoluna1 %></div>
+		<div class="col-sm-6 text-center"><%-contatocoluna2 %></div>
+	<% } else { %>
+		<div class="col-sm-6 col-sm-offset-3 text-center"><%-(contatocoluna1 || contatocoluna2) %></div>
+	<% } %>
+</div>
