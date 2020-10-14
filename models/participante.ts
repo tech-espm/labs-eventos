@@ -22,9 +22,6 @@ export = class Participante {
 	public nome: string;
 	public login: string;
 	public email: string;
-	public codigoCurso: string;
-	public nomeCurso: string;
-	public serie: string;
 	public tipo: number;
 	public idinstrucao: number;
 	public idprofissao: number;
@@ -155,7 +152,11 @@ export = class Participante {
 
 			let [token, cookieStr] = Participante.gerarTokenCookie(row.id);
 
-			await sql.query("update participante set token = ? where id = " + row.id, [token]);
+			// Atualiza o nome com as informações vindas do AD
+			if (cas)
+				await sql.query("update participante set nome = ?, token = ? where id = " + row.id, [cas.nome, token]);
+			else
+				await sql.query("update participante set token = ? where id = " + row.id, [token]);
 
 			delete row.senha;
 			p = row as Participante;
@@ -203,9 +204,6 @@ export = class Participante {
 		if (externo) {
 			p.login = null;
 			p.tipo = Participante.TipoExterno;
-			p.codigoCurso = null;
-			p.nomeCurso = null;
-			p.serie = null;
 
 			if (p.email.endsWith("@ESPM.BR") || p.email.endsWith("@ACAD.ESPM.BR"))
 				return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
@@ -225,27 +223,6 @@ export = class Participante {
 				return "Login inválido";
 			if (p.tipo !== Participante.TipoAluno && p.tipo !== Participante.TipoFuncionario)
 				return "Tipo inválido";
-			p.codigoCurso = (p.codigoCurso || "").normalize().trim().toUpperCase();
-			if (p.codigoCurso) {
-				if (p.codigoCurso.length > 25)
-					p.codigoCurso = p.codigoCurso.substr(0, 25).trim();
-			} else {
-				p.codigoCurso = null;
-			}
-			p.nomeCurso = (p.nomeCurso || "").normalize().trim().toUpperCase();
-			if (p.nomeCurso) {
-				if (p.nomeCurso.length > 50)
-					p.nomeCurso = p.nomeCurso.substr(0, 50).trim();
-			} else {
-				p.nomeCurso = null;
-			}
-			p.serie = (p.serie || "").normalize().trim().toUpperCase();
-			if (p.serie) {
-				if (p.serie.length > 25)
-					p.serie = p.serie.substr(0, 25).trim();
-			} else {
-				p.serie = null;
-			}
 		}
 
 		return null;
@@ -269,16 +246,13 @@ export = class Participante {
 			p.email = cas.emailAcademico;
 			p.senha = appsettings.senhaPadraoUsuariosIntegracaoCAS;
 			p.tipo = (cas.aluno ? Participante.TipoAluno : Participante.TipoFuncionario);
-			p.codigoCurso = cas.codigoCurso;
-			p.nomeCurso = cas.nomeCurso;
-			p.serie = cas.serie;
 		}
 		if ((r = Participante.validar(p, !cas)))
 			return r;
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into participante (nome, login, email, codigoCurso, nomeCurso, serie, tipo, idinstrucao, idprofissao, empresa, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.codigoCurso, p.nomeCurso, p.serie, p.tipo, p.idinstrucao, p.idprofissao, p.empresa, await GeradorHash.criarHash(p.senha)]);
+				await sql.query("insert into participante (nome, login, email, tipo, idinstrucao, idprofissao, empresa, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.tipo, p.idinstrucao, p.idprofissao, p.empresa, await GeradorHash.criarHash(p.senha)]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (e) {
 				if (e.code) {

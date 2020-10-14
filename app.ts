@@ -23,6 +23,7 @@ import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import cookieParser = require("cookie-parser"); // https://stackoverflow.com/a/16209531/3569421
 import path = require("path");
+import passport = require("passport");
 import appsettings = require("./appsettings");
 import ClusterEventos = require("./infra/clusterEventos");
 import Empresa = require("./models/empresa");
@@ -84,6 +85,26 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 	next();
 });
 
+const OIDCStrategy = require("passport-azure-ad").OIDCStrategy;
+
+passport.use(new OIDCStrategy({
+	identityMetadata: appsettings.adAuthority + appsettings.adTenantId + appsettings.adIdMetadata,
+	clientID: appsettings.adApplicationId,
+	responseType: "code id_token",
+	responseMode: "form_post",
+	redirectUrl: appsettings.adRedirectUrl,
+	allowHttpForRedirectUrl: true,
+	clientSecret: appsettings.adClientSecret,
+	validateIssuer: false,
+	passReqToCallback: false,
+    useCookieInsteadOfSession: true,
+    cookieEncryptionKeys: appsettings.adCookieEncryptionKeys,
+	scope: appsettings.adScopes
+}, (iss: any, sub: any, profile: any, accessToken: any, refreshToken: any, params: any, done: any): any => {
+	// done(err: any, user: any, info: any), executa o callback em routes\ad.ts
+	return (profile.oid ? done(null, profile, accessToken) : done(new Error("Usuário do Microsoft AD sem OID."), null, null));
+}));
+  
 // Especifica quais módulos serão responsáveis por servir cada rota,
 // a partir dos endereços requisitados pelo cliente
 //
@@ -118,6 +139,7 @@ Evento.nomesReservados.push(
 	"sugestao",
 	"logout",
 
+	"ad",
 	"cas",
 	"certificado",
 	"checkin",
@@ -145,6 +167,7 @@ Evento.nomesReservados.push(
 
 // Cadastros simples
 app.use("/", require("./routes/home"));
+app.use("/ad", require("./routes/ad"));
 app.use("/cas", require("./routes/cas"));
 app.use("/certificado", require("./routes/certificado"));
 app.use("/curso", require("./routes/curso"));

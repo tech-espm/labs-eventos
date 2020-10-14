@@ -10,7 +10,7 @@
 				</div>
 				<div class="form-group">
 					<label for="nome">Nome</label>
-					<input id="nome" name="nome" maxlength="100" class="form-control upper" type="text" spellcheck="false" value="<%=usuario.nome %>" />
+					<input id="nome" name="nome" maxlength="100" class="form-control upper" type="text" spellcheck="false" readonly="readonly" value="<%=usuario.nome %>" />
 				</div>
 				<div class="divider-body"></div>
 				<p>Para alterar a senha atual, preencha todos os campos abaixo</p>
@@ -41,11 +41,6 @@
 
 	$("#form").validate({
 		rules: {
-			nome: {
-				required: true,
-				minlength: 3,
-				maxlength: 100
-			},
 			senhaAtual: {
 				maxlength: 20,
 				required: {

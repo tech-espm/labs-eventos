@@ -8,9 +8,6 @@ export = class Cas {
 	public email: string;
 	public emailAcademico: string;
 	public aluno: boolean;
-	public codigoCurso: string;
-	public nomeCurso: string;
-	public serie: string;
 
 	private static extrairValor(xml: string, tag: string): string {
 		let tagI = "<" + tag + ">";
@@ -40,9 +37,6 @@ export = class Cas {
 		cas.emailAcademico = Cas.extrairValor(xml, "cas:emailAddress");
 		cas.email = Cas.extrairValor(xml, "cas:EmailPessoal");
 		cas.aluno = (Cas.extrairValor(xml, "cas:tipo") == "A");
-		cas.codigoCurso = Cas.extrairValor(xml, "cas:CodigoCurso");
-		cas.nomeCurso = Cas.extrairValor(xml, "cas:NomeCurso");
-		cas.serie = Cas.extrairValor(xml, "cas:Serie");
 
 		if (!cas.user) {
 			cas.user = Cas.extrairValor(xml, "cas:uid");

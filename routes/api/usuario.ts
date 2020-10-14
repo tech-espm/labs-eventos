@@ -23,7 +23,7 @@ router.post("/alterarPerfil", wrap(async (req: express.Request, res: express.Res
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	jsonRes(res, 400, await u.alterarPerfil(res, req.body.nome as string, req.body.senhaAtual as string, req.body.novaSenha as string));
+	jsonRes(res, 400, await u.alterarPerfil(res, req.body.senhaAtual as string, req.body.novaSenha as string));
 }));
 
 router.get("/listar", wrap(async (req: express.Request, res: express.Response) => {

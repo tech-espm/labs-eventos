@@ -138,7 +138,11 @@ export = class Usuario {
 
 			let [token, cookieStr] = Usuario.gerarTokenCookie(row.id, 0);
 
-			await sql.query("update usuario set token = ?, idevento_logado = 0 where id = " + row.id, [token]);
+			// Atualiza o nome com as informações vindas do AD
+			if (cas)
+				await sql.query("update usuario set nome = ?, token = ?, idevento_logado = 0 where id = " + row.id, [cas.nome, token]);
+			else
+				await sql.query("update usuario set token = ?, idevento_logado = 0 where id = " + row.id, [token]);
 
 			u = new Usuario();
 			u.id = row.id;
@@ -174,11 +178,7 @@ export = class Usuario {
 		});
 	}
 
-	public async alterarPerfil(res: express.Response, nome: string, senhaAtual: string, novaSenha: string): Promise<string> {
-		nome = (nome || "").normalize().trim().toUpperCase();
-		if (nome.length < 3 || nome.length > 100)
-			return "Nome inválido";
-
+	public async alterarPerfil(res: express.Response, senhaAtual: string, novaSenha: string): Promise<string> {
 		if (!!senhaAtual !== !!novaSenha || (novaSenha && novaSenha.length > 40))
 			return "Senha inválida";
 
@@ -196,17 +196,12 @@ export = class Usuario {
 
 				let [token, cookieStr] = Usuario.gerarTokenCookie(this.id, this.idevento_logado);
 
-				await sql.query("update usuario set nome = ?, senha = ?, token = ? where id = " + this.id, [nome, hash, token]);
+				await sql.query("update usuario set senha = ?, token = ? where id = " + this.id, [hash, token]);
 
-				this.nome = nome;
 				this.cookieStr = cookieStr;
 
 				// @@@ secure!!!
 				res.cookie("usuario", cookieStr, { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
-			} else {
-				await sql.query("update usuario set nome = ? where id = " + this.id, [nome]);
-
-				this.nome = nome;
 			}
 		});
 
