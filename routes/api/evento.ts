@@ -18,7 +18,7 @@ router.get("/listarDeUsuario", wrap(async (req: express.Request, res: express.Re
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let idusuario = parseInt(req.query["idusuario"]);
+	let idusuario = parseInt(req.query["idusuario"] as string);
 	if (u.tipo !== Usuario.TipoAdmin || isNaN(idusuario))
 		idusuario = u.id;
 	res.json(await Evento.listarDeUsuario(idusuario));
@@ -30,7 +30,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	res.json(isNaN(id) ? null : await Evento.obter(id, true, u.id, u.tipo !== Usuario.TipoAdmin));
 }));
 
@@ -95,7 +95,7 @@ router.post("/criarArquivo", wrap(async (req: express.Request, res: express.Resp
 		return;
 	}
 
-	let nome: string = req.query["nome"];
+	let nome = req.query["nome"] as string;
 	let partes: string[];
 
 	if (!nome || !(partes = Evento.gerarCaminhoArquivo(u.idevento_logado, nome))) {
@@ -140,8 +140,8 @@ router.get("/renomearArquivo", wrap(async (req: express.Request, res: express.Re
 		jsonRes(res, 400, "Nenhum evento selecionado!");
 		return;
 	}
-	let nomeAtual = req.query["nomeAtual"];
-	let nomeNovo = req.query["nomeNovo"];
+	let nomeAtual = req.query["nomeAtual"] as string;
+	let nomeNovo = req.query["nomeNovo"] as string;
 	jsonRes(res, 400, (nomeAtual && nomeNovo) ? await Evento.renomearArquivo(u.idevento_logado, nomeAtual, nomeNovo) : "Dados inválidos!");
 }));
 
@@ -153,7 +153,7 @@ router.get("/excluirArquivo", wrap(async (req: express.Request, res: express.Res
 		jsonRes(res, 400, "Nenhum evento selecionado!");
 		return;
 	}
-	let nome = req.query["nome"];
+	let nome = req.query["nome"] as string;
 	jsonRes(res, 400, nome ? await Evento.excluirArquivo(u.idevento_logado, nome) : "Dados inválidos!");
 }));
 

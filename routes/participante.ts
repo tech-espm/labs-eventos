@@ -12,29 +12,28 @@ const router = express.Router();
 router.all("/login/:e?/:s?", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
 	let e = req.params["e"] as string;
-	let s = req.params["s"] as string;
+	const s = parseInt(req.params["s"] as string);
 	let senhapresenca = req.cookies["participanteSenhaPresenca"] as string;
 	// Quando o evento for "home", deve redirecionar o usuário para
 	// a tela de gerenciamento de inscrições e certificados
 	if (!e)
 		e = "home";
+	const queryString = (s ? ("?e=" + e + "&s=" + s) : ("?e=" + e));
 	if (p) {
 		res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
-		res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
+		res.redirect((e === "home") ? "/participante" : (s ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
 	} else if (req.body.email || req.body.senha) {
 		let mensagem: string = null;
 
 		[mensagem, p] = await Participante.efetuarLogin(req.body.email as string, req.body.senha as string, null, res);
 		if (mensagem) {
-			res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginUrl });
+			res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: mensagem, loginUrl: appsettings.loginParticipanteUrl + queryString });
 		} else {
 			res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
-			res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
-			res.redirect((e === "home") ? "/participante" : ((s && parseInt(s)) ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
+			res.redirect((e === "home") ? "/participante" : (s ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
 		}
 	} else {
-		res.cookie("participanteEvt", e + "|" + s, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
-		res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, evento: e, loginUrl: appsettings.loginUrl });
+		res.render("participante/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, evento: e, loginUrl: appsettings.loginParticipanteUrl + queryString });
 	}
 }));
 

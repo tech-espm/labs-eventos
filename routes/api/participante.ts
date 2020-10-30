@@ -31,7 +31,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 
 router.get("/listarInscricoes", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
-	let idevento = parseInt(req.query["idevento"]);
+	let idevento = parseInt(req.query["idevento"] as string);
 	if (p && idevento > 0)
 		res.json(await Participante.listarInscricoes(p.id, idevento));
 	else
@@ -40,9 +40,9 @@ router.get("/listarInscricoes", wrap(async (req: express.Request, res: express.R
 
 router.get("/avaliarSessao", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
-	let ideventosessaoparticipante = parseInt(req.query["id"]);
-	let avaliacao = parseInt(req.query["avaliacao"]);
-	let comentario = req.query["comentario"];
+	let ideventosessaoparticipante = parseInt(req.query["id"] as string);
+	let avaliacao = parseInt(req.query["avaliacao"] as string);
+	let comentario = req.query["comentario"] as string;
 	if (p && ideventosessaoparticipante > 0 && avaliacao >= 1 && avaliacao <= 5)
 		res.json(await Participante.avaliarSessao(p.id, ideventosessaoparticipante, avaliacao, comentario));
 	else
@@ -50,10 +50,10 @@ router.get("/avaliarSessao", wrap(async (req: express.Request, res: express.Resp
 }));
 
 router.get("/marcarPresenca", wrap(async (req: express.Request, res: express.Response) => {
-	let senha = req.query["senha"];
-	let idevento = parseInt(req.query["idevento"]);
-	let ideventosessao = parseInt(req.query["ideventosessao"]);
-	let idparticipante = parseInt(req.query["idparticipante"]);
+	let senha = req.query["senha"] as string;
+	let idevento = parseInt(req.query["idevento"] as string);
+	let ideventosessao = parseInt(req.query["ideventosessao"] as string);
+	let idparticipante = parseInt(req.query["idparticipante"] as string);
 	let evt = Evento.eventosPorId[idevento];
 
 	if (!evt || !evt.habilitado || !evt.permiteinscricao)
@@ -66,8 +66,8 @@ router.get("/marcarPresenca", wrap(async (req: express.Request, res: express.Res
 
 router.get("/excluirInscricao", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
-	let id = parseInt(req.query["id"]);
-	let idevento = parseInt(req.query["idevento"]);
+	let id = parseInt(req.query["id"] as string);
+	let idevento = parseInt(req.query["idevento"] as string);
 	if (p && id > 0 && idevento > 0) {
 		await Sessao.excluirInscricao(id, idevento, p.id);
 		res.sendStatus(204);
@@ -77,7 +77,7 @@ router.get("/excluirInscricao", wrap(async (req: express.Request, res: express.R
 }));
 
 router.get("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {
-	let email = req.query["email"];
+	let email = req.query["email"] as string;
 	jsonRes(res, 400, email ? await Participante.redefinirSenha(email) : "Dados inválidos");
 }));
 

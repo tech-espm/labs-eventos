@@ -1,6 +1,4 @@
-﻿import https = require("https");
-import appsettings = require("../appsettings");
-
+﻿
 export = class Cas {
 
 	public user: string;
@@ -9,7 +7,7 @@ export = class Cas {
 	public emailAcademico: string;
 	public aluno: boolean;
 
-	private static extrairValor(xml: string, tag: string): string {
+	/*private static extrairValor(xml: string, tag: string): string {
 		let tagI = "<" + tag + ">";
 		let i = xml.indexOf(tagI);
 		if (i < 0)
@@ -92,5 +90,5 @@ export = class Cas {
 				reject(ex.message || ex.toString());
 			}
 		});
-	}
+	}*/
 }

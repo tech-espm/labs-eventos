@@ -20,7 +20,7 @@ router.get("/obter", wrap(async (req: express.Request, res: express.Response) =>
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	res.json(isNaN(id) ? null : await Sessao.obter(id, u.idevento_logado));
 }));
 
@@ -28,7 +28,7 @@ router.get("/listarAceites", wrap(async (req: express.Request, res: express.Resp
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	res.json(isNaN(id) ? null : await Sessao.listarAceites(id, u.idevento_logado));
 }));
 
@@ -150,19 +150,19 @@ router.get("/excluir", wrap(async (req: express.Request, res: express.Response) 
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	jsonRes(res, 400, isNaN(id) ? "Dados inválidos!" : await Sessao.excluir(id, u.idevento_logado));
 }));
 
 router.get("/alterarSenhaPresenca", wrap(async (req: express.Request, res: express.Response) => {
-	let id = parseInt(req.query["id"]);
-	let idevento = parseInt(req.query["idevento"]);
+	let id = parseInt(req.query["id"] as string);
+	let idevento = parseInt(req.query["idevento"] as string);
 	jsonRes(res, 400, (isNaN(id) || isNaN(idevento)) ? "Dados inválidos!" : await Sessao.alterarSenhaPresenca(id, idevento, req.query["senhacontrole"] as string, req.query["senhapresenca"] as string));
 }));
 
 router.get("/alterarStatusIntegra", wrap(async (req: express.Request, res: express.Response) => {
-	const id_integra_sessao = parseInt(req.query["id"]);
-	const status_integra = parseInt(req.query["status"]);
+	const id_integra_sessao = parseInt(req.query["id"] as string);
+	const status_integra = parseInt(req.query["status"] as string);
 	if (!id_integra_sessao || isNaN(id_integra_sessao) || id_integra_sessao <= 0)
 		res.status(400).json("Id inválido");
 	else if (status_integra !== Sessao.STATUS_PENDENTE && status_integra !== Sessao.STATUS_APROVADO && status_integra !== Sessao.STATUS_REPROVADO)

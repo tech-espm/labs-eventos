@@ -20,7 +20,7 @@ router.all("/alterar", wrap(async (req: express.Request, res: express.Response) 
 	if (!u || !u.admin) {
 		res.redirect("/acesso");
 	} else {
-		let id = parseInt(req.query["id"]);
+		let id = parseInt(req.query["id"] as string);
 		let item: Local = null;
 		if (isNaN(id) || !(item = await Local.obter(id)))
 			res.render("home/nao-encontrado", { usuario: u });

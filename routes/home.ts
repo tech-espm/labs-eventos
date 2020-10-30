@@ -14,8 +14,6 @@ const router = express.Router();
 router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u) {
-		res.cookie("participanteEvt", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
-
 		// Não é mais permitido fazer login no sistema utilizando sem ser via integração com o CAS.
 		//
 		//if (req.body.login || req.body.senha) {
@@ -26,7 +24,7 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		//	else
 		//		res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });
 		//} else {
-			res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, loginUrl: appsettings.loginUrl });
+			res.render("home/login", { layout: "layout-externo", imagemFundo: true, mensagem: null, loginUrl: appsettings.loginAdminUrl });
 		//}
 	} else {
 		res.render("home/index", { usuario: u, listaEventos: JSON.stringify(await Evento.listarDeUsuarioPorTipo(u.id, u.admin)) });

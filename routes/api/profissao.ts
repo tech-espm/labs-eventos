@@ -12,7 +12,7 @@ router.get("/listar", wrap(async (req: express.Request, res: express.Response) =
 }));
 
 router.get("/obter", wrap(async (req: express.Request, res: express.Response) => {
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	res.json(isNaN(id) ? null : await Profissao.obter(id));
 }));
 
@@ -42,7 +42,7 @@ router.get("/excluir", wrap(async (req: express.Request, res: express.Response) 
 	let u = await Usuario.cookie(req, res, true);
 	if (!u)
 		return;
-	let id = parseInt(req.query["id"]);
+	let id = parseInt(req.query["id"] as string);
 	jsonRes(res, 400, isNaN(id) ? "Dados inválidos!" : await Profissao.excluir(id));
 }));
 
