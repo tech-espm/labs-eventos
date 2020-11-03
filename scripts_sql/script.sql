@@ -113,7 +113,7 @@ CREATE TABLE local (
   CONSTRAINT idunidade_FK FOREIGN KEY (idunidade) REFERENCES unidade (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-INSERT INTO local (nome, idunidade, capacidade_real) VALUES ('A Definir', 1, 1), ('Online', -1, 9999999);
+INSERT INTO local (nome, idunidade, capacidade_real, id_integra) VALUES ('A Definir', 1, 1, ''), ('Online', -1, 9999999, '');
 UPDATE local SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS evento;
