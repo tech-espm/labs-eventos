@@ -77,6 +77,8 @@ CREATE TABLE tipoempresa (
   UNIQUE KEY nome_UN (nome)
 );
 
+INSERT INTO tipoempresa (nome, nome_site) VALUES ('APOIADORA', 'APOIADORA');
+
 -- DROP TABLE IF EXISTS vertical;
 CREATE TABLE vertical (
   id int NOT NULL AUTO_INCREMENT,
