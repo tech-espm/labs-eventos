@@ -201,7 +201,7 @@ CREATE TABLE eventopalestrante (
   nome_curto varchar(45) NOT NULL,
   email varchar(100) NOT NULL,
   oculto tinyint(4) NOT NULL,
-  liberado tinyint(4) NOT NULL,
+  confirmado tinyint(4) NOT NULL,
   prioridade tinyint(4) NOT NULL,
   cargo varchar(45) NOT NULL,
   url_site varchar(100) NOT NULL,
