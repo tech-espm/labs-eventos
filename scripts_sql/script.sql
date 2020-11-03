@@ -97,7 +97,7 @@ CREATE TABLE unidade (
   UNIQUE KEY sigla_UN (sigla)
 );
 
-INSERT INTO unidade (nome, sigla) VALUES ('A Definir', '-'), ('Virtual', 'VIRTUAL');
+INSERT INTO unidade (nome, sigla, id_integra) VALUES ('A Definir', '-', 0), ('Virtual', 'VIRTUAL', 0);
 UPDATE unidade SET id = -1 WHERE id = 2;
 
 -- DROP TABLE IF EXISTS local;
