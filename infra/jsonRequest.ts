@@ -4,7 +4,7 @@ import JSONResponse = require("./jsonResponse");
 import { URL } from "url";
 
 export = class JSONRequest {
-	private static async send(method: string, url: string, jsonBody: string): Promise<JSONResponse> {
+	private static async send(method: string, url: string, jsonBody: string, headers: any): Promise<JSONResponse> {
 		return new Promise<JSONResponse>((resolve, reject) => {
 			try {
 				const u = new URL(url);
@@ -19,8 +19,14 @@ export = class JSONRequest {
 							"Accept": "application/json"
 						}
 					};
+
 					if (jsonBody)
 						options.headers["Content-Type"] = "application/json";
+
+					if (headers) {
+						for (let h in headers)
+							options.headers[h] = headers[h];
+					}
 
 					const httpreq = https.request(options, function (response) {
 						let json = "";
@@ -52,8 +58,14 @@ export = class JSONRequest {
 							"Accept": "application/json"
 						}
 					};
+
 					if (jsonBody)
 						options.headers["Content-Type"] = "application/json";
+
+					if (headers) {
+						for (let h in headers)
+							options.headers[h] = headers[h];
+					}
 
 					const httpreq = http.request(options, function (response) {
 						let json = "";
@@ -82,19 +94,19 @@ export = class JSONRequest {
 		});
 	}
 
-	public static async get(url: string): Promise<JSONResponse> {
-		return JSONRequest.send("GET", url, null);
+	public static async get(url: string, headers?: any): Promise<JSONResponse> {
+		return JSONRequest.send("GET", url, null, headers);
 	}
 
-	public static async delete(url: string): Promise<JSONResponse> {
-		return JSONRequest.send("DELETE", url, null);
+	public static async delete(url: string, headers?: any): Promise<JSONResponse> {
+		return JSONRequest.send("DELETE", url, null, headers);
 	}
 
-	public static async post(url: string, jsonBody: string): Promise<JSONResponse> {
-		return JSONRequest.send("POST", url, jsonBody);
+	public static async post(url: string, jsonBody: string, headers?: any): Promise<JSONResponse> {
+		return JSONRequest.send("POST", url, jsonBody, headers);
 	}
 
-	public static async put(url: string, jsonBody: string): Promise<JSONResponse> {
-		return JSONRequest.send("PUT", url, jsonBody);
+	public static async put(url: string, jsonBody: string, headers?: any): Promise<JSONResponse> {
+		return JSONRequest.send("PUT", url, jsonBody, headers);
 	}
 }
