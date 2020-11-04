@@ -189,7 +189,7 @@
 							linha += '<br/><a href="<%-urlInscricao %>' + s.id + '" class="btn btn-outline btn-primary" target="_blank"><i class="fa fa-check"></i>Quero me inscrever!</a>';
 						}
 					} else {
-						linha += '<br/><span class="btn btn-outline btn-primary free"><i class="fa fa-check"></i>Livre de inscrição!</span>';
+						linha += '<br/><span class="btn btn-outline btn-danger free"><i class="fa fa-times"></i>Inscrições Encerradas!</span>';
 					}
 				}
 				linha += '</div><div class="col-sm-5">' + s.data + '<br/>' + gerarBadgeSalaSessao(s);
@@ -422,7 +422,7 @@
 					}
 				}
 			} else {
-				htmlTemp += '<span class="btn btn-outline btn-primary btn-lg free"><i class="fa fa-check"></i>Livre de inscrição!</span>';
+				htmlTemp += '<span class="btn btn-outline btn-danger btn-lg free"><i class="fa fa-times"></i>Inscrições Encerradas!</span>';
 			}
 		}
 
