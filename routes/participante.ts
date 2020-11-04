@@ -18,7 +18,7 @@ router.all("/login/:e?/:s?", wrap(async (req: express.Request, res: express.Resp
 	// a tela de gerenciamento de inscrições e certificados
 	if (!e)
 		e = "home";
-	const queryString = (s ? ("?e=" + e + "&s=" + s) : ("?e=" + e));
+	const queryString = encodeURIComponent(s ? ("?e=" + e + "&s=" + s) : ("?e=" + e));
 	if (p) {
 		res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 		res.redirect((e === "home") ? "/participante" : (s ? (senhapresenca ? ("/participante/p/" + e + "/" + s + "/" + senhapresenca) : ("/participante/inscricao/" + e + "/" + s)) : ("/" + e)));
