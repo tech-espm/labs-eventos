@@ -51,18 +51,18 @@ router.all("/inscricao/:e/:s", wrap(async (req: express.Request, res: express.Re
 			let r = Evento.permiteParticipante(evento, p.tipo);
 
 			if (r) {
-				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: r, participante: p });
+				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: r, participante: p, analytics: true });
 				return;
 			}
 
 			r = await Sessao.inscrever(sid, evento.id, p.id);
 
 			if (r)
-				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: r, participante: p });
+				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: r, participante: p, analytics: true });
 			else
-				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Sucesso na Inscrição", mensagem: "Inscrição efetuada com sucesso", participante: p, sucesso: true });
+				res.render("participante/mensagem", { layout: "layout-participante", titulo: "Sucesso na Inscrição", mensagem: "Inscrição efetuada com sucesso", participante: p, analytics: true, sucesso: true });
 		} else {
-			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: "Não foi possível encontrar o evento selecionado", participante: p });
+			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Erro", mensagem: "Não foi possível encontrar o evento selecionado", participante: p, analytics: true });
 		}
 	} else {
 		res.redirect("/participante/login/" + e + "/" + s);
