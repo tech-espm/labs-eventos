@@ -92,7 +92,7 @@
 	border-left: 4px solid transparent;
 }
 
-#side-menu > li > a:focus, #side-menu > li > a:hover, #side-menu > li.active > a {
+#side-menu > li > a:focus, #side-menu > li > a:hover, #side-menu > li.active > a, #side-menu > li > a.active {
 	border-left-color: #6bf;
 }
 
