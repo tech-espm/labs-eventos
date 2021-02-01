@@ -13,9 +13,9 @@
 				"${workspaceFolder}/node_modules/**",
 				"${workspaceFolder}/public/**"
 			],
-			"program": "${workspaceFolder}\\app.js",
+			"program": "${workspaceFolder}\\src\\app.js",
 			"outFiles": [
-				"${workspaceFolder}/**/*.js"
+				"${workspaceFolder}/src/**/*.js"
 			],
 			"windows": {
 				"env": {

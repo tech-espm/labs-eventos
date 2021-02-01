@@ -13,7 +13,7 @@ export = class FS {
 	private static descobrirAppPath(): string {
 		// Vamos apenas retornar o caminho da pasta pai (assumindo que
 		// fs.js esteja em um diretório que é filho direto da raiz)
-		let caminho = path.dirname(__filename);
+		let caminho = path.join(__dirname, "../");
 		if (caminho.endsWith(path.sep)) {
 			let i = caminho.lastIndexOf(path.sep, caminho.length - 2);
 			caminho = caminho.substr(0, i + 1);

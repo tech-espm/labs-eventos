@@ -34,14 +34,15 @@ import Participante = require("./models/participante");
 // já processadas, por ordem de uso
 import ejs = require("ejs");
 import lru = require("lru-cache");
-ejs.cache = lru(200);
+ejs.cache = new lru(200);
 
 const app = express();
 
 app.locals = {
 	// Essa urlBase é *DIFERENTE* da urlBase utilizada nas landing pages!
 	urlBase: appsettings.urlBase,
-	root: appsettings.root
+	root: appsettings.root,
+	staticRoot: appsettings.root + "/public",
 };
 
 // Não queremos o header X-Powered-By
@@ -49,25 +50,28 @@ app.disable("x-powered-by");
 // Não queremos o header ETag nas views
 app.disable("etag");
 
-app.use(cookieParser());
-
 //import Usuario = require("./models/usuario");
 // Parei de usar Usuario.pegarDoCookie como middleware, porque existem muitas requests
 // que não precisam validar o usuário logado...
 //app.use(Usuario.pegarDoCookie); // Coloca o parser de usuário depois do cookie, pois ele usa os cookies
 
-// Explica para o express qual será o diretório de onde serviremos os
-// arquivos estáticos (js, css, imagens etc...)
-app.use(express.static(path.join(__dirname, "public"), {
-	cacheControl: true,
-	etag: false,
-	maxAge: "30d"
-}));
+if (!appsettings.pm2) {
+	// Explica para o express qual será o diretório de onde serviremos os
+	// arquivos estáticos (js, css, imagens etc...)
+	app.use("/public", express.static(path.join(__dirname, "../public"), {
+		cacheControl: true,
+		etag: false,
+		maxAge: "30d"
+	}));
+}
+
+app.use(cookieParser());
+
 app.use(express.json()); // http://expressjs.com/en/api.html#express.json
 app.use(express.urlencoded({ extended: true })); // http://expressjs.com/en/api.html#express.urlencoded
 
 // Configura o diretório de onde tirar as views
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "../views"));
 // @@@ Define o view engine como o ejs e importa o express-ejs-layouts
 // https://www.npmjs.com/package/express-ejs-layouts, pois o ejs não
 // suporta layouts nativamente: https://www.npmjs.com/package/ejs#layouts
@@ -234,7 +238,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					mensagemrodape: evento.mensagemrodape,
 					url: req.path,
 					// Essa urlBase é *DIFERENTE* da urlBase utilizada nas landing pages!
-					urlBase: "/evt/" + evento.id + "/",
+					urlBase: "/public/evt/" + evento.id + "/",
 					urlInscricao: "/participante/inscricao" + req.path + "/",
 					urlParticipante: "/participante",
 					inscricoes: (evento.permiteinscricao ? await Evento.listarInscricoes(evento.id) : []),

@@ -212,7 +212,7 @@
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),
 			tab = $(idTab),
-			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"<%- root %>/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
+			htmlAguarde = "<div class=\"panel panel-default panel-body text-center\"><img alt=\"Aguarde\" src=\"<%- staticRoot %>/imagens/loading-grey-t.gif\"> Por favor, aguarde...</div>",
 			htmlErro = "<div class=\"alert alert-danger\">Algo deu errado durante o carregamento. Por favor, tente novamente em alguns instantes.</div>";
 
 		a[0].setAttribute("data-aba-ok", "");

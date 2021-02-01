@@ -114,7 +114,7 @@ export = class Evento {
 	}
 
 	public static caminhoAbsolutoExterno(id: number): string {
-		return "/evt/" + id;
+		return "/public/evt/" + id;
 	}
 
 	private static validar(ev: Evento): string {

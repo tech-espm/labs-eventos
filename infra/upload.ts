@@ -6,7 +6,7 @@ import FS = require("./fs");
 export = class Upload {
 	public static async gravarArquivoDeForm(expressRequest: express.Request, expressResponse: express.Response, caminhoRelativoPasta: string, nomeArquivo: string, tamanhoMaximoArquivoEmBytes: number, campoArquivoNoForm: string): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
-			let caminhoAbsolutoPasta;
+			let caminhoAbsolutoPasta: string;
 			try {
 				caminhoAbsolutoPasta = FS.gerarCaminhoAbsoluto(caminhoRelativoPasta);
 			} catch (e) {
@@ -83,7 +83,7 @@ export = class Upload {
 						return;
 					}
 
-					fs.writeFile(caminhoAbsolutoArquivo, [], (err) => {
+					fs.writeFile(caminhoAbsolutoArquivo, "", (err) => {
 						if (err)
 							reject(err);
 						else

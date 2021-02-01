@@ -11,7 +11,7 @@ export = class JSONRequest {
 
 				if (u.protocol === "https:") {
 					let options: https.RequestOptions = {
-						host: u.host,
+						host: u.hostname || u.host, // host inclui a porta, hostname, não
 						port: (u.port || 443),
 						path: (u.search ? (u.pathname + u.search) : u.pathname),
 						method: method,
@@ -50,7 +50,7 @@ export = class JSONRequest {
 					httpreq.end();
 				} else {
 					const options: http.RequestOptions = {
-						host: u.host,
+						host: u.hostname || u.host, // host inclui a porta, hostname, não
 						port: (u.port || 80),
 						path: (u.search ? (u.pathname + u.search) : u.pathname),
 						method: method,

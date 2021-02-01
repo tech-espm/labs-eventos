@@ -58,7 +58,7 @@ export = class Palestrante {
 	}
 
 	public static caminhoAbsolutoPastaExterno(idevento: number): string {
-		return `/evt/${idevento}/palestrantes`;
+		return `/public/evt/${idevento}/palestrantes`;
 	}
 
 	public static caminhoRelativoArquivo(idevento: number, id: number): string {
@@ -66,7 +66,7 @@ export = class Palestrante {
 	}
 
 	public static caminhoAbsolutoArquivoExterno(idevento: number, id: number, versao: number): string {
-		return `/evt/${idevento}/palestrantes/${id}.${Palestrante.extensaoImagem}?v=${versao}`;
+		return `/public/evt/${idevento}/palestrantes/${id}.${Palestrante.extensaoImagem}?v=${versao}`;
 	}
 
 	private static validar(p: Palestrante): string {

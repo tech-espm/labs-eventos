@@ -21,7 +21,7 @@ export = class Empresa {
 	}
 
 	public static caminhoAbsolutoPastaExterno(idevento: number): string {
-		return `/evt/${idevento}/empresas`;
+		return `/public/evt/${idevento}/empresas`;
 	}
 
 	public static caminhoRelativoArquivo(idevento: number, id: number): string {
@@ -29,7 +29,7 @@ export = class Empresa {
 	}
 
 	public static caminhoAbsolutoArquivoExterno(idevento: number, id: number, versao: number): string {
-		return `/evt/${idevento}/empresas/${id}.${Empresa.extensaoImagem}?v=${versao}`;
+		return `/public/evt/${idevento}/empresas/${id}.${Empresa.extensaoImagem}?v=${versao}`;
 	}
 
 	private static validar(e: Empresa): string {
