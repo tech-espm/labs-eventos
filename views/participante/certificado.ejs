@@ -7,12 +7,12 @@
 		return format2((x / 100) | 0) + ":" + format2(x % 100);
 	}
 
-	var duracaoTotal = 0,
+	var duracaoTotal = 0, totalAcom = 0,
 		meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
 		linhaData = evento.cidade + ", ";
 
 	(function () {
-		var i, presenca, partes, duracao;
+		var i, presenca, partes, duracao, acomminutos;
 
 		if (presencas[0].data) {
 			for (i = 0; i < presencas.length; i++) {
@@ -39,18 +39,21 @@
 		for (i = 0; i < presencas.length; i++) {
 			presenca = presencas[i];
 
-			duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
-
 			// Para poder mostrar hora(s) sem problemas de arredondamento, inclusive na soma total
-			duracao = parseFloat(duracao.toFixed(1));
+			// (O correto seria fazer / 60, mas fazemos * 10 / 60 para truncar com uma casa, então fica só / 6)
+			duracao = ((((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 6) | 0;
+			acomminutos = (presenca.acomminutos / 6) | 0;
 
-			presenca.duracao = duracao;
+			presenca.duracao = duracao / 10;
+			presenca.acomminutos = acomminutos / 10;
 
 			duracaoTotal += duracao;
+			totalAcom += acomminutos;
 		}
 
 		// Para poder mostrar hora(s) sem problemas de arredondamento
-		duracaoTotal = parseFloat(duracaoTotal.toFixed(1));
+		duracaoTotal /= 10;
+		totalAcom /= 10;
 	})();
 
 	var linha1, linha2;
@@ -107,12 +110,12 @@
 				<th class="col-min text-center">Término</th>
 				<th class="col-min text-center">Duração (h)</th>
 				<% if (!palestrante) { %>
-				<th class="col-min text-center">ACOM</th>
+				<th class="col-min text-center">ACOM (h)</th>
 				<% } %>
 			</tr>
 		</thead>
 		<tbody>
-			<% var totalAcom = 0; for (var i = 0; i < presencas.length; i++) { var presenca = presencas[i]; if (presenca.permiteacom) { totalAcom += presenca.duracao; } %>
+			<% for (var i = 0; i < presencas.length; i++) { var presenca = presencas[i]; %>
 			<tr>
 				<td class="text-left"><%=presenca.nome %></td>
 				<td class="col-min text-center"><%-(presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) %></td>
@@ -120,7 +123,7 @@
 				<td class="col-min text-center"><%=formatHourDec(presenca.termino) %></td>
 				<td class="col-min text-center"><%-(presenca.duracao.toFixed(1).replace(".", ",")) %></td>
 				<% if (!palestrante) { %>
-				<td class="col-min text-center"><%-(presenca.permiteacom ? "SIM" : "NÃO") %></td>
+				<td class="col-min text-center"><%-(presenca.acomminutos.toFixed(1).replace(".", ",")) %></td>
 				<% } %>
 			</tr>
 			<% } %>

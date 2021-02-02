@@ -1,116 +1,174 @@
-﻿<div class="row">
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'hidden') %>">
-		<div class="form-group">
-			<label for="cbSessaoSugestao">Sugestão</label>
-			<select id="cbSessaoSugestao" name="cbSessaoSugestao" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
-		</div>
+﻿<div class="<%- (usuario ? 'panel panel-default' : 'hidden') %>">
+	<div class="panel-heading">
+		Administração
 	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="txtSessaoData"><%- (usuario ? "Data" : "Sugestão de Data") %></label>
-			<input id="txtSessaoData" name="txtSessaoData" class="form-control" type="text" spellcheck="false" maxlength="11" />
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="txtSessaoInicio"><%- (usuario ? "Horário de Início" : "Sugestão de Horário de Início") %></label>
-			<input id="txtSessaoInicio" name="txtSessaoInicio" class="form-control" type="text" spellcheck="false" maxlength="5" />
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-xs-6 col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="txtSessaoTermino"><%- (usuario ? "Horário de Término" : "Sugestão de Horário de Término") %></label>
-			<input id="txtSessaoTermino" name="txtSessaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
-		</div>
-	</div>
-</div>
-<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-	<label for="cbSessaoLocal">Local</label>
-	<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control" size="1"><option value="">SELECIONE...</option></select>
-</div>
-<div class="form-group" id="divSessaoUrlRemota" style="display: none;">
-	<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
-	<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
-</div>
-<div class="form-group">
-	<label for="txtSessaoNome">Nome</label>
-	<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
-</div>
-<div class="row">
-	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="txtSessaoNomeCurto">Nome Curto</label>
-			<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-sm-3' : 'hidden') %>">
-		<div class="form-group">
-			<label for="cbSessaoOculta">Oculta</label>
-			<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
-			<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
-		</div>
-	</div>
-	<div class="<%- (usuario ? 'col-sm-3' : 'col-sm-4') %>">
-		<div class="form-group">
-			<label for="cbSessaoPermiteAcom">Permite ACOM</label>
-			<select id="cbSessaoPermiteAcom" name="cbSessaoPermiteAcom" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
+	<div class="panel-body no-bottom">
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="form-group">
+					<label for="cbSessaoSugestao">Sugestão</label>
+					<select id="cbSessaoSugestao" name="cbSessaoSugestao" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="form-group">
+					<label for="cbSessaoOculta">Oculta</label>
+					<select id="cbSessaoOculta" name="cbSessaoOculta" class="form-control upper" size="1"><option value="0">NÃO</option><option value="1">SIM</option></select>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<label for="txtSessaoSenhaControle">Senha de Controle de Presença</label>
+				<div class="input-group">
+					<input id="txtSessaoSenhaControle" name="txtSessaoSenhaControle" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" />
+					<span class="input-group-btn">
+						<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('txtSessaoSenhaControleIcon').className = (_('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('txtSessaoSenhaControle').setAttribute('type', _('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="txtSessaoSenhaControleIcon" class="fa fa-nomargin fa-eye"></i></button>
+					</span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="row">
-	<div class="col-sm-3">
-		<div class="form-group">
-			<label for="cbSessaoCurso">Âncora</label>
-			<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Data e Hora
+	</div>
+	<div class="panel-body no-bottom">
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="form-group">
+					<label for="txtSessaoData"><%- (usuario ? "Data" : "Sugestão de Data") %></label>
+					<input id="txtSessaoData" name="txtSessaoData" class="form-control" type="text" spellcheck="false" maxlength="11" />
+				</div>
+			</div>
+			<div class="col-xs-6 col-sm-4">
+				<div class="form-group">
+					<label for="txtSessaoInicio"><%- (usuario ? "Horário de Início" : "Sugestão de Horário de Início") %></label>
+					<input id="txtSessaoInicio" name="txtSessaoInicio" class="form-control" type="text" spellcheck="false" maxlength="5" />
+				</div>
+			</div>
+			<div class="col-xs-6 col-sm-4">
+				<div class="form-group">
+					<label for="txtSessaoTermino"><%- (usuario ? "Horário de Término" : "Sugestão de Horário de Término") %></label>
+					<input id="txtSessaoTermino" name="txtSessaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="col-sm-3">
-		<div class="form-group">
-			<label for="cbSessaoFormato">Formato</label>
-			<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Nome e Local
+	</div>
+	<div class="panel-body no-bottom">
+		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+			<label for="cbSessaoLocal">Local</label>
+			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control" size="1"><option value="">SELECIONE...</option></select>
+		</div>
+		<div class="form-group" id="divSessaoUrlRemota" style="display: none;">
+			<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
+			<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
+		</div>
+		<div class="row">
+			<div class="col-sm-9">
+				<div class="form-group">
+					<label for="txtSessaoNome">Nome</label>
+					<input id="txtSessaoNome" name="txtSessaoNome" type="text" class="form-control" maxlength="100" />
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="txtSessaoNomeCurto">Nome Curto</label>
+					<input id="txtSessaoNomeCurto" name="txtSessaoNomeCurto" type="text" class="form-control" maxlength="45" />
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="col-sm-3">
-		<div class="form-group">
-			<label for="cbSessaoTipo">Tipo de Sessão</label>
-			<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Inscrição e Horas ACOM
+	</div>
+	<div class="panel-body no-bottom">
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
+					<select id="cbSessaoPermiteInscricao" name="cbSessaoPermiteInscricao" class="form-control upper" size="1"><option value="1" selected="selected">SIM</option><option value="0">NÃO</option></select>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="txtSessaoAcomMinutos">Quantidade de Horas ACOM</label>
+					<input id="txtSessaoAcomMinutos" name="txtSessaoAcomMinutos" class="form-control upper" type="text" />
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="form-group">
+					A quantidade de horas ACOM a ser creditada em caso de presença é independente da duração da sessão. <b>Por favor, preencha com 0 caso a sessão não permita crédito de horas ACOM</b>.
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="col-sm-3">
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Informações Extras para a Landing Page
+	</div>
+	<div class="panel-body no-bottom">
 		<div class="form-group">
-			<label for="cbSessaoVertical">Vertical</label>
-			<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+			<label for="txtSessaoDescricao">Descrição</label>
+			<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
+		</div>
+		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
+			<label for="txtSessaoMensagemEsgotada">Mensagem de Sessão Esgotada</label>
+			<textarea id="txtSessaoMensagemEsgotada" name="txtSessaoMensagemEsgotada" class="form-control" maxlength="250" rows="4"></textarea>
+		</div>
+		<div class="form-group">
+			<label for="txtSessaoTags">Tags <small>(Separadas por vírgula)</small></label>
+			<input id="txtSessaoTags" name="txtSessaoTags" type="text" class="form-control upper" maxlength="100" />
 		</div>
 	</div>
 </div>
-<div class="form-group">
-	<label for="txtSessaoDescricao">Descrição</label>
-	<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
-</div>
-<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-	<label for="txtSessaoMensagemEsgotada">Mensagem de Sessão Esgotada</label>
-	<textarea id="txtSessaoMensagemEsgotada" name="txtSessaoMensagemEsgotada" class="form-control" maxlength="250" rows="4"></textarea>
-</div>
-<div class="form-group">
-	<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
-	<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control" maxlength="100" />
-</div>
-<div class="form-group">
-	<label for="txtSessaoTags">Tags <small>(Separadas por vírgula)</small></label>
-	<input id="txtSessaoTags" name="txtSessaoTags" type="text" class="form-control upper" maxlength="100" />
-</div>
-<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
-	<label for="txtSessaoSenhaControle">Senha de Controle de Presença</label>
-	<div class="input-group">
-		<input id="txtSessaoSenhaControle" name="txtSessaoSenhaControle" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" />
-		<span class="input-group-btn">
-			<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('txtSessaoSenhaControleIcon').className = (_('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('txtSessaoSenhaControle').setAttribute('type', _('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="txtSessaoSenhaControleIcon" class="fa fa-nomargin fa-eye"></i></button>
-		</span>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Metainformações
+	</div>
+	<div class="panel-body no-bottom">
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="cbSessaoCurso">Âncora</label>
+					<select id="cbSessaoCurso" name="cbSessaoCurso" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="cbSessaoFormato">Formato</label>
+					<select id="cbSessaoFormato" name="cbSessaoFormato" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="cbSessaoTipo">Tipo de Sessão</label>
+					<select id="cbSessaoTipo" name="cbSessaoTipo" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label for="cbSessaoVertical">Vertical</label>
+					<select id="cbSessaoVertical" name="cbSessaoVertical" class="form-control upper" size="1"><option value="">SELECIONE...</option></select>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="txtSessaoPublicoAlvo">Público-Alvo</label>
+			<input id="txtSessaoPublicoAlvo" name="txtSessaoPublicoAlvo" type="text" class="form-control" maxlength="100" />
+		</div>
 	</div>
 </div>
 
@@ -174,7 +232,7 @@
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoSugestao").val(sessao ? sessao.sugestao : "0");
 			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
-			$("#cbSessaoPermiteAcom").val(sessao ? sessao.permiteacom : "1");
+			$("#txtSessaoAcomMinutos").val(sessao ? (sessao.acomminutos / 60).toFixed(1).replace(".", ",") : "");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
 			preencherCb(_("cbSessaoTipo"), eventoTipoSessoes, sessao ? sessao.idtiposessao : "0");
@@ -251,8 +309,9 @@
 				txtSessaoDescricao: {
 					maxlength: 200
 				},
-				cbSessaoPermiteAcom: {
-					required: true
+				txtSessaoAcomMinutos: {
+					required: true,
+					numeroDecimal: true
 				},
 				cbSessaoOculta: {
 					required: true
@@ -317,7 +376,7 @@
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					sugestao: parseInt($("#cbSessaoSugestao").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
-					permiteacom: parseInt($("#cbSessaoPermiteAcom").val()),
+					acomminutos: (parseFloat($("#txtSessaoAcomMinutos").val().replace(",", ".")) * 60) | 0,
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
 					idtiposessao: parseInt($("#cbSessaoTipo").val()),
@@ -384,7 +443,7 @@
 							sessao.oculta = s.oculta;
 							sessao.sugestao = s.sugestao;
 							sessao.permiteinscricao = s.permiteinscricao;
-							sessao.permiteacom = s.permiteacom;
+							sessao.acomminutos = s.acomminutos;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;
 							sessao.idtiposessao = s.idtiposessao;
@@ -418,7 +477,7 @@
 							// <% if (usuario) { %>
 
 							_("cbSessaoPermiteInscricao").value = "1";
-							_("cbSessaoPermiteAcom").value = "1";
+							_("txtSessaoAcomMinutos").value = "";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value[0]);
@@ -460,6 +519,7 @@
 		prepareDatePickerNumber("#txtSessaoData");
 		$("#txtSessaoInicio").mask("00:00");
 		$("#txtSessaoTermino").mask("00:00");
+		$("#txtSessaoAcomMinutos").mask("0000,0", { reverse: true });
 		$("#txtSessaoSenhaControle").mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9_\-]/, optional: true } } });
 
 		//<% if (!usuario) { %>

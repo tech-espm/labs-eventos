@@ -207,7 +207,7 @@
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
 				{ title: "Âncora", render: encode, data: "nome_curso" },
-				{ title: "ACOM", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.permiteacom ? "ACOM" : "-"); } },
+				{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } },
 				{ title: "Formato", render: encode, data: "nome_formato" },
 				{ title: "Tipo", render: encode, data: "nome_tipo" },
 				{ title: "Vertical", render: encode, data: "nome_vertical" },
@@ -705,7 +705,7 @@
 							{ title: "E-mail", render: encode, data: "email" },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
 							{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? "SIM" : "NÃO"); } },
-							{ title: "ACOM", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.permiteacom ? "SIM" : "NÃO"); } }
+							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: function (row, type, set, meta) { return (row.presente ? row.acomminutos : 0); }, _: function (row, type, set, meta) { return (row.presente ? (row.acomminutos / 60) : 0).toFixed(1).replace(".", ","); } } }
 						],
 						data: presencas,
 						export: { title: "Participantes e Presenças" }

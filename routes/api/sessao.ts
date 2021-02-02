@@ -49,7 +49,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
-		s.permiteacom = parseInt(req.body.permiteacom);
+		s.acomminutos = parseInt(req.body.acomminutos);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
@@ -89,7 +89,7 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
 		s.termino = parseInt((req.body.termino || "").replace(":", ""));
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
-		s.permiteacom = parseInt(req.body.permiteacom);
+		s.acomminutos = parseInt(req.body.acomminutos);
 		s.oculta = 0;
 		s.sugestao = 1;
 	}
@@ -125,7 +125,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
-		s.permiteacom = parseInt(req.body.permiteacom);
+		s.acomminutos = parseInt(req.body.acomminutos);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
