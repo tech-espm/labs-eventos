@@ -245,10 +245,17 @@ CREATE TABLE eventosessao (
   senhacontrole varchar(45) NOT NULL,
   senhapresenca varchar(45) NOT NULL,
   mensagemesgotada varchar(250) NOT NULL,
+  -- TIPOMULTIDATA_NENHUM = 0
+  -- TIPOMULTIDATA_MINIMO_EXIGIDO = 1
+  -- TIPOMULTIDATA_PROPORCIONAL = 2
+  tipomultidata tinyint(4) NOT NULL,
+  presencaminima tinyint(4) NOT NULL,
+  encontrostotais tinyint(4) NOT NULL,
   id_integra bigint NOT NULL,
   status_integra tinyint(4) NOT NULL,
   PRIMARY KEY (id),
   KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
+  KEY datainiciotermino_eventosessao_FK_idx (data,inicio,termino),
   KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),
   KEY idcurso_eventosessao_FK_idx (idcurso),
   KEY ideventolocal_eventosessao_FK_idx (ideventolocal),
@@ -280,6 +287,20 @@ CREATE TABLE eventosessaopalestrante (
   CONSTRAINT idevento_eventosessaopalestrante_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT ideventosessao_eventosessaopalestrante_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT ideventopalestrante_eventosessaopalestrante_FK FOREIGN KEY (ideventopalestrante) REFERENCES eventopalestrante (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+-- DROP TABLE IF EXISTS eventosessaomultidata;
+CREATE TABLE eventosessaomultidata (
+  id bigint NOT NULL AUTO_INCREMENT,
+  idevento int NOT NULL,
+  ideventosessao int NOT NULL,
+  data datetime NOT NULL,
+  inicio smallint NOT NULL,
+  termino smallint NOT NULL,
+  PRIMARY KEY (id),
+  KEY ideventosessaodata_eventosessaomultidata_FK_idx (ideventosessao,data),
+  KEY datainiciotermino_eventosessaomultidata_FK_idx (data,inicio,termino),
+  CONSTRAINT ideventosessao_eventosessaomultidata_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
 -- DROP TABLE IF EXISTS eventousuario;
@@ -324,15 +345,29 @@ CREATE TABLE eventosessaoparticipante (
   idevento int NOT NULL, -- Para acelerar as buscas e contagens, sem utilizar JOIN's
   ideventosessao int NOT NULL,
   idparticipante int NOT NULL,
-  presente tinyint(4) NOT NULL,
+  creditaracom tinyint(4) NOT NULL,
+  encontrospresentes tinyint(4) NOT NULL,
   data_inscricao datetime NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (idevento,ideventosessao,idparticipante),
-  KEY ideventosessao_FK_idx (ideventosessao),
   KEY idparticipante_FK_idx (idparticipante),
   KEY idevento_idparticipante_idx (idevento, idparticipante),
+  KEY ideventosessao_idparticipante_idx (ideventosessao, idparticipante),
   CONSTRAINT ideventosessao_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idparticipante_FK FOREIGN KEY (idparticipante) REFERENCES participante (id) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+-- DROP TABLE IF EXISTS eventosessaoparticipantemultidata;
+CREATE TABLE eventosessaoparticipantemultidata (
+  id bigint NOT NULL AUTO_INCREMENT,
+  ideventosessaoparticipante bigint NOT NULL,
+  data_presenca datetime NOT NULL,
+  ideventosessao int NOT NULL,
+  idparticipante int NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY ideventosessaoparticipante_data_presenca_multidata_UN (ideventosessaoparticipante, data_presenca),
+  KEY ideventosessao_idparticipante_multidata_idx (ideventosessao, idparticipante),
+  CONSTRAINT ideventosessaoparticipante_multidata_FK FOREIGN KEY (ideventosessaoparticipante) REFERENCES eventosessaoparticipante (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
 -- DROP TABLE IF EXISTS eventosessaoavaliacao;

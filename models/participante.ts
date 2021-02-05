@@ -4,10 +4,17 @@ import express = require("express");
 import lru = require("lru-cache");
 import nodemailer = require("nodemailer");
 import Sql = require("../infra/sql");
-import Cas = require("../models/cas");
+import Cas = require("./cas");
 import GeradorHash = require("../utils/geradorHash");
 import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
+import ajustarACOMMinutos = require("../utils/ajustarACOMMinutos");
+import converterDataISOParaPtBr = require("../utils/converterDataISOParaPtBr");
+import preencherMultidatas = require("../utils/preencherMultidatas");
+import formatar2 = require("../utils/formatar2");
+import SessaoConstantes = require("./sessaoConstantes");
+import { list } from "pm2";
+import converterDataISO = require("../utils/converterDataISO");
 
 export = class Participante {
 	private static readonly HashId = appsettings.participanteHashId;
@@ -302,40 +309,117 @@ export = class Participante {
 		return (lista || []);
 	}
 
-	public static async listarInscricoes(idparticipante: number, idevento: number): Promise<any[]> {
+	private static async preencherMultipresencas(sql: Sql, idparticipante: number, lista: any[]): Promise<any[]> {
+		if (lista && lista.length) {
+			for (let i = lista.length - 1; i >= 0; i--) {
+				const s = lista[i];
+				if (s.tipomultidata)
+					s.multipresencas = await sql.query("select date_format(data_presenca, '%d/%m/%Y') data from eventosessaoparticipantemultidata where ideventosessao = " + s.ideventosessao + " and idparticipante = " + idparticipante);
+			}
+		}
+
+		return lista;
+	}
+
+	public static async listarMinhasInscricoes(idparticipante: number, idevento: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select p.id, s.nome, s.tags, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.url_remota, l.id idlocal, l.nome nome_local, el.cor, u.id idunidade, u.nome nome_unidade, p.presente, a.avaliacao from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante);
+			lista = await Participante.preencherMultipresencas(sql, idparticipante, await preencherMultidatas(sql, await sql.query("select p.id, s.id ideventosessao, s.nome, s.tags, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.url_remota, l.id idlocal, l.nome nome_local, el.cor, u.id idunidade, u.nome nome_unidade, p.creditaracom, a.avaliacao, s.tipomultidata, s.presencaminima, s.encontrostotais, p.encontrospresentes from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade left join eventosessaoavaliacao a on a.ideventosessaoparticipante = p.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante), false));
 		});
 
 		return (lista || []);
 	}
 
-	public static async listarPresencas(idparticipante: number, idevento: number): Promise<any[]> {
+	public static async listarPresencasParaCertificado(idparticipante: number, idevento: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.acomminutos from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.presente = 1");
+			lista = ajustarACOMMinutos(await Participante.preencherMultipresencas(sql, idparticipante, await preencherMultidatas(sql, await sql.query("select s.id ideventosessao, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, p.creditaracom, p.encontrospresentes from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.encontrospresentes > 0"), false)));
 		});
 
 		return (lista || []);
 	}
 
-	public static async marcarPresenca(senha: string, idevento: number, ideventosessao: number, idparticipante: number, ignorarSenha: boolean): Promise<number> {
-		let res = 0;
+	public static async marcarPresenca(senha: string, idevento: number, ideventosessao: number, idparticipante: number, dataMarcacao: string, autoMarcacao: boolean): Promise<string> {
+		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			if (!ignorarSenha) {
+			if (!autoMarcacao) {
 				let senhas = await sql.query("select senhacheckin from evento where id = " + idevento);
 
-				if (!senhas || !senhas[0] || senhas[0].senhacheckin !== senha)
+				if (!senhas || !senhas[0] || senhas[0].senhacheckin !== senha) {
+					res = "Senha inválida";
 					return;
+				}
+
+				if (!(dataMarcacao = converterDataISO(dataMarcacao))) {
+					res = "Data inválida";
+					return;
+				}
+			} else {
+				// Desconta 3 horas do horário atual em UTC, para fazer que os métodos hojeUTC.getUTCxxx()
+				// retornem valores referentes ao horário de Brasília, independente do fuso horário do servidor.
+				// Mesmo se tiver horário de verão, descontar 3 horas fará com que a pessoa "ganhe" uma hora a
+				// mais para marcar a presença. Isso pode dar problema se uma sessão terminar à meia-noite, e
+				// o horário de verão estiver vigente.
+				const hojeUTC = new Date(new Date().getTime() - (3 * 60 * 60 * 1000));
+				dataMarcacao = `${hojeUTC.getUTCFullYear()}-${formatar2(hojeUTC.getUTCMonth() + 1)}-${formatar2(hojeUTC.getUTCDate())}`;
 			}
 
-			await sql.query("update eventosessaoparticipante set presente = 1 where idevento = " + idevento + " and ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante);
+			const lista = await sql.query("select date_format(data, '%Y-%m-%d') data, tipomultidata, presencaminima, encontrostotais from eventosessao where id = " + ideventosessao) as [{ data: string, tipomultidata: number, presencaminima: number, encontrostotais: number }];
+			if (lista && lista.length) {
+				const sessao = lista[0];
+				if (sessao.tipomultidata) {
+					if (dataMarcacao !== sessao.data &&
+						!(await sql.scalar("select 1 from eventosessaomultidata where ideventosessao = ? and data = ?", [ideventosessao, dataMarcacao]))) {
+						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (converterDataISOParaPtBr(dataMarcacao) || dataMarcacao);
+						return;
+					}
 
-			res = sql.linhasAfetadas;
+					const ideventosessaoparticipante = await sql.scalar("select id from eventosessaoparticipante where ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante) as number;
+					if (!ideventosessaoparticipante) {
+						res = (autoMarcacao ? "Não foi possível encontrar sua inscrição na sessão" : "Não foi possível encontrar a inscrição do participante na sessão");
+						return;
+					}
+
+					if ((await sql.scalar("select 1 from eventosessaoparticipantemultidata where ideventosessaoparticipante = ? and data_presenca = ?", [ideventosessaoparticipante, dataMarcacao]))) {
+						// A presença já havia sido marcada
+						return;
+					}
+
+					await sql.beginTransaction();
+
+					await sql.query("insert into eventosessaoparticipantemultidata (ideventosessaoparticipante, data_presenca, ideventosessao, idparticipante) values (?, ?, ?, ?)", [ideventosessaoparticipante, dataMarcacao, ideventosessao, idparticipante]);
+
+					const encontrospresentes = await sql.scalar("select count(*) from eventosessaoparticipantemultidata where ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante) as number;
+
+					switch (sessao.tipomultidata) {
+						case SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO:
+							await sql.query("update eventosessaoparticipante set creditaracom = " + (encontrospresentes >= sessao.presencaminima) + ", encontrospresentes = " + encontrospresentes + " where id = " + ideventosessaoparticipante);
+							break;
+						case SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL:
+							await sql.query("update eventosessaoparticipante set creditaracom = 1, encontrospresentes = " + encontrospresentes + " where id = " + ideventosessaoparticipante);
+							break;
+						default:
+							sql.rollback();
+							res = "Tipo desconhecido de datas adicionais da sessão";
+							return;
+					}
+
+					await sql.commit();
+				} else {
+					if (dataMarcacao !== sessao.data) {
+						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (converterDataISOParaPtBr(dataMarcacao) || dataMarcacao);
+						return;
+					}
+
+					await sql.query("update eventosessaoparticipante set creditaracom = 1, encontrospresentes = 1 where idevento = " + idevento + " and ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante);
+
+					if (!sql.linhasAfetadas)
+						res = (autoMarcacao ? "Não foi possível encontrar sua inscrição na sessão" : "Não foi possível encontrar a inscrição do participante na sessão");
+				}
+			}
 		});
 
 		return res;
@@ -350,7 +434,7 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let data = await sql.scalar("select date_format(s.data, '%Y-%m-%d') data from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.presente = 1") as string;
+				let data = await sql.scalar("select date_format(s.data, '%Y-%m-%d') data from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.creditaracom = 1") as string;
 				if (!data) {
 					res = "Sessão não encontrada";
 					return;

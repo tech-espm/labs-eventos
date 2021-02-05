@@ -6,6 +6,7 @@ import Usuario = require("../../models/usuario");
 import PalestranteResumido = require("../../models/palestranteResumido");
 import Sessao = require("../../models/sessao");
 import appsettings = require("../../appsettings");
+import SessaoConstantes = require("../../models/sessaoConstantes");
 
 const router = express.Router();
 
@@ -50,6 +51,8 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
 		s.acomminutos = parseInt(req.body.acomminutos);
+		s.tipomultidata = parseInt(req.body.tipomultidata);
+		s.presencaminima = parseInt(req.body.presencaminima);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
@@ -90,6 +93,9 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 		s.termino = parseInt((req.body.termino || "").replace(":", ""));
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
 		s.acomminutos = parseInt(req.body.acomminutos);
+		s.tipomultidata = parseInt(req.body.tipomultidata);
+		s.presencaminima = parseInt(req.body.presencaminima);
+		s.senhacontrole = null;
 		s.oculta = 0;
 		s.sugestao = 1;
 	}
@@ -126,6 +132,8 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
 		s.acomminutos = parseInt(req.body.acomminutos);
+		s.tipomultidata = parseInt(req.body.tipomultidata);
+		s.presencaminima = parseInt(req.body.presencaminima);
 		let p = req.body.idpalestrantes;
 		if (p && p.length) {
 			for (let i = p.length - 1; i >= 0; i--)
@@ -165,7 +173,7 @@ router.get("/alterarStatusIntegra", wrap(async (req: express.Request, res: expre
 	const status_integra = parseInt(req.query["status"] as string);
 	if (!id_integra_sessao || isNaN(id_integra_sessao) || id_integra_sessao <= 0)
 		res.status(400).json("Id inválido");
-	else if (status_integra !== Sessao.STATUS_PENDENTE && status_integra !== Sessao.STATUS_APROVADO && status_integra !== Sessao.STATUS_REPROVADO)
+	else if (status_integra !== SessaoConstantes.STATUS_PENDENTE && status_integra !== SessaoConstantes.STATUS_APROVADO && status_integra !== SessaoConstantes.STATUS_REPROVADO)
 		res.status(400).json("Status inválido");
 	else if (req.query["key"] !== appsettings.integracaoAgendamentoChaveExterna)
 		res.status(400).json("Chave inválida");

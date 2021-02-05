@@ -7,20 +7,75 @@
 		return format2((x / 100) | 0) + ":" + format2(x % 100);
 	}
 
-	var duracaoTotal = 0, totalAcom = 0,
+	let duracaoTotal = 0, totalAcom = 0,
 		meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
 		linhaData = evento.cidade + ", ";
 
 	(function () {
-		var i, presenca, partes, duracao, acomminutos;
+		let i, j, k, p, presenca, multidata, multidatas, multipresencas, partes, duracao, acomminutos, acomminutosPtr, clone;
 
-		if (presencas[0].data) {
-			for (i = 0; i < presencas.length; i++) {
-				partes = presencas[i].data.split('/');
-				presencas[i].dia = parseInt(partes[0], 10);
-				presencas[i].mes = parseInt(partes[1], 10);
-				presencas[i].ano = parseInt(partes[2], 10);
+		for (i = presencas.length - 1; i >= 0; i--) {
+			presenca = presencas[i];
+
+			// Se for multidata, não exibe a primeira linha com a data da sessão, mostra apenas os dias que o participante evetivamente veio (multipresencas)
+			if (presenca.tipomultidata) {
+				presencas.splice(i, 1);
+
+				// Para poder zerar as ocorrências seguintes, depois de ter exibido a primeira
+				acomminutosPtr = [ presenca.acomminutos ];
+
+				if (!(multidatas = presenca.multidatas) || !multidatas.length)
+					continue;
+
+				if (!palestrante && (!(multipresencas = presenca.multipresencas) || !multipresencas.length))
+					continue;
+
+				multidatas.push({ data: presenca.data, inicio: presenca.inicio, termino: presenca.termino });
+
+				for (j = multidatas.length - 1; j >= 0; j--) {
+					multidata = multidatas[j];
+
+					if (palestrante) {
+						clone = {};
+
+						for (p in presenca)
+							clone[p] = presenca[p];
+
+						clone.data = multidata.data;
+						clone.inicio = multidata.inicio;
+						clone.termino = multidata.termino;
+
+						presencas.push(clone);
+					} else {
+						for (k = multipresencas.length - 1; k >= 0; k--) {
+							if (multidata.data === multipresencas[k].data) {
+								multipresencas.splice(k, 1);
+
+								clone = {};
+
+								for (p in presenca)
+									clone[p] = presenca[p];
+
+								clone.data = multidata.data;
+								clone.inicio = multidata.inicio;
+								clone.termino = multidata.termino;
+								clone.acomminutosPtr = acomminutosPtr;
+
+								presencas.push(clone);
+								break;
+							}
+						}
+					}
+				}
 			}
+		}
+
+		for (i = presencas.length - 1; i >= 0; i--) {
+			presenca = presencas[i];
+			partes = presenca.data.split('/');
+			presenca.dia = parseInt(partes[0], 10);
+			presenca.mes = parseInt(partes[1], 10);
+			presenca.ano = parseInt(partes[2], 10);
 		}
 
 		presencas.sort(function (a, b) {
@@ -36,12 +91,18 @@
 		presenca = presencas[presencas.length - 1];
 		linhaData += presenca.dia + " de " + meses[presenca.mes - 1] + " de " + presenca.ano;
 
-		for (i = 0; i < presencas.length; i++) {
+		for (i = presencas.length - 1; i >= 0; i--) {
 			presenca = presencas[i];
 
 			// Para poder mostrar hora(s) sem problemas de arredondamento, inclusive na soma total
 			// (O correto seria fazer / 60, mas fazemos * 10 / 60 para truncar com uma casa, então fica só / 6)
 			duracao = ((((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 6) | 0;
+			if (presenca.acomminutosPtr) {
+				// Apenas a última presença de uma sessão multidata deve ser contabilizada
+				// (como o for vai ao contrário, significa a primeira vez)
+				presenca.acomminutos = presenca.acomminutosPtr[0];
+				presenca.acomminutosPtr[0] = 0;
+			}
 			acomminutos = (presenca.acomminutos / 6) | 0;
 
 			presenca.duracao = duracao / 10;
@@ -56,7 +117,7 @@
 		totalAcom /= 10;
 	})();
 
-	var linha1, linha2;
+	let linha1, linha2;
 
 	if (palestrante) {
 		linha1 = evento.certificado1palestrante;
@@ -99,6 +160,11 @@
 
 </section>
 
+<%
+	const presencasPorPagina = 15, paginasTotais = Math.ceil(presencas.length / presencasPorPagina);
+
+	for (let pagina = 0, i = 0; pagina < paginasTotais; pagina++) {
+%>
 <section class="sheet padding-10mm" style="font-size: 3.5mm;">
 
 	<table class="table table-hover">
@@ -115,19 +181,19 @@
 			</tr>
 		</thead>
 		<tbody>
-			<% for (var i = 0; i < presencas.length; i++) { var presenca = presencas[i]; %>
+			<% for (let contadorPagina = presencasPorPagina - 1; contadorPagina >= 0 && i < presencas.length; contadorPagina--, i++) { let presenca = presencas[i]; %>
 			<tr>
-				<td class="text-left"><%=presenca.nome %></td>
+				<td class="text-left" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150mm;"><%=presenca.nome %></td>
 				<td class="col-min text-center"><%-(presenca.data || (format2(presenca.dia) + "/" + format2(presenca.mes) + "/" + presenca.ano)) %></td>
 				<td class="col-min text-center"><%=formatHourDec(presenca.inicio) %></td>
 				<td class="col-min text-center"><%=formatHourDec(presenca.termino) %></td>
 				<td class="col-min text-center"><%-(presenca.duracao.toFixed(1).replace(".", ",")) %></td>
 				<% if (!palestrante) { %>
-				<td class="col-min text-center"><%-(presenca.acomminutos.toFixed(1).replace(".", ",")) %></td>
+				<td class="col-min text-center"><%-(presenca.acomminutos ? presenca.acomminutos.toFixed(1).replace(".", ",") : "-") %></td>
 				<% } %>
 			</tr>
 			<% } %>
-			<% if (!palestrante) { %>
+			<% if (!palestrante && i >= presencas.length) { %>
 			<tr>
 				<td colspan="6" class="text-right"><b>Total de horas ACOM:</b> <%-(totalAcom.toFixed(1).replace(".", ",")) %> h</td>
 			</tr>
@@ -135,7 +201,10 @@
 		</tbody>
 	</table>
 
+	<div style="position: absolute; left: 10mm; bottom: 10mm;">Página <%- (pagina + 1) %> de <%- paginasTotais %></div>
+
 </section>
+<% } %>
 
 <%- contentFor("styles") %>
 <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700&display=swap&subset=latin-ext" rel="stylesheet" />

@@ -6,7 +6,6 @@
 //****************************************************************
 
 //****************************************************************
-// @@@
 // Para utilizar o view engine ejs, adicionamos a linha
 // "ejs": "^2.6.1", às dependências do arquivo package.json
 // Isso significa que queremos a versão 2.6.1 do ejs, ou uma
@@ -30,7 +29,7 @@ import Sessao = require("./models/sessao");
 import Palestrante = require("./models/palestrante");
 import Participante = require("./models/participante");
 
-// @@@ Configura o cache, para armazenar as 200 últimas páginas
+// Configura o cache, para armazenar as 200 últimas páginas
 // já processadas, por ordem de uso
 import ejs = require("ejs");
 import lru = require("lru-cache");
@@ -72,7 +71,7 @@ app.use(express.urlencoded({ extended: true })); // http://expressjs.com/en/api.
 
 // Configura o diretório de onde tirar as views
 app.set("views", path.join(__dirname, "../views"));
-// @@@ Define o view engine como o ejs e importa o express-ejs-layouts
+// Define o view engine como o ejs e importa o express-ejs-layouts
 // https://www.npmjs.com/package/express-ejs-layouts, pois o ejs não
 // suporta layouts nativamente: https://www.npmjs.com/package/ejs#layouts
 app.set("view engine", "ejs");
@@ -241,7 +240,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 					urlBase: "/public/evt/" + evento.id + "/",
 					urlInscricao: "/participante/inscricao" + req.path + "/",
 					urlParticipante: "/participante",
-					inscricoes: (evento.permiteinscricao ? await Evento.listarInscricoes(evento.id) : []),
+					inscricoes: (evento.permiteinscricao ? await Evento.contarInscricoes(evento.id) : []),
 					participante: await Participante.cookie(req),
 					empresas: await Empresa.listar(evento.id),
 					locais: await Local.eventoListar(evento.id),

@@ -12,6 +12,7 @@ import Formato = require("../models/formato");
 import TipoSessao = require("../models/tipoSessao");
 import Vertical = require("../models/vertical");
 import Sessao = require("../models/sessao");
+import SessaoConstantes = require("../models/sessaoConstantes");
 
 const router = express.Router();
 
@@ -161,6 +162,9 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			idevento: u.idevento_logado,
 			urlEvento: (evt ? evt.url : ""),
 			extensaoImagem: Palestrante.extensaoImagem,
+			TIPOMULTIDATA_NENHUM: SessaoConstantes.TIPOMULTIDATA_NENHUM,
+			TIPOMULTIDATA_MINIMO_EXIGIDO: SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO,
+			TIPOMULTIDATA_PROPORCIONAL: SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL,
 			empresas: JSON.stringify(await Empresa.listar(u.idevento_logado)),
 			locais: JSON.stringify(await Local.listar()),
 			eventoLocais: JSON.stringify(await Local.eventoListar(u.idevento_logado)),
@@ -170,7 +174,7 @@ router.get("/controlar-sessoes", wrap(async (req: express.Request, res: express.
 			tipoSessoes: JSON.stringify(await TipoSessao.listar()),
 			verticais: JSON.stringify(await Vertical.listar()),
 			sessoes: JSON.stringify(await Sessao.listar(u.idevento_logado)),
-			presencas: JSON.stringify(await Evento.listarInscricoesEPresencas(u.idevento_logado))
+			presencas: JSON.stringify(await Evento.contarInscricoesEPresencas(u.idevento_logado))
 		});
 	}
 }));

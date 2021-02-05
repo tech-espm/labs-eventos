@@ -6,6 +6,7 @@ import Participante = require("../models/participante");
 import Profissao = require("../models/profissao");
 import Sessao = require("../models/sessao");
 import appsettings = require("../appsettings");
+import SessaoConstantes = require("../models/sessaoConstantes");
 
 const router = express.Router();
 
@@ -86,7 +87,16 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 		if (!eventos || !eventos.length)
 			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Meus Eventos", ocultarBotao: true, mensagem: "Você ainda não participou de nenhum evento conosco", participante: p });
 		else
-			res.render("participante/home", { layout: "layout-participante", panelHeadingPersonalizado: true, titulo: "Meus Eventos", participante: p, eventos: JSON.stringify(eventos) });
+			res.render("participante/home", {
+				layout: "layout-participante",
+				panelHeadingPersonalizado: true,
+				titulo: "Meus Eventos",
+				TIPOMULTIDATA_NENHUM: SessaoConstantes.TIPOMULTIDATA_NENHUM,
+				TIPOMULTIDATA_MINIMO_EXIGIDO: SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO,
+				TIPOMULTIDATA_PROPORCIONAL: SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL,
+				participante: p,
+				eventos: JSON.stringify(eventos)
+			});
 	}
 }));
 
@@ -114,7 +124,7 @@ router.all("/certificado/:i", wrap(async (req: express.Request, res: express.Res
 			} else if (!evento.certificadoliberado) {
 				res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Os certificados só estarão disponíveis depois da conclusão do evento" });
 			} else {
-				let presencas = await Participante.listarPresencas(ids[0], ids[1]);
+				let presencas = await Participante.listarPresencasParaCertificado(ids[0], ids[1]);
 				if (!presencas || !presencas.length)
 					res.render("shared/erro-fundo", { layout: "layout-externo", imagemFundo: true, titulo: "Erro de Certificado", mensagem: "Ainda sem presenças marcadas no evento " + evento.nome });
 				else
@@ -135,12 +145,10 @@ router.all("/p/:e/:s/:senha", wrap(async (req: express.Request, res: express.Res
 		if (evt && evt.habilitado && sid && sid > 0) {
 			let mensagem: string = null;
 
-			if (!senhapresenca || senhapresenca !== await Sessao.obterSenhaPresenca(sid, evt.id)) {
+			if (!senhapresenca || senhapresenca !== await Sessao.obterSenhaPresenca(sid, evt.id))
 				mensagem = "Não foi possível marcar presença na sessão com o código fornecido";
-			} else {
-				if (!await Participante.marcarPresenca(null, evt.id, sid, p.id, true))
-					mensagem = "Não foi possível encontrar sua inscrição na sessão";
-			}
+			else
+				mensagem = await Participante.marcarPresenca(null, evt.id, sid, p.id, null, true);
 
 			res.cookie("participanteSenhaPresenca", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
 

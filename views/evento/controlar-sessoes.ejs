@@ -13,7 +13,7 @@
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center">
-					<button class="btn btn-primary btn-outline" type="button" onclick="listarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="contarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="listarAvaliacoesEMedias()"><i class="fa fa-refresh"></i>Atualizar Avaliações e Médias...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
@@ -203,6 +203,7 @@
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", data: "termino" },
+				{ title: "Encontros Totais", "class": "text-right", "type": "number", data: "encontrostotais" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
 				{ title: "Local", render: encode, data: "nome_local" },
 				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
@@ -219,13 +220,13 @@
 			export: { title: "Sessões do Evento" }
 		});
 
-		window.listarInscricoesEPresencas = function () {
+		window.contarInscricoesEPresencas = function () {
 			if ($.active || JsonWebApi.active)
 				return;
 
 			Notification.wait();
 
-			JsonWebApi.get("<%- root %>/api/evento/listarInscricoesEPresencas", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/contarInscricoesEPresencas", function (response) {
 				if (response.success) {
 					Notification.success("Informações atualizadas com sucesso! " + emoji.happy);
 
@@ -674,16 +675,16 @@
 
 			Notification.wait();
 
-			JsonWebApi.get("<%- root %>/api/evento/listarInscritosGeral", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarInscritosPresencasEACOM", function (response) {
 				if (response.success) {
 					Notification.hide();
 
 					var i, presenca, presencas = response.value;
 
-					for (i = 0; i < presencas.length; i++) {
-						presenca = presencas[i];
-						presenca.duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
-					}
+					//for (i = 0; i < presencas.length; i++) {
+					//	presenca = presencas[i];
+					//	presenca.duracao = (((((presenca.termino / 100) | 0) * 60) + (presenca.termino % 100)) - ((((presenca.inicio / 100) | 0) * 60) + (presenca.inicio % 100))) / 60;
+					//}
 
 					$("#modalGridDataDialogBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
 
@@ -694,7 +695,6 @@
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
 							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
-							{ title: "Duração (h)", "class": "col-min text-center", "type": "number", data: { sort: "duracao", _: function (row, type, set, meta) { return row.duracao.toFixed(1).replace(".", ","); } } },
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
 							{ title: "Local", render: encode, data: "nome_local" },
@@ -704,8 +704,10 @@
 							{ title: "Login", render: encode, data: "login" },
 							{ title: "E-mail", render: encode, data: "email" },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
-							{ title: "Presente", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.presente ? "SIM" : "NÃO"); } },
-							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: function (row, type, set, meta) { return (row.presente ? row.acomminutos : 0); }, _: function (row, type, set, meta) { return (row.presente ? (row.acomminutos / 60) : 0).toFixed(1).replace(".", ","); } } }
+							{ title: "Encontros Totais", "class": "text-right", "type": "number", data: "encontrostotais" },
+							{ title: "Encontros Presentes", "class": "text-right", "type": "number", data: "encontrospresentes" },
+							{ title: "Presença Mínima para ACOM", "class": "text-right", "type": "number", data: function (row, type, set, meta) { return (row.presencaminima || 1); } },
+							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } }
 						],
 						data: presencas,
 						export: { title: "Participantes e Presenças" }

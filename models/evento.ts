@@ -6,6 +6,7 @@ import ClusterEventos = require("../infra/clusterEventos");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
 import Upload = require("../infra/upload");
+import ajustarACOMMinutos = require("../utils/ajustarACOMMinutos");
 import emailValido = require("../utils/emailValido");
 import converterDataISO = require("../utils/converterDataISO");
 import appsettings = require("../appsettings");
@@ -544,7 +545,7 @@ export = class Evento {
 		return await FS.existeArquivo("views/evt/" + id + ".ejs");
 	}
 
-	public static async listarInscricoes(id: number): Promise<any[]> {
+	public static async contarInscricoes(id: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
@@ -554,11 +555,11 @@ export = class Evento {
 		return (lista || []);
 	}
 
-	public static async listarInscricoesEPresencas(id: number): Promise<any> {
+	public static async contarInscricoesEPresencas(id: number): Promise<any> {
 		let res = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			let presencas = await sql.query("select ideventosessao, count(*) inscritos, sum(presente) presentes from eventosessaoparticipante where idevento = " + id + " group by ideventosessao");
+			let presencas = await sql.query("select ideventosessao, count(*) inscritos, sum(encontrospresentes) presentes from eventosessaoparticipante where idevento = " + id + " group by ideventosessao");
 
 			let tipos = await sql.query("select count(*) inscritos, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante group by p.tipo");
 
@@ -581,11 +582,18 @@ export = class Evento {
 		return res;
 	}
 
-	public static async listarInscritos(id: number, senha: string, tipo: number, ideventosessao: number = 0): Promise<Participante[]> {
+	public static async listarInscritosRecepcaoCheckIn(id: number, senha: string, tipo: number, ideventosessao: number = 0, dataMarcacao: string = null): Promise<Participante[]> {
 		let lista: Participante[] = null;
 
 		if (isNaN(id) || !senha || isNaN(tipo) || (tipo !== 1 && tipo !== 2) || isNaN(ideventosessao))
 			return [];
+
+		if (tipo === 1) {
+			ideventosessao = 0;
+			dataMarcacao = null;
+		} else if (!(dataMarcacao = converterDataISO(dataMarcacao))) {
+			return [];
+		}
 
 		senha = senha.normalize();
 
@@ -595,19 +603,32 @@ export = class Evento {
 			if (!senhaDb || senhaDb !== senha)
 				return;
 
-			lista = await sql.query(ideventosessao > 0 ?
-				("select p.id, p.nome, p.login, p.email, p.tipo, esp.presente from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + id + " and esp.ideventosessao = " + ideventosessao) :
-				("select p.id, p.nome, p.login, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante")) as Participante[];
+			if (ideventosessao > 0) {
+				// Check-in
+				const sessao = await sql.query("select idevento, tipomultidata from eventosessao where id = " + ideventosessao) as [{ idevento: number, tipomultidata: number }];
+				if (!sessao || !sessao.length || sessao[0].idevento !== id)
+					return;
+				lista = (!sessao[0].tipomultidata ?
+					await sql.query("select p.id, p.nome, p.login, p.email, p.tipo, esp.encontrospresentes presente from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.ideventosessao = " + ideventosessao) :
+
+					// Simula um valor fake (== ou != 0) para presente com base
+					// em eventosessaoparticipantemultidata, para sessões multidata
+					await sql.query("select p.id, p.nome, p.login, p.email, p.tipo, espm.ideventosessaoparticipante presente from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante left join eventosessaoparticipantemultidata espm on espm.ideventosessaoparticipante = esp.id and espm.data_presenca = ? where esp.ideventosessao = ?", [dataMarcacao, ideventosessao])
+				);
+			} else {
+				// Recepção
+				lista = await sql.query("select p.id, p.nome, p.login, p.email, p.tipo from (select distinct esp.idparticipante from eventosessaoparticipante esp where esp.idevento = " + id + ") tmp inner join participante p on p.id = tmp.idparticipante");
+			}
 		});
 
 		return (lista || []);
 	}
 
-	public static async listarInscritosGeral(id: number): Promise<any[]> {
+	public static async listarInscritosPresencasEACOM(id: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.id, p.nome, p.login, p.email, p.tipo, esp.presente, s.acomminutos from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id);
+			lista = ajustarACOMMinutos(await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.id, p.nome, p.login, p.email, p.tipo, esp.creditaracom, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, esp.encontrospresentes from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id));
 		});
 
 		return (lista || []);

@@ -220,7 +220,7 @@ router.get("/landingPageDownload", wrap(async (req: express.Request, res: expres
 	res.download(Evento.caminhoLandingPage(u.idevento_logado), "landing-page-" + e.url + ".ejs");
 }));
 
-router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/contarInscricoesEPresencas", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
@@ -228,7 +228,7 @@ router.get("/listarInscricoesEPresencas", wrap(async (req: express.Request, res:
 		jsonRes(res, 400, "Nenhum evento selecionado!");
 		return;
 	}
-	res.json(await Evento.listarInscricoesEPresencas(u.idevento_logado));
+	res.json(await Evento.contarInscricoesEPresencas(u.idevento_logado));
 }));
 
 router.get("/listarAvaliacoesEMedias", wrap(async (req: express.Request, res: express.Response) => {
@@ -242,15 +242,16 @@ router.get("/listarAvaliacoesEMedias", wrap(async (req: express.Request, res: ex
 	res.json(await Evento.listarAvaliacoesEMedias(u.idevento_logado));
 }));
 
-router.get("/listarInscritos/:e/:s/:t/:i?", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/listarInscritosRecepcaoCheckIn/:e/:s/:t/:i?/:d?", wrap(async (req: express.Request, res: express.Response) => {
 	let e = req.params["e"] as string;
 	let senha = req.params["s"] as string;
 	let tipo = parseInt(req.params["t"]);
 	let i = req.params["i"] as string;
-	res.json(await Evento.listarInscritos(parseInt(e), senha, tipo, i ? parseInt(i) : 0));
+	let dataMarcacao = req.params["d"] as string;
+	res.json(await Evento.listarInscritosRecepcaoCheckIn(parseInt(e), senha, tipo, i ? parseInt(i) : 0, dataMarcacao));
 }));
 
-router.get("/listarInscritosGeral", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/listarInscritosPresencasEACOM", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
@@ -258,7 +259,7 @@ router.get("/listarInscritosGeral", wrap(async (req: express.Request, res: expre
 		jsonRes(res, 400, "Nenhum evento selecionado!");
 		return;
 	}
-	res.json(await Evento.listarInscritosGeral(u.idevento_logado));
+	res.json(await Evento.listarInscritosPresencasEACOM(u.idevento_logado));
 }));
 
 router.get("/listarPalestrantesGeral", wrap(async (req: express.Request, res: express.Response) => {

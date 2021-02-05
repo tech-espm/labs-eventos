@@ -17,12 +17,14 @@
 				</div>
 			</div>
 			<div class="col-sm-4">
-				<label for="txtSessaoSenhaControle">Senha de Controle de Presença</label>
-				<div class="input-group">
-					<input id="txtSessaoSenhaControle" name="txtSessaoSenhaControle" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" />
-					<span class="input-group-btn">
-						<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('txtSessaoSenhaControleIcon').className = (_('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('txtSessaoSenhaControle').setAttribute('type', _('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="txtSessaoSenhaControleIcon" class="fa fa-nomargin fa-eye"></i></button>
-					</span>
+				<div class="form-group">
+					<label for="txtSessaoSenhaControle">Senha de Controle de Presença</label>
+					<div class="input-group">
+						<input id="txtSessaoSenhaControle" name="txtSessaoSenhaControle" type="password" class="form-control" maxlength="45" placeholder="EM BRANCO DESATIVA" spellcheck="false" autocomplete="off" />
+						<span class="input-group-btn">
+							<button class="btn btn-default btn-force-border" title="Mostrar/Ocultar Senha" type="button" onclick="_('txtSessaoSenhaControleIcon').className = (_('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'fa fa-nomargin fa-eye-slash' : 'fa fa-nomargin fa-eye'); _('txtSessaoSenhaControle').setAttribute('type', _('txtSessaoSenhaControle').getAttribute('type') === 'password' ? 'text' : 'password');"><i id="txtSessaoSenhaControleIcon" class="fa fa-nomargin fa-eye"></i></button>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -52,6 +54,52 @@
 					<label for="txtSessaoTermino"><%- (usuario ? "Horário de Término" : "Sugestão de Horário de Término") %></label>
 					<input id="txtSessaoTermino" name="txtSessaoTermino" class="form-control" type="text" spellcheck="false" maxlength="5" />
 				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="form-group">
+					<label for="cbSessaoTipoMultidata">Datas Adicionais</label>
+					<select class="form-control" id="cbSessaoTipoMultidata" name="cbSessaoTipoMultidata">
+						<option value="<%- TIPOMULTIDATA_NENHUM %>">Sem datas adicionais (ocorre apenas em uma data)</option>
+						<option value="<%- TIPOMULTIDATA_MINIMO_EXIGIDO %>">Com datas adicionais (presença mínima exigida para ACOM)</option>
+						<option value="<%- TIPOMULTIDATA_PROPORCIONAL %>">Com datas adicionais (horas ACOM proporcionais às presenças)</option>
+					</select>
+				</div>
+				<div class="form-group" id="divSessaoPresencaMinima" style="display: none;">
+					<label for="txtSessaoPresencaMinima">Encontros Mínimos Exigidos</label>
+					<input id="txtSessaoPresencaMinima" name="txtSessaoPresencaMinima" class="form-control" type="number" />
+				</div>
+
+				<div id="divSessaoMultidata" style="display: none;">
+					<div class="col-xs-space-bottom">
+						<button class="btn btn-primary" type="button" onclick="adicionarSessaoMultidata()"><i class="fa fa-plus"></i>Criar Data Adicional...</button>
+					</div>
+					<div class="table-responsive col-xs-space-bottom" id="divSessaoMultidataTable" style="display: none;">
+						<table id="" class="table table-striped table-hover no-margin-bottom">
+							<thead>
+								<tr>
+									<th class="col-min"></th>
+									<th>Data</th>
+									<th class="col-min">Início</th>
+									<th class="col-min">Término</th>
+								</tr>
+							</thead>
+							<tbody id="tableSessaoMultidataBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-sm-6">
+				<div class="col-xs-space-bottom">
+					Abaixo segue uma breve explicação do significado das datas adicionais de uma sessão:
+				</div>
+				<ul>
+					<li class="col-xs-space-bottom"><b>Sem datas adicionais</b>: A sessão ocorre em apenas uma data, ou, caso ocorra em mais datas, são cópias desta sessão, normalmente com públicos diferentes.</li>
+					<li class="col-xs-space-bottom"><b>Com datas adicionais (presença mínima)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá a quantidade de horas ACOM designadas caso compareça a pelo menos X encontros. Por exemplo, um curso de 20 horas, dividido em 5 noites, das quais o participante tem a obrigação de comparecer em pelo menos 4 noites para poder ter as horas ACOM creditadas.</li>
+					<li class="col-xs-space-bottom"><b>Com datas adicionais (horas proporcionais)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá uma a quantidade de horas ACOM proporcionais à quantidade de presenças. Por exemplo, um participante que comparecesse a 3 noites de um curso de 20 horas, dividido em 5 noites, teria 12 horas ACOM creditadas.</li>
+				</ul>
 			</div>
 		</div>
 	</div>
@@ -106,8 +154,11 @@
 				</div>
 			</div>
 			<div class="col-sm-6">
-				<div class="form-group">
+				<div class="col-xs-space-bottom">
 					A quantidade de horas ACOM a ser creditada em caso de presença é independente da duração da sessão. <b>Por favor, preencha com 0 caso a sessão não permita crédito de horas ACOM</b>.
+				</div>
+				<div class="col-xs-space-bottom">
+					Caso uma sessão esteja dividida em mais de uma manhã/tarde/noite, este campo deve conter a quantidade total de horas ACOM a serem creditadas. Por exemplo, um curso de 20 horas, dividido em 5 noites, credita 20 horas no total.
 				</div>
 			</div>
 		</div>
@@ -180,12 +231,76 @@
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
-		var idevento = <%- idevento %>, idEventoLocalPadraoInternet = 0;
+		var idevento = <%- idevento %>, idEventoLocalPadraoInternet = 0, idMultidata = 0, formAlterarSessaoValidator = null,
+			regrasSessaoData = {
+				required: true,
+				maxlength: 11
+			},
+			regrasSessaoInicio = {
+				maxlength: 5,
+				required: true
+			},
+			regrasSessaoTermino = {
+				maxlength: 5,
+				required: true
+			};
 		carregarLocais(<%- eventoLocais %>, <%- locais %>);
 		carregarCursos(<%- cursos %>);
 		carregarFormatos(<%- formatos %>);
 		carregarTipoSessoes(<%- tipoSessoes %>);
 		carregarVerticais(<%- verticais %>);
+
+		window.limparSessaoMultidata = function () {
+			_("divSessaoMultidataTable").style.display = "none";
+			_("divSessaoPresencaMinima").style.display = "none";
+			_("divSessaoMultidata").style.display = "none";
+			$("#tableSessaoMultidataBody").empty();
+			formAlterarSessaoValidator.resetForm();
+		};
+
+		window.removerSessaoMultidata = function (idMultidata) {
+			$("#trSessaoMultidata" + idMultidata).remove();
+			if (!_("tableSessaoMultidataBody").childNodes.length)
+				_("divSessaoMultidataTable").style.display = "none";
+			formAlterarSessaoValidator.resetForm();
+		};
+
+		window.adicionarSessaoMultidata = function (multidata) {
+			var tr = $("#tableSessaoMultidataBody").append(`<tr id="trSessaoMultidata${idMultidata}" data-id="${idMultidata}">
+				<td class="col-min">
+					<button title="Excluir" class="btn btn-danger btn-outline" type="button" onclick="removerSessaoMultidata(${idMultidata})"><i class="fa fa-nomargin fa-times"></i></button>
+				</td>
+				<td>
+					<input id="txtSessaoData${idMultidata}" name="txtSessaoData${idMultidata}" class="form-control" type="text" spellcheck="false" maxlength="11" style="min-width: 11em;" />
+				</td>
+				<td class="col-min">
+					<input id="txtSessaoInicio${idMultidata}" name="txtSessaoInicio${idMultidata}" class="form-control" type="text" spellcheck="false" maxlength="5" style="min-width: 5em;" />
+				</td>
+				<td class="col-min">
+					<input id="txtSessaoTermino${idMultidata}" name="txtSessaoTermino${idMultidata}" class="form-control" type="text" spellcheck="false" maxlength="5" style="min-width: 5em;" />
+				</td>
+			</tr>`)[0];
+
+			_("divSessaoMultidataTable").style.display = "";
+
+			prepareDatePickerNumber("#txtSessaoData" + idMultidata);
+			$("#txtSessaoInicio" + idMultidata).mask("00:00");
+			$("#txtSessaoTermino" + idMultidata).mask("00:00");
+
+			if (multidata) {
+				setDatePickerValue("#txtSessaoData" + idMultidata, multidata.data);
+				$("#txtSessaoInicio" + idMultidata).val(multidata.inicio);
+				$("#txtSessaoTermino" + idMultidata).val(multidata.termino);
+			}
+
+			$("#txtSessaoData" + idMultidata).rules("add", regrasSessaoData);
+			$("#txtSessaoInicio" + idMultidata).rules("add", regrasSessaoInicio);
+			$("#txtSessaoTermino" + idMultidata).rules("add", regrasSessaoTermino);
+
+			formAlterarSessaoValidator.resetForm();
+
+			idMultidata++;
+		};
 
 		window.localInternet = function (ideventolocal) {
 			var i, local = null;
@@ -220,6 +335,8 @@
 		};
 
 		window.preencherFormSessao = function (sessao) {
+			limparSessaoMultidata();
+
 			preencherCb(_("cbSessaoLocal"), eventoLocais, sessao ? sessao.ideventolocal : "0", function (e) { return e.nome + " (" + e.sigla_unidade + ")"; }, "ideventolocal", <%- (usuario ? "false" : "true") %>);
 			$("#txtSessaoNome").val(sessao ? sessao.nome : "");
 			$("#txtSessaoNomeCurto").val(sessao ? sessao.nome_curto : "");
@@ -241,6 +358,27 @@
 			$("#txtSessaoTags").val(sessao ? sessao.tags : "");
 			$("#txtSessaoSenhaControle").val(sessao ? sessao.senhacontrole : "");
 			$("#txtSessaoMensagemEsgotada").val(sessao ? sessao.mensagemesgotada : "");
+
+			$("#cbSessaoTipoMultidata").val(sessao ? sessao.tipomultidata : "<%- TIPOMULTIDATA_NENHUM %>");
+			$("#txtSessaoPresencaMinima").val(sessao ? sessao.presencaminima : "");
+			if (sessao && sessao.multidatas && sessao.multidatas.length) {
+				_("cbSessaoTipoMultidata").onchange();
+				sessao.multidatas.sort(function (a, b) {
+					var da = a.data.split("/"),
+						db = b.data.split("/"),
+						ia = (parseInt(da[2]) * 10000) + (parseInt(da[1]) * 100) + parseInt(da[0]),
+						ib = (parseInt(db[2]) * 10000) + (parseInt(db[1]) * 100) + parseInt(db[0]);
+					if (ia !== ib)
+						return ia - ib;
+					if (a.inicio < b.inicio)
+						return -1;
+					else if (a.inicio > b.inicio)
+						return 1;
+					return (a.termino < b.termino ? -1 : 1);
+				});
+				for (var i = 0; i < sessao.multidatas.length; i++)
+					adicionarSessaoMultidata(sessao.multidatas[i]);
+			}
 		};
 
 		//<% if (usuario) { %>
@@ -252,6 +390,11 @@
 		prepareCbSearch(_("cbSessaoVertical"));
 		_("cbSessaoLocal").onchange = function () {
 			_("divSessaoUrlRemota").style.display = (localInternet(parseInt(_("cbSessaoLocal").value)) ? "" : "none");
+		};
+		_("cbSessaoTipoMultidata").onchange = function () {
+			_("divSessaoPresencaMinima").style.display = ((_("cbSessaoTipoMultidata").value == "<%- TIPOMULTIDATA_MINIMO_EXIGIDO %>") ? "" : "none");
+			_("divSessaoMultidata").style.display = ((_("cbSessaoTipoMultidata").value != "<%- TIPOMULTIDATA_NENHUM %>") ? "" : "none");
+			formAlterarSessaoValidator.resetForm();
 		};
 		fixUrlOnBlur(_("txtSessaoUrlRemota"));
 
@@ -270,7 +413,7 @@
 			s.nome_vertical = tmp.nome;
 		}
 
-		$("#formAlterarSessao").validate({
+		formAlterarSessaoValidator = $("#formAlterarSessao").validate({
 			rules: {
 				cbSessaoLocal: {
 					required: true
@@ -283,18 +426,9 @@
 				txtSessaoNomeCurto: {
 					maxlength: 45
 				},
-				txtSessaoData: {
-					required: true,
-					maxlength: 11
-				},
-				txtSessaoInicio: {
-					maxlength: 5,
-					required: true
-				},
-				txtSessaoTermino: {
-					maxlength: 5,
-					required: true
-				},
+				txtSessaoData: regrasSessaoData,
+				txtSessaoInicio: regrasSessaoInicio,
+				txtSessaoTermino: regrasSessaoTermino,
 				txtSessaoUrlRemota: {
 					maxlength: 100,
 					required: function () {
@@ -343,6 +477,14 @@
 				txtSessaoMensagemEsgotada: {
 					maxlength: 250
 				},
+				txtSessaoPresencaMinima: {
+					required: function () {
+						return ($("#cbSessaoTipoMultidata").val() == "<%- TIPOMULTIDATA_MINIMO_EXIGIDO %>");
+					},
+					number: true,
+					min: 1,
+					max: 120
+				},
 				//<% if (!usuario) { for (let i = 0; i < 6; i++) { %>
 				"txtPalestranteNome<%- i %>": {
 					maxlength: 100,
@@ -384,7 +526,11 @@
 					publico_alvo: trim($("#txtSessaoPublicoAlvo").val().normalize()),
 					tags: trim($("#txtSessaoTags").val()).toUpperCase(),
 					senhacontrole: trim($("#txtSessaoSenhaControle").val().normalize()),
-					idspalestrante: []
+					tipomultidata: parseInt($("#cbSessaoTipoMultidata").val()),
+					presencaminima: parseInt(trim($("#txtSessaoPresencaMinima").val())) || 0,
+					encontrostotais: 1,
+					idspalestrante: [],
+					multidatas: null
 				};
 
 				//<% if (!usuario) { %>
@@ -415,6 +561,20 @@
 					}
 				}
 				s.tags = stags.join(", ");
+
+				if (s.tipomultidata != "<%- TIPOMULTIDATA_NENHUM %>") {
+					s.multidatas = [];
+					var trId, trs = _("tableSessaoMultidataBody").getElementsByTagName("tr");
+					for (var i = 0; i < trs.length; i++) {
+						trId = trs[i].getAttribute("data-id");
+						s.multidatas.push({
+							data: trim($("#txtSessaoData" + trId).val().normalize()),
+							inicio: trim($("#txtSessaoInicio" + trId).val().normalize()),
+							termino: trim($("#txtSessaoTermino" + trId).val().normalize()),
+						});
+					}
+					s.encontrostotais = s.multidatas.length + 1;
+				}
 
 				Notification.wait();
 
@@ -452,7 +612,11 @@
 							sessao.tags = s.tags;
 							sessao.senhacontrole = s.senhacontrole;
 							sessao.mensagemesgotada = s.mensagemesgotada;
+							sessao.tipomultidata = s.tipomultidata;
+							sessao.presencaminima = s.presencaminima;
+							sessao.encontrostotais = s.encontrostotais;
 							sessao.idspalestrante = s.idspalestrante;
+							sessao.multidatas = s.multidatas;
 							preencherDadosSessao(sessao);
 							Notification.success("Sessão alterada com sucesso! " + emoji.happy);
 							tabelaSessoes.row(trSessaoClicada).invalidate().draw();
@@ -472,12 +636,13 @@
 
 					JsonWebApi.post("<%- (usuario ? '/api/sessao/criar' : '/api/sessao/criarExterno') %>", s, function (response) {
 						if (response.success) {
+							limparSessaoMultidata();
 							resetForm("#formAlterarSessao");
+							_("cbSessaoTipoMultidata").value = "0";
 
 							// <% if (usuario) { %>
 
 							_("cbSessaoPermiteInscricao").value = "1";
-							_("txtSessaoAcomMinutos").value = "";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value[0]);

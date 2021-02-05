@@ -1,18 +1,23 @@
 ﻿import Sql = require("../infra/sql");
 import appsettings = require("../appsettings");
 import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
+import preencherMultidatas = require("../utils/preencherMultidatas");
 import converterDataISO = require("../utils/converterDataISO");
 import Evento = require("./evento");
 import IntegracaoAgendamento = require("./integracaoAgendamento");
 import PalestranteResumido = require("./palestranteResumido");
+import SessaoConstantes = require("./sessaoConstantes");
 import Unidade = require("./unidade");
 import Usuario = require("./usuario");
 
-export = class Sessao {
-	public static readonly STATUS_PENDENTE: number = 0;
-	public static readonly STATUS_APROVADO: number = 1;
-	public static readonly STATUS_REPROVADO: number = 2;
+interface Multidata {
+	id?: number;
+	data: string;
+	inicio: number;
+	termino: number;
+}
 
+export = class Sessao {
 	public id: number;
 	public idcurso: number;
 	public idevento: number;
@@ -36,7 +41,11 @@ export = class Sessao {
 	public senhacontrole: string;
 	public senhapresenca: string;
 	public mensagemesgotada: string;
+	public tipomultidata: number;
+	public presencaminima: number;
+	public encontrostotais: number;
 	public idspalestrante: number[];
+	public multidatas: Multidata[];
 
 	private static validar(s: Sessao): string {
 		if (isNaN(s.idcurso) || s.idcurso <= 0)
@@ -97,6 +106,61 @@ export = class Sessao {
 			s.permiteinscricao = 0;
 		if (isNaN(s.acomminutos) || s.acomminutos < 0)
 			return "Quantidade de horas ACOM inválida";
+		switch (s.tipomultidata) {
+			case SessaoConstantes.TIPOMULTIDATA_NENHUM:
+				s.multidatas = null;
+				s.encontrostotais = 1;
+			case SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL:
+				s.presencaminima = 0;
+				break;
+			case SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO:
+				if (isNaN(s.presencaminima) || s.presencaminima <= 0 || s.presencaminima > 120)
+					return "Presença mínima inválida";
+				break;
+			default:
+				return "Tipo de datas adicionais inválido";
+		}
+		switch (s.tipomultidata) {
+			case SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL:
+			case SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO:
+				if (!s.multidatas || !s.multidatas.length)
+					return "Nenhuma data adicional foi criada";
+				let multidataOk = false;
+				for (let i = s.multidatas.length - 1; i >= 0; i--) {
+					const multidata = s.multidatas[i];
+					if (!multidata || !(multidata.data = converterDataISO(multidata.data)))
+						return "Data adicional inválida";
+					if (multidata.data === s.data)
+						return "Não é permitido uma data adicional igual à data inicial";
+					if ((typeof multidata.inicio) === "string")
+						multidata.inicio = parseInt((multidata.inicio as any).replace(":", ""));
+					if ((typeof multidata.termino) === "string")
+						multidata.termino = parseInt((multidata.termino as any).replace(":", ""));
+					if (isNaN(multidata.inicio) || multidata.inicio < 0 || multidata.inicio > 2359 || (multidata.inicio % 100) > 59)
+						return "Horário de início da data adicional inválido";
+					if (isNaN(multidata.termino) || multidata.termino < 0 || multidata.termino > 2359 || (multidata.termino % 100) > 59 || multidata.termino < multidata.inicio)
+						return "Horário de término da data adicional inválido";
+					multidata.id = parseInt(multidata.id as any) || 0;
+				}
+				for (let i = s.multidatas.length - 1; i >= 0; i--) {
+					const multidata = s.multidatas[i];
+					for (let j = i - 1; j >= 0; j--) {
+						if (multidata.data === s.multidatas[j].data)
+							return "Existem datas adicionais repetidas";
+					}
+				}
+				if (s.tipomultidata === SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO) {
+					if (s.presencaminima > (s.multidatas.length + 1))
+						return "A quantidade de encontros mínimos exigidos excede a quantidade de datas em que a sessão ocorrerá";
+				}
+				const dataInicial = (new Date(s.data)).getTime();
+				for (let i = s.multidatas.length - 1; i >= 0; i--) {
+					if ((new Date(s.multidatas[i].data)).getTime() < dataInicial)
+						return "As datas adicionais não podem ser anteriores à data inicial";
+				}
+				s.encontrostotais = s.multidatas.length + 1;
+				break;
+		}
 		s.senhacontrole = (s.senhacontrole || "").normalize();
 		if (s.senhacontrole.length > 45)
 			return "Senha de controle inválida";
@@ -116,7 +180,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")) as Sessao[];
+			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")), true);
 		});
 
 		return (lista || []);
@@ -126,7 +190,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.senhapresenca, s.mensagemesgotada, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)) as Sessao[];
+			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.senhapresenca, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)), true);
 		});
 
 		return ((lista && lista[0]) || null);
@@ -193,10 +257,114 @@ export = class Sessao {
 		}
 	}
 
+	private static async sincronizarMultidatas(sql: Sql, s: Sessao): Promise<void> {
+		let existentes: Multidata[] = await sql.query("select id, date_format(data, '%Y-%m-%d') data, inicio, termino from eventosessaomultidata where ideventosessao = " + s.id);
+
+		if ((!existentes || !existentes.length) && (!s.multidatas || !s.multidatas.length))
+			return;
+
+		let atualizar: Multidata[] = [];
+		let adicionar: Multidata[] = ((s.multidatas && s.multidatas.length) ? s.multidatas.slice() : []);
+
+		// Diferente dos palestrantes, aqui não podemos utilizar o id da multidata para apenas
+		// atualizar, porque a pessoa pode ter editado de várias formas na tela.
+		// A ideia é tentar preservar o máximo possível os registros em eventosessaomultidata,
+		// tentando utilizar como base a data.
+
+		if (adicionar.length && existentes.length) {
+			// Verifica quais datas já existiam
+			for (let i = adicionar.length - 1; i >= 0; i--) {
+				let multidata = adicionar[i];
+
+				for (let j = existentes.length - 1; j >= 0; j--) {
+					const existente = existentes[j];
+
+					if (existente.data === multidata.data &&
+						existente.inicio === multidata.inicio &&
+						existente.termino === multidata.termino) {
+						adicionar.splice(i, 1);
+						existentes.splice(j, 1);
+						break;
+					}
+				}
+			}
+
+			// Antes de excluir as datas que restaram para recriar outras,
+			// vamos tentar reaproveitar os registros por similaridade
+			for (let i = adicionar.length - 1; i >= 0; i--) {
+				let multidata = adicionar[i];
+
+				for (let j = existentes.length - 1; j >= 0; j--) {
+					const existente = existentes[j];
+
+					if (existente.data === multidata.data &&
+						existente.inicio === multidata.inicio) {
+						adicionar.splice(i, 1);
+						existentes.splice(j, 1);
+						existente.termino = multidata.termino;
+						atualizar.push(existente);
+						break;
+					}
+				}
+			}
+
+			for (let i = adicionar.length - 1; i >= 0; i--) {
+				let multidata = adicionar[i];
+
+				for (let j = existentes.length - 1; j >= 0; j--) {
+					const existente = existentes[j];
+
+					if (existente.data === multidata.data) {
+						adicionar.splice(i, 1);
+						existentes.splice(j, 1);
+						existente.inicio = multidata.inicio;
+						existente.termino = multidata.termino;
+						atualizar.push(existente);
+						break;
+					}
+				}
+			}
+		}
+
+		if (existentes.length) {
+			for (let i = existentes.length - 1; i >= 0; i--)
+				await sql.query("delete from eventosessaomultidata where id = ?", [existentes[i].id]);
+		}
+
+		if (atualizar.length) {
+			for (let i = 0; i < atualizar.length; i++)
+				await sql.query("update eventosessaomultidata set inicio = ?, termino = ? where id = ?", [atualizar[i].inicio, atualizar[i].termino, atualizar[i].id]);
+		}
+
+		if (adicionar.length) {
+			for (let i = 0; i < adicionar.length; i++)
+				await sql.query("insert into eventosessaomultidata (ideventosessao, data, inicio, termino) values (?, ?, ?, ?)", [s.id, adicionar[i].data, adicionar[i].inicio, adicionar[i].termino]);
+		}
+	}
+
 	private static async validarEncavalamento(s: Sessao, sql: Sql): Promise<{ erro?: string, idunidade?: number, id_integra_local?: string }> {
-		const inicioTermino = await sql.query("select date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
-		if (inicioTermino && inicioTermino.length)
-			return { erro: "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino };
+		if (s.multidatas && s.multidatas.length) {
+			const inicioTermino = await sql.query("select inicio inicioDate, date_format(inicio, '%d/%m/%Y') inicio, termino terminoDate, date_format(termino, '%d/%m/%Y') termino from evento where id = " + s.idevento);
+			if (!inicioTermino || !inicioTermino.length)
+				return { erro: "Evento não encontrado" };
+	
+			const inicioEvento = (inicioTermino[0].inicioDate as Date).getTime(),
+				terminoEvento = (inicioTermino[0].terminoDate as Date).getTime();
+
+			let d = (new Date(s.data)).getTime();
+			if (d < inicioEvento || d > terminoEvento)
+				return { erro: "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino };
+
+			for (let i = s.multidatas.length - 1; i >= 0; i--) {
+				d = (new Date(s.multidatas[i].data)).getTime();
+				if (d < inicioEvento || d > terminoEvento)
+					return { erro: "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino };
+			}
+		} else {
+			const inicioTermino = await sql.query("select date_format(inicio, '%d/%m/%Y') inicio, date_format(termino, '%d/%m/%Y') termino from evento where id = " + s.idevento + " and not ('" + s.data + "' between inicio and termino)");
+			if (inicioTermino && inicioTermino.length)
+				return { erro: "As datas permitidas para o evento vão de " + inicioTermino[0].inicio + " até " + inicioTermino[0].termino };
+		}
 
 		// Infelizmente não podemos mais utilizar uma constraint unique, porque
 		// é possível cadastrar mais de uma sessão virtual no mesmo evento/data/horário/local,
@@ -227,11 +395,29 @@ export = class Sessao {
 				"O local selecionado não possui as informações necessárias para integração com o sistema de agendamento" :
 				(await IntegracaoAgendamento.localHorarioLivre(s.data, s.inicio, s.termino, infoLocal.id_integra, id_integra_sessao || 0) ? null : "Já existe outro agendamento neste dia, horário e local")
 			);
+
+			if (s.multidatas && s.multidatas.length) {
+				for (let i = s.multidatas.length - 1; i >= 0 && !r.erro; i--) {
+					r.erro = (await IntegracaoAgendamento.localHorarioLivre(s.multidatas[i].data, s.multidatas[i].inicio, s.multidatas[i].termino, infoLocal.id_integra, id_integra_sessao || 0) ?
+						null :
+						"Já existe outro agendamento neste dia, horário e local"
+					);
+				}
+			}
 		} else {
 			r.erro = (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.data + "' and s.inicio < " + s.termino + " and " + s.inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > " + Unidade.idADefinir + " " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
 				"Já existe uma sessão no evento neste dia, horário e local" :
 				null
 			);
+
+			if (s.multidatas && s.multidatas.length) {
+				for (let i = s.multidatas.length - 1; i >= 0 && !r.erro; i--) {
+					r.erro = (await sql.scalar("select 1 from eventosessao s inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal where s.idevento = " + s.idevento + " and s.data = '" + s.multidatas[i].data + "' and s.inicio < " + s.multidatas[i].termino + " and " + s.multidatas[i].inicio + " < s.termino and s.ideventolocal = " + s.ideventolocal + " and s.sugestao = 0 and l.idunidade > " + Unidade.idADefinir + " " + (s.id ? ("and s.id <> " + s.id) : "") + " limit 1") ?
+						"Já existe uma sessão no evento neste dia, horário e local" :
+						null
+					);
+				}
+			}
 		}
 
 		return r;
@@ -274,16 +460,23 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, acomminutos, senhacontrole, senhapresenca, mensagemesgotada, id_integra, status_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', ?, 0, 1)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada]);
+				if (infoLocal && s.multidatas && s.multidatas.length) {
+					res = "Cadastro de sessões com múltiplas datas em salas físicas ainda não é suportado";
+					return;
+				}
+
+				await sql.query("insert into eventosessao (idcurso, idevento, ideventolocal, idformato, idtiposessao, idvertical, nome, nome_curto, data, inicio, termino, url_remota, descricao, oculta, sugestao, publico_alvo, tags, permiteinscricao, acomminutos, senhacontrole, senhapresenca, mensagemesgotada, tipomultidata, presencaminima, encontrostotais, id_integra, status_integra) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', ?, ?, ?, ?, 0, 1)", [s.idcurso, s.idevento, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais]);
 				s.id = await sql.scalar("select last_insert_id()") as number;
 
 				await Sessao.sincronizarPalestrantes(sql, s);
+
+				await Sessao.sincronizarMultidatas(sql, s);
 
 				let status_integra: number;
 				if (appsettings.integracaoAgendamento && infoLocal && u)
 					status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
 				else
-					status_integra = Sessao.STATUS_APROVADO;
+					status_integra = SessaoConstantes.STATUS_APROVADO;
 
 				res = [s.id, status_integra];
 
@@ -350,6 +543,11 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
+				if (infoLocal && s.multidatas && s.multidatas.length) {
+					res = "Cadastro de sessões com múltiplas datas em salas físicas ainda não é suportado";
+					return;
+				}
+
 				// Quando info é null, ou é uma sessão com local a definir, online, ou sugestão
 				let ideventolocalOriginal = 0, inicioOriginal = 0, terminoOriginal = 0, dataOriginal: string = null, nome_curtoOriginal: string = null;
 				if (infoLocal && appsettings.integracaoAgendamento) {
@@ -364,11 +562,15 @@ export = class Sessao {
 					}
 				}
 
-				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, acomminutos = ?, senhacontrole = ?, mensagemesgotada = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada]);
+				await sql.query("update eventosessao set idcurso = ?, ideventolocal = ?, idformato = ?, idtiposessao = ?, idvertical = ?, nome = ?, nome_curto = ?, data = ?, inicio = ?, termino = ?, url_remota = ?, descricao = ?, oculta = ?, sugestao = ?, publico_alvo = ?, tags = ?, permiteinscricao = ?, acomminutos = ?, senhacontrole = ?, mensagemesgotada = ?, tipomultidata = ?, presencaminima = ?, encontrostotais = ? where id = " + s.id + " and idevento = " + s.idevento, [s.idcurso, s.ideventolocal, s.idformato, s.idtiposessao, s.idvertical, s.nome, s.nome_curto, s.data, s.inicio, s.termino, s.url_remota, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais]);
 
 				const linhasAfetadas = sql.linhasAfetadas;
 
-				await Sessao.sincronizarPalestrantes(sql, s);
+				if (linhasAfetadas) {
+					await Sessao.sincronizarPalestrantes(sql, s);
+
+					await Sessao.sincronizarMultidatas(sql, s);
+				}
 
 				// Vamos deixar como -1, para o front saber que seja lá qual é o valor
 				// em status_integra lá no front, basta deixar o mesmo valor.
@@ -446,24 +648,49 @@ export = class Sessao {
 		return res;
 	}
 
+	private static async validarEncavalamentoParticipante(sql: Sql, idparticipante: number, data: string, inicio: number, termino: number): Promise<boolean> {
+		//if (await sql.scalar("select 1 from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.idevento = " + idevento + " and esp.idparticipante = " + idparticipante + " and s.data = '" + data + "' and s.inicio < " + sessao.termino + " and " + sessao.inicio + " < s.termino limit 1")) {
+		if (await sql.scalar("select 1 from eventosessao s inner join eventosessaoparticipante esp on esp.ideventosessao = s.id and esp.idparticipante = " + idparticipante + " where s.data = '" + data + "' and s.inicio < " + termino + " and " + inicio + " < s.termino limit 1"))
+			return false;
+
+		if (await sql.scalar("select 1 from eventosessaomultidata m inner join eventosessaoparticipante esp on esp.ideventosessao = m.ideventosessao and esp.idparticipante = " + idparticipante + " where m.data = '" + data + "' and m.inicio < " + termino + " and " + inicio + " < m.termino limit 1"))
+			return false;
+
+		return true;
+	}
+
 	public static async inscrever(id: number, idevento: number, idparticipante: number): Promise<string> {
 		let res: string = null;
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const sessao = await sql.query("select s.nome, date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino, ev.nome evento, ev.assuntoemailinscricao, ev.emailinscricao from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ nome: string, data: string, inicio: number, termino: number, evento: string, assuntoemailinscricao: string, emailinscricao: string }];
+				const lista = await sql.query("select s.nome, date_format(s.data, '%Y-%m-%d') data, s.inicio, s.termino, s.tipomultidata, ev.nome evento, ev.assuntoemailinscricao, ev.emailinscricao from eventosessao s inner join evento ev on ev.id = s.idevento where s.id = " + id + " and s.idevento = " + idevento + " and s.permiteinscricao = 1 and ev.permiteinscricao = 1") as [{ nome: string, data: string, inicio: number, termino: number, tipomultidata: number, evento: string, assuntoemailinscricao: string, emailinscricao: string }];
 
-				if (!sessao || !sessao[0]) {
+				if (!lista || !lista[0]) {
 					res = "Sessão não encontrada";
 					return;
 				}
 
-				if (await sql.scalar("select 1 from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.idevento = " + idevento + " and esp.idparticipante = " + idparticipante + " and s.data = '" + sessao[0].data + "' and s.inicio < " + sessao[0].termino + " and " + sessao[0].inicio + " < s.termino limit 1")) {
+				const sessao = lista[0];
+
+				if (!(await Sessao.validarEncavalamentoParticipante(sql, idparticipante, sessao.data, sessao.inicio, sessao.termino))) {
 					res = "Você já possui outra inscrição na mesma data e horário";
 					return;
 				}
 
-				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, presente, data_inscricao) select ?, ?, ?, 0, now() from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.oculta = 0 and s.sugestao = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);
+				if (sessao.tipomultidata) {
+					const multidatas = await sql.query("select date_format(data, '%Y-%m-%d') data, inicio, termino from eventosessaomultidata where ideventosessao = " + id) as [{ data: string, inicio: number, termino: number }];
+					if (multidatas && multidatas.length) {
+						for (let i = multidatas.length - 1; i >= 0; i--) {
+							if (!(await Sessao.validarEncavalamentoParticipante(sql, idparticipante, multidatas[i].data, multidatas[i].inicio, multidatas[i].termino))) {
+								res = "Você já possui outra inscrição na mesma data e horário";
+								return;
+							}
+						}
+					}
+				}
+
+				await sql.query("insert into eventosessaoparticipante (idevento, ideventosessao, idparticipante, creditaracom, encontrospresentes, data_inscricao) select ?, ?, ?, 0, 0, now() from (select l.capacidade, (select count(*) from eventosessaoparticipante where ideventosessao = ?) inscritos from eventosessao s inner join eventolocal l on l.id = s.ideventolocal where s.id = ? and s.oculta = 0 and s.sugestao = 0) tmp where tmp.capacidade > tmp.inscritos", [idevento, id, idparticipante, id, id]);
 
 				if (!sql.linhasAfetadas) {
 					res = "A sessão está esgotada";
@@ -472,24 +699,27 @@ export = class Sessao {
 					try {
 						const emailParticipante = await sql.scalar("select email from participante where id = " + idparticipante) as string;
 
+						if (!emailParticipante || emailParticipante.indexOf("@") < 0)
+							return;
+
 						const regEvento = /\{EVENTO\}/gi,
 							regSessao = /\{SESSAO\}/gi;
 
-						let assuntoemailinscricao = sessao[0].assuntoemailinscricao,
-							emailinscricao = sessao[0].emailinscricao,
+						let assuntoemailinscricao = sessao.assuntoemailinscricao,
+							emailinscricao = sessao.emailinscricao,
 							html: string = undefined;
 						
 						if (!assuntoemailinscricao) {
-							assuntoemailinscricao = 'Inscrição na sessão "' + sessao[0].nome + '"';
+							assuntoemailinscricao = 'Inscrição na sessão "' + sessao.nome + '"';
 						} else {
-							assuntoemailinscricao = assuntoemailinscricao.replace(regEvento, sessao[0].evento)
-								.replace(regSessao, sessao[0].nome);
+							assuntoemailinscricao = assuntoemailinscricao.replace(regEvento, sessao.evento)
+								.replace(regSessao, sessao.nome);
 						}
 
 						if (!emailinscricao) {
 							emailinscricao = `Olá!
 
-Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".
+Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao.nome}".
 
 Para acessar mais detalhes, acesse o endereço https://credenciamento.espm.br/participante
 
@@ -498,17 +728,16 @@ Até breve!
 Tenha um excelente evento :)`;
 
 							html = `<p>Olá!</p>
-<p>Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao[0].nome}".</p>
+<p>Este e-mail é apenas uma confirmação da sua inscrição na sessão "${sessao.nome}".</p>
 <p>Para acessar mais detalhes, acesse o endereço <a target="_blank" href="https://credenciamento.espm.br/participante">https://credenciamento.espm.br/participante</a></p>
 <p>Até breve!</p>
 <p>Tenha um excelente evento :)</p>`;
 						} else {
-							emailinscricao = emailinscricao.replace(regEvento, sessao[0].evento)
-								.replace(regSessao, sessao[0].nome);
+							emailinscricao = emailinscricao.replace(regEvento, sessao.evento)
+								.replace(regSessao, sessao.nome);
 						}
 
-						if (emailParticipante && emailParticipante.indexOf("@") > 0)
-							await Evento.enviarEmail(idevento, [emailParticipante], assuntoemailinscricao, emailinscricao, html);
+						await Evento.enviarEmail(idevento, [emailParticipante], assuntoemailinscricao, emailinscricao, html);
 					} catch (e) {
 						// Ignora algum possível erro no envio do e-mail para o participante, porque ele já foi inscrito com sucesso
 					}
@@ -526,7 +755,7 @@ Tenha um excelente evento :)`;
 
 	public static async excluirInscricao(ideventosessaoparticipante: number, idevento: number, idparticipante: number): Promise<void> {
 		await Sql.conectar(async (sql: Sql) => {
-			await sql.query("delete from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idevento = " + idevento + " and idparticipante = " + idparticipante + " and presente = 0");
+			await sql.query("delete from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idevento = " + idevento + " and idparticipante = " + idparticipante + " and encontrospresentes = 0");
 		});
 	}
 

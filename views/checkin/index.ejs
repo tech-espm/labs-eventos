@@ -249,8 +249,8 @@
 			Notification.hide();
 
 			if (response.success) {
-				if (!response.value) {
-					alertaDepoisDaConfirmacao = "Não foi possível localizar o participante inscrito na sessão, ou a senha digitada é inválida " + emoji.sad;
+				if (response.value) {
+					alertaDepoisDaConfirmacao = response.value; //"Não foi possível localizar o participante inscrito na sessão, ou a senha digitada é inválida " + emoji.sad;
 					alertaDepoisDaConfirmacaoErro = true;
 					$("#modalConfirmarPresenca").modal("hide");
 					return;
@@ -274,7 +274,7 @@
 				alertaDepoisDaConfirmacaoErro = true;
 				$("#modalConfirmarPresenca").modal("hide");
 			}
-		}, "senha", senha, "idevento", "<%-evento.id %>", "ideventosessao", ideventosessaoSelecionado, "idparticipante", idparticipanteSelecionado);
+		}, "senha", senha, "idevento", "<%-evento.id %>", "ideventosessao", ideventosessaoSelecionado, "idparticipante", idparticipanteSelecionado, "dataMarcacao", txtData.value);
 	}
 
 	function limparInscritos() {
@@ -292,7 +292,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("<%- root %>/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/2/" + ideventosessao, function (response) {
+		JsonWebApi.get("<%- root %>/api/evento/listarInscritosRecepcaoCheckIn/<%-evento.id %>/" + encodeURIComponent(senha) + "/2/" + ideventosessao + "/" + encodeURIComponent(txtData.value), function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
@@ -542,10 +542,42 @@
 	}
 
 	(function () {
-		var i, s, hoje = new Date();
+		var i, j, k, s, m, clone, hoje = new Date();
 
 		prepareDatePickerNumber(txtData);
 		setDatePickerValue(txtData, format2(hoje.getDate()) + "/" + format2(hoje.getMonth() + 1) + "/" + hoje.getFullYear());
+
+		for (i = sessoes.length - 1; i >= 0; i--) {
+			s = sessoes[i];
+			if (s.multidatas && s.multidatas.length) {
+				for (k = s.multidatas.length - 1; k >= 0; k--) {
+					clone = {};
+
+					for (j in s)
+						clone[j] = s[j];
+
+					m = s.multidatas[k];
+					m.dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](m.data);
+					m.inicioInt = parseInt(m.inicio.replace(":", ""), 10);
+					m.terminoInt = parseInt(m.termino.replace(":", ""), 10);
+
+					clone.multidataOriginal = s;
+					clone.data = m.data;
+					clone.inicio = m.inicio;
+					clone.termino = m.termino;
+
+					sessoes.push(clone);
+				}
+
+				s.multidatas.sort(function (a, b) {
+					if (a.dataInt !== b.dataInt)
+						return a.dataInt - b.dataInt;
+					if (a.inicioInt !== b.inicioInt)
+						return a.inicioInt - b.inicioInt;
+					return a.terminoInt - b.terminoInt;
+				});
+			}
+		}
 
 		for (i = sessoes.length - 1; i >= 0; i--) {
 			s = sessoes[i];

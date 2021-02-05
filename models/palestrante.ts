@@ -10,6 +10,7 @@ import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import emailValido = require("../utils/emailValido");
 import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
+import preencherMultidatas = require("../utils/preencherMultidatas");
 
 export = class Palestrante {
 	private static readonly HashId = appsettings.palestranteHashId;
@@ -418,7 +419,7 @@ export = class Palestrante {
 		let lista = [];
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select s.id, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, u.sigla sigla_unidade, l.nome nome_local, el.cor, date_format(esp.aceite, '%d/%m/%Y %H:%i') aceite from eventosessao s inner join eventosessaopalestrante esp on esp.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade where s.idevento = " + idevento + " and esp.idevento = " + idevento + " and esp.ideventopalestrante = " + id + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc");
+			lista = await preencherMultidatas(sql, await sql.query("select s.id, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, u.sigla sigla_unidade, l.nome nome_local, el.cor, date_format(esp.aceite, '%d/%m/%Y %H:%i') aceite, s.tipomultidata from eventosessao s inner join eventosessaopalestrante esp on esp.ideventosessao = s.id inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade where s.idevento = " + idevento + " and esp.idevento = " + idevento + " and esp.ideventopalestrante = " + id + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc"), false);
 		});
 
 		return lista;

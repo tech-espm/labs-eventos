@@ -260,7 +260,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("<%- root %>/api/participante/listarInscricoes", function (response) {
+		JsonWebApi.get("<%- root %>/api/participante/listarMinhasInscricoes", function (response) {
 			if (response.success) {
 				Notification.hide();
 
@@ -269,16 +269,23 @@
 				if (!inscricoes || !inscricoes.length) {
 					html = '<div class="text-center">Não foram encontradas inscrições para esse evento ' + emoji.sad + '</div>';
 				} else {
-					for (i = inscricoes.length - 1; i >= 0; i--)
-						inscricoes[i].dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](inscricoes[i].data);
+					function ajustarOrdenar(lista) {
+						for (i = lista.length - 1; i >= 0; i--) {
+							lista[i].dataInt = $.fn.dataTable.ext.type.order["customdateint-pre"](lista[i].data);
+							if (lista[i].multidatas && lista[i].multidatas.length)
+								ajustarOrdenar(lista[i].multidatas);
+						}
 
-					inscricoes.sort(function (a, b) {
-						if (a.dataInt !== b.dataInt)
-							return a.dataInt - b.dataInt;
-						if (a.inicio !== b.inicio)
-							return a.inicio - b.inicio;
-						return a.termino - b.termino;
-					});
+						lista.sort(function (a, b) {
+							if (a.dataInt !== b.dataInt)
+								return a.dataInt - b.dataInt;
+							if (a.inicio !== b.inicio)
+								return a.inicio - b.inicio;
+							return a.termino - b.termino;
+						});
+					}
+
+					ajustarOrdenar(inscricoes);
 
 					var agora = (new Date()).getTime();
 
@@ -288,22 +295,38 @@
 						if (i)
 							html += "<hr />";
 
-						var terminoEvento = (new Date((inscricao.dataInt / 10000) | 0, (((inscricao.dataInt / 100) | 0) % 100) - 1, inscricao.dataInt % 100, (inscricao.termino / 100) | 0, inscricao.termino % 100, 0, 0)).getTime();
+						// Se for multidata, terminoEvento = data e hora da última multidata
+						var m = ((inscricao.multidatas && inscricao.multidatas.length) ? inscricao.multidatas[inscricao.multidatas.length - 1] : inscricao);
+						var terminoEvento = (new Date((m.dataInt / 10000) | 0, (((m.dataInt / 100) | 0) % 100) - 1, m.dataInt % 100, (m.termino / 100) | 0, m.termino % 100, 0, 0)).getTime();
+
 						// Libera as avaliações por 10 dias, a partir de 10 minutos antes do final do evento
 						terminoEvento -= (10 * 60 * 1000);
 						terminoEvento = agora - terminoEvento;
 
-						if (inscricao.presente) {
-							html += '<h3 class="col-h2 titulo-inscricao">' + inscricao.nome + '<br /><small class="col-h2"><i>Presença marcada</i> <i class="fa fa-check fa-nomargin"></i></small><br />';
+						if (inscricao.encontrospresentes) {
+							html += '<h3 class="col-h2 titulo-inscricao">' + inscricao.nome + '<br />';
+							if (inscricao.tipomultidata) {
+								html += (inscricao.creditaracom ? '<small class="col-h2">' : '<small>') + '<i>Presença marcada em ' + inscricao.encontrospresentes + ' de ' + inscricao.encontrostotais + ' encontros</i>';
+								if (inscricao.creditaracom)
+									html += ' <i class="fa fa-check fa-nomargin"></i>';
+								else if (inscricao.presencaminima)
+									html += '<br/><i>(Presença mínima requerida em ' + inscricao.presencaminima + ' encontros)</i>';
+								html += '</small><br />';
+							} else {
+								html += '<small class="col-h2"><i>Presença marcada</i> <i class="fa fa-check fa-nomargin"></i></small><br />';
+							}
 							if (inscricao.avaliacao) {
 								html += '<small class="col-h2"><i>Avaliação realizada</i> <i class="fa fa-check fa-nomargin"></i></small>';
-							} else {
+							} else if (inscricao.creditaracom) {
 								if (terminoEvento > (10 * 24 * 60 * 60 * 1000))
 									html += '<small><i>Período de avaliação encerrado</i></small>';
 								else if (terminoEvento < 0)
-									html += '<small><i>Avaliação disponível a partir de dez minutos antes do término da sessão</i></small>';
+									html += (inscricao.tipomultidata ? '<small><i>Avaliação disponível a partir do término do último encontro</i></small>' :
+										'<small><i>Avaliação disponível a partir de dez minutos antes do término da sessão</i></small>');
 								else
 									html += '<br /><button type="button" class="btn btn-primary" onclick="avaliar(' + inscricao.id + ')"><i class="fa fa-star"></i>Avaliar</button><br /><small><i>Você pode realizar a avaliação até dez dias depois do evento</i></small>';
+							} else {
+								html += '<small><i>Avaliação indisponível</i></small>';
 							}
 						} else {
 							html += '<h3 class="titulo-inscricao">' + inscricao.nome + '<br /><small><i>Sem presença<br />';
@@ -325,7 +348,19 @@
 							html += '<br/>';
 						}
 
-						html += '<i class="fa fa-calendar"></i>' + inscricao.data + '<br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.inicio) + ' - ' + formatHourDec(inscricao.termino) + '</p>';
+						if (inscricao.multidatas && inscricao.multidatas.length) {
+							var multipresencas = {};
+							if (inscricao.multipresencas && inscricao.multipresencas.length) {
+								for (j = inscricao.multipresencas.length - 1; j >= 0; j--)
+									multipresencas[inscricao.multipresencas[j].data] = true;
+							}
+							html += (multipresencas[inscricao.data] ? '<span class="col-h2"><i class="fa fa-check"></i>' : '<span>') + '<i class="fa fa-calendar"></i>' + inscricao.data + '</span><br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.inicio) + ' - ' + formatHourDec(inscricao.termino);
+							for (j = 0; j < inscricao.multidatas.length; j++)
+								html += '<br/><br/>' + (multipresencas[inscricao.multidatas[j].data] ? '<span class="col-h2"><i class="fa fa-check"></i>' : '<span>') + '<i class="fa fa-calendar"></i>' + inscricao.multidatas[j].data + '</span><br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.multidatas[j].inicio) + ' - ' + formatHourDec(inscricao.multidatas[j].termino);
+						} else {
+							html += '<i class="fa fa-calendar"></i>' + inscricao.data + '<br /><i class="fa fa-clock-o"></i>' + formatHourDec(inscricao.inicio) + ' - ' + formatHourDec(inscricao.termino);
+						}
+						html += '</p>';
 						html += '<p><i class="fa fa-university"></i>Unidade: ' + inscricao.nome_unidade + '</p>';
 						html += '<p><i class="fa fa-map-marker"></i>Sala/Auditório: <span class="badge badge-sala" style="background-color: ' + intToColor(inscricao.cor) + '; color: ' + textColorForBackground(inscricao.cor) + ';">' + inscricao.nome_local + '</span></p>';
 						if ((inscricao.idlocal === idInternet || inscricao.idunidade === idInternet) && inscricao.url_remota)

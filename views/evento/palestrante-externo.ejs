@@ -174,8 +174,33 @@ function textColorForBackground(i) {
 							<td><button type="button" class="btn btn-primary" onclick="mostrarModalConcederAceite(this, <%-sessoes[i].id %>)"><i class="fa fa-check"></i>Conceder Aceite</button></td>
 							<% } %>
 							<td><%=sessoes[i].nome %></td>
-							<td class="text-center"><%=sessoes[i].data %>&nbsp;das<br /><%=formatHourDec(sessoes[i].inicio) %> às <%=formatHourDec(sessoes[i].termino) %></td>
-							<td>Unidade <%=sessoes[i].sigla_unidade %><br /><span class="badge badge-sala" style="background-color: <%-intToColor(sessoes[i].cor) %>; color: <%-textColorForBackground(sessoes[i].cor) %>;"><%=sessoes[i].nome_local %></span></td>
+							<td class="text-center" style="white-space: nowrap;"><i class="fa fa-calendar"></i><%=sessoes[i].data %><br /><i class="fa fa-clock-o"></i><%=formatHourDec(sessoes[i].inicio) %> - <%=formatHourDec(sessoes[i].termino) %><%
+								if (sessoes[i].multidatas && sessoes[i].multidatas.length) {
+									const multidatas = sessoes[i].multidatas;
+
+									for (let i = multidatas.length - 1; i >= 0; i--) {
+										const multidata = multidatas[i],
+											partes = multidata.data.split('/');
+										multidata.dia = parseInt(partes[0], 10);
+										multidata.mes = parseInt(partes[1], 10);
+										multidata.ano = parseInt(partes[2], 10);
+									}
+
+									multidatas.sort(function (a, b) {
+										if (a.ano !== b.ano)
+											return a.ano - b.ano;
+										if (a.mes !== b.mes)
+											return a.mes - b.mes;
+										return a.dia - b.dia;
+									});
+
+									for (let i = 0; i < multidatas.length; i++) {
+										const multidata = multidatas[i];
+										%><br /><br /><i class="fa fa-calendar"></i><%=multidata.data %><br /><i class="fa fa-clock-o"></i><%=formatHourDec(multidata.inicio) %> - <%=formatHourDec(multidata.termino) %><%
+									}
+								}
+							%></td>
+							<td class="text-center">Unidade <%=sessoes[i].sigla_unidade %><br /><span class="badge badge-sala" style="background-color: <%-intToColor(sessoes[i].cor) %>; color: <%-textColorForBackground(sessoes[i].cor) %>;"><%=sessoes[i].nome_local %></span></td>
 						</tr>
 					<% } %>
 					</tbody>

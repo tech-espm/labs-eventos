@@ -38,7 +38,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	var horariosPorId = {};
 	var palestrantesPorId = {};
 	var localPlaceholder = { cor: 0xffffff };
+	var modalPalestranteVisivel = false;
+	var modalPalestranteFading = false;
 	var regA = /[ÁÀÃÂÄ]/gi, regE = /[ÉÈÊË]/gi, regI = /[ÍÌÎÏ]/gi, regO = /[ÓÒÕÔÖ]/gi, regU = /[ÚÙÛÜ]/gi, regC = /Ç/gi;
+
+	$("#modalPalestrante").on("show.bs.modal", function () { modalPalestranteVisivel = true; });
+	$("#modalPalestrante").on("hidden.bs.modal", function () { modalPalestranteVisivel = false; modalPalestranteFading = false; });
 
 	window.prepareCbSearchAllowLower = true;
 
@@ -97,14 +102,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		}, 1000);
 	}
 
-	function gerarBadgeSalaSessao(sessao) {
+	function gerarBadgeSalaSessao(sessao, exibirHorarioSeMultidata) {
 		var local = sessao.local;
 		return ((local.idunidade === -1 && sessao.url_remota) ?
 			('<a target="_blank" href="' + sessao.url_remota + '"') :
 			'<span') +
 			' class="badge badge-sala" style="background-color: ' + intToColor(local.cor) + '; color: ' + textColorForBackground(local.cor) + ';">' +
 			((local.idunidade === -1 && sessao.url_remota) ? ('<i class="fa fa-external-link"></i>Sessão via Internet (Clique para acessar)') : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local)) +
-			'<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino +
+			((!sessao.multidatas || !sessao.multidatas.length || exibirHorarioSeMultidata) ? ('<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino) : '') +
 			((local.idunidade === -1 && sessao.url_remota) ? '</a>' : '</span>');
 	}
 
@@ -126,9 +131,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	}
 
 	function mostrarPalestrante(id) {
-		var html = '', linha, ok = false, palestrante = palestrantesPorId[id], i, s, ss;
+		var html = '', linha, ok = false, palestrante = palestrantesPorId[id], i, j, m, s, ss;
 
-		if (!palestrante)
+		if (!palestrante || modalPalestranteFading)
 			return false;
 
 		html += '<p><img alt="Foto do Palestrante" style="max-width: 100%; border-radius: 4px; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5); box-shadow: 0 1px 3px rgba(0,0,0,0.5);" width="200" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /></p>';
@@ -182,6 +187,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		if (ss && ss.length) {
 			for (i = 0; i < ss.length; i++) {
 				s = ss[i];
+				if (s.multidataOriginal)
+					continue;
 				linha = '<hr/><div class="row">';
 				linha += '<div class="col-sm-7">' + encode(s.nome);
 				if (<%- permiteinscricao %> && sessaoDataValidaInscricao(s)) {
@@ -197,24 +204,51 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 						linha += '<br/><span class="btn btn-outline btn-danger free"><i class="fa fa-times"></i>Inscrições Encerradas!</span>';
 					}
 				}
-				linha += '</div><div class="col-sm-5">' + s.data + '<br/>' + gerarBadgeSalaSessao(s);
+				linha += '</div><div class="col-sm-5"><i class="fa fa-calendar"></i>' + s.data + '<br/>';
+				if (s.multidatas && s.multidatas.length) {
+					linha += '<i class="fa fa-clock-o"></i>' + s.inicio + ' - ' + s.termino + '<br/>';
+					for (j = 0; j < s.multidatas.length; j++)
+						linha += '<br/><i class="fa fa-calendar"></i>' + s.multidatas[j].data + '<br/><i class="fa fa-clock-o"></i>' + s.multidatas[j].inicio + ' - ' + s.multidatas[j].termino + '<br/>';
+				}
+				linha += gerarBadgeSalaSessao(s, false);
 				linha += '</div></div>';
 				html += linha;
 			}
 		}
 
-		$("#modalPalestranteTitulo").html(encode(palestrante.nome_curto));
-		$("#modalPalestranteCorpo").html(html);
+		if (modalPalestranteVisivel) {
+			modalPalestranteFading = true;
 
-		$("#modalPalestrante").modal({
-			background: true,
-			keyboard: true
-		});
+			$("#modalPalestranteCorpo").fadeOut(function () {
+				$("#modalPalestranteTitulo").html(encode(palestrante.nome_curto));
+				$("#modalPalestranteCorpo").html(html);
+
+				$("#modalPalestranteCorpo").fadeIn(function () {
+					modalPalestranteFading = false;
+				});
+			});
+		} else {
+			$("#modalPalestranteTitulo").html(encode(palestrante.nome_curto));
+			$("#modalPalestranteCorpo").html(html);
+
+			$("#modalPalestrante").modal({
+				background: true,
+				keyboard: true
+			});
+		}
 
 		return false;
 	}
 
 	function mostrarSessao(s) {
+		if ((typeof s) === "number") {
+			for (var i = sessoes.length - 1; i >= 0; i--) {
+				if (sessoes[i].id === s)
+					return mostrarSessao(sessoes[i]);
+			}
+			return false;
+		}
+
 		if (!s)
 			return false;
 
@@ -365,14 +399,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	}
 
 	function gerarSessao(sessao, mostrarData) {
+		if (mostrarData && sessao.multidataOriginal)
+			return gerarSessao(sessao.multidataOriginal, mostrarData);
+
 		var j, tags, idspalestrante, palestrante, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
 
-		if (mostrarData)
-			htmlTemp += '<h2 class="section-subheader"><i class="fa fa-calendar"></i>' + sessao.data + '</h2>'
+		if (mostrarData) {
+			if (sessao.multidatas && sessao.multidatas.length) {
+				htmlTemp += '<p><i class="fa fa-calendar"></i>' + sessao.data + '<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino + '</p>';
+				for (j = 0; j < sessao.multidatas.length; j++)
+					htmlTemp += '<p><i class="fa fa-calendar"></i>' + sessao.multidatas[j].data + '<br/><i class="fa fa-clock-o"></i>' + sessao.multidatas[j].inicio + ' - ' + sessao.multidatas[j].termino + '</p>';
+			} else {
+				htmlTemp += '<h2 class="section-subheader"><i class="fa fa-calendar"></i>' + sessao.data + '</h2>';
+			}
+		} else if (sessao.multidatas && sessao.multidatas.length) {
+			htmlTemp += '<button type="button" class="btn btn-primary btn-outline" onclick="mostrarSessao(' + sessao.id + ')"><i class="fa fa-calendar"></i>Esta sessão é dividida em<br/>várias datas! Clique aqui para ver!</button>';
+		}
 
 		htmlTemp += '<div class="row"><div class="col-sm-12">';
 
-		htmlTemp += gerarBadgeSalaSessao(sessao);
+		htmlTemp += gerarBadgeSalaSessao(sessao, !mostrarData);
 
 		tags = (sessao.tags ? sessao.tags.split(", ") : null);
 		if (tags && tags.length) {
@@ -449,56 +495,113 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	}
 
 	function carregarSessoes() {
-		var i, j, ok = false, id, nomePeriodo = { 1: "Dia Inteiro", 2: "Manhã", 4: "Tarde", 8: "Noite" }, periodos, data, html = '',
-			htmlPadrao = '<p class="text-center"><br/><br/><br/>Não há sessões aqui... Que tal escolher outro dia ou horário? 😉<br/><br/><br/></p>';
+		var i, html = '', delta, menorIndice = (datas.length ? 0 : -1),
+			menorDelta = (datas.length ? Math.abs(dataHojeInt - datas[0].dataInt) : 0),
+			cbDataAgenda, painelAgendaContainer, primeiraVez = true, fading = false;
+		
+		html += '<div class="row"><div class="col-sm-4 col-sm-offset-4"><div class="form-group"><select id="cbDataAgenda" class="form-control" size="1"><option value="0">Escolha uma data...</option>';
 
-		html += '<ul class="nav nav-pills" role="tablist">';
 		for (i = 0; i < datas.length; i++) {
-			data = datas[i];
-			periodos = data.periodos;
-			id = "tabData" + data.dataInt;
+			delta = Math.abs(dataHojeInt - datas[i].dataInt);
+			if (menorDelta > delta) {
+				menorDelta = delta;
+				menorIndice = i;
+			}
+			html += '<option value="' + (i + 1) + '">' + datas[i].data + '</option>';
+		}
+		html += '</select></div></div></div><div id="painelAgendaContainer"></div>';
 
-			for (j = 1; j <= 8; j <<= 1) {
-				if ((periodos & j)) {
-					if (!ok) {
-						ok = true;
-						html += '<li role="presentation" class="active">';
-					} else {
-						html += '<li role="presentation">';
+		function preencherPainelAgendaContainer() {
+			var i = parseInt(cbDataAgenda.value), j, ok = false, id, nomePeriodo = { 1: "Dia Inteiro", 2: "Manhã", 4: "Tarde", 8: "Noite" }, periodos, data, html = '',
+				htmlPadrao = '<p class="text-center"><br/><br/><br/>Não há sessões aqui... Que tal escolher outro dia ou horário? 😉<br/><br/><br/></p>';
+
+			if (i >= 1 && i <= sessoes.length) {
+				i--;
+				html += '<ul class="nav nav-pills" role="tablist">';
+				//for (i = 0; i < datas.length; i++) {
+					data = datas[i];
+					periodos = data.periodos;
+					id = "tabData" + data.dataInt;
+
+					for (j = 1; j <= 8; j <<= 1) {
+						if ((periodos & j)) {
+							if (!ok) {
+								ok = true;
+								html += '<li role="presentation" class="active">';
+							} else {
+								html += '<li role="presentation">';
+							}
+							//html += '<a href="#' + id + j + '" aria-controls="' + id + j + '" role="tab" data-toggle="pill"><i class="fa fa-calendar"></i>' + data.data + ' - ' + nomePeriodo[j] + '</a></li>';
+							html += '<a href="#' + id + j + '" aria-controls="' + id + j + '" role="tab" data-toggle="pill"><i class="fa fa-calendar"></i>' + nomePeriodo[j] + '</a></li>';
+						}
 					}
-					html += '<a href="#' + id + j + '" aria-controls="' + id + j + '" role="tab" data-toggle="pill"><i class="fa fa-calendar"></i>' + data.data + ' - ' + nomePeriodo[j] + '</a></li>';
-				}
+
+					html += '<br/>';
+
+				//}
+				html += '</ul>';
+
+				ok = false;
+				html += '<div class="tab-content">';
+				//for (i = 0; i < datas.length; i++) {
+				//	data = datas[i];
+					periodos = data.periodos;
+					id = "tabData" + data.dataInt;
+
+					for (j = 1; j <= 8; j <<= 1) {
+						if ((periodos & j)) {
+							if (!ok) {
+								ok = true;
+								html += '<div role="tabpanel" class="tab-pane fade active in" id="';
+							} else {
+								html += '<div role="tabpanel" class="tab-pane fade" id="';
+							}
+							html += id + j + '">';
+							html += (carregarSessoesData(data.dataInt, j) || htmlPadrao);
+							html += '</div>';
+						}
+					}
+				//}
+				html += '</div>';
+			} else {
+				html = htmlPadrao;
 			}
 
-			html += '<br/>';
-
+			painelAgendaContainer.html(html);
 		}
-		html += '</ul>';
-
-		ok = false;
-		html += '<div class="tab-content">';
-		for (i = 0; i < datas.length; i++) {
-			data = datas[i];
-			periodos = data.periodos;
-			id = "tabData" + data.dataInt;
-
-			for (j = 1; j <= 8; j <<= 1) {
-				if ((periodos & j)) {
-					if (!ok) {
-						ok = true;
-						html += '<div role="tabpanel" class="tab-pane fade active in" id="';
-					} else {
-						html += '<div role="tabpanel" class="tab-pane fade" id="';
-					}
-					html += id + j + '">';
-					html += (carregarSessoesData(data.dataInt, j) || htmlPadrao);
-					html += '</div>';
-				}
-			}
-		}
-		html += '</div>';
 
 		$("#container-agenda").append(html);
+
+		painelAgendaContainer = $("#painelAgendaContainer");
+
+		cbDataAgenda = _("cbDataAgenda");
+		cbDataAgenda.onchange = function () {
+			if (primeiraVez) {
+				preencherPainelAgendaContainer();
+				primeiraVez = false;
+			} else if (!fading) {
+				fading = true;
+				cbDataAgenda.setAttribute("disabled", "disabled");
+
+				painelAgendaContainer.fadeOut(function () {
+					preencherPainelAgendaContainer();
+
+					painelAgendaContainer.fadeIn(function () {
+						fading = false;
+						cbDataAgenda.removeAttribute("disabled");
+						cbDataAgenda.cbSearchFocusByMouse = true;
+						cbDataAgenda.focus();
+					});
+				});
+			}
+		};
+
+		prepareCbSearch(cbDataAgenda);
+		if ((i = cbDataAgenda.parentNode.getElementsByTagName("i")) && i.length && i[0])
+			i[0].className = "fa fa-nomargin fa-calendar";
+
+		if (menorIndice >= 0)
+			setCbSearch(cbDataAgenda, menorIndice);
 	}
 
 	function buscar() {
@@ -508,6 +611,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		partes = str.split(" ");
 		for (i = 0; i < sessoes.length; i++) {
 			s = sessoes[i];
+			if (s.multidataOriginal)
+				continue;
 			n = s.nome_sort;
 			vezes = 0;
 			for (j = partes.length - 1; j >= 0; j--) {
@@ -561,7 +666,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	}
 
 	(function () {
-		var i, j, p, s, ids, option, data, dataInt, hashDatas = {},
+		var i, j, k, p, s, m, clone, ids, option, data, dataInt, hashDatas = {},
 			cbPalestrante = document.getElementById("cbPalestrante"),
 			hdrTitle = document.getElementById("hdr-title"),
 			hdrTitle2 = document.getElementById("hdr-title2");
@@ -623,6 +728,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		if (inscricoes) {
 			for (i = inscricoes.length - 1; i >= 0; i--)
 				inscricoesPorId[inscricoes[i].ideventosessao] = inscricoes[i].inscritos;
+		}
+
+		for (i = sessoes.length - 1; i >= 0; i--) {
+			s = sessoes[i];
+			if (s.multidatas && s.multidatas.length) {
+				for (k = s.multidatas.length - 1; k >= 0; k--) {
+					clone = {};
+
+					for (j in s)
+						clone[j] = s[j];
+
+					m = s.multidatas[k];
+					m.dataInt = converterDataInt(m.data);
+					m.inicioInt = parseInt(m.inicio.replace(":", ""), 10);
+					m.terminoInt = parseInt(m.termino.replace(":", ""), 10);
+
+					clone.multidataOriginal = s;
+					clone.data = m.data;
+					clone.inicio = m.inicio;
+					clone.termino = m.termino;
+
+					sessoes.push(clone);
+				}
+
+				s.multidatas.sort(function (a, b) {
+					if (a.dataInt !== b.dataInt)
+						return a.dataInt - b.dataInt;
+					if (a.inicioInt !== b.inicioInt)
+						return a.inicioInt - b.inicioInt;
+					return a.terminoInt - b.terminoInt;
+				});
+			}
 		}
 
 		for (i = sessoes.length - 1; i >= 0; i--) {

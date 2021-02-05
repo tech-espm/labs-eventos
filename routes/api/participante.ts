@@ -29,11 +29,11 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 	jsonRes(res, 400, p ? await Participante.criar(p, null, res) : "Dados inválidos");
 }));
 
-router.get("/listarInscricoes", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/listarMinhasInscricoes", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);
 	let idevento = parseInt(req.query["idevento"] as string);
 	if (p && idevento > 0)
-		res.json(await Participante.listarInscricoes(p.id, idevento));
+		res.json(await Participante.listarMinhasInscricoes(p.id, idevento));
 	else
 		jsonRes(res, 400, "Dados inválidos");
 }));
@@ -54,12 +54,13 @@ router.get("/marcarPresenca", wrap(async (req: express.Request, res: express.Res
 	let idevento = parseInt(req.query["idevento"] as string);
 	let ideventosessao = parseInt(req.query["ideventosessao"] as string);
 	let idparticipante = parseInt(req.query["idparticipante"] as string);
+	let dataMarcacao = req.query["dataMarcacao"] as string;
 	let evt = Evento.eventosPorId[idevento];
 
 	if (!evt || !evt.habilitado || !evt.permiteinscricao)
 		jsonRes(res, 400, "Dados inválidos");
-	else if (senha && idevento > 0 && ideventosessao > 0 && idparticipante > 0)
-		res.json(await Participante.marcarPresenca(senha, idevento, ideventosessao, idparticipante, false));
+	else if (senha && idevento > 0 && ideventosessao > 0 && idparticipante > 0 && dataMarcacao)
+		res.json(await Participante.marcarPresenca(senha, idevento, ideventosessao, idparticipante, dataMarcacao, false));
 	else
 		jsonRes(res, 400, "Dados inválidos");
 }));

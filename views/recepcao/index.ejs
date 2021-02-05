@@ -155,7 +155,7 @@
 
 		Notification.wait();
 
-		JsonWebApi.get("<%- root %>/api/evento/listarInscritos/<%-evento.id %>/" + encodeURIComponent(senha) + "/1", function (response) {
+		JsonWebApi.get("<%- root %>/api/evento/listarInscritosRecepcaoCheckIn/<%-evento.id %>/" + encodeURIComponent(senha) + "/1", function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);

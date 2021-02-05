@@ -4,10 +4,12 @@ import Evento = require("../models/evento");
 import Curso = require("../models/curso");
 import Formato = require("../models/formato");
 import Local = require("../models/local");
+import Sessao = require("../models/sessao");
 import TipoSessao = require("../models/tipoSessao");
 import Vertical = require("../models/vertical");
 import Usuario = require("../models/usuario");
 import appsettings = require("../appsettings");
+import SessaoConstantes = require("../models/sessaoConstantes");
 
 const router = express.Router();
 
@@ -67,6 +69,9 @@ router.get("/sugestao/:url/:senha", wrap(async (req: express.Request, res: expre
 		idevento: evento.id,
 		url: url,
 		senha: senha,
+		TIPOMULTIDATA_NENHUM: SessaoConstantes.TIPOMULTIDATA_NENHUM,
+		TIPOMULTIDATA_MINIMO_EXIGIDO: SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO,
+		TIPOMULTIDATA_PROPORCIONAL: SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL,
 		evento: await Evento.obter(evento.id, false),
 		cursos: JSON.stringify(await Curso.listarExterno()),
 		formatos: JSON.stringify(await Formato.listar()),
