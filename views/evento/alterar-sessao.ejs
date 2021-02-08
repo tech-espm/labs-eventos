@@ -654,8 +654,9 @@
 							preencherDadosSessao(s);
 							eventoSessoesPorId[s.id] = s;
 							eventoSessoes.push(s);
-							Notification.success("Sessão criada com sucesso! " + emoji.happy);
 							tabelaSessoes.row.add(s).draw();
+							$("#modalAlterarSessao").modal("hide");
+							Notification.success("Sessão criada com sucesso! " + emoji.happy);
 
 							// <% } else { %>
 
