@@ -292,7 +292,6 @@ CREATE TABLE eventosessaopalestrante (
 -- DROP TABLE IF EXISTS eventosessaomultidata;
 CREATE TABLE eventosessaomultidata (
   id bigint NOT NULL AUTO_INCREMENT,
-  idevento int NOT NULL,
   ideventosessao int NOT NULL,
   data datetime NOT NULL,
   inicio smallint NOT NULL,
