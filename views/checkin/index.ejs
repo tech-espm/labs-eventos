@@ -285,14 +285,21 @@
 		if (JsonWebApi.active || decodificando || ligando || modalAlertaVisivel || modalConfirmarPresencaVisivel)
 			return;
 
-		var ideventosessao = parseInt($cbSessao.val()), senha = _("txtSenha").value.normalize();
+		var ideventosessao = parseInt($cbSessao.val()), senha = _("txtSenha").value.normalize(), dataMarcacao = txtData.value;
 
-		if (isNaN(ideventosessao) || !ideventosessao || !senha)
+		if (isNaN(ideventosessao) || !ideventosessao || !senha || !dataMarcacao)
 			return;
+
+		var partes = dataMarcacao.split("/");
+		if (partes.length !== 3) {
+			Notification.error("Data inválida!");
+			return;
+		}
+		dataMarcacao = partes[2] + "-" + partes[1] + "-" + partes[0];
 
 		Notification.wait();
 
-		JsonWebApi.get("<%- root %>/api/evento/listarInscritosRecepcaoCheckIn/<%-evento.id %>/" + encodeURIComponent(senha) + "/2/" + ideventosessao + "/" + encodeURIComponent(txtData.value), function (response) {
+		JsonWebApi.get("<%- root %>/api/evento/listarInscritosRecepcaoCheckIn/<%-evento.id %>/" + encodeURIComponent(senha) + "/2/" + ideventosessao + "/" + encodeURIComponent(dataMarcacao), function (response) {
 			if (response.success) {
 				if (!response.value || !response.value.length) {
 					Notification.error("Nada para exibir " + emoji.sad, true);
