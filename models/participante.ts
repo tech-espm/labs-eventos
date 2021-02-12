@@ -331,11 +331,22 @@ export = class Participante {
 		return (lista || []);
 	}
 
+	public static removerPresencasSemCreditoACOM(lista: any[]): any[] {
+		if (lista && lista.length) {
+			for (let i = lista.length - 1; i >= 0; i--) {
+				if (!lista[i].creditaracom)
+					lista.splice(i, 1);
+			}
+		}
+
+		return lista;
+	}
+
 	public static async listarPresencasParaCertificado(idparticipante: number, idevento: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarACOMMinutos(await Participante.preencherMultipresencas(sql, idparticipante, await preencherMultidatas(sql, await sql.query("select s.id ideventosessao, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, p.creditaracom, p.encontrospresentes from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.encontrospresentes > 0"), false)));
+			lista = ajustarACOMMinutos(await Participante.preencherMultipresencas(sql, idparticipante, await preencherMultidatas(sql, Participante.removerPresencasSemCreditoACOM(await sql.query("select s.id ideventosessao, s.nome, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, p.creditaracom, p.encontrospresentes from eventosessao s inner join eventosessaoparticipante p on p.ideventosessao = s.id where s.idevento = " + idevento + " and p.idparticipante = " + idparticipante + " and p.encontrospresentes > 0")), false)));
 		});
 
 		return (lista || []);

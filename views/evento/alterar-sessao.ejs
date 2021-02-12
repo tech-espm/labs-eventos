@@ -62,8 +62,8 @@
 					<label for="cbSessaoTipoMultidata">Datas Adicionais</label>
 					<select class="form-control" id="cbSessaoTipoMultidata" name="cbSessaoTipoMultidata">
 						<option value="<%- TIPOMULTIDATA_NENHUM %>">Sem datas adicionais (ocorre apenas em uma data)</option>
-						<option value="<%- TIPOMULTIDATA_MINIMO_EXIGIDO %>">Com datas adicionais (presença mínima exigida para ACOM)</option>
-						<option value="<%- TIPOMULTIDATA_PROPORCIONAL %>">Com datas adicionais (horas ACOM proporcionais às presenças)</option>
+						<option value="<%- TIPOMULTIDATA_MINIMO_EXIGIDO %>">Com datas adicionais (presença mínima exigida)</option>
+						<option value="<%- TIPOMULTIDATA_PROPORCIONAL %>">Com datas adicionais (horas proporcionais às presenças)</option>
 					</select>
 				</div>
 				<div class="form-group" id="divSessaoPresencaMinima" style="display: none;">
@@ -97,8 +97,8 @@
 				</div>
 				<ul>
 					<li class="col-xs-space-bottom"><b>Sem datas adicionais</b>: A sessão ocorre em apenas uma data, ou, caso ocorra em mais datas, são cópias desta sessão, normalmente com públicos diferentes.</li>
-					<li class="col-xs-space-bottom"><b>Com datas adicionais (presença mínima)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá a quantidade de horas ACOM designadas caso compareça a pelo menos X encontros. Por exemplo, um curso de 20 horas, dividido em 5 noites, das quais o participante tem a obrigação de comparecer em pelo menos 4 noites para poder ter as horas ACOM creditadas.</li>
-					<li class="col-xs-space-bottom"><b>Com datas adicionais (horas proporcionais)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá uma a quantidade de horas ACOM proporcionais à quantidade de presenças. Por exemplo, um participante que comparecesse a 3 noites de um curso de 20 horas, dividido em 5 noites, teria 12 horas ACOM creditadas.</li>
+					<li class="col-xs-space-bottom"><b>Com datas adicionais (presença mínima)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá o certificado/horas ACOM designadas caso compareça a pelo menos X encontros. Um exemplo desse tipo de sessão seria um curso de 20 horas, dividido em 5 noites, das quais o participante tem a obrigação de comparecer em pelo menos 4 noites para poder receber o certificado/horas ACOM.</li>
+					<li class="col-xs-space-bottom"><b>Com datas adicionais (horas proporcionais)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante receberá o certificado/horas ACOM proporcionais à quantidade de presenças. Por exemplo, um participante que comparecesse a 3 noites de um curso de 20 horas, dividido em 5 noites, teria direito a receber um certificado com 3 presenças/12 horas ACOM.</li>
 				</ul>
 			</div>
 		</div>
