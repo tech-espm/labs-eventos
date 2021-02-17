@@ -108,7 +108,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			('<a target="_blank" href="' + sessao.url_remota + '"') :
 			'<span') +
 			' class="badge badge-sala" style="background-color: ' + intToColor(local.cor) + '; color: ' + textColorForBackground(local.cor) + ';">' +
-			((local.idunidade === -1 && sessao.url_remota) ? ('<i class="fa fa-external-link"></i>Sessão via Internet (Clique para acessar)') : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local)) +
+			((local.idunidade === -1 && sessao.url_remota) ? '<i class="fa fa-external-link"></i>Sessão via Internet (Clique para acessar)' : ((local.idunidade === -1 && sessao.url_privada) ? '<i class="fa fa-map-marker"></i>Sessão via Internet (Link disponível apenas na área "Minhas Inscrições")' : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local))) +
 			((!sessao.multidatas || !sessao.multidatas.length || exibirHorarioSeMultidata) ? ('<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino) : '') +
 			((local.idunidade === -1 && sessao.url_remota) ? '</a>' : '</span>');
 	}

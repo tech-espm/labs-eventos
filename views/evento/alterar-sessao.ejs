@@ -114,9 +114,18 @@
 			<label for="cbSessaoLocal">Local</label>
 			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control" size="1"><option value="">SELECIONE...</option></select>
 		</div>
-		<div class="form-group" id="divSessaoUrlRemota" style="display: none;">
-			<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
-			<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
+		<div id="divSessaoUrlRemota" style="display: none;">
+			<div class="form-group">
+				<label for="txtSessaoUrlRemota">URL da Sessão Remota (link do Zoom, Teams etc...) <small><i>(http://... ou https://...)</i></small></label>
+				<input id="txtSessaoUrlRemota" name="txtSessaoUrlRemota" type="url" class="form-control" maxlength="100" spellcheck="false" />
+			</div>
+			<div class="form-group">
+				<label for="cbSessaoUrlPrivada">Ocultar URL da Sessão Remota na Landing Page</label>
+				<select id="cbSessaoUrlPrivada" name="cbSessaoUrlPrivada" class="form-control" size="1">
+					<option value="0">EXIBIR URL NA LANDING PAGE</option>
+					<option value="1">OCULTAR URL NA LANDING PAGE (EXIBIR APENAS NAS "MINHAS INSCRIÇÕES")</option>
+				</select>
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-9">
@@ -345,6 +354,7 @@
 			$("#txtSessaoTermino").val(sessao ? sessao.termino : "");
 			_("divSessaoUrlRemota").style.display = ((sessao && localInternet(sessao.ideventolocal)) ? "" : "none");
 			$("#txtSessaoUrlRemota").val(sessao ? sessao.url_remota : "");
+			$("#cbSessaoUrlPrivada").val(sessao ? sessao.url_privada : "0");
 			$("#txtSessaoDescricao").val(sessao ? sessao.descricao : "");
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoSugestao").val(sessao ? sessao.sugestao : "0");
@@ -514,6 +524,7 @@
 					inicio: trim($("#txtSessaoInicio").val().normalize()),
 					termino: trim($("#txtSessaoTermino").val().normalize()),
 					url_remota: trim($("#txtSessaoUrlRemota").val().normalize()),
+					url_privada: parseInt($("#cbSessaoUrlPrivada").val()),
 					descricao: trim($("#txtSessaoDescricao").val().normalize()),
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					sugestao: parseInt($("#cbSessaoSugestao").val()),
@@ -599,6 +610,7 @@
 							sessao.inicio = s.inicio;
 							sessao.termino = s.termino;
 							sessao.url_remota = s.url_remota;
+							sessao.url_privada = s.url_privada;
 							sessao.descricao = s.descricao;
 							sessao.oculta = s.oculta;
 							sessao.sugestao = s.sugestao;
@@ -639,6 +651,7 @@
 							limparSessaoMultidata();
 							resetForm("#formAlterarSessao");
 							_("cbSessaoTipoMultidata").value = "0";
+							_("cbSessaoUrlPrivada").value = "0";
 
 							// <% if (usuario) { %>
 

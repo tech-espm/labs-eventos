@@ -47,6 +47,7 @@ router.post("/criar", wrap(async (req: express.Request, res: express.Response) =
 		s.idvertical = parseInt(req.body.idvertical);
 		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
 		s.termino = parseInt((req.body.termino || "").replace(":", ""));
+		s.url_privada = parseInt(req.body.url_privada);
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
@@ -91,6 +92,7 @@ router.post("/criarExterno", wrap(async (req: express.Request, res: express.Resp
 		s.idvertical = parseInt(req.body.idvertical);
 		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
 		s.termino = parseInt((req.body.termino || "").replace(":", ""));
+		s.url_privada = parseInt(req.body.url_privada);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
 		s.acomminutos = parseInt(req.body.acomminutos);
 		s.tipomultidata = parseInt(req.body.tipomultidata);
@@ -128,6 +130,7 @@ router.post("/alterar", wrap(async (req: express.Request, res: express.Response)
 		s.idvertical = parseInt(req.body.idvertical);
 		s.inicio = parseInt((req.body.inicio || "").replace(":", ""));
 		s.termino = parseInt((req.body.termino || "").replace(":", ""));
+		s.url_privada = parseInt(req.body.url_privada);
 		s.oculta = parseInt(req.body.oculta);
 		s.sugestao = parseInt(req.body.sugestao);
 		s.permiteinscricao = parseInt(req.body.permiteinscricao);
