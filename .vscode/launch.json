@@ -13,11 +13,17 @@
 				"${workspaceFolder}/node_modules/**",
 				"${workspaceFolder}/public/**"
 			],
-			"program": "${workspaceFolder}\\src\\app.js",
 			"outFiles": [
 				"${workspaceFolder}/src/**/*.js"
 			],
 			"windows": {
+				"program": "${workspaceFolder}\\src\\app.js",
+				"env": {
+					"PORT": "1337"
+				}
+			},
+			"linux": {
+				"program": "${workspaceFolder}/src/app.js",
 				"env": {
 					"PORT": "1337"
 				}
