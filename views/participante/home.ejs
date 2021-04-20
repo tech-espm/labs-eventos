@@ -90,14 +90,18 @@
 
 <%- contentFor("styles") %>
 <style type="text/css">
-	.panel {
-		background-color: transparent;
+	.panel-transparent-header {
+		background-color: rgba(255,255,255,0.85);
 	}
 
-	.panel-body {
-		border-radius: 4px;
-		background-color: #fff;
-	}
+		.panel-transparent-header > .panel-heading {
+			background-color: transparent;
+		}
+
+		.panel-transparent-header > .panel-body {
+			border-radius: 4px;
+			background-color: #fff;
+		}
 
 	.panel-body-titulo {
 		border-top-left-radius: 0;
@@ -402,7 +406,7 @@
 			html += '<div class="';
 			// A última coluna de uma lista com quantidade ímpar deve ocupar todo o espaço
 			html += ((i === (eventos.length - 1) && (eventos.length & 1)) ? "col-lg-12" : "col-sm-6");
-			html += '"><div class="panel panel-default"><div class="panel-heading">' + capitalizarFrase(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
+			html += '"><div class="panel panel-default panel-transparent-header"><div class="panel-heading">' + capitalizarFrase(evento.nome) + '</div><div class="panel-body panel-body-titulo no-bottom">';
 			html += '<h4 class="text-right"><i class="fa fa-calendar"></i>' + evento.data + '</h4>';
 			html += '<div class="form-group"><a class="btn btn-lg btn-outline btn-default btn-block" href="<%- root %>/participante/certificado/' + evento.idcertificado + '" target="_blank"><i class="fa fa-id-card-o"></i>Certificado</a></div>';
 			html += '<div class="form-group"><button type="button" onclick="mostrarEvento(' + evento.id + ')" class="btn btn-lg btn-outline btn-default btn-block"><i class="fa fa-edit"></i>Inscrições e avaliações</button></div>';
