@@ -242,6 +242,7 @@ CREATE TABLE eventosessao (
   publico_alvo varchar(100) NOT NULL,
   tags varchar(100) NOT NULL,
   permiteinscricao tinyint(4) NOT NULL,
+  permitesimultanea tinyint(4) NOT NULL,
   acomminutos int NOT NULL,
   senhacontrole varchar(45) NOT NULL,
   senhapresenca varchar(45) NOT NULL,
@@ -255,8 +256,8 @@ CREATE TABLE eventosessao (
   id_integra bigint NOT NULL,
   status_integra tinyint(4) NOT NULL,
   PRIMARY KEY (id),
-  KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino),
-  KEY datainiciotermino_eventosessao_FK_idx (data,inicio,termino),
+  KEY ideventodatainiciotermino_eventosessao_FK_idx (idevento,data,inicio,termino,permitesimultanea),
+  KEY datainiciotermino_eventosessao_FK_idx (data,inicio,termino,permitesimultanea),
   KEY ideventoeventolocal_eventosessao_FK_idx (idevento,ideventolocal),
   KEY idcurso_eventosessao_FK_idx (idcurso),
   KEY ideventolocal_eventosessao_FK_idx (ideventolocal),
@@ -297,9 +298,10 @@ CREATE TABLE eventosessaomultidata (
   data datetime NOT NULL,
   inicio smallint NOT NULL,
   termino smallint NOT NULL,
+  permitesimultanea tinyint(4) NOT NULL,
   PRIMARY KEY (id),
   KEY ideventosessaodata_eventosessaomultidata_FK_idx (ideventosessao,data),
-  KEY datainiciotermino_eventosessaomultidata_FK_idx (data,inicio,termino),
+  KEY datainiciotermino_eventosessaomultidata_FK_idx (data,inicio,termino,permitesimultanea),
   CONSTRAINT ideventosessao_eventosessaomultidata_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 

@@ -150,6 +150,18 @@
 	</div>
 	<div class="panel-body no-bottom">
 		<div class="row">
+			<div class="col-sm-6">
+				<div class="col-sm-space-bottom">
+					<label for="cbSessaoPermiteSimultanea">Permite Outras Inscrições Simultâneas</label>
+					<select id="cbSessaoPermiteSimultanea" name="cbSessaoPermiteSimultanea" class="form-control upper" size="1"><option value="1">SIM</option><option value="0" selected="selected">NÃO</option></select>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				Quando o campo "Permite Outras Inscrições Simultâneas" for marcado como "SIM", o sistema permitirá que os particiantes inscritos nesta sessão também se inscrevam outras em sessões no mesmo dia/hora.
+			</div>
+		</div>
+		<hr />
+		<div class="row">
 			<div class="col-sm-3">
 				<div class="form-group">
 					<label for="cbSessaoPermiteInscricao">Permite Inscrição</label>
@@ -359,6 +371,7 @@
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoSugestao").val(sessao ? sessao.sugestao : "0");
 			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
+			$("#cbSessaoPermiteSimultanea").val(sessao ? sessao.permitesimultanea : "1");
 			$("#txtSessaoAcomMinutos").val(sessao ? (sessao.acomminutos / 60).toFixed(1).replace(".", ",") : "");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
@@ -529,6 +542,7 @@
 					oculta: parseInt($("#cbSessaoOculta").val()),
 					sugestao: parseInt($("#cbSessaoSugestao").val()),
 					permiteinscricao: parseInt($("#cbSessaoPermiteInscricao").val()),
+					permitesimultanea: parseInt($("#cbSessaoPermiteSimultanea").val()),
 					acomminutos: (parseFloat($("#txtSessaoAcomMinutos").val().replace(",", ".")) * 60) | 0,
 					idcurso: parseInt($("#cbSessaoCurso").val()),
 					idformato: parseInt($("#cbSessaoFormato").val()),
@@ -615,6 +629,7 @@
 							sessao.oculta = s.oculta;
 							sessao.sugestao = s.sugestao;
 							sessao.permiteinscricao = s.permiteinscricao;
+							sessao.permitesimultanea = s.permitesimultanea;
 							sessao.acomminutos = s.acomminutos;
 							sessao.idcurso = s.idcurso;
 							sessao.idformato = s.idformato;
@@ -656,6 +671,7 @@
 							// <% if (usuario) { %>
 
 							_("cbSessaoPermiteInscricao").value = "1";
+							_("cbSessaoPermiteSimultanea").value = "0";
 							$("#tabelaSessaoPalestranteBody").empty();
 							$("#tabelaSessaoPalestrante").hide();
 							s.id = parseInt(response.value[0]);
