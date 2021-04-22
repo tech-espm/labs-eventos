@@ -371,7 +371,7 @@
 			$("#cbSessaoOculta").val(sessao ? sessao.oculta : "0");
 			$("#cbSessaoSugestao").val(sessao ? sessao.sugestao : "0");
 			$("#cbSessaoPermiteInscricao").val(sessao ? sessao.permiteinscricao : "1");
-			$("#cbSessaoPermiteSimultanea").val(sessao ? sessao.permitesimultanea : "1");
+			$("#cbSessaoPermiteSimultanea").val(sessao ? sessao.permitesimultanea : "0");
 			$("#txtSessaoAcomMinutos").val(sessao ? (sessao.acomminutos / 60).toFixed(1).replace(".", ",") : "");
 			preencherCb(_("cbSessaoCurso"), eventoCursos, sessao ? sessao.idcurso : "0");
 			preencherCb(_("cbSessaoFormato"), eventoFormatos, sessao ? sessao.idformato : "0");
