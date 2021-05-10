@@ -12,6 +12,7 @@ import ajustarACOMMinutos = require("../utils/ajustarACOMMinutos");
 import converterDataISOParaPtBr = require("../utils/converterDataISOParaPtBr");
 import preencherMultidatas = require("../utils/preencherMultidatas");
 import formatar2 = require("../utils/formatar2");
+import IntegracaoMicroservices = require("./integracao/microservices");
 import SessaoConstantes = require("./sessaoConstantes");
 import { list } from "pm2";
 import converterDataISO = require("../utils/converterDataISO");
@@ -29,6 +30,9 @@ export = class Participante {
 	public nome: string;
 	public login: string;
 	public email: string;
+	public campus: string;
+	public plano: string;
+	public ra: string;
 	public tipo: number;
 	public idinstrucao: number;
 	public idprofissao: number;
@@ -143,8 +147,8 @@ export = class Participante {
 		await Sql.conectar(async (sql: Sql) => {
 			email = email.normalize().trim().toUpperCase();
 
-			let rows = await sql.query("select id, nome, login, email, tipo, senha from participante where email = ?", [email]);
-			let row;
+			let rows = await sql.query("select id, nome, login, email, campus, plano, ra, tipo, senha from participante where email = ?", [email]);
+			let row: Participante;
 
 			if (!rows || !rows.length || !(row = rows[0])) {
 				inexistente = true;
@@ -157,6 +161,14 @@ export = class Participante {
 				return;
 			}
 
+			if (row.tipo !== Participante.TipoExterno) {
+				if (!row.ra) {
+					row.ra = await IntegracaoMicroservices.obterRA(row.email);
+					if (row.ra)
+						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
+				}
+			}
+
 			let [token, cookieStr] = Participante.gerarTokenCookie(row.id);
 
 			// Atualiza o nome com as informações vindas do AD
@@ -166,7 +178,7 @@ export = class Participante {
 				await sql.query("update participante set token = ? where id = " + row.id, [token]);
 
 			delete row.senha;
-			p = row as Participante;
+			p = row;
 
 			// @@@ secure!!!
 			res.cookie("participante", cookieStr, { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
