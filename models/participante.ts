@@ -161,7 +161,7 @@ export = class Participante {
 				return;
 			}
 
-			if (row.tipo !== Participante.TipoExterno) {
+			if (row.tipo !== Participante.TipoExterno && appsettings.integracaoMicroservices) {
 				if (!row.ra) {
 					row.ra = await IntegracaoMicroservices.obterRA(row.email);
 					if (row.ra)
