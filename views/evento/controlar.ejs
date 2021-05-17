@@ -3,7 +3,9 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body text-center">
-				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
+				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline col-xs-space-bottom" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
+				<br />
+				<button class="btn btn-danger btn-outline" style="white-space: normal;" target="_blank" onclick="mostrarModalLinkCheckIn()"><i class="fa fa-check-square-o"></i>Chamada / Atribuição de presença</button>
 				<hr />
 				<ul class="nav nav-pills" role="tablist">
 					<li role="presentation" class="active"><a id="a-basica" href="#tab-basica" role="tab" data-toggle="pill" aria-controls="tab-basica" aria-expanded="true"><i class="fa fa-edit"></i>Informações Básicas</a></li>
@@ -41,6 +43,28 @@
 			<div role="tabpanel" class="tab-pane fade" id="tab-sessoes"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-arquivos"></div>
 			<div role="tabpanel" class="tab-pane fade" id="tab-landing-page"></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalLinkCheckIn">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Atribuição de presença</h4>
+			</div>
+			<div class="modal-body">
+				<div class="col-xs-space-bottom"><button id="btnLinkCheckIn" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
+				<a id="aLinkCheckIn" href="#" target="_blank" style="word-break: break-all;"></a>
+				<hr />
+				<div class="col-xs-space-bottom">Acesse o link acima para realizar a chamada das sessões do evento, ou para atribuir uma presença tardia. A <b>senha do check-in</b> será requisitada para confirmar o processo.</div>
+				<div class="col-xs-space-bottom"><button id="btnLinkCheckInSenha" type="button" class="btn btn-primary" style="white-space: normal;"><i class="fa fa-copy"></i>Clique aqui para copiar a senha do check-in</button></div>
+				<div>Para alterar a senha do check-in, basta ir até a aba <b>Informações Básicas</b> &gt; <b>Senhas</b>.</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Fechar</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -199,7 +223,8 @@
 	};
 
 	var tabArquivosVisivel = false,
-		tabLandingPageVisivel = false;
+		tabLandingPageVisivel = false,
+		senhaCheckInSalva = "<%= item.senhacheckin %>";
 
 	function gerarLinkDeCompartilhamento(nome) {
 		return "<%- urlBase %>/<%-item.url %>?" + encodeURIComponent(ajustarNome(nome)).replace(regEspaco, "+");
@@ -355,6 +380,36 @@
 	}
 
 	prepareCopyHandler();
+
+	prepareCopyHandler(_("modalLinkCheckIn"), "#btnLinkCheckIn");
+	prepareCopyHandler(_("modalLinkCheckIn"), "#btnLinkCheckInSenha");
+
+	function mostrarModalLinkCheckIn() {
+		if ($.active || JsonWebApi.active)
+				return;
+
+		if (!window.senhaCheckInSalva) {
+			Notification.error("Por favor, preencha a senha do check-in, na aba \"Informações Básicas\" > \"Senhas\", antes de prosseguir " + emoji.sad, true);
+			return;
+		}
+
+		var str = $("#aCheckIn").attr("href");
+
+		var a = _("aLinkCheckIn");
+		a.setAttribute("href", str);
+		a.textContent = str;
+
+		a = _("btnLinkCheckIn");
+		a.setAttribute("data-clipboard-text", str);
+
+		a = _("btnLinkCheckInSenha");
+		a.setAttribute("data-clipboard-text", window.senhaCheckInSalva);
+
+		$("#modalLinkCheckIn").modal({
+			backdrop: "static",
+			keyboard: true
+		});
+	}
 
 	//]]>
 </script>

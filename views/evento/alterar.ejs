@@ -573,7 +573,8 @@
 							a.setAttribute("href", "/" + url);
 						if ((a = document.getElementsByTagName("h1")) && a.length && a[0])
 							a[0].textContent = trimValue("nome");
-						atualizarUrls(url, trimValue("senhasugestao"));
+						atualizarUrls(url, $("#senhasugestao").val());
+						window.senhaCheckInSalva = $("#senhacheckin").val();
 						//<% } %>
 						$("#aspectratioempresavalido").val(trim($("#aspectratioempresa").val()).toLowerCase());
 						$("#aspectratiopalestrantevalido").val(trim($("#aspectratiopalestrante").val()).toLowerCase());
