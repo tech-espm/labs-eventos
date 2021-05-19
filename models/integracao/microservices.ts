@@ -30,4 +30,32 @@ export = class IntegracaoMicroservices {
 
 		return (ra ? ra.trim() : null);
 	}
+
+	public static async obterCampusPlano(ra: string): Promise<[string, string]> {
+		if (!ra)
+			return null;
+
+		const tokenHeader = await IntegracaoMicroservices.token.obterHeader();
+		if (!tokenHeader)
+			IntegracaoMicroservices.throwErro("Erro na geração do token de acesso à integração");
+
+		const r = await JSONRequest.get(appsettings.integracaoMicroservicesPathObterCursos + "?Emplid=" + encodeURIComponent(ra), { "Authorization": tokenHeader });
+
+		if (!r.sucesso)
+			IntegracaoMicroservices.throwErro(r.erro || r.resultado);
+
+		if (r.resultado) {
+			// Pega a partir da última (deveria ser a mais recente)
+			for (let i = r.resultado.length - 1; i >= 0; i--) {
+				const curso = r.resultado[i];
+				let campus: string, plano: string;
+				if (curso &&
+					(campus = curso.campus) && (campus = campus.trim()) &&
+					(plano = curso.acad_plan) && (plano = plano.trim()))
+					return [campus, plano];
+			}
+		}
+
+		return null;
+	}
 }

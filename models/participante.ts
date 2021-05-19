@@ -167,6 +167,14 @@ export = class Participante {
 					if (row.ra)
 						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
 				}
+				if (row.tipo === Participante.TipoAluno && !row.campus && row.ra) {
+					const campusPlano = await IntegracaoMicroservices.obterCampusPlano(row.ra);
+					if (campusPlano) {
+						row.campus = campusPlano[0];
+						row.plano = campusPlano[1];
+						await sql.query("update participante set campus = ?, plano = ? where id = " + row.id, [row.campus, row.plano]);
+					}
+				}
 			}
 
 			let [token, cookieStr] = Participante.gerarTokenCookie(row.id);
