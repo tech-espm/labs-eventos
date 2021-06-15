@@ -234,6 +234,10 @@
 		return "<%- urlBase %>/evento/presenca/<%-item.url %>/" + idsessao + "/" + senhacontrole;
 	}
 
+	function gerarLinkDeAvaliacao(idsessao) {
+		return "<%- urlBase %>/participante/avalia/" + idsessao;
+	}
+
 	function prepararAba(idA, idTab, url) {
 		var a = $(idA),
 			tab = $(idTab),

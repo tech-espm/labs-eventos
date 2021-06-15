@@ -79,10 +79,26 @@ router.all("/modal", wrap(async (req: express.Request, res: express.Response) =>
 }));
 
 router.all("/", wrap(async (req: express.Request, res: express.Response) => {
+	return home(req, res, 0);
+}));
+
+router.all("/avalia/:s", wrap(async (req: express.Request, res: express.Response) => {
+	return home(req, res, parseInt(req.params["s"] as string));
+}));
+
+async function home(req: express.Request, res: express.Response, ideventosessao: number) {
 	let p = await Participante.cookie(req);
 	if (!p) {
+		if (ideventosessao)
+			res.cookie("participanteAvaliaId", ideventosessao.toString(), { maxAge: 1 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
 		res.redirect("/participante/login");
 	} else {
+		if (req.cookies["participanteAvaliaId"]) {
+			if (!ideventosessao)
+				ideventosessao = parseInt(req.cookies["participanteAvaliaId"] as string);
+			res.cookie("participanteAvaliaId", "", { expires: new Date(0), httpOnly: true, path: "/", secure: false });
+		}
+
 		let eventos = await Participante.listarEventos(p);
 		if (!eventos || !eventos.length)
 			res.render("participante/mensagem", { layout: "layout-participante", titulo: "Meus Eventos", ocultarBotao: true, mensagem: "Você ainda não participou de nenhum evento conosco", participante: p });
@@ -94,11 +110,12 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 				TIPOMULTIDATA_NENHUM: SessaoConstantes.TIPOMULTIDATA_NENHUM,
 				TIPOMULTIDATA_MINIMO_EXIGIDO: SessaoConstantes.TIPOMULTIDATA_MINIMO_EXIGIDO,
 				TIPOMULTIDATA_PROPORCIONAL: SessaoConstantes.TIPOMULTIDATA_PROPORCIONAL,
+				ideventosessaoparticipante: (ideventosessao > 0 ? await Participante.obterIdeventosessaoparticipanteParaAvaliacao(p.id, ideventosessao) : null),
 				participante: p,
 				eventos: JSON.stringify(eventos)
 			});
 	}
-}));
+}
 
 router.all("/qr", wrap(async (req: express.Request, res: express.Response) => {
 	let p = await Participante.cookie(req);

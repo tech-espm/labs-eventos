@@ -172,7 +172,7 @@
 			order: [],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link de Controle de Presença\" type=\"button\" data-presenca=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-check-square-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button><br/><button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link de Controle de Presença\" type=\"button\" data-presenca=\"1\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-check-square-o\"></i></button> <button title=\"Link de Avaliação dos Participantes\" type=\"button\" data-avaliacao=\"1\" class=\"btn btn-outline btn-success\"><i class=\"fa fa-nomargin fa-thumbs-o-up\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{
 					title: "Palestrantes", data: function (row, type, set, meta) {
@@ -372,6 +372,20 @@
 					return;
 				}
 				str = gerarLinkDeControleDePresenca(sessao.id, sessao.senhacontrole);
+
+				a = _("aLinkSessao");
+				a.setAttribute("href", str);
+				a.textContent = str;
+
+				a = _("btnLinkSessao");
+				a.setAttribute("data-clipboard-text", str);
+
+				$("#modalLinkSessao").modal({
+					backdrop: "static",
+					keyboard: true
+				});
+			} else if (this.getAttribute("data-avaliacao")) {
+				str = gerarLinkDeAvaliacao(sessao.id);
 
 				a = _("aLinkSessao");
 				a.setAttribute("href", str);

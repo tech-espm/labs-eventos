@@ -14,7 +14,6 @@ import preencherMultidatas = require("../utils/preencherMultidatas");
 import formatar2 = require("../utils/formatar2");
 import IntegracaoMicroservices = require("./integracao/microservices");
 import SessaoConstantes = require("./sessaoConstantes");
-import { list } from "pm2";
 import converterDataISO = require("../utils/converterDataISO");
 
 export = class Participante {
@@ -456,6 +455,50 @@ export = class Participante {
 		return res;
 	}
 
+	private static async validarPeriodoAvaliacao(sql: Sql, idparticipante: number, ideventosessaoparticipante: number): Promise<string> {
+		const sessoes: { id: number, data: string, tipomultidata: number }[] = await sql.query("select s.id, date_format(s.data, '%Y-%m-%d') data, s.tipomultidata from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.creditaracom = 1");
+		
+		if (!sessoes || !sessoes[0])
+			return "Sessão não encontrada";
+
+		const sessao = sessoes[0];
+		if (sessao.tipomultidata) {
+			sessao.data = await sql.scalar("select date_format(data, '%Y-%m-%d') from eventosessaomultidata where ideventosessao = " + sessao.id + " order by data desc limit 1");
+			if (!sessao.data)
+				return "Sessão não encontrada";
+		}
+
+		const agora = (new Date()).getTime();
+		const dataSessao = (new Date(sessao.data)).getTime();
+		if (agora < dataSessao)
+			return "Avaliação ainda não está liberada";
+		else if (agora >= (dataSessao + (11 * 24 * 60 * 60 * 1000)))
+			return "Período de avaliação encerrado";
+
+		return null;
+	}
+
+	public static async obterIdeventosessaoparticipanteParaAvaliacao(idparticipante: number, ideventosessao: number): Promise<string> {
+		let res: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			const ideventosessaoparticipante = await sql.scalar("select id from eventosessaoparticipante where ideventosessao = " + ideventosessao + " and idparticipante = " + idparticipante) as number;
+			if (!ideventosessaoparticipante) {
+				res = "Inscrição não encontrada para essa sessão";
+				return;
+			}
+
+			if ((await sql.scalar("select 1 from eventosessaoavaliacao where ideventosessaoparticipante = " + ideventosessaoparticipante + " limit 1"))) {
+				res = "Você já realizou a avaliação dessa sessão antes";
+				return;
+			}
+
+			res = (await Participante.validarPeriodoAvaliacao(sql, idparticipante, ideventosessaoparticipante) || ideventosessaoparticipante.toString());
+		});
+
+		return res;
+	}
+
 	public static async avaliarSessao(idparticipante: number, ideventosessaoparticipante: number, avaliacao: number, comentario: string): Promise<string> {
 		let res: string = null;
 
@@ -465,21 +508,8 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				let data = await sql.scalar("select date_format(s.data, '%Y-%m-%d') data from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.creditaracom = 1") as string;
-				if (!data) {
-					res = "Sessão não encontrada";
+				if ((res = await Participante.validarPeriodoAvaliacao(sql, idparticipante, ideventosessaoparticipante)))
 					return;
-				}
-
-				let agora = (new Date()).getTime();
-				let dataSessao = (new Date(data)).getTime();
-				if (agora < dataSessao) {
-					res = "Avaliação ainda não está liberada";
-					return;
-				} else if (agora >= (dataSessao + (11 * 24 * 60 * 60 * 1000))) {
-					res = "Período de avaliação encerrado";
-					return;
-				}
 
 				await sql.query("insert into eventosessaoavaliacao (ideventosessaoparticipante, avaliacao, comentario, data_avaliacao) values (?, ?, ?, now())", [ideventosessaoparticipante, avaliacao, comentario]);
 
