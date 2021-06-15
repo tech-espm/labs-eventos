@@ -456,23 +456,29 @@ export = class Participante {
 	}
 
 	private static async validarPeriodoAvaliacao(sql: Sql, idparticipante: number, ideventosessaoparticipante: number): Promise<string> {
-		const sessoes: { id: number, data: string, tipomultidata: number }[] = await sql.query("select s.id, date_format(s.data, '%Y-%m-%d') data, s.tipomultidata from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.creditaracom = 1");
+		const sessoes: { id: number, data: string, termino: number, tipomultidata: number }[] = await sql.query("select s.id, date_format(s.data, '%Y-%m-%d') data, s.termino, s.tipomultidata from eventosessaoparticipante esp inner join eventosessao s on s.id = esp.ideventosessao where esp.id = " + ideventosessaoparticipante + " and esp.idparticipante = " + idparticipante + " and esp.creditaracom = 1");
 		
 		if (!sessoes || !sessoes[0])
 			return "Sessão não encontrada";
 
 		const sessao = sessoes[0];
 		if (sessao.tipomultidata) {
-			sessao.data = await sql.scalar("select date_format(data, '%Y-%m-%d') from eventosessaomultidata where ideventosessao = " + sessao.id + " order by data desc limit 1");
-			if (!sessao.data)
+			const multi: { data: string, termino: number }[] = await sql.query("select date_format(data, '%Y-%m-%d') data, termino from eventosessaomultidata where ideventosessao = " + sessao.id + " order by data desc limit 1");
+			if (!multi || !multi[0])
 				return "Sessão não encontrada";
+			sessao.data = multi[0].data;
+			sessao.termino = multi[0].termino;
 		}
 
-		const agora = (new Date()).getTime();
-		const dataSessao = (new Date(sessao.data)).getTime();
+		const dateAgora = new Date(),
+			// Faz a conta como se nosso horário local (que vem do banco) estivesse
+			// em coordenadas UTC, para não dar problema com fuso horário!
+			agora = dateAgora.getTime() - (dateAgora.getTimezoneOffset() * 60 * 1000),
+			// A avaliação deve ser liberada 10 minutos antes do término da sessão
+			dataSessao = (new Date(sessao.data + "Z" + formatar2((sessao.termino / 100) | 0) + ":" + formatar2(sessao.termino % 100))).getTime() - (10 * 60 * 1000);
 		if (agora < dataSessao)
 			return "Avaliação ainda não está liberada";
-		else if (agora >= (dataSessao + (11 * 24 * 60 * 60 * 1000)))
+		else if (agora > (dataSessao + (10 * 24 * 60 * 60 * 1000)))
 			return "Período de avaliação encerrado";
 
 		return null;
