@@ -499,8 +499,12 @@ export = class Participante {
 		return res;
 	}
 
-	public static async avaliarSessao(idparticipante: number, ideventosessaoparticipante: number, avaliacao: number, comentario: string): Promise<string> {
+	public static async avaliarSessao(idparticipante: number, ideventosessaoparticipante: number, conhecimento: number, conteudo: number, pontualidade: number, aplicabilidade: number, expectativas: number, comentarioExpectativas: string, avaliacao: number, comentario: string): Promise<string> {
 		let res: string = null;
+
+		comentarioExpectativas = (comentarioExpectativas || "").normalize().trim();
+		if (!comentarioExpectativas)
+			comentarioExpectativas = null;
 
 		comentario = (comentario || "").normalize().trim();
 		if (!comentario)
@@ -511,7 +515,7 @@ export = class Participante {
 				if ((res = await Participante.validarPeriodoAvaliacao(sql, idparticipante, ideventosessaoparticipante)))
 					return;
 
-				await sql.query("insert into eventosessaoavaliacao (ideventosessaoparticipante, avaliacao, comentario, data_avaliacao) values (?, ?, ?, now())", [ideventosessaoparticipante, avaliacao, comentario]);
+				await sql.query("insert into eventosessaoavaliacao (ideventosessaoparticipante, conhecimento, conteudo, pontualidade, aplicabilidade, expectativas, avaliacao, data_avaliacao, comentario_expectativas, comentario) values (?, ?, ?, ?, ?, ?, ?, now(), ?, ?)", [ideventosessaoparticipante, conhecimento, conteudo, pontualidade, aplicabilidade, expectativas, avaliacao, comentarioExpectativas, comentario]);
 
 			} catch (e) {
 				// Ignora o erro se o participante já havia avaliado a sessão

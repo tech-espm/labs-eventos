@@ -376,9 +376,15 @@ CREATE TABLE eventosessaoparticipantemultidata (
 CREATE TABLE eventosessaoavaliacao (
   id bigint NOT NULL AUTO_INCREMENT,
   ideventosessaoparticipante bigint NOT NULL,
+  conhecimento tinyint(4) NOT NULL,
+  conteudo tinyint(4) NOT NULL,
+  pontualidade tinyint(4) NOT NULL,
+  aplicabilidade tinyint(4) NOT NULL,
+  expectativas tinyint(4) NOT NULL,
   avaliacao tinyint(4) NOT NULL,
-  comentario varchar(100) NULL,
   data_avaliacao datetime NOT NULL,
+  comentario_expectativas tinytext NULL,
+  comentario tinytext NULL,
   PRIMARY KEY (id),
   UNIQUE KEY ideventosessaoparticipante_eventosessaoavaliacao_UN (ideventosessaoparticipante),
   CONSTRAINT ideventosessaoparticipante_FK FOREIGN KEY (ideventosessaoparticipante) REFERENCES eventosessaoparticipante (id) ON DELETE CASCADE ON UPDATE RESTRICT

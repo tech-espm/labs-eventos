@@ -231,7 +231,7 @@ router.get("/contarInscricoesEPresencas", wrap(async (req: express.Request, res:
 	res.json(await Evento.contarInscricoesEPresencas(u.idevento_logado));
 }));
 
-router.get("/listarAvaliacoesEMedias", wrap(async (req: express.Request, res: express.Response) => {
+router.get("/listarAvaliacoes", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)
 		return;
@@ -239,7 +239,18 @@ router.get("/listarAvaliacoesEMedias", wrap(async (req: express.Request, res: ex
 		jsonRes(res, 400, "Nenhum evento selecionado!");
 		return;
 	}
-	res.json(await Evento.listarAvaliacoesEMedias(u.idevento_logado));
+	res.json(await Evento.listarAvaliacoes(u.idevento_logado));
+}));
+
+router.get("/listarAvaliacoesEComentarios", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	if (isNaN(u.idevento_logado) || u.idevento_logado <= 0) {
+		jsonRes(res, 400, "Nenhum evento selecionado!");
+		return;
+	}
+	res.json(await Evento.listarAvaliacoesEComentarios(u.idevento_logado));
 }));
 
 router.get("/listarInscritosRecepcaoCheckIn/:e/:s/:t/:i?/:d?", wrap(async (req: express.Request, res: express.Response) => {

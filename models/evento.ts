@@ -572,11 +572,21 @@ export = class Evento {
 		return res;
 	}
 
-	public static async listarAvaliacoesEMedias(id: number): Promise<any[]> {
+	public static async listarAvaliacoes(id: number): Promise<any[]> {
 		let res: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			res = await sql.query("select esp.ideventosessao, esa.avaliacao, esa.comentario, date_format(esa.data_avaliacao, '%d/%m/%Y') data_avaliacao from eventosessaoparticipante esp inner join eventosessaoavaliacao esa on esa.ideventosessaoparticipante = esp.id where esp.idevento = " + id);
+			res = await sql.query("select esp.ideventosessao, esa.avaliacao from eventosessaoparticipante esp inner join eventosessaoavaliacao esa on esa.ideventosessaoparticipante = esp.id where esp.idevento = " + id);
+		});
+
+		return res;
+	}
+
+	public static async listarAvaliacoesEComentarios(id: number): Promise<any[]> {
+		let res: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			res = await sql.query("select esp.ideventosessao, esa.conhecimento, esa.conteudo, esa.pontualidade, esa.aplicabilidade, esa.expectativas, esa.avaliacao, date_format(esa.data_avaliacao, '%d/%m/%Y') data_avaliacao, esa.comentario_expectativas, esa.comentario from eventosessaoparticipante esp inner join eventosessaoavaliacao esa on esa.ideventosessaoparticipante = esp.id where esp.idevento = " + id);
 		});
 
 		return res;

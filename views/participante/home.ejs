@@ -65,19 +65,84 @@
 			</div>
 			<div class="modal-body">
 				<div class="form-group">
-					<label for="txtAvaliacao">Nota <small>(Uma a cinco estrelas)</small></label>
-					<div>
-						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela1" onclick="definirEstrela(1)" title="Uma estrela"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Uma estrela</span></button>
-						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela2" onclick="definirEstrela(2)" title="Duas estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Duas estrelas</span></button>
-						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela3" onclick="definirEstrela(3)" title="Três estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Três estrelas</span></button>
-						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela4" onclick="definirEstrela(4)" title="Quatro estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Quatro estrelas</span></button>
-						<button type="button" class="btn btn-outline btn-default" style="font-size: 20px;" id="btnEstrela5" onclick="definirEstrela(5)" title="Cinco estrelas"><i class="fa fa-nomargin fa-star-o"></i><span class="sr-only">Cinco estrelas</span></button>
-					</div>
-					<input id="txtAvaliacao" name="txtAvaliacao" type="text" tabindex="-1" style="position: absolute; border: 0; outline: 0; pointer-events: none; width: 0; height: 0; display: inline-block; background: transparent;" />
+					<label for="txtConhecimento">Conhecimento do palestrante sobre o assunto</label>
+					<select class="form-control" id="txtConhecimento" name="txtConhecimento">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="txtConteudo">Conteúdo da atividade</label>
+					<select class="form-control" id="txtConteudo" name="txtConteudo">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="txtPontualidade">Pontualidade e administração do tempo do palestrante</label>
+					<select class="form-control" id="txtPontualidade" name="txtPontualidade">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="txtAplicabilidade">Aplicabilidade do conhecimento apresentado na atividade em seu dia-a-dia</label>
+					<select class="form-control" id="txtAplicabilidade" name="txtAplicabilidade">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="txtExpectativas">A atividade atingiu suas expectativas</label>
+					<select class="form-control" id="txtExpectativas" name="txtExpectativas">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="txtComentarioExpectativas">Por quê? <small>(Opcional)</small></label>
+					<input id="txtComentarioExpectativas" name="txtComentarioExpectativas" type="text" class="form-control" maxlength="200" />
+				</div>
+				<div class="form-group">
+					<label for="txtAvaliacao">Nota geral da atividade</label>
+					<select class="form-control" id="txtAvaliacao" name="txtAvaliacao">
+						<option value="">SELECIONE...</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
 				</div>
 				<div class="form-group no-margin-bottom">
-					<label for="txtComentario">Comentário <small>(Opcional)</small></label>
-					<input id="txtComentario" name="txtComentario" type="text" class="form-control" maxlength="100" />
+					<label for="txtComentario">Críticas, elogios e sugestões <small>(Opcional)</small></label>
+					<input id="txtComentario" name="txtComentario" type="text" class="form-control" maxlength="200" />
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -237,14 +302,47 @@
 
 	$("#formAvaliacao").validate({
 		rules: {
+			txtConhecimento: {
+				required: true,
+				min: 0,
+				max: 5,
+				number: true
+			},
+			txtConteudo: {
+				required: true,
+				min: 0,
+				max: 5,
+				number: true
+			},
+			txtPontualidade: {
+				required: true,
+				min: 0,
+				max: 5,
+				number: true
+			},
+			txtAplicabilidade: {
+				required: true,
+				min: 0,
+				max: 5,
+				number: true
+			},
+			txtExpectativas: {
+				required: true,
+				min: 0,
+				max: 5,
+				number: true
+			},
+			txtComentarioExpectativas: {
+				maxlength: 200
+			},
 			txtAvaliacao: {
 				required: true,
-				min: 1,
+				min: 0,
 				max: 5,
 				number: true
 			},
 			txtComentario: {
-				maxlength: 100
+				maxlength: 200
 			}
 		},
 		submitHandler: function (form) {
@@ -264,7 +362,16 @@
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
-			}, "id", idParaAvaliar, "avaliacao", $("#txtAvaliacao").val(), "comentario", trim($("#txtComentario").val()));
+			},
+			"id", idParaAvaliar, 
+			"conhecimento", $("#txtConhecimento").val(),
+			"conteudo", $("#txtConteudo").val(),
+			"pontualidade", $("#txtPontualidade").val(),
+			"aplicabilidade", $("#txtAplicabilidade").val(),
+			"expectativas", $("#txtExpectativas").val(),
+			"comentarioExpectativas", trim($("#txtComentarioExpectativas").val()),
+			"avaliacao", $("#txtAvaliacao").val(),
+			"comentario", trim($("#txtComentario").val()));
 		}
 	});
 

@@ -9,12 +9,12 @@
 				<div class="col-xs-space-bottom text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridInscritosGeral()"><i class="fa fa-users"></i>Exibir Participantes e Presenças...</button>
-					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAvaliacoesEMedias()"><i class="fa fa-thumbs-o-up"></i>Exibir Avaliações e Comentários...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAvaliacoesEComentarios()"><i class="fa fa-thumbs-o-up"></i>Exibir Avaliações e Comentários...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="contarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
-					<button class="btn btn-primary btn-outline" type="button" onclick="listarAvaliacoesEMedias()"><i class="fa fa-refresh"></i>Atualizar Avaliações e Médias...</button>
+					<button class="btn btn-primary btn-outline" type="button" onclick="listarAvaliacoes()"><i class="fa fa-refresh"></i>Atualizar Avaliações e Médias...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
 				<table class="table table-striped table-hover" id="tabela-sessoes"></table>
@@ -239,17 +239,17 @@
 			});
 		};
 
-		window.listarAvaliacoesEMedias = function () {
+		window.listarAvaliacoes = function () {
 			if ($.active || JsonWebApi.active)
 				return;
 
 			Notification.wait();
 
-			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEMedias", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoes", function (response) {
 				if (response.success) {
 					Notification.success("Informações atualizadas com sucesso! " + emoji.happy);
 
-					atualizarAvaliacoesEMedias(response.value);
+					atualizarAvaliacoes(response.value);
 
 					tabelaSessoes.rows().invalidate().draw();
 				} else {
@@ -759,13 +759,13 @@
 			});
 		};
 
-		window.mostrarGridAvaliacoesEMedias = function () {
+		window.mostrarGridAvaliacoesEComentarios = function () {
 			if ($.active || JsonWebApi.active)
 				return;
 
 			Notification.wait();
 
-			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEMedias", function (response) {
+			JsonWebApi.get("<%- root %>/api/evento/listarAvaliacoesEComentarios", function (response) {
 				if (response.success) {
 					Notification.hide();
 
@@ -782,8 +782,14 @@
 							nome_sessao: sessao.nome,
 							nome_local: sessao.nome_local,
 							nome_curso: sessao.nome_curso,
-							avaliacao: avaliacao.avaliacao,
 							data_avaliacao: avaliacao.data_avaliacao,
+							conhecimento: avaliacao.conhecimento,
+							conteudo: avaliacao.conteudo,
+							pontualidade: avaliacao.pontualidade,
+							aplicabilidade: avaliacao.aplicabilidade,
+							expectativas: avaliacao.expectativas,
+							comentario_expectativas: avaliacao.comentario_expectativas || "",
+							avaliacao: avaliacao.avaliacao,
 							comentario: avaliacao.comentario || ""
 						});
 					}
@@ -800,9 +806,15 @@
 							{ title: "Sessão", render: encode, data: "nome_sessao" },
 							{ title: "Local", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
-							{ title: "Nota", "class": "col-min text-right", "type": "number", data: "avaliacao" },
-							{ title: "Data da Avaliação", "class": "col-min text-right", "type": "customdateint", data: "data_avaliacao" },
-							{ title: "Comentário", render: encode, data: "comentario" },
+							{ title: "Data da Avaliação", "class": "text-right", "type": "customdateint", data: "data_avaliacao" },
+							{ title: "Conhecimento do Palestrante", "class": "text-right", "type": "number", data: "conhecimento" },
+							{ title: "Conteúdo da Atividade", "class": "text-right", "type": "number", data: "conteudo" },
+							{ title: "Pontualidade do Palestrante", "class": "text-right", "type": "number", data: "pontualidade" },
+							{ title: "Aplicabilidade ao Dia-a-dia", "class": "text-right", "type": "number", data: "aplicabilidade" },
+							{ title: "Atingiu Expectativas", "class": "text-right", "type": "number", data: "expectativas" },
+							{ title: "Por quê?", render: encode, data: "comentario_expectativas" },
+							{ title: "Nota Geral da Atividade", "class": "text-right", "type": "number", data: "avaliacao" },
+							{ title: "Comentários", render: encode, data: "comentario" },
 						],
 						data: data,
 						export: { title: "Avaliações e Comentários" }
