@@ -23,12 +23,18 @@ export = class IntegracaoMicroservices {
 
 		const r = await JSONRequest.get(appsettings.integracaoMicroservicesPathObterRA + "?Email_Addr=" + encodeURIComponent(email), { "Authorization": tokenHeader });
 
-		if (!r.sucesso)
+		if (!r.sucesso) {
+			if (r.statusCode === 404)
+				return "?@#$";
 			IntegracaoMicroservices.throwErro(r.erro || r.resultado);
+		}
 
-		const ra = (r.resultado && r.resultado.length && r.resultado[0] && r.resultado[0].emplid) as string;
+		let ra = (r.resultado && r.resultado.length && r.resultado[0] && r.resultado[0].emplid) as string;
 
-		return (ra ? ra.trim() : null);
+		if (ra)
+			ra = ra.trim();
+
+		return (ra || null);
 	}
 
 	public static async obterCampusPlano(ra: string): Promise<[string, string]> {

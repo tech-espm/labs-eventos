@@ -142,6 +142,7 @@ export = class Participante {
 		let r: string = null;
 		let p: Participante = null;
 		let inexistente = false;
+		let erroEmailInvalido = false;
 
 		await Sql.conectar(async (sql: Sql) => {
 			email = email.normalize().trim().toUpperCase();
@@ -163,8 +164,14 @@ export = class Participante {
 			if (row.tipo !== Participante.TipoExterno && appsettings.integracaoMicroservices) {
 				if (!row.ra) {
 					row.ra = await IntegracaoMicroservices.obterRA(row.email);
-					if (row.ra)
+					if (row.ra === "?@#$") {
+						// E-mail não foi encontrado no AD...
+						erroEmailInvalido = true;
+						r = "E-mail ou senha inválidos";
+						return;
+					} else if (row.ra) {
 						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
+					}
 				}
 				if (row.tipo === Participante.TipoAluno && !row.campus && row.ra) {
 					const campusPlano = await IntegracaoMicroservices.obterCampusPlano(row.ra);
@@ -190,6 +197,9 @@ export = class Participante {
 			// @@@ secure!!!
 			res.cookie("participante", cookieStr, { maxAge: 365 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/", secure: false });
 		});
+
+		if (erroEmailInvalido)
+			return [r, p];
 
 		if (cas && inexistente && !ignorarCriacaoCas) {
 			// Primeira vez efetuando login
