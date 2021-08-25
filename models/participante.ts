@@ -163,12 +163,17 @@ export = class Participante {
 
 			if (row.tipo !== Participante.TipoExterno && appsettings.integracaoMicroservices) {
 				if (!row.ra) {
-					row.ra = await IntegracaoMicroservices.obterRA(row.email);
+					row.ra = await IntegracaoMicroservices.obterRA(cas ? cas.emailAcademico : row.email);
 					if (row.ra === "?@#$") {
-						// E-mail não foi encontrado no AD...
-						erroEmailInvalido = true;
-						r = "E-mail ou senha inválidos";
-						return;
+						if (cas && cas.email)
+							row.ra = await IntegracaoMicroservices.obterRA(cas.email);
+
+						if (row.ra === "?@#$") {
+							// E-mail não foi encontrado no AD...
+							erroEmailInvalido = true;
+							r = "E-mail ou senha inválidos";
+							return;
+						}
 					} else if (row.ra) {
 						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
 					}
