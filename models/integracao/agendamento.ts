@@ -7,8 +7,8 @@ import Token = require("./token");
 export = class IntegracaoAgendamento {
 	private static readonly token: Token = new Token(appsettings.integracaoAgendamentoPathGerarToken, appsettings.integracaoAgendamentoTokenCredentialsJson);
 
-	private static throwErro(message: string) {
-		const err = new Error(message || "Erro");
+	private static throwErro(message: string, statusCode: number) {
+		const err = new Error(message || (statusCode ? ("Erro de rede " + statusCode + " retornado pela API de integração") : "Erro desconhecido retornado pela API de integração"));
 		err["agendamento"] = err.message;
 		throw err;
 	}
@@ -16,12 +16,12 @@ export = class IntegracaoAgendamento {
 	public static async localHorarioLivre(data: string, inicio: number, termino: number, id_integra_local: string, id_integra_sessao: number): Promise<boolean> {
 		const tokenHeader = await IntegracaoAgendamento.token.obterHeader();
 		if (!tokenHeader)
-			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração");
+			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração", 0);
 
 		const r = await JSONRequest.get(appsettings.integracaoAgendamentoPathLocalHorarioLivre + "/" + data + "," + encodeURIComponent(formatarHorario(inicio)) + "," + encodeURIComponent(formatarHorario(termino)) + "," + id_integra_local + "," + id_integra_sessao, { "Authorization": tokenHeader });
 
 		if (!r.sucesso)
-			IntegracaoAgendamento.throwErro(r.erro || r.resultado);
+			IntegracaoAgendamento.throwErro(r.erro || r.resultado, r.statusCode);
 
 		return !(r.resultado as boolean);
 	}
@@ -29,15 +29,15 @@ export = class IntegracaoAgendamento {
 	public static async verificarStatusAprovacao(id_integra_sessao: number): Promise<number> {
 		const tokenHeader = await IntegracaoAgendamento.token.obterHeader();
 		if (!tokenHeader)
-			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração");
+			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração", 0);
 
 		const r = await JSONRequest.get(appsettings.integracaoAgendamentoPathVerificarStatusAprovacao + "/" + id_integra_sessao, { "Authorization": tokenHeader });
 
 		if (!r.sucesso)
-			IntegracaoAgendamento.throwErro(r.erro || r.resultado);
+			IntegracaoAgendamento.throwErro(r.erro || r.resultado, r.statusCode);
 
 		if (!r.resultado || !("aprovado" in r.resultado))
-			IntegracaoAgendamento.throwErro("Status da aprovação do agendamento desconhecido");
+			IntegracaoAgendamento.throwErro("Status da aprovação do agendamento desconhecido", 0);
 
 		return r.resultado.aprovado as number;
 	}
@@ -45,7 +45,7 @@ export = class IntegracaoAgendamento {
 	public static async criarAgendamento(login: string, data: string, inicio: number, termino: number, id_integra_local: string, nome_curto: string): Promise<number> {
 		const tokenHeader = await IntegracaoAgendamento.token.obterHeader();
 		if (!tokenHeader)
-			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração");
+			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração", 0);
 
 		const r = await JSONRequest.post(appsettings.integracaoAgendamentoPathCriarAgendamento, JSON.stringify({
 			DataInicial: data,
@@ -59,18 +59,18 @@ export = class IntegracaoAgendamento {
 		}), { "Authorization": tokenHeader });
 
 		if (!r.sucesso)
-			IntegracaoAgendamento.throwErro(r.erro || r.resultado);
+			IntegracaoAgendamento.throwErro(r.erro || r.resultado, r.statusCode);
 
 		const o = r.resultado;
 
 		let reason = (o ? o.reasonPhrase : null);
 
 		if (!o || o.statusCode !== 200) {
-			IntegracaoAgendamento.throwErro(reason);
+			IntegracaoAgendamento.throwErro(reason, o ? o.statusCode : 0);
 		} else {
 			const i = parseInt(reason);
 			if (isNaN(i))
-				IntegracaoAgendamento.throwErro(reason);
+				IntegracaoAgendamento.throwErro(reason, 0);
 			else
 				return i;
 		}
@@ -79,7 +79,7 @@ export = class IntegracaoAgendamento {
 	public static async alterarAgendamento(login: string, data: string, inicio: number, termino: number, nome_curto: string, id_integra_local: string, id_integra_sessao: number): Promise<number> {
 		const tokenHeader = await IntegracaoAgendamento.token.obterHeader();
 		if (!tokenHeader)
-			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração");
+			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração", 0);
 
 		const r = await JSONRequest.put(appsettings.integracaoAgendamentoPathAlterarAgendamento + "/" + id_integra_sessao, JSON.stringify({
 			Id: id_integra_sessao,
@@ -94,7 +94,7 @@ export = class IntegracaoAgendamento {
 		}), { "Authorization": tokenHeader });
 
 		if (!r.sucesso)
-			IntegracaoAgendamento.throwErro(r.erro || r.resultado);
+			IntegracaoAgendamento.throwErro(r.erro || r.resultado, r.statusCode);
 
 		return IntegracaoAgendamento.verificarStatusAprovacao(id_integra_sessao);
 	}
@@ -102,11 +102,11 @@ export = class IntegracaoAgendamento {
 	public static async excluirAgendamento(id_integra_sessao: number): Promise<void> {
 		const tokenHeader = await IntegracaoAgendamento.token.obterHeader();
 		if (!tokenHeader)
-			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração");
+			IntegracaoAgendamento.throwErro("Erro na geração do token de acesso à integração", 0);
 
 		const r = await JSONRequest.delete(appsettings.integracaoAgendamentoPathExcluirAgendamento + "/" + id_integra_sessao, { "Authorization": tokenHeader });
 
 		if (!r.sucesso)
-			IntegracaoAgendamento.throwErro(r.erro || r.resultado);
+			IntegracaoAgendamento.throwErro(r.erro || r.resultado, r.statusCode);
 	}
 }
