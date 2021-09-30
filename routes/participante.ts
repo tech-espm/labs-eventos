@@ -189,4 +189,43 @@ router.all("/logout", wrap(async (req: express.Request, res: express.Response) =
 	res.redirect("/participante");
 }));
 
+// Helper para sincronizar e atualizar os dados em lote
+/*
+import IntegracaoMicroservices = require("../models/integracao/microservices");
+import Sql = require("../infra/sql");
+
+router.get("/ms/:ra?", wrap(async (req: express.Request, res: express.Response) => {
+	const ra = parseInt(req.params["ra"] as string);
+	let participantes: any[] = null;
+	if (ra) {
+		participantes = [{id: 1, ra, campus: "", plano: ""}];
+	} else {
+		await Sql.conectar(async (sql) => {
+			participantes = await sql.query("select id, ra, campus, plano from participante where tipo = 1 and ra is not null");
+		});
+	}
+	let ok = 0, updt = 0;
+	for (let i = 0; i < participantes.length; i++) {
+		const p = participantes[i];
+		if (p.ra && (!p.campus || !p.plano)) {
+			const campusPlano = await IntegracaoMicroservices.obterCampusPlano(p.ra);
+			if (campusPlano) {
+				p.campus = campusPlano[0];
+				p.plano = campusPlano[1];
+				updt++;
+			}
+			ok++;
+		}
+	}
+	await Sql.conectar(async (sql) => {
+		for (let i = 0; i < participantes.length; i++) {
+			const p = participantes[i];
+			if (p.ra && p.campus && p.plano)
+				await sql.query("update participante set campus = ?, plano = ? where id = " + p.id, [p.campus, p.plano]);
+		}
+	});
+	res.send(`OK ${ok} / UPDT ${updt} / ${participantes.length}`);
+}));
+*/
+
 export = router;
