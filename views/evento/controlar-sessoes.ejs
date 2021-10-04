@@ -5,9 +5,10 @@
 			<div class="panel-body dataTable_wrapper">
 				<div class="col-xs-space-bottom">
 					<button class="btn btn-primary" type="button" onclick="criarSessao()"><i class="fa fa-plus"></i>Criar Sessão...</button>
+					<button class="btn btn-primary" type="button" onclick="escolherSessoesParaEmail()"><i class="fa fa-envelope"></i>Enviar E-mail...</button>
 				</div>
 				<div class="col-xs-space-bottom text-center">
-					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button>
+					<!-- <button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button> -->
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridInscritosGeral()"><i class="fa fa-users"></i>Exibir Participantes e Presenças...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAvaliacoesEComentarios()"><i class="fa fa-thumbs-o-up"></i>Exibir Avaliações e Comentários...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
@@ -1047,3 +1048,5 @@
 
 	//]]>
 </script>
+
+<%- include("controlar-sessoes-envio-email") %>

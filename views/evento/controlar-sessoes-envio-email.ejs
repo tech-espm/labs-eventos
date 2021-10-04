@@ -1,0 +1,305 @@
+﻿
+<div class="modal fade" tabindex="-1" role="dialog" id="modalEnvioEmailSessao">
+	<div class="modal-dialog modal-flex" role="document">
+		<form class="modal-content" id="formEnvioEmailSessao" method="post">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Enviar E-mail aos Inscritos</h4>
+			</div>
+			<div class="modal-body">
+				<p>Selecione uma ou mais sessões para enviar um e-mail a todos seus inscritos.</p>
+
+				<p>Sessões que não possuam inscritos não aparecerão na lista abaixo.</p>
+
+				<p>Por favor, clique no botão "Atualizar Inscrições e Presenças" na tela principal para atualizar a quantidade de inscritos.</p>
+
+				<div class="row">
+					<div class="col-sm-4 col-sm-space-bottom">
+						<button class="btn btn-primary btn-block" type="button" onclick="adicionarSessaoEnvioEmail()"><i class="fa fa-plus"></i>Selecionar</button>
+					</div>
+					<div class="col-sm-8">
+						<select id="cbEnvioEmailSessao" name="cbEnvioEmailSessao" class="form-control" size="1"><option value="">SELECIONE...</option></select>
+					</div>
+				</div>
+
+				<div class="table-responsive">
+					<table id="tabelaEnvioEmailSessao" class="table table-striped table-hover no-margin-bottom" style="display: none;">
+						<thead>
+							<tr>
+								<th class="col-min"></th>
+								<th>Sessão</th>
+								<th class="col-min text-right">Inscritos</th>
+								<th class="col-min text-right">OK</th>
+								<th class="col-min text-right">Erros</th>
+							</tr>
+						</thead>
+						<tbody id="tabelaEnvioEmailSessaoBody" class="content-section"></tbody>
+					</table>
+				</div>
+
+				<hr />
+
+				<p>É possível utilizar as combinações a seguir como substitutos dos valores reais no assunto e na mensagem:</p>
+				<ul>
+					<li><b>{EVENTO}</b>: Nome do evento</li>
+					<li><b>{SESSAO}</b>: Nome da sessão</li>
+					<li><b>{NOME}</b>: Nome do participante</li>
+				</ul>
+
+				<div class="form-group">
+					<label for="txtEnvioEmailSessaoAssunto">Assunto</label>
+					<input class="form-control" type="text" id="txtEnvioEmailSessaoAssunto" maxlength="100" name="txtEnvioEmailSessaoAssunto" spellcheck="true" />
+				</div>
+
+				<div class="form-group">
+					<label for="txtEnvioEmailSessaoMensagem">Mensagem</label>
+					<textarea class="form-control" maxlength="32768" id="txtEnvioEmailSessaoMensagem" name="txtEnvioEmailSessaoMensagem" spellcheck="true" rows="10"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label for="txtEnvioEmailSessaoErros">Detalhes dos Erros de Envio</label>
+					<textarea class="form-control" id="txtEnvioEmailSessaoErros" rows="10" readonly="readonly"></textarea>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i>Enviar E-mail</button>
+				<button type="button" class="btn btn-outline btn-default" data-dismiss="modal"><i class="fa fa-times"></i>Cancelar</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
+	// será utilizado como include para outra página, precisamos executar a
+	// função apenas quando o documento estiver ok
+	$(function () {
+		var enviandoEmails = false, ultimoTr = null;
+
+		prepareCbSearch(_("cbEnvioEmailSessao"));
+
+		window.cancelarEnvioEmail = function () {
+			if (enviandoEmails) {
+				enviandoEmails = false;
+
+				if (ultimoTr) {
+					$(ultimoTr).find("img").hide();
+					ultimoTr = null;
+				}
+
+				Notification.hide();
+			}
+		};
+
+		$("#modalEnvioEmailSessao").on("show.bs.modal", function () {
+			var i, sessoesComInscritos = eventoSessoes.slice();
+
+			for (i = sessoesComInscritos.length - 1; i >= 0; i--) {
+				if (!sessoesComInscritos[i].inscritos)
+					sessoesComInscritos.splice(i, 1);
+			}
+
+			ultimoTr = null;
+
+			preencherCb(_("cbEnvioEmailSessao"), sessoesComInscritos);
+
+			$("#tabelaEnvioEmailSessao").hide();
+			$("#tabelaEnvioEmailSessaoBody").empty();
+			$("#txtEnvioEmailSessaoErros").val("");
+
+			if (("localStorage" in window)) {
+				$("#txtEnvioEmailSessaoAssunto").val(localStorage.getItem("txtEnvioEmailSessaoAssunto") || "");
+				$("#txtEnvioEmailSessaoMensagem").val(localStorage.getItem("txtEnvioEmailSessaoMensagem") || "");
+			} else {
+				$("#txtEnvioEmailSessaoAssunto").val("");
+				$("#txtEnvioEmailSessaoMensagem").val("");
+			}
+		});
+
+		$("#modalEnvioEmailSessao").on("hidden.bs.modal", cancelarEnvioEmail);
+
+		window.adicionarSessaoEnvioEmail = function (id) {
+			if ($.active || JsonWebApi.active || enviandoEmails)
+				return;
+
+			if (!id)
+				id = parseInt($("#cbEnvioEmailSessao").val());
+
+			var sessao = eventoSessoesPorId[id];
+
+			if (!sessao || $("#tabelaEnvioEmailSessao [data-id=" + id + "]").length)
+				return;
+
+			$("#tabelaEnvioEmailSessaoBody").append(
+				'<tr data-id="' + id + '" data-terminada="">' +
+				'<td class="col-min"><button type="button" title="Excluir" class="btn btn-outline btn-danger" onclick="removerSessaoEnvioEmail(this)"><i class="fa fa-nomargin fa-trash-o"></i></button></td>' +
+				'<td><img alt="Aguarde" src="<%- staticRoot %>/imagens/loading-grey-t.gif" style="display: none;" /> ' + encode(sessao.nome) + '</td>' +
+				'<td class="col-min text-right">' + sessao.inscritos + '</td>' +
+				'<td class="col-min text-right">-</td>' +
+				'<td class="col-min text-right">-</td>' +
+				'</tr>');
+
+			$("#tabelaEnvioEmailSessao").show();
+		};
+
+		window.removerSessaoEnvioEmail = function (btn) {
+			if ($.active || JsonWebApi.active || enviandoEmails)
+				return;
+
+			var tr = btn.parentNode.parentNode,
+				tabelaEnvioEmailSessaoBody = tr.parentNode;
+
+			tabelaEnvioEmailSessaoBody.removeChild(tr);
+
+			if (!tabelaEnvioEmailSessaoBody.childNodes.length)
+				$("#tabelaEnvioEmailSessao").hide();
+		};
+
+		window.escolherSessoesParaEmail = function () {
+			if ($.active || JsonWebApi.active || enviandoEmails)
+				return;
+
+			$("#modalEnvioEmailSessao").modal({
+				backdrop: "static",
+				keyboard: true
+			});
+		};
+
+		$("#formEnvioEmailSessao").validate({
+			rules: {
+				txtEnvioEmailSessaoAssunto: {
+					required: true,
+					maxlength: 100
+				},
+				txtEnvioEmailSessaoMensagem: {
+					required: true,
+					maxlength: 32768
+				}
+			},
+			submitHandler: function (form) {
+				if ($.active || JsonWebApi.active || enviandoEmails)
+					return;
+
+				var assunto = trim($("#txtEnvioEmailSessaoAssunto").val().normalize()),
+					mensagem = trim($("#txtEnvioEmailSessaoMensagem").val().normalize()),
+					txtEnvioEmailSessaoErros = _("txtEnvioEmailSessaoErros"),
+					trs = _("tabelaEnvioEmailSessaoBody").childNodes;
+
+				if (("localStorage" in window)) {
+					localStorage.setItem("txtEnvioEmailSessaoAssunto", assunto);
+					localStorage.setItem("txtEnvioEmailSessaoMensagem", mensagem);
+				}
+
+				if (!trs.length) {
+					Notification.error("Por favor, selecione uma ou mais sessões para poder enviar um e-mail a seus inscritos " + emoji.sad);
+					return;
+				}
+
+				enviandoEmails = true;
+
+				Notification.wait();
+
+				function atualizarInscritosReais(tr, inscritos) {
+					tr.childNodes[2].textContent = inscritos;
+				}
+
+				function atualizarDadosDeEnvio(tr, ok, erro) {
+					tr.childNodes[3].textContent = ok;
+					tr.childNodes[4].textContent = erro;
+				}
+
+				function proximoParticipante(tr, sessao, i, participantes, p, ok, erro) {
+					if (!enviandoEmails)
+						return;
+
+					if (p >= participantes.length) {
+						proximaSessao(i + 1);
+						return;
+					}
+
+					var participante = participantes[p];
+
+					JsonWebApi.post("<%- root %>/api/sessao/enviarEmailParaInscrito", {
+						assunto: assunto,
+						mensagem: mensagem
+					}, function (response) {
+						if (!enviandoEmails)
+							return;
+
+						if (response.success && !response.value) {
+							ok++;
+						} else {
+							erro++;
+							txtEnvioEmailSessaoErros.value = participante.nome + " (" + participante.email.toLowerCase() + "): " + (response.value || "Erro desconhecido") + "\n\n" + txtEnvioEmailSessaoErros.value;
+						}
+
+						atualizarDadosDeEnvio(tr, ok, erro);
+
+						proximoParticipante(tr, sessao, i, participantes, p + 1, ok, erro);
+					}, "id", sessao.id, "espid", participante.id);
+				}
+
+				function proximaSessao(i) {
+					if (!enviandoEmails)
+						return;
+
+					if (ultimoTr) {
+						ultimoTr.setAttribute("data-terminada", "1");
+						$(ultimoTr).find("img").hide();
+						ultimoTr = null;
+					}
+
+					if (i >= trs.length) {
+						enviandoEmails = false;
+						Notification.success("Envio concluído " + emoji.happy);
+						return;
+					}
+
+					var sessao, tr = trs[i];
+
+					if (tr.getAttribute("data-terminada")) {
+						proximaSessao(i + 1);
+						return;
+					}
+
+					sessao = eventoSessoesPorId[tr.getAttribute("data-id")];
+					if (!sessao) {
+						enviandoEmails = false;
+						Notification.error("Sessão com id \"" + tr.getAttribute("data-id") + "\" não encontrada " + emoji.sad, true);
+						return;
+					}
+
+					ultimoTr = tr;
+					$(ultimoTr).find("img").show();
+
+					JsonWebApi.get("<%- root %>/api/sessao/listarInscritosParaEmail", function (response) {
+						if (!enviandoEmails)
+							return;
+
+						if (response.success) {
+							if (!response.value || !response.value.length) {
+								atualizarInscritosReais(tr, 0);
+								atualizarDadosDeEnvio(tr, 0, 0);
+								proximaSessao(i + 1);
+								return;
+							}
+
+							atualizarInscritosReais(tr, response.value.length);
+							proximoParticipante(tr, sessao, i, response.value, 0, 0, 0);
+						} else {
+							enviandoEmails = false;
+							Notification.error("Não foi possível obter os inscritos da sessão \"" + sessao.nome + "\" " + emoji.sad, true);
+						}
+					}, "id", sessao.id);
+				}
+
+				proximaSessao(0);
+			}
+		});
+	});
+
+	//]]>
+</script>

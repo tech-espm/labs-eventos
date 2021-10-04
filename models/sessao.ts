@@ -819,4 +819,54 @@ Tenha um excelente evento :)`;
 
 		return res;
 	}
+
+	public static async listarInscritosParaEmail(id: number, idevento: number): Promise<any[]> {
+		let res: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			res = await sql.query("select esp.id, p.nome, p.email from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante where esp.idevento = " + idevento + " and esp.ideventosessao = " + id);
+		});
+
+		return res;
+	}
+
+	public static async enviarEmailParaInscrito(id: number, idevento: number, espid: number, assunto: string, mensagem: string): Promise<string> {
+		if (assunto)
+			assunto = assunto.normalize().trim();
+
+		if (!assunto || assunto.length > 100)
+			return "Assunto inválido";
+
+		if (mensagem)
+			mensagem = mensagem.normalize().trim();
+
+		if (!mensagem || mensagem.length > 32768)
+			return "Mensagem inválida";
+
+		let participante: { evento: string, sessao: string, nome: string, email: string } = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			const participantes = await sql.query("select e.nome evento, s.nome sessao, p.nome, p.email from eventosessaoparticipante esp inner join evento e on e.id = esp.idevento inner join eventosessao s on s.id = esp.ideventosessao inner join participante p on p.id = esp.idparticipante where esp.id = " + espid + " and esp.idevento = " + idevento + " and esp.ideventosessao = " + id);
+			if (participantes && participantes[0])
+				participante = participantes[0];
+		});
+
+		if (!participante)
+			return "Participante ou sessão não encontrada";
+
+		const regEvento = /\{EVENTO\}/gi,
+			regSessao = /\{SESSAO\}/gi,
+			regNome = /\{NOME\}/gi;
+
+		assunto = assunto.replace(regEvento, participante.evento).replace(regSessao, participante.sessao).replace(regNome, participante.nome);
+		mensagem = mensagem.replace(regEvento, participante.evento).replace(regSessao, participante.sessao).replace(regNome, participante.nome);
+
+		try {
+			await Evento.enviarEmail(idevento, [participante.email.toLowerCase()], assunto, mensagem);
+		} catch (ex: any) {
+			return "Falha no envio do e-mail: " + (ex.message || ex.toString());
+		}
+
+		return null;
+	}
 }

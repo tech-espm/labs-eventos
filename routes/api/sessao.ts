@@ -184,4 +184,29 @@ router.get("/alterarStatusIntegra", wrap(async (req: express.Request, res: expre
 		jsonRes(res, 400, await Sessao.alterarStatusIntegra(id_integra_sessao, status_integra));
 }));
 
+router.get("/listarInscritosParaEmail", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+	let id = parseInt(req.query["id"] as string);
+	res.json(isNaN(id) ? null : await Sessao.listarInscritosParaEmail(id, u.idevento_logado));
+}));
+
+router.post("/enviarEmailParaInscrito", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	let id = parseInt(req.query["id"] as string);
+	let espid = parseInt(req.query["espid"] as string);
+
+	let assunto: string = null, mensagem: string = null;
+	if (req.body) {
+		assunto = req.body.assunto;
+		mensagem = req.body.mensagem;
+	}
+
+	res.json((isNaN(id) || isNaN(espid)) ? "Dados inválidos" : await Sessao.enviarEmailParaInscrito(id, u.idevento_logado, espid, assunto, mensagem));
+}));
+
 export = router;
