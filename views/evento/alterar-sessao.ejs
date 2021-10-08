@@ -605,7 +605,7 @@
 
 				// <% if (usuario) { %>
 
-				$("#tabelaSessaoPalestranteBody>tr").each(function (i, tr) { s.idspalestrante.push(parseInt(tr.getAttribute("data-id"))); });
+				$("#tabelaSessaoPalestranteBody>tr").each(function (i, tr) { s.idspalestrante.push(parseInt(tr.getAttribute("data-id")), tr.getElementsByTagName("input")[0].checked ? 1 : 0); });
 
 				if (trSessaoClicada && (sessao = tabelaSessoes.row(trSessaoClicada).data())) {
 					s.id = sessao.id;

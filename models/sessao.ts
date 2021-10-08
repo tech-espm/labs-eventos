@@ -47,7 +47,7 @@ export = class Sessao {
 	public tipomultidata: number;
 	public presencaminima: number;
 	public encontrostotais: number;
-	public idspalestrante: number[];
+	public idspalestrante: number[]; // 0 = id A, 1 = mediador A, 2 = id B, 3 = mediador B, 4 = id C, 5 = mediador C ...
 	public multidatas: Multidata[];
 
 	private static validar(s: Sessao): string {
@@ -177,9 +177,18 @@ export = class Sessao {
 			return "Mensagem de sessão esgotada inválida";
 		if (!s.idspalestrante)
 			s.idspalestrante = [];
+		else if ((s.idspalestrante.length & 1))
+			throw new Error("Comprimento dos dados dos palestrantes inválido");
 		for (let i = s.idspalestrante.length - 1; i >= 0; i--) {
-			if (isNaN(s.idspalestrante[i]) || s.idspalestrante[i] <= 0)
-				return "Palestrante inválido";
+			if ((i & 1)) {
+				// mediador
+				if (isNaN(s.idspalestrante[i]) || s.idspalestrante[i] < 0 || s.idspalestrante[i] > 1)
+					return "Status de mediador inválido";
+			} else {
+				// idpalestrante
+				if (isNaN(s.idspalestrante[i]) || s.idspalestrante[i] <= 0)
+					return "Palestrante inválido";
+			}
 		}
 		return null;
 	}
@@ -188,7 +197,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")), true);
+			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(concat(esp.ideventopalestrante, ',', esp.mediador) order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")), true);
 			if (externo && lista && lista.length) {
 				for (let i = lista.length - 1; i >= 0; i--) {
 					if (lista[i].url_privada)
@@ -204,7 +213,7 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos, s.senhacontrole, s.senhapresenca, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(esp.ideventopalestrante order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)), true);
+			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao, s.oculta, s.sugestao, s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos, s.senhacontrole, s.senhapresenca, s.mensagemesgotada, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(concat(esp.ideventopalestrante, ',', esp.mediador) order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.id = " + id + " and s.idevento = " + idevento)), true);
 		});
 
 		return ((lista && lista[0]) || null);
@@ -214,31 +223,35 @@ export = class Sessao {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select ideventopalestrante, date_format(aceite, '%d/%m/%Y') aceite from eventosessaopalestrante where ideventosessao = " + id + " and idevento = " + idevento) as any[];
+			lista = await sql.query("select ideventopalestrante, mediador, date_format(aceite, '%d/%m/%Y') aceite from eventosessaopalestrante where ideventosessao = " + id + " and idevento = " + idevento) as any[];
 		});
 
 		return (lista || []);
 	}
 
 	private static async sincronizarPalestrantes(sql: Sql, s: Sessao): Promise<void> {
-		let existentes: { id: number, ideventopalestrante: number, ordem: number }[] = await sql.query("select id, ideventopalestrante, ordem from eventosessaopalestrante where ideventosessao = " + s.id + " and idevento = " + s.idevento);
+		let existentes: { id: number, ideventopalestrante: number, ordem: number, mediador: number }[] = await sql.query("select id, ideventopalestrante, ordem, mediador from eventosessaopalestrante where ideventosessao = " + s.id + " and idevento = " + s.idevento);
 
 		let excluir: number[] = [];
-		let atualizar: { id: number, ordem: number }[] = [];
-		let adicionar: { ideventopalestrante: number, ordem: number }[] = [];
+		let atualizar: { id: number, ordem: number, mediador: number }[] = [];
+		let adicionar: { ideventopalestrante: number, ordem: number, mediador: number }[] = [];
 
-		if (s.idspalestrante) {
-			for (let i = 0; i < s.idspalestrante.length; i++) {
+		// 0 = id A, 1 = mediador A, 2 = id B, 3 = mediador B, 4 = id C, 5 = mediador C ...
+		if (s.idspalestrante && s.idspalestrante.length) {
+			for (let i = 0; i < s.idspalestrante.length; i += 2) {
+				let ordem = i >> 1;
 				let ideventopalestrante = s.idspalestrante[i];
+				let mediador = s.idspalestrante[i + 1];
 				let idJaExistia = false;
 
 				for (let j = existentes.length - 1; j >= 0; j--) {
 					if (existentes[j].ideventopalestrante === ideventopalestrante) {
 						idJaExistia = true;
-						if (existentes[j].ordem !== i) {
+						if (existentes[j].ordem !== ordem || existentes[j].mediador !== mediador) {
 							atualizar.push({
 								id: existentes[j].id,
-								ordem: i
+								ordem,
+								mediador
 							});
 						}
 						existentes.splice(j, 1);
@@ -249,7 +262,8 @@ export = class Sessao {
 				if (!idJaExistia)
 					adicionar.push({
 						ideventopalestrante: ideventopalestrante,
-						ordem: i
+						ordem,
+						mediador
 					});
 			}
 		}
@@ -262,12 +276,12 @@ export = class Sessao {
 
 		if (atualizar.length) {
 			for (let i = 0; i < atualizar.length; i++)
-				await sql.query("update eventosessaopalestrante set ordem = ? where id = ?", [atualizar[i].ordem, atualizar[i].id]);
+				await sql.query("update eventosessaopalestrante set ordem = ?, mediador = ? where id = ?", [atualizar[i].ordem, atualizar[i].mediador, atualizar[i].id]);
 		}
 
 		if (adicionar.length) {
 			for (let i = 0; i < adicionar.length; i++)
-				await sql.query("insert into eventosessaopalestrante (idevento, ideventosessao, ideventopalestrante, ordem) values (?, ?, ?, ?)", [s.idevento, s.id, adicionar[i].ideventopalestrante, adicionar[i].ordem]);
+				await sql.query("insert into eventosessaopalestrante (idevento, ideventosessao, ideventopalestrante, ordem, mediador) values (?, ?, ?, ?, ?)", [s.idevento, s.id, adicionar[i].ideventopalestrante, adicionar[i].ordem, adicionar[i].mediador]);
 		}
 	}
 
@@ -556,7 +570,7 @@ export = class Sessao {
 				if (res && res !== parseInt(res).toString())
 					return res;
 				if (pr[i].id)
-					s.idspalestrante.push(pr[i].id);
+					s.idspalestrante.push(pr[i].id, 0);
 			}
 		}
 

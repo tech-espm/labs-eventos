@@ -120,7 +120,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			ids = s.idspalestrante;
 			if (!ids)
 				continue;
-			for (j = ids.length - 1; j >= 0; j--) {
+			for (j = ids.length - 2; j >= 0; j -= 2) {
 				if (ids[j] === idpalestrante) {
 					ss.push(s);
 					break;
@@ -402,7 +402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		if (mostrarData && sessao.multidataOriginal)
 			return gerarSessao(sessao.multidataOriginal, mostrarData);
 
-		var j, tags, idspalestrante, palestrante, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
+		var j, tags, idspalestrante, palestrante, mediadores, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
 
 		if (mostrarData) {
 			if (sessao.multidatas && sessao.multidatas.length) {
@@ -433,27 +433,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 		htmlTemp += '</div></div><div class="row"><div class="col-sm-12">';
 
+		mediadores = [];
 		palestrantes = [];
 		idspalestrante = sessao.idspalestrante;
 
 		if (idspalestrante && idspalestrante.length) {
-			for (j = 0; j < idspalestrante.length; j++) {
+			for (j = 0; j < idspalestrante.length; j += 2) {
 				if ((palestrante = palestrantesPorId[idspalestrante[j]]))
-					palestrantes.push(palestrante);
+					(idspalestrante[j + 1] ? mediadores : palestrantes).push(palestrante);
 			}
 
-			palestrantes.sort(function (a, b) {
-				if (a.prioridade !== b.prioridade)
-					return a.prioridade - b.prioridade;
-				return (a.nome_curto_sort < b.nome_curto_sort ? -1 : 1);
-			});
+			//mediadores.sort(function (a, b) {
+			//	if (a.prioridade !== b.prioridade)
+			//		return a.prioridade - b.prioridade;
+			//	return (a.nome_curto_sort < b.nome_curto_sort ? -1 : 1);
+			//});
 
-			for (j = 0; j < palestrantes.length; j++) {
-				palestrante = palestrantes[j];
+			//palestrantes.sort(function (a, b) {
+			//	if (a.prioridade !== b.prioridade)
+			//		return a.prioridade - b.prioridade;
+			//	return (a.nome_curto_sort < b.nome_curto_sort ? -1 : 1);
+			//});
 
-				htmlTemp += '<p><a class="palestrante-link" href="#" onclick="return mostrarPalestrante(' + palestrante.id + ');"><img class="palestrante-img" alt="Imagem do Palestrante" width="64" height="64" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /> ';
-				htmlTemp += '<span class="palestrante-nome">' + encode(palestrante.nome_curto) + '</span>';
-				htmlTemp += '</a></p>';
+			if (mediadores.length) {
+				htmlTemp += ((mediadores.length === 1) ? '<h3>Mediador(a)</h3>' : '<h3>Mediadores(as)</h3>');
+
+				for (j = 0; j < mediadores.length; j++) {
+					palestrante = mediadores[j];
+
+					htmlTemp += '<p><a class="palestrante-link" href="#" onclick="return mostrarPalestrante(' + palestrante.id + ');"><img class="palestrante-img" alt="Imagem do Mediador" width="64" height="64" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /> ';
+					htmlTemp += '<span class="palestrante-nome">' + encode(palestrante.nome_curto) + '</span>';
+					htmlTemp += '</a></p>';
+				}
+			}
+
+			if (palestrantes.length) {
+				htmlTemp += ((palestrantes.length === 1) ? '<h3>Palestrante</h3>' : '<h3>Palestrantes</h3>');
+
+				for (j = 0; j < palestrantes.length; j++) {
+					palestrante = palestrantes[j];
+
+					htmlTemp += '<p><a class="palestrante-link" href="#" onclick="return mostrarPalestrante(' + palestrante.id + ');"><img class="palestrante-img" alt="Imagem do Palestrante" width="64" height="64" src="<%-urlBase %>palestrantes/' + palestrante.id + '.png?v=' + palestrante.versao + '" /> ';
+					htmlTemp += '<span class="palestrante-nome">' + encode(palestrante.nome_curto) + '</span>';
+					htmlTemp += '</a></p>';
+				}
 			}
 		}
 

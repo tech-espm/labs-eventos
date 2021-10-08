@@ -71,6 +71,7 @@
 										<th class="col-50">Nome</th>
 										<th class="col-50">E-mail</th>
 										<th class="col-25">Empresa</th>
+										<th class="col-min text-center">Mediador</th>
 										<th class="col-min text-right">Aceite</th>
 									</tr>
 								</thead>
@@ -176,11 +177,31 @@
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button><br/><button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link de Controle de Presença\" type=\"button\" data-presenca=\"1\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-check-square-o\"></i></button> <button title=\"Link de Avaliação dos Participantes\" type=\"button\" data-avaliacao=\"1\" class=\"btn btn-outline btn-success\"><i class=\"fa fa-nomargin fa-thumbs-o-up\"></i></button>"; } },
 				{ title: "Nome", render: encode, data: "nome" },
 				{
+					title: "Mediadores", data: function (row, type, set, meta) {
+						var i, nomes = "", p, n, idspalestrante = row.idspalestrante;
+						if (idspalestrante && eventoPalestrantesPorId) {
+							for (i = 0; i < idspalestrante.length; i += 2) {
+								if (!idspalestrante[i + 1])
+									continue;
+								p = eventoPalestrantesPorId[idspalestrante[i]];
+								if (!p || (!(n = p.nome_curto) && !(n = p.nome)))
+									continue;
+								if (nomes)
+									nomes += ", ";
+								nomes += encode(n);
+							}
+						}
+						return nomes;
+					}
+				},
+				{
 					title: "Palestrantes", data: function (row, type, set, meta) {
-						var i, nomes = "", p, n, ids = row.idspalestrante;
-						if (ids && eventoPalestrantesPorId) {
-							for (i = 0; i < ids.length; i++) {
-								p = eventoPalestrantesPorId[ids[i]];
+						var i, nomes = "", p, n, idspalestrante = row.idspalestrante;
+						if (idspalestrante && eventoPalestrantesPorId) {
+							for (i = 0; i < idspalestrante.length; i += 2) {
+								if (idspalestrante[i + 1])
+									continue;
+								p = eventoPalestrantesPorId[idspalestrante[i]];
 								if (!p || (!(n = p.nome_curto) && !(n = p.nome)))
 									continue;
 								if (nomes)
@@ -259,13 +280,14 @@
 			});
 		};
 
-		window.adicionarPalestrante = function (id) {
+		window.adicionarPalestrante = function (id, mediador) {
 			if ($.active || JsonWebApi.active)
 				return;
 
 			var salvar = false;
 			if (!id) {
 				id = parseInt($("#cbSessaoPalestrante").val());
+				mediador = 0;
 				salvar = true;
 			}
 
@@ -282,6 +304,7 @@
 				'<td class="col-50">' + encode(palestrante.nome) + '</td>' +
 				'<td class="col-50">' + encode(palestrante.email) + '</td>' +
 				'<td class="col-25">' + encode(palestrante.nome_empresa) + '</td>' +
+				'<td class="col-min text-center">' + (mediador ? '<input type="checkbox" checked="checked" />' : '<input type="checkbox" />') + "</td>" +
 				'<td class="col-min text-right">' + ((aceites && aceites[palestrante.id]) || "-") + "</td>" +
 				'</tr>');
 
@@ -329,8 +352,8 @@
 				aceites = null;
 			}
 			if (sessao) {
-				for (i = 0; i < sessao.idspalestrante.length; i++)
-					adicionarPalestrante(sessao.idspalestrante[i]);
+				for (i = 0; i < sessao.idspalestrante.length; i += 2)
+					adicionarPalestrante(sessao.idspalestrante[i], sessao.idspalestrante[i + 1]);
 			}
 		});
 
@@ -857,6 +880,7 @@
 							{ title: "Âncora", render: encode, data: "nome_curso" },
 							{ title: "Palestrante", render: encode, data: "nome" },
 							{ title: "E-mail", render: encode, data: "email" },
+							{ title: "Tipo", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.mediador ? "MED" : "PAL"); } },
 							{ title: "Oculto", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.oculto ? "SIM" : "NÃO"); } },
 							{ title: "Confirmado", "class": "col-min text-center", data: function (row, type, set, meta) { return (row.confirmado ? "SIM" : "NÃO"); } }
 						],
@@ -961,7 +985,7 @@
 							tabela = $(tabela).DataTable();
 							tabela.row.add(p).draw();
 						}
-						window.adicionarPalestrante(p.id);
+						window.adicionarPalestrante(p.id, 0);
 
 						if (trSessaoClicada) {
 							naoFecharModal = true;
