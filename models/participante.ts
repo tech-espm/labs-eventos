@@ -36,6 +36,7 @@ export = class Participante {
 	public idinstrucao: number;
 	public idprofissao: number;
 	public empresa: string;
+	public telefone: string;
 
 	// Utilizado apenas durante a criação
 	public senha: string;
@@ -255,10 +256,14 @@ export = class Participante {
 			p.empresa = (p.empresa || "").normalize().trim().toUpperCase();
 			if (!p.empresa || p.empresa.length > 100)
 				return "Empresa inválida";
+			p.telefone = (p.telefone || "").normalize().trim().toUpperCase();
+			if (p.telefone.length < 14 || p.telefone.length > 25)
+				return "Telefone inválido";
 		} else {
 			p.idinstrucao = null;
 			p.idprofissao = null;
 			p.empresa = null;
+			p.telefone = null;
 			p.login = (p.login || "").normalize().trim().toUpperCase();
 			if (p.login.length < 3 || p.login.length > 50)
 				return "Login inválido";
@@ -273,7 +278,7 @@ export = class Participante {
 		let lista: Participante[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await sql.query("select id, nome, login, email, tipo, idinstrucao, idprofissao, empresa from participante where id = " + id) as Participante[];
+			lista = await sql.query("select id, nome, login, email, tipo, idinstrucao, idprofissao, empresa, telefone from participante where id = " + id) as Participante[];
 		});
 
 		return ((lista && lista[0]) || null);
@@ -293,7 +298,7 @@ export = class Participante {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				await sql.query("insert into participante (nome, login, email, tipo, idinstrucao, idprofissao, empresa, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.tipo, p.idinstrucao, p.idprofissao, p.empresa, await GeradorHash.criarHash(p.senha)]);
+				await sql.query("insert into participante (nome, login, email, tipo, idinstrucao, idprofissao, empresa, telefone, senha, data_criacao) values (?, ?, ?, ?, ?, ?, ?, ?, ?, now())", [p.nome, p.login, p.email, p.tipo, p.idinstrucao, p.idprofissao, p.empresa, p.telefone, await GeradorHash.criarHash(p.senha)]);
 				p.id = await sql.scalar("select last_insert_id()") as number;
 			} catch (e) {
 				if (e.code) {

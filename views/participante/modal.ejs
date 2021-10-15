@@ -17,6 +17,10 @@
 					<label for="modalEmail">E-mail</label>
 					<input id="modalEmail" name="email" type="email" spellcheck="false" class="form-control upper" maxlength="100" />
 				</div>
+				<div class="form-group">
+					<label for="modalTelefone">Telefone</label>
+					<input id="modalTelefone" name="telefone" type="text" spellcheck="false" class="form-control upper" maxlength="15" />
+				</div>
 				<div class="row">
 					<div class="col-sm-6">
 						<div class="form-group">
@@ -78,6 +82,10 @@
 				minlength: 3,
 				maxlength: 100,
 				email: true,
+				required: true
+			},
+			telefone: {
+				minlength: 14,
 				required: true
 			},
 			senha: {

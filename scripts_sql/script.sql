@@ -331,6 +331,7 @@ CREATE TABLE participante (
   idinstrucao int DEFAULT NULL,
   idprofissao int DEFAULT NULL,
   empresa varchar(100) DEFAULT NULL,
+  telefone varchar(25) DEFAULT NULL,
   senha varchar(100) NOT NULL,
   token char(32) DEFAULT NULL,
   data_criacao datetime NOT NULL,
