@@ -1820,6 +1820,7 @@ window.BlobDownloader = {
 		select.onmousedown = cbSearch_MouseDown;
 		select.addEventListener("change", cbSearch_Change);
 		select.cbSearchChange = cbSearch_Change;
+		select.setAttribute("tabindex", "-1");
 		outerdiv.className = "dropdown";
 		groupdiv.className = "form-group input-group";
 		groupdiv.style.position = "absolute";
@@ -1839,7 +1840,6 @@ window.BlobDownloader = {
 			input.className = "form-control upper select-arrow";
 		input.setAttribute("type", "text");
 		input.setAttribute("spellcheck", "false");
-		input.setAttribute("tabindex", "-1");
 		// In order to disable address autofill/autocomplete
 		// https://stackoverflow.com/a/30976223
 		input.setAttribute("autocomplete", "new-password");
