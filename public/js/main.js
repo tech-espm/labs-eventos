@@ -1635,6 +1635,7 @@ window.BlobDownloader = {
 				} else if (this.cbSearchSelect) {
 					this.cbSearchSelect.cbSearchFocusByMouse = true;
 					this.cbSearchSelect.focus();
+					return cancelEvent(e);
 				}
 				break;
 		}
