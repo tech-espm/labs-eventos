@@ -736,7 +736,7 @@ window.validateEmail = function (email) {
 		at2 = email.lastIndexOf("@"),
 		dot = email.lastIndexOf(".");
 
-	return (at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
+	return (email.indexOf(":") < 0 && at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
 };
 window.createItem = function (parent, icon, className, text, badge, clickHandler, name0, value0) {
 	var i, btn = document.createElement("button"), c = (className || "btn-outline btn-default");
@@ -1105,6 +1105,27 @@ window.capitalizarFrase = function (s, classe, tag) {
 				throw JsonWebApi.messages.invalidArgumentCount;
 
 			return sendRequest(true, "get", (arguments.length > 2) ? buildFullUrl(url, arguments, 2) : url, callback);
+		},
+		deleteSync: function (url, name0, value0) {
+			if (!url)
+				throw JsonWebApi.messages.invalidURL;
+
+			if (!(arguments.length & 1))
+				throw JsonWebApi.messages.invalidArgumentCount;
+
+			return sendRequest(false, "delete", (arguments.length > 1) ? buildFullUrl(url, arguments, 1) : url, null);
+		},
+		delete: function (url, callback, name0, value0) {
+			if (!url)
+				throw JsonWebApi.messages.invalidURL;
+
+			if (!callback)
+				throw JsonWebApi.messages.invalidCallback;
+
+			if ((arguments.length & 1))
+				throw JsonWebApi.messages.invalidArgumentCount;
+
+			return sendRequest(true, "delete", (arguments.length > 2) ? buildFullUrl(url, arguments, 2) : url, callback);
 		},
 		postSync: function (url, bodyObject, name0, value0) {
 			if (!url)
@@ -1955,7 +1976,7 @@ window.BlobDownloader = {
 
 		parent.appendChild(outerdiv);
 
-		if (select.value && parseInt(select.value))
+		if (select.value && select.value != "0")
 			cbSearch_Change.apply(select);
 	};
 

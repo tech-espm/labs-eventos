@@ -736,7 +736,7 @@ window.validateEmail = function (email) {
 		at2 = email.lastIndexOf("@"),
 		dot = email.lastIndexOf(".");
 
-	return (at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
+	return (email.indexOf(":") < 0 && at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
 };
 window.createItem = function (parent, icon, className, text, badge, clickHandler, name0, value0) {
 	var i, btn = document.createElement("button"), c = (className || "btn-outline btn-default");
@@ -1106,6 +1106,27 @@ window.capitalizarFrase = function (s, classe, tag) {
 
 			return sendRequest(true, "get", (arguments.length > 2) ? buildFullUrl(url, arguments, 2) : url, callback);
 		},
+		deleteSync: function (url, name0, value0) {
+			if (!url)
+				throw JsonWebApi.messages.invalidURL;
+
+			if (!(arguments.length & 1))
+				throw JsonWebApi.messages.invalidArgumentCount;
+
+			return sendRequest(false, "delete", (arguments.length > 1) ? buildFullUrl(url, arguments, 1) : url, null);
+		},
+		delete: function (url, callback, name0, value0) {
+			if (!url)
+				throw JsonWebApi.messages.invalidURL;
+
+			if (!callback)
+				throw JsonWebApi.messages.invalidCallback;
+
+			if ((arguments.length & 1))
+				throw JsonWebApi.messages.invalidArgumentCount;
+
+			return sendRequest(true, "delete", (arguments.length > 2) ? buildFullUrl(url, arguments, 2) : url, callback);
+		},
 		postSync: function (url, bodyObject, name0, value0) {
 			if (!url)
 				throw JsonWebApi.messages.invalidURL;
@@ -1462,11 +1483,11 @@ window.BlobDownloader = {
 		var i, opt = this.selectedOptions, v;
 		if (opt) {
 			opt = opt[0];
-			this.cbSearchInput.value = ((opt && opt.value && parseInt(opt.value)) ? opt.textContent : "");
+			this.cbSearchInput.value = ((opt && opt.value && opt.value != "0") ? opt.textContent : "");
 		} else {
 			opt = this.options;
 			v = this.value;
-			if (v && parseInt(v)) {
+			if (v && v != "0") {
 				for (i = opt.length - 1; i >= 0; i--) {
 					if (opt[i].value == v) {
 						this.cbSearchInput.value = opt[i].textContent;
@@ -1767,7 +1788,7 @@ window.BlobDownloader = {
 
 		for (i = 0; i < list.length; i++) {
 			li = list[i];
-			if (!(value = li.value) || !parseInt(value))
+			if (!(value = li.value) || value == "0")
 				continue;
 			txt = li.textContent;
 			norm = li.cbSearchNormalized;
@@ -1955,7 +1976,7 @@ window.BlobDownloader = {
 
 		parent.appendChild(outerdiv);
 
-		if (select.value && parseInt(select.value))
+		if (select.value && select.value != "0")
 			cbSearch_Change.apply(select);
 	};
 
