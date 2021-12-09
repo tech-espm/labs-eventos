@@ -7,14 +7,6 @@ window.emoji = {
 window.isEmpty = function (x) {
 	return (x === undefined || x === null);
 };
-window.isEmail = function (x) {
-	var email = trim(x),
-		at = email.indexOf('@'),
-		at2 = email.lastIndexOf('@'),
-		dot = email.lastIndexOf('.');
-
-	return (at > 0 && dot > (at + 1) && dot !== (email.length - 1) && at2 === at);
-};
 window.seal$ = function (obj) {
 	if (Object.seal)
 		Object.seal(obj);
@@ -106,7 +98,7 @@ window.customFilterHandler = function (table, input) {
 };
 window.customFilterHandlerPlain = function (table, input) {
 	var lastSearch = "", handler = function () {
-		var s = input.value;
+		var s = trim(input.value.normalize());
 		if (lastSearch !== s) {
 			lastSearch = s;
 			table.search(s).draw();
@@ -203,7 +195,7 @@ window.maskHour = function (field) {
 	$(field).mask("00:00");
 };
 window.maskTextId = function (field) {
-	$(field).mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9\.]/, optional: true } } });
+	$(field).mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9\-]/, optional: true } } });
 };
 window.maskMobilePhone = function (field) {
 	var reg = /\D/g, behavior = function (val) {
@@ -214,6 +206,17 @@ window.maskMobilePhone = function (field) {
 		}
 	};
 	$(field).mask(behavior, opt);
+};
+window.checkPasswordComplexity = function (password) {
+	if (!password || password.length < 6)
+		return false;
+	var i, delta, initialDelta = Math.abs(password.charCodeAt(1) - password.charCodeAt(0));
+	for (i = 2; i < password.length; i++) {
+		delta = Math.abs(password.charCodeAt(i) - password.charCodeAt(i - 1));
+		if (delta !== initialDelta)
+			return true;
+	}
+	return false;
 };
 window.addFilterButton = function (parent, icon, text, handler, title, btnClass) {
 	var p = _(parent), label, btn, i;
@@ -611,19 +614,39 @@ window.trim = (function () {
 window.trimValue = function (input) {
 	return trim(_(input).value);
 };
-window.endsWith = function (str, end) {
-	// Try to simulate the actual behavior of endsWith()
-	if (str === "")
-		return (end === "");
-	if (!str)
-		return false;
-	if (end === "")
-		return true;
-	if (!end || end.length > str.length)
-		return false;
-	var i = str.lastIndexOf(end);
-	return (i >= 0 && i === (str.length - end.length));
-};
+window.startsWith = (function () {
+	if (window.String && window.String.prototype && window.String.prototype.startsWith)
+		return function (str, start) { return str.startsWith(start); };
+	return function (str, start) {
+		// Try to simulate the actual behavior of startsWith()
+		if (str === "")
+			return (start === "");
+		if (!str)
+			return false;
+		if (start === "")
+			return true;
+		if (!start || start.length > str.length)
+			return false;
+		return (str.indexOf(start) === 0);
+	};
+})();
+window.endsWith = (function () {
+	if (window.String && window.String.prototype && window.String.prototype.endsWith)
+		return function (str, end) { return str.endsWith(end); };
+	return function (str, end) {
+		// Try to simulate the actual behavior of endsWith()
+		if (str === "")
+			return (end === "");
+		if (!str)
+			return false;
+		if (end === "")
+			return true;
+		if (!end || end.length > str.length)
+			return false;
+		var i = str.lastIndexOf(end);
+		return (i >= 0 && i === (str.length - end.length));
+	};
+})();
 window.resetForm = function (f) {
 	var $form = $(f), i, validator;
 	if (!$form || !$form.length)
@@ -639,13 +662,50 @@ window.resetForm = function (f) {
 		validator.formSubmitted = false;
 	}
 };
-window.validateCPF = function (cpf) {
-	cpf = trim(cpf || "").replace(/\./g, "").replace(/\-/g, "");
-	if (cpf.length !== 11)
-		return null;
+window.validateCNPJ = function (cnpj) {
+	if (!cnpj || !(cnpj = trim(cnpj.replace(/\./g, "").replace(/\-/g, "").replace(/\//g, ""))) || cnpj.length !== 14)
+		return false;
 
 	var i, sum = 0, modulus;
 
+	for (i = 0; i < 12; i++)
+		sum += (cnpj.charCodeAt(i) - 0x30) * (((i < 4) ? 5 : 13) - i);
+	modulus = sum % 11;
+	if (modulus < 2)
+		modulus = 0;
+	else
+		modulus = 11 - modulus;
+
+	if ((cnpj.charCodeAt(12) - 0x30) !== modulus)
+		return false;
+
+	sum = 0;
+	for (i = 0; i < 13; i++)
+		sum += (cnpj.charCodeAt(i) - 0x30) * (((i < 5) ? 6 : 14) - i);
+	modulus = sum % 11;
+	if (modulus < 2)
+		modulus = 0;
+	else
+		modulus = 11 - modulus;
+
+	return ((cnpj.charCodeAt(13) - 0x30) === modulus);
+};
+window.validateCPF = function (cpf) {
+	if (!cpf || !(cpf = trim(cpf.replace(/\./g, "").replace(/\-/g, ""))) || cpf.length !== 11)
+		return false;
+
+	var i, sum = 1, modulus = cpf.charCodeAt(0);
+
+	for (i = 1; i < 9; i++) {
+		if (cpf.charCodeAt(i) !== modulus) {
+			sum = 0;
+			break;
+		}
+	}
+	if (sum)
+		return false;
+
+	sum = 0;
 	for (i = 0; i < 9; i++)
 		sum += (cpf.charCodeAt(i) - 0x30) * (10 - i);
 	modulus = sum % 11;
@@ -655,7 +715,7 @@ window.validateCPF = function (cpf) {
 		modulus = 11 - modulus;
 
 	if ((cpf.charCodeAt(9) - 0x30) !== modulus)
-		return null;
+		return false;
 
 	sum = modulus * 2;
 	for (i = 0; i < 9; i++)
@@ -666,10 +726,10 @@ window.validateCPF = function (cpf) {
 	else
 		modulus = 11 - modulus;
 
-	return ((cpf.charCodeAt(10) - 0x30) === modulus) ? cpf : null;
+	return ((cpf.charCodeAt(10) - 0x30) === modulus);
 };
 window.validateEmail = function (email) {
-	if (!email)
+	if (!email || !(email = trim(email)))
 		return false;
 
 	var at = email.indexOf("@"),
@@ -1220,16 +1280,16 @@ window.Notification = {
 		return Notification.show(span, "default", -1);
 	},
 	success: function (message, important) {
-		return Notification.show(message, "success", important ? 5000 : 2500, true);
+		return Notification.show(message, "success", important ? 7500 : 3500, true);
 	},
 	error: function (message, important) {
-		return Notification.show(message, "danger", important ? 5000 : 2500, true);
+		return Notification.show(message, "danger", important ? 7500 : 3500, true);
 	},
 	default: function (message, important) {
-		return Notification.show(message, "default", important ? 5000 : 2500, true);
+		return Notification.show(message, "default", important ? 7500 : 3500, true);
 	},
 	warning: function (message, important) {
-		return Notification.show(message, "warning", important ? 5000 : 2500, true);
+		return Notification.show(message, "warning", important ? 7500 : 3500, true);
 	},
 	show: function (message, type, timeout, closeable) {
 		if (!Notification.div) {
@@ -1393,6 +1453,10 @@ window.BlobDownloader = {
 	function cbSearch_Normalize(x) {
 		return x.toUpperCase().replace(regSlash, " ").replace(regTrim, "").replace(regA, "A").replace(regE, "E").replace(regI, "I").replace(regO, "O").replace(regU, "U").replace(regC, "C");
 	}
+
+	window.normalizeAccent = function (x) {
+		return (x ? x.toUpperCase().replace(regTrim, "").replace(regA, "A").replace(regE, "E").replace(regI, "I").replace(regO, "O").replace(regU, "U").replace(regC, "C") : "");
+	};
 
 	function cbSearch_Change() {
 		var i, opt = this.selectedOptions, v;
@@ -1685,10 +1749,10 @@ window.BlobDownloader = {
 			this.selection = this.menu.childNodes.length - 1;
 		var i, c;
 		for (i = this.menu.childNodes.length - 1; i >= 0; i--)
-			this.menu.childNodes[i].style.background = "";
+			this.menu.childNodes[i].firstChild.style.background = "";
 		c = this.menu.childNodes[this.selection];
 		this.menu.scrollTop = c.offsetTop - 5;
-		c.style.background = "rgba(102,175,233,.75)";
+		c.firstChild.style.background = "rgba(102,175,233,.75)";
 	}
 
 	function cbSearch_DataOpen(normalized) {
@@ -1711,9 +1775,10 @@ window.BlobDownloader = {
 				li = document.createElement("li");
 				if (value)
 					li.cbSearchValue = value;
-				if (!ok)
-					li.style.background = "rgba(102,175,233,.75)";
 				a = document.createElement("a");
+				if (!ok)
+					a.style.background = "rgba(102,175,233,.75)";
+				a.className = "dropdown-item";
 				a.setAttribute("href", "#");
 				a.cbSearchData = this;
 				a.onclick = cbSearch_AClick;
@@ -1770,6 +1835,10 @@ window.BlobDownloader = {
 		this.selection = -1;
 	}
 
+	window.getCbSearchRoot = function (select) {
+		return (select ? _(select).parentNode : null);
+	};
+
 	window.setCbSearch = function (select, value) {
 		if (!select)
 			return;
@@ -1821,14 +1890,19 @@ window.BlobDownloader = {
 		select.addEventListener("change", cbSearch_Change);
 		select.cbSearchChange = cbSearch_Change;
 		select.setAttribute("tabindex", "-1");
+		select.style.height = "34px";
 		outerdiv.className = "dropdown";
+		outerdiv.style.height = "34px";
 		groupdiv.className = "form-group input-group";
 		groupdiv.style.position = "absolute";
 		groupdiv.style.left = "0";
 		groupdiv.style.top = "0";
 		groupdiv.style.pointerEvents = "none";
+		groupdiv.style.height = "34px";
 		span.className = "input-group-btn";
+		span.style.height = "34px";
 		button.className = "btn btn-default btn-force-border";
+		button.style.height = "34px";
 		button.setAttribute("type", "button");
 		button.setAttribute("aria-label", "Pesquisar");
 		button.setAttribute("tabindex", "-1");
@@ -1838,6 +1912,7 @@ window.BlobDownloader = {
 			input.className = "form-control select-arrow" + ((select.className.indexOf("upper") >= 0) ? " upper" : "");
 		else
 			input.className = "form-control upper select-arrow";
+		input.style.height = "34px";
 		input.setAttribute("type", "text");
 		input.setAttribute("spellcheck", "false");
 		// In order to disable address autofill/autocomplete
@@ -1859,6 +1934,7 @@ window.BlobDownloader = {
 		data.menu.style.right = "auto";
 		data.menu.style.bottom = "auto";
 		data.menu.style.display = "block";
+		data.menu.style.zIndex = "9999999";
 
 		button.appendChild(i);
 		span.appendChild(button);

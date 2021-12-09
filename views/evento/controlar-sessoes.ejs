@@ -919,7 +919,7 @@
 				return;
 			}
 
-			if (!isEmail(email)) {
+			if (!validateEmail(email)) {
 				Notification.error("E-mail inválido " + emoji.sad, true);
 				return;
 			}

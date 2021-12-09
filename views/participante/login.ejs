@@ -150,7 +150,7 @@
 			return;
 
 		var email;
-		if (!isEmail(email = $("#email").val())) {
+		if (!validateEmail(email = $("#email").val())) {
 			Notification.error("Por favor, insira um e-mail válido para prosseguir " + emoji.sad, true);
 			return;
 		}
