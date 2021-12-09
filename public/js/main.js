@@ -1481,7 +1481,7 @@ window.BlobDownloader = {
 	function cbSearch_MouseDown(e) {
 		if (e.button)
 			return;
-		if (e.offsetX < 38) { //(this.offsetWidth - 25)) {
+		if (e.offsetX >= 0 && e.offsetX < 38 && e.offsetY >= 0 && (!e.target || e.target.tagName !== "OPTION")) { //(this.offsetWidth - 25)) {
 			this.cbSearchFocusByMouse = false;
 			this.cbSearchInput.focus();
 			if (this.cbSearchInput.setSelectionRange)
@@ -1531,8 +1531,8 @@ window.BlobDownloader = {
 			$(this.cbSearchInput).addClass("forced-focus");
 			if (this.cbSearchFocusByMouse)
 				this.cbSearchFocusByMouse = false;
-			else
-				this.cbSearchInput.focus();
+			//else
+			//	this.cbSearchInput.focus();
 		}
 	}
 
@@ -1632,6 +1632,9 @@ window.BlobDownloader = {
 				if (data.menuVisible) {
 					data.close();
 					return cancelEvent(e);
+				} else if (this.cbSearchSelect) {
+					this.cbSearchSelect.cbSearchFocusByMouse = true;
+					this.cbSearchSelect.focus();
 				}
 				break;
 		}
