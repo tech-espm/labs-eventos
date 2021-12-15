@@ -216,12 +216,6 @@
 	//<![CDATA[
 	"use strict";
 
-	$.fn.dataTable.ext.type.order["customtime-pre"] = function (d) {
-		if (!d)
-			return -2147483648;
-		return parseInt(d.replace(":", ""));
-	};
-
 	var tabArquivosVisivel = false,
 		tabLandingPageVisivel = false,
 		senhaCheckInSalva = "<%= item.senhacheckin %>";
