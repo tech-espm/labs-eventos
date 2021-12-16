@@ -1,0 +1,239 @@
+<div class="row">
+	<div class="col-lg-12">
+
+		<div class="panel panel-default">
+			<div class="panel-body placeholder-chooser">
+				Para buscar os participantes e as presenças, por favor, preencha <b>ao menos</b> um dos critérios a seguir: ambos campos de data; parte do nome; parte do nome curto.
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<form class="panel-body" id="form">
+				<div class="row">
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="data_minima">Data Inicial</label>
+							<input id="data_minima" name="data_minima" class="form-control" type="text" spellcheck="false" maxlength="10" autocomplete="off" />
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="data_maxima">Data Final</label>
+							<input id="data_maxima" name="data_maxima" class="form-control" type="text" spellcheck="false" maxlength="10" autocomplete="off" />
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="nome">Parte do Nome</label>
+							<input id="nome" name="nome" class="form-control upper" type="text" spellcheck="false" autocomplete="off" />
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="nome_curto">Parte do Nome Curto</label>
+							<input id="nome_curto" name="nome_curto" class="form-control upper" type="text" spellcheck="false" autocomplete="off" />
+						</div>
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="checkbox my-0"><label for="apenas_acom"><input id="apenas_acom" name="apenas_acom" type="checkbox" value="1" checked="checked" />Apenas participantes com ACOM</label></div>
+				</div>
+				<div class="mb-3">
+					<div class="checkbox my-0"><label for="apenas_nao_verificados"><input id="apenas_nao_verificados" name="apenas_nao_verificados" type="checkbox" value="1" checked="checked" />Apenas participantes ainda não verificados</label></div>
+				</div>
+				<div class="text-right">
+					<button type="submit" class="btn btn-primary"><i class="fa fa-search"></i>Buscar Participantes</button>
+				</div>
+			</form>
+		</div>
+
+		<div id="divResultados"></div>
+
+	</div>
+</div>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	.col-larga {
+		min-width: 200px;
+		max-width: 300px;
+	}
+</style>
+
+<%- contentFor("scripts") %>
+
+<%- include("scripts-comuns") %>
+
+<script type="text/javascript">
+	//<![CDATA[
+	"use strict";
+
+	var tabela = null;
+
+	prepareDatePickerNumber("#data_minima");
+	prepareDatePickerNumber("#data_maxima");
+
+	// <% if (usuario.admin) { %>
+	function marcarTudo() {
+		if (!tabela || JsonWebApi.active)
+			return;
+
+		var i, dado, dados = tabela.rows().data();
+
+		for (i = dados.length - 1; i >= 0; i--) {
+			dado = dados[i];
+			if (!dado.verificado && dado.creditaracom) {
+				dado.alterado = !dado.alterado;
+				dado.verificado = !dado.verificado;
+			}
+		}
+
+		tabela.rows().invalidate().draw("page");
+	}
+
+	function salvarAlteracoes() {
+		if (!tabela || JsonWebApi.active)
+			return;
+
+		var i, dado, dados = tabela.rows().data(), alteracoes = [];
+
+		for (i = dados.length - 1; i >= 0; i--) {
+			dado = dados[i];
+			if (dado.alterado) {
+				alteracoes.push({
+					idesp: dado.idesp,
+					verificado: (dado.verificado ? 1 : 0)
+				});
+			}
+		}
+
+		if (!alteracoes.length) {
+			Notification.info("Não há registros com status de verificação alterado " + emoji.happy);
+			return;
+		}
+
+		Notification.wait();
+
+		JsonWebApi.post("<%- root %>/api/evento/salvarVerificacaoInscritos", alteracoes, function (response) {
+			if (response.success && !response.value) {
+				for (i = dados.length - 1; i >= 0; i--)
+					dados[i].alterado = false;
+
+				tabela.rows().invalidate().draw("page");
+
+				Notification.success("Alterações salvas com sucesso! " + emoji.happy);
+			} else {
+				Notification.error(response.value, true);
+			}
+		});
+	}
+	// <% } %>
+
+	$("#form").validate({
+		rules: {
+			data_minima: {
+				required: function () {
+					return !!$("#data_maxima").val() || (!$("#nome").val() && !$("#nome_curto").val());
+				}
+			},
+			data_maxima: {
+				required: function () {
+					return !!$("#data_minima").val() || (!$("#nome").val() && !$("#nome_curto").val());
+				}
+			},
+			nome: {
+				required: function () {
+					return (!$("#data_minima").val() || !$("#data_maxima").val()) && !$("#nome_curto").val();
+				},
+				minlength: 3
+			},
+			nome_curto: {
+				required: function () {
+					return (!$("#data_minima").val() || !$("#data_maxima").val()) && !$("#nome").val();
+				},
+				minlength: 3
+			}
+		},
+
+		submitHandler: function (form) {
+			if (JsonWebApi.active)
+				return;
+
+			tabela = null;
+			$("#divResultados").empty();
+
+			Notification.wait();
+
+			JsonWebApi.postFormData("<%- root %>/api/evento/listarInscritosPresencasEACOMFiltro", form, function (response) {
+				if (response.success) {
+					if (!response.value || !response.value.length) {
+						Notification.info("Não há participantes para exibir com esses critérios! " + emoji.happy);
+						return;
+					}
+
+					Notification.hide();
+
+					var presencas = response.value;
+
+					$("#divResultados").html('<div class="panel panel-default"><div class="panel-body"><div class="text-center"><button type="button" class="btn btn-success mb-3" onclick="marcarTudo()"><i class="fa fa-check-square-o"></i>Verificar Todos com ACOM</button> <button type="button" class="btn btn-primary mb-3" onclick="salvarAlteracoes()"><i class="fa fa-save"></i>Salvar Alterações</button></div><div class="dataTable_wrapper"><table class="table table-striped table-hover table-row-pointer" id="tabelaInscritosGeral"></table></div></div></div>');
+
+					tabela = prepareDataTable("tabelaInscritosGeral", {
+						// <% if (usuario.admin) { %>
+						order: [[2, "asc"], [3, "asc"], [4, "asc"], [5, "asc"]],
+						// <% } else { %>
+						order: [[1, "asc"], [2, "asc"], [3, "asc"], [4, "asc"]],
+						// <% } %>
+						deferRender: true,
+						columns: [
+							// <% if (usuario.admin) { %>
+							{ title: "Verificado", "class": "col-min text-center", "type": "text", data: {
+								display: function (row, type, set, meta) { return '<button type="button" id="btnVerificado' + row.idesp + '" class="btn btn-sm ' + (row.alterado ? 'btn-primary' : (row.verificado ? 'btn-outline btn-success' : 'btn-outline btn-danger')) + '" ' + (row.creditaracom ? '' : 'style="pointer-events: none;" tabindex="-1"') + '>' + (row.alterado ? '*' : '') + (row.verificado ? 'SIM' : 'NÃO') + '</button>'; },
+								_: function (row, type, set, meta) { return (row.alterado ? '*' : '') + (row.verificado ? "SIM" : "NÃO"); }
+							} },
+							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } },
+							// <% } %>
+							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
+							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
+							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
+							{ title: "Sessão", "class": "col-larga", render: encode, data: "nome_sessao" },
+							{ title: "Unidade", render: encode, data: "sigla_unidade" },
+							{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
+							{ title: "Âncora", render: encode, data: "nome_curso" },
+							{ title: "Participante", "class": "col-larga", render: encode, data: "nome" },
+							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
+							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
+							{ title: "RA", "class": "col-min", data: "ra" },
+							{ title: "Campus", "class": "col-min", data: "campus" },
+							{ title: "Plano", "class": "col-min", data: "plano" },
+							{ title: "Login", render: encode, data: "login" },
+							{ title: "E-mail", render: encode, data: "email" },
+							{ title: "Encontros Totais", "class": "text-right", "type": "number", data: "encontrostotais" },
+							{ title: "Encontros Presentes", "class": "text-right", "type": "number", data: "encontrospresentes" },
+							{ title: "Presença Mínima para ACOM", "class": "text-right", "type": "number", data: function (row, type, set, meta) { return (row.presencaminima || 1); } },
+							// <% if (!usuario.admin) { %>
+							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } },
+							// <% } %>
+						],
+						data: presencas,
+						export: { title: "Participantes e Presenças" }
+					});
+
+					// <% if (usuario.admin) { %>
+					$("#tabelaInscritosGeral").on("click", "tbody tr", function () {
+						var dado = tabela.row(this).data();
+						if (dado.creditaracom) {
+							dado.alterado = !dado.alterado;
+							dado.verificado = !dado.verificado;
+							tabela.row(this).invalidate().draw("page");
+						}
+					});
+					// <% } %>
+				} else {
+					Notification.error("Ocorreu o erro: " + response.value + "! Por favor, tente novamente mais tarde " + emoji.sad, true);
+				}
+			});
+		}
+	});
+
+//]]>
+</script>

@@ -50,6 +50,15 @@ router.all("/listar", wrap(async (req: express.Request, res: express.Response) =
 	}
 }));
 
+router.all("/participantes-presencas", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u) {
+		res.redirect("/acesso");
+	} else {
+		res.render("evento/participantes-presencas", { titulo: "Participantes e Presenças", usuario: u });
+	}
+}));
+
 router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req);
 	if (!u) {

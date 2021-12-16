@@ -634,14 +634,127 @@ export = class Evento {
 		return (lista || []);
 	}
 
+	private static async listarInscritosPresencasEACOMInterno(incluirEvento: boolean, sql: Sql, where: string, params?: any[]): Promise<any[]> {
+		return ajustarACOMMinutos(await sql.query("select" + (incluirEvento ? " s.idevento, ev.nome nome_evento, esp.id idesp, date_format(esp.verificado, '%d/%m/%Y') verificado," : "") + " s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.id, p.nome, p.login, p.email, p.ra, p.campus, p.plano, p.tipo, esp.creditaracom, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, esp.encontrospresentes from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao" + (incluirEvento ? " inner join evento ev on ev.id = s.idevento" : "") + " inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where " + where, params));
+	}
+
 	public static async listarInscritosPresencasEACOM(id: number): Promise<any[]> {
 		let lista: any[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = ajustarACOMMinutos(await sql.query("select s.nome nome_sessao, u.sigla sigla_unidade, l.nome nome_local, date_format(s.data, '%d/%m/%Y') data, c.nome nome_curso, s.inicio, s.termino, p.id, p.nome, p.login, p.email, p.ra, p.campus, p.plano, p.tipo, esp.creditaracom, s.acomminutos, s.tipomultidata, s.presencaminima, s.encontrostotais, esp.encontrospresentes from eventosessaoparticipante esp inner join participante p on p.id = esp.idparticipante inner join eventosessao s on s.id = esp.ideventosessao inner join eventolocal evl on evl.id = s.ideventolocal inner join local l on l.id = evl.idlocal inner join unidade u on u.id = l.idunidade inner join curso c on c.id = s.idcurso where esp.idevento = " + id));
+			lista = await Evento.listarInscritosPresencasEACOMInterno(false, sql, "esp.idevento = " + id);
 		});
 
 		return (lista || []);
+	}
+
+	public static async listarInscritosPresencasEACOMFiltro(idusuario: number, data_minima: string, data_maxima: string, nome: string, nome_curto: string, apenas_acom: number, apenas_nao_verificados: number): Promise<any[]> {
+		if (data_minima)
+			data_minima = converterDataISO(data_minima);
+		if (data_maxima)
+			data_maxima = converterDataISO(data_maxima);
+		if (nome)
+			nome = nome.normalize().trim().toUpperCase();
+		if (nome_curto)
+			nome_curto = nome_curto.normalize().trim().toUpperCase();
+
+		if ((!data_minima || !data_maxima) &&
+			(!nome || nome.length < 3) &&
+			(!nome_curto || nome_curto.length < 3))
+			return [];
+
+		let lista: any[] = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			let where = "";
+			let params: any[] = [];
+
+			// Quando idusuario for diferente de 0, não é admin e precisará descobrir os eventos associados
+			if (idusuario) {
+				let eventos: any[] = await sql.query("select idevento from eventousuario where idusuario = ?", [idusuario]);
+
+				if (!eventos || !eventos.length)
+					return;
+
+				if (eventos.length === 1) {
+					where = "s.idevento = " + eventos[0].idevento;
+				} else {
+					where = "s.idevento in (";
+					where += eventos[0].idevento;
+					for (let i = 1; i < eventos.length; i++)
+						where += "," + eventos[i].idevento;
+					where += ")";
+				}
+			}
+
+			if (data_minima && data_maxima) {
+				if (where)
+					where += " and ";
+				where += "(s.data between ? and ?)";
+				params.push(data_minima, data_maxima);
+			}
+
+			if (nome && nome.length >= 3) {
+				if (where)
+					where += " and ";
+				where += "s.nome like ?";
+				params.push("%" + nome + "%");
+			}
+
+			if (nome_curto && nome_curto.length >= 3) {
+				if (where)
+					where += " and ";
+				where += "s.nome_curto like ?";
+				params.push("%" + nome_curto + "%");
+			}
+
+			if (apenas_acom) {
+				if (where)
+					where += " and ";
+				where += "esp.creditaracom = 1";
+			}
+
+			if (apenas_nao_verificados) {
+				if (where)
+					where += " and ";
+				where += "esp.verificado is null";
+			}
+
+			lista = await Evento.listarInscritosPresencasEACOMInterno(true, sql, where, params);
+		});
+
+		return (lista || []);
+	}
+
+	public static async salvarVerificacaoInscritos(presencas: any[]): Promise<string> {
+		if (!presencas || !presencas.length)
+			return "Dados inválidos";
+
+		for (let i = presencas.length - 1; i >= 0; i--) {
+			const presenca = presencas[i];
+
+			if (!(presenca.idesp = parseInt(presenca.idesp)))
+				return "Id inválido";
+
+			if (isNaN(presenca.verificado = parseInt(presenca.verificado)))
+				return "Status de verificação inválido";
+		}
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.beginTransaction();
+
+			for (let i = presencas.length - 1; i >= 0; i--) {
+				const presenca = presencas[i];
+
+				await sql.query(presenca.verificado ?
+					"update eventosessaoparticipante set verificado = now() where id = ? and verificado is null and creditaracom = 1" :
+					"update eventosessaoparticipante set verificado = null where id = ?", [presenca.idesp]);
+			}
+
+			await sql.commit();
+		});
+
+		return null;
 	}
 
 	public static async listarPalestrantesGeral(id: number): Promise<any[]> {

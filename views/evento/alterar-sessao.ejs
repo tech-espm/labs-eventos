@@ -2,7 +2,7 @@
 	<div class="panel-heading">
 		Administração
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="row">
 			<div class="col-sm-4">
 				<div class="form-group">
@@ -35,7 +35,7 @@
 	<div class="panel-heading">
 		Data e Hora
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="row">
 			<div class="col-sm-4">
 				<div class="form-group">
@@ -72,11 +72,11 @@
 				</div>
 
 				<div id="divSessaoMultidata" style="display: none;">
-					<div class="col-xs-space-bottom">
+					<div class="mb-3">
 						<button class="btn btn-primary" type="button" onclick="adicionarSessaoMultidata()"><i class="fa fa-plus"></i>Criar Data Adicional...</button>
 					</div>
-					<div class="table-responsive col-xs-space-bottom" id="divSessaoMultidataTable" style="display: none;">
-						<table id="" class="table table-striped table-hover no-margin-bottom">
+					<div class="table-responsive mb-3" id="divSessaoMultidataTable" style="display: none;">
+						<table id="" class="table table-striped table-hover mb-0">
 							<thead>
 								<tr>
 									<th class="col-min"></th>
@@ -91,14 +91,14 @@
 				</div>
 
 			</div>
-			<div class="col-sm-6">
-				<div class="col-xs-space-bottom">
+			<div class="col-sm-6 placeholder-chooser" style="text-align: left;">
+				<div class="mb-3">
 					Abaixo segue uma breve explicação do significado das datas adicionais de uma sessão:
 				</div>
 				<ul>
-					<li class="col-xs-space-bottom"><b>Sem datas adicionais</b>: A sessão ocorre em apenas uma data, ou, caso ocorra em mais datas, são cópias desta sessão, normalmente com públicos diferentes.</li>
-					<li class="col-xs-space-bottom"><b>Com datas adicionais (presença mínima)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá o certificado/horas ACOM designadas caso compareça a pelo menos X encontros. Um exemplo desse tipo de sessão seria um curso de 20 horas, dividido em 5 noites, das quais o participante tem a obrigação de comparecer em pelo menos 4 noites para poder receber o certificado/horas ACOM.</li>
-					<li class="col-xs-space-bottom"><b>Com datas adicionais (horas proporcionais)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante receberá o certificado/horas ACOM proporcionais à quantidade de presenças. Por exemplo, um participante que comparecesse a 3 noites de um curso de 20 horas, dividido em 5 noites, teria direito a receber um certificado com 3 presenças/12 horas ACOM.</li>
+					<li class="mb-3"><b>Sem datas adicionais</b>: A sessão ocorre em apenas uma data, ou, caso ocorra em mais datas, são cópias desta sessão, normalmente com públicos diferentes.</li>
+					<li class="mb-3"><b>Com datas adicionais (presença mínima)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante só receberá o certificado/horas ACOM designadas caso compareça a pelo menos X encontros. Um exemplo desse tipo de sessão seria um curso de 20 horas, dividido em 5 noites, das quais o participante tem a obrigação de comparecer em pelo menos 4 noites para poder receber o certificado/horas ACOM.</li>
+					<li class="mb-3"><b>Com datas adicionais (horas proporcionais)</b>: A sessão está dividida em mais de uma manhã/tarde/noite, e o participante receberá o certificado/horas ACOM proporcionais à quantidade de presenças. Por exemplo, um participante que comparecesse a 3 noites de um curso de 20 horas, dividido em 5 noites, teria direito a receber um certificado com 3 presenças/12 horas ACOM.</li>
 				</ul>
 			</div>
 		</div>
@@ -109,7 +109,7 @@
 	<div class="panel-heading">
 		Nome e Local
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
 			<label for="cbSessaoLocal">Local</label>
 			<select id="cbSessaoLocal" name="cbSessaoLocal" class="form-control" size="1"><option value="">SELECIONE...</option></select>
@@ -148,15 +148,15 @@
 	<div class="panel-heading">
 		Inscrição e Horas ACOM
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="row">
 			<div class="col-sm-6">
-				<div class="col-sm-space-bottom">
+				<div class="mb-3 mb-sm-0">
 					<label for="cbSessaoPermiteSimultanea">Permite Outras Inscrições Simultâneas</label>
 					<select id="cbSessaoPermiteSimultanea" name="cbSessaoPermiteSimultanea" class="form-control upper" size="1"><option value="1">SIM</option><option value="0" selected="selected">NÃO</option></select>
 				</div>
 			</div>
-			<div class="col-sm-6">
+			<div class="col-sm-6 placeholder-chooser" style="text-align: left;">
 				Quando o campo "Permite Outras Inscrições Simultâneas" for marcado como "SIM", o sistema permitirá que os particiantes inscritos nesta sessão também se inscrevam outras em sessões no mesmo dia/hora.
 			</div>
 		</div>
@@ -174,11 +174,11 @@
 					<input id="txtSessaoAcomMinutos" name="txtSessaoAcomMinutos" class="form-control upper" type="text" />
 				</div>
 			</div>
-			<div class="col-sm-6">
-				<div class="col-xs-space-bottom">
+			<div class="col-sm-6 placeholder-chooser" style="text-align: left;">
+				<div class="mb-3">
 					A quantidade de horas ACOM a ser creditada em caso de presença é independente da duração da sessão. <b>Por favor, preencha com 0 caso a sessão não permita crédito de horas ACOM</b>.
 				</div>
-				<div class="col-xs-space-bottom">
+				<div class="mb-3">
 					Caso uma sessão esteja dividida em mais de uma manhã/tarde/noite, este campo deve conter a quantidade total de horas ACOM a serem creditadas. Por exemplo, um curso de 20 horas, dividido em 5 noites, credita 20 horas no total.
 				</div>
 			</div>
@@ -190,7 +190,7 @@
 	<div class="panel-heading">
 		Informações Extras para a Landing Page
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="form-group">
 			<label for="txtSessaoDescricao">Descrição <small>(Permite uso de tags HTML)</small></label>
 			<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
@@ -210,7 +210,7 @@
 	<div class="panel-heading">
 		Metainformações
 	</div>
-	<div class="panel-body no-bottom">
+	<div class="panel-body pb-0">
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="form-group">

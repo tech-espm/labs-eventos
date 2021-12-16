@@ -273,6 +273,27 @@ router.get("/listarInscritosPresencasEACOM", wrap(async (req: express.Request, r
 	res.json(await Evento.listarInscritosPresencasEACOM(u.idevento_logado));
 }));
 
+router.post("/listarInscritosPresencasEACOMFiltro", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res);
+	if (!u)
+		return;
+
+	if (!req.body) {
+		jsonRes(res, 400, "Dados inválidos");
+		return;
+	}
+
+	res.json(await Evento.listarInscritosPresencasEACOMFiltro(u.admin ? 0 : u.id, req.body.data_minima, req.body.data_maxima, req.body.nome, req.body.nome_curto, parseInt(req.body.apenas_acom), parseInt(req.body.apenas_nao_verificados)));
+}));
+
+router.post("/salvarVerificacaoInscritos", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req, res, true);
+	if (!u)
+		return;
+
+	jsonRes(res, 400, await Evento.salvarVerificacaoInscritos(req.body));
+}));
+
 router.get("/listarPalestrantesGeral", wrap(async (req: express.Request, res: express.Response) => {
 	let u = await Usuario.cookie(req, res);
 	if (!u)

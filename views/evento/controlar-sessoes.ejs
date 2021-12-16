@@ -3,21 +3,21 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body dataTable_wrapper">
-				<div class="col-xs-space-bottom">
+				<div class="mb-3">
 					<button class="btn btn-primary" type="button" onclick="criarSessao()"><i class="fa fa-plus"></i>Criar Sessão...</button>
 					<button class="btn btn-primary" type="button" onclick="escolherSessoesParaEmail()"><i class="fa fa-envelope"></i>Enviar E-mail...</button>
 				</div>
-				<div class="col-xs-space-bottom text-center">
+				<div class="mb-3 text-center">
 					<!-- <button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridData()"><i class="fa fa-table"></i>Exibir Grade...</button> -->
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridInscritosGeral()"><i class="fa fa-users"></i>Exibir Participantes e Presenças...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAvaliacoesEComentarios()"><i class="fa fa-thumbs-o-up"></i>Exibir Avaliações e Comentários...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridPalestrantesGeral()"><i class="fa fa-microphone"></i>Exibir Palestrantes...</button>
 				</div>
-				<div class="col-xs-space-bottom text-center">
+				<div class="mb-3 text-center">
 					<button class="btn btn-primary btn-outline" type="button" onclick="contarInscricoesEPresencas()"><i class="fa fa-refresh"></i>Atualizar Inscrições e Presenças...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="listarAvaliacoes()"><i class="fa fa-refresh"></i>Atualizar Avaliações e Médias...</button>
 				</div>
-				<div class="col-xs-space-bottom text-center"><b id="lblInscricoesEPresencas"></b></div>
+				<div class="mb-3 text-center"><b id="lblInscricoesEPresencas"></b></div>
 				<table class="table table-striped table-hover" id="tabela-sessoes"></table>
 			</div>
 		</div>
@@ -33,19 +33,19 @@
 			</div>
 			<div class="modal-body">
 				<%- include("alterar-sessao") %>
-				<div class="panel panel-default no-margin-bottom">
+				<div class="panel panel-default mb-0">
 					<div class="panel-heading">
 						Palestrantes
 					</div>
 					<div class="panel-body">
 						<div class="row">
-							<div class="col-sm-3 col-sm-space-bottom">
+							<div class="col-sm-3 mb-3 mb-sm-0">
 								<button class="btn btn-primary btn-block" type="button" onclick="criarEAdicionarNovoPalestrante()"><i class="fa fa-plus"></i>Criar Novo</button>
 							</div>
-							<div class="col-sm-3 col-sm-space-bottom">
+							<div class="col-sm-3 mb-3 mb-sm-0">
 								<input id="txtSessaoPalestranteNovoNome" name="txtSessaoPalestranteNovoNome" class="form-control" type="text" maxlength="100" spellcheck="false" placeholder="NOME" />
 							</div>
-							<div class="col-sm-3 col-sm-space-bottom">
+							<div class="col-sm-3 mb-3 mb-sm-0">
 								<input id="txtSessaoPalestranteNovoEmail" name="txtSessaoPalestranteNovoEmail" class="form-control upper" type="email" maxlength="100" spellcheck="false" placeholder="E-MAIL" />
 							</div>
 							<div class="col-sm-3">
@@ -54,7 +54,7 @@
 						</div>
 						<hr />
 						<div class="row">
-							<div class="col-sm-4 col-sm-space-bottom">
+							<div class="col-sm-4 mb-3 mb-sm-0">
 								<button class="btn btn-primary btn-block" type="button" onclick="adicionarPalestrante()"><i class="fa fa-plus"></i>Adicionar</button>
 							</div>
 							<div class="col-sm-8">
@@ -62,7 +62,7 @@
 							</div>
 						</div>
 						<div class="table-responsive">
-							<table id="tabelaSessaoPalestrante" class="table table-striped table-hover no-margin-bottom" style="display: none;">
+							<table id="tabelaSessaoPalestrante" class="table table-striped table-hover mb-0" style="display: none;">
 								<thead>
 									<tr>
 										<th></th>
@@ -126,7 +126,7 @@
 				<h4 class="modal-title">Link</h4>
 			</div>
 			<div class="modal-body">
-				<div class="col-xs-space-bottom"><button id="btnLinkSessao" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
+				<div class="mb-3"><button id="btnLinkSessao" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
 				<a id="aLinkSessao" href="#" target="_blank" style="word-break: break-all;"></a>
 			</div>
 			<div class="modal-footer">
@@ -175,7 +175,7 @@
 			deferRender: true,
 			columns: [
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Clonar\" type=\"button\" data-clonar=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-copy\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button><br/><button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Link de Controle de Presença\" type=\"button\" data-presenca=\"1\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-check-square-o\"></i></button> <button title=\"Link de Avaliação dos Participantes\" type=\"button\" data-avaliacao=\"1\" class=\"btn btn-outline btn-success\"><i class=\"fa fa-nomargin fa-thumbs-o-up\"></i></button>"; } },
-				{ title: "Nome", render: encode, data: "nome" },
+				{ title: "Nome", "class": "col-larga", render: encode, data: "nome" },
 				{
 					title: "Mediadores", data: function (row, type, set, meta) {
 						var i, nomes = "", p, n, idspalestrante = row.idspalestrante;
@@ -227,7 +227,7 @@
 				{ title: "Término", "class": "col-min text-right", data: "termino" },
 				{ title: "Encontros Totais", "class": "text-right", "type": "number", data: "encontrostotais" },
 				{ title: "Unidade", render: encode, data: "sigla_unidade" },
-				{ title: "Local", render: encode, data: "nome_local" },
+				{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
 				{ title: "URL Remota", data: function (row, type, set, meta) { return (row.url_remota ? ('<a target="_blank" class="link-curto" href="' + row.url_remota + '">' + row.url_remota + '</a>') : ''); } },
 				{ title: "Âncora", render: encode, data: "nome_curso" },
 				{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } },
@@ -523,7 +523,7 @@
 			div = document.createElement("div");
 			div.className = "table-responsive";
 
-			html = '<table id="gridData' + dataInt + '" class="grid-data table table-striped table-hover no-margin-bottom"><thead><tr><th class="left">Local</th>';
+			html = '<table id="gridData' + dataInt + '" class="grid-data table table-striped table-hover mb-0"><thead><tr><th class="left">Local</th>';
 			for (i = 0; i < eventoHorarios.length; i++)
 				html += '<th>' + eventoHorarios[i] + '</th>';
 			html += '</tr></thead><tbody>'
@@ -651,7 +651,7 @@
 
 			html += '</select> <button type="button" class="btn btn-outline btn-primary" id="modalGridDataFechar"><i class="fa fa-times"></i>Fechar</button></div><div class="grid-data-body" id="modalGridDataBody">';
 
-			html += '<table id="modalGridDataTable" class="table table-hover no-margin-bottom" style="width: auto; min-width: auto; max-width: 9999999px; background-color: #fff;"><thead><tr><th class="col2">Locais</th>';
+			html += '<table id="modalGridDataTable" class="table table-hover mb-0" style="width: auto; min-width: auto; max-width: 9999999px; background-color: #fff;"><thead><tr><th class="col2">Locais</th>';
 			for (i = 0; i < eventoHorarios.length; i++)
 				html += '<th class="col1" style="text-align: center;">' + eventoHorarios[i] + '</th>';
 			html += '</tr></thead><tbody>';
@@ -667,7 +667,7 @@
 			}
 			html += '</tbody></table>';
 
-			html += '<table id="modalGridDataLocal" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead><tbody>'
+			html += '<table id="modalGridDataLocal" class="table table-hover mb-0 col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead><tbody>'
 			for (i = 0; i < eventoLocais.length; i++) {
 				local = eventoLocais[i];
 				cor = local.cor;
@@ -677,12 +677,12 @@
 			}
 			html += '</tbody></table>';
 
-			html += '<table id="modalGridDataHorario" class="table table-hover no-margin-bottom float" style="width: auto; min-width: auto; max-width: 9999999px;"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th>';
+			html += '<table id="modalGridDataHorario" class="table table-hover mb-0 float" style="width: auto; min-width: auto; max-width: 9999999px;"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th>';
 			for (i = 0; i < eventoHorarios.length; i++)
 				html += '<th class="col1" style="text-align: center; background-color: #fff;">' + eventoHorarios[i] + '</th>';
 			html += '</tr></thead></table>';
 
-			html += '<table id="modalGridDataCanto" class="table table-hover no-margin-bottom col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead></table>';
+			html += '<table id="modalGridDataCanto" class="table table-hover mb-0 col2 float"><thead><tr><th class="col2" style="background-color: #fff;">Locais</th></tr></thead></table>';
 
 			html += '</div>';
 
@@ -733,11 +733,11 @@
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
 							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
-							{ title: "Sessão", render: encode, data: "nome_sessao" },
+							{ title: "Sessão", "class": "col-larga", render: encode, data: "nome_sessao" },
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
-							{ title: "Local", render: encode, data: "nome_local" },
+							{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
-							{ title: "Participante", render: encode, data: "nome" },
+							{ title: "Participante", "class": "col-larga", render: encode, data: "nome" },
 							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
 							{ title: "RA", "class": "col-min", data: "ra" },
@@ -827,8 +827,8 @@
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", data: "inicio" },
 							{ title: "Término", "class": "col-min text-right", data: "termino" },
-							{ title: "Sessão", render: encode, data: "nome_sessao" },
-							{ title: "Local", render: encode, data: "nome_local" },
+							{ title: "Sessão", "class": "col-larga", render: encode, data: "nome_sessao" },
+							{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
 							{ title: "Data da Avaliação", "class": "text-right", "type": "customdateint", data: "data_avaliacao" },
 							{ title: "Conhecimento do Palestrante", "class": "text-right", "type": "number", data: "conhecimento" },

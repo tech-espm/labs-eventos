@@ -24,7 +24,7 @@
 			<% if (!controlandoEvento) { %>
 			<div class="panel-heading">Informações Básicas do Evento</div>
 			<% } %>
-			<div class="panel-body no-bottom">
+			<div class="panel-body pb-0">
 				<input type="hidden" id="id" name="id" value="<%=(item ? item.id : 0) %>" />
 				<ul class="nav nav-pills text-center" role="tablist">
 					<li role="presentation" class="active"><a id="a-evento-basica" href="#tab-evento-basica" role="tab" data-toggle="pill" aria-controls="tab-evento-basica" aria-expanded="true"><i class="fa fa-edit"></i>Geral</a></li>
@@ -347,12 +347,12 @@
 							</div>
 							<div class="col-sm-6">
 								<% if (controlandoEvento) { %>
-								<div class="col-xs-space-bottom">
+								<div class="mb-3">
 									Os links de acesso às funcionalidades de recepção, check-in e sugestões estão listados a seguir:
 								</div>
 								<ul>
-									<li class="col-xs-space-bottom"><b>Recepção</b><br /><a href="#" id="aRecepcao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyRecepcao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
-									<li class="col-xs-space-bottom"><b>Check-In</b><br /><a href="#" id="aCheckIn" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyCheckIn" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+									<li class="mb-3"><b>Recepção</b><br /><a href="#" id="aRecepcao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyRecepcao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
+									<li class="mb-3"><b>Check-In</b><br /><a href="#" id="aCheckIn" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopyCheckIn" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
 									<li><b>Sugestões</b><br /><a href="#" id="aSugestao" target="_blank" data-clipboard-text=""></a> <button type="button" id="btnCopySugestao" class="btn btn-default btn-outline btn-copyjs" title="Copiar"><i class="fa fa-nomargin fa-copy"></i></button></li>
 								</ul>
 								<% } %>

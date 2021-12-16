@@ -1,6 +1,6 @@
 ﻿<form method="post" id="form" action="<%- root %>/participante/login">
 	<div class="painel-msg">
-		<div class="panel panel-default no-margin-bottom">
+		<div class="panel panel-default mb-0">
 			<div class="panel-body">
 				<% if (mensagem) { %>
 				<div id="lblMessage" class="alert alert-danger"><%=mensagem %></div>
@@ -8,8 +8,8 @@
 				<p class="text-center"><img alt="ESPM" src="<%- staticRoot %>/imagens/logo.png" width="100" /></p>
 
 				<ul class="nav nav-pills text-center" role="tablist">
-					<li class="col-xs-space-bottom" role="presentation"><a href="#tab-interno" aria-controls="tab-interno" role="tab" data-toggle="tab">Alunos e Funcionários</a></li>
-					<li class="col-xs-space-bottom" role="presentation"><a href="#tab-externo" aria-controls="tab-externo" role="tab" data-toggle="tab">Visitantes e Ex-alunos</a></li>
+					<li class="mb-3" role="presentation"><a href="#tab-interno" aria-controls="tab-interno" role="tab" data-toggle="tab">Alunos e Funcionários</a></li>
+					<li class="mb-3" role="presentation"><a href="#tab-externo" aria-controls="tab-externo" role="tab" data-toggle="tab">Visitantes e Ex-alunos</a></li>
 				</ul>
 
 				<div class="tab-content">

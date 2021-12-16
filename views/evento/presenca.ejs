@@ -1,21 +1,21 @@
 ﻿<div class="painel-msg">
-	<div class="panel panel-default no-margin-bottom">
+	<div class="panel panel-default mb-0">
 		<div class="panel-heading">
 			<span>C</span>ONTROLE DE <span>P</span>RESENÇA
 		</div>
 		<div class="panel-body">
-			<h2 class="no-margin-top"><%=nome %> - <%=sessao.nome %></h2>
+			<h2 class="mt-0"><%=nome %> - <%=sessao.nome %></h2>
 			<p class="text-right"><%=sessao.data %> das <%=sessao.inicio %> às <%=sessao.termino %></p>
 			<form id="form">
 				<div class="row">
 					<div class="col-sm-6">
-						<div class="form-group no-margin-bottom col-sm-space-bottom">
+						<div class="form-group mb-sm-0">
 							<label for="txtSenhaPresenca">Senha da Presença</label>
 							<input type="text" maxlength="45" autocomplete="off" spellcheck="false" id="txtSenhaPresenca" name="txtSenhaPresenca" class="form-control" placeholder="EM BRANCO DESATIVA" value="<%- sessao.senhapresenca %>" />
 						</div>
 					</div>
 					<div class="col-sm-6">
-						<div class="form-group no-margin-bottom">
+						<div class="form-group mb-0">
 							<label class="hidden-xs">&nbsp;</label>
 							<button type="submit" class="btn btn-primary btn-block">Salvar Senha</button>
 						</div>
@@ -28,7 +28,7 @@
 				<br />
 				<span id="link" style="word-break: break-all;"></span>
 				<hr />
-				<div class="col-xs-space-bottom">
+				<div class="mb-3">
 					<a id="download" href="" download="QR.png" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i>Baixar Imagem</a>
 				</div>
 				<div id="qrcode"></div>

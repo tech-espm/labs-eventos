@@ -313,7 +313,7 @@ CREATE TABLE eventousuario (
   idusuario int NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idevento_idusuario_eventousuario_UN (idevento,idusuario),
-  KEY idusuario_FK_idx (idusuario),
+  KEY idusuario_idevent_FX_idx (idusuario,idevento),
   CONSTRAINT idevento_FK FOREIGN KEY (idevento) REFERENCES evento (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idusuario_FK FOREIGN KEY (idusuario) REFERENCES usuario (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
@@ -352,11 +352,13 @@ CREATE TABLE eventosessaoparticipante (
   creditaracom tinyint NOT NULL,
   encontrospresentes tinyint NOT NULL,
   data_inscricao datetime NOT NULL,
+  verificado datetime NULL,
   PRIMARY KEY (id),
   UNIQUE KEY idsessao_idparticipante_eventosessaoparticipante_UN (idevento,ideventosessao,idparticipante),
   KEY idparticipante_FK_idx (idparticipante),
   KEY idevento_idparticipante_idx (idevento, idparticipante),
   KEY ideventosessao_idparticipante_idx (ideventosessao, idparticipante),
+  KEY verificado_creditaracom_idx (verificado, creditaracom),
   CONSTRAINT ideventosessao_FK FOREIGN KEY (ideventosessao) REFERENCES eventosessao (id) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT idparticipante_FK FOREIGN KEY (idparticipante) REFERENCES participante (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );

@@ -1,6 +1,6 @@
 ﻿
 <div class="painel-msg">
-	<div class="panel panel-default no-margin-bottom">
+	<div class="panel panel-default mb-0">
 		<div class="panel-heading clearfix">
 			<div class="pull-left"><span>R</span>ECEPÇÃO</div>
 			<!--<div class="pull-right"><a style="vertical-align: top; margin-top: 16px;" href="<%- root %>/<%-evento.url %>" target="_blank" class="btn btn-outline btn-primary btn-xs"><i class="fa fa-external-link"></i>Página do evento</a></div>-->
@@ -236,7 +236,7 @@
 	}
 
 	function mostrarAlerta(mensagem, erro) {
-		$("#modalAlertaBody").html('<div class="no-margin-bottom alert alert-' + (erro ? 'danger' : 'success') + '">' + mensagem + '</div>');
+		$("#modalAlertaBody").html('<div class="mb-0 alert alert-' + (erro ? 'danger' : 'success') + '">' + mensagem + '</div>');
 		$("#modalAlerta").modal({
 			backdrop: "static",
 			keyboard: false

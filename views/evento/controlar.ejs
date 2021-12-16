@@ -3,7 +3,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body text-center">
-				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline col-xs-space-bottom" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
+				<a id="aLandingPageTitulo" class="btn btn-primary btn-outline mb-3" style="white-space: normal;" target="_blank" href="<%- root %>/<%-item.url %>"><i class="fa fa-external-link"></i>Acessar a landing page do evento</a>
 				<br />
 				<button class="btn btn-danger btn-outline" style="white-space: normal;" target="_blank" onclick="mostrarModalLinkCheckIn()"><i class="fa fa-check-square-o"></i>Chamada / Atribuição de presença</button>
 				<hr />
@@ -55,11 +55,11 @@
 				<h4 class="modal-title">Atribuição de presença</h4>
 			</div>
 			<div class="modal-body">
-				<div class="col-xs-space-bottom"><button id="btnLinkCheckIn" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
+				<div class="mb-3"><button id="btnLinkCheckIn" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
 				<a id="aLinkCheckIn" href="#" target="_blank" style="word-break: break-all;"></a>
 				<hr />
-				<div class="col-xs-space-bottom">Acesse o link acima para realizar a chamada das sessões do evento, ou para atribuir uma presença tardia. A <b>senha do check-in</b> será requisitada para confirmar o processo.</div>
-				<div class="col-xs-space-bottom"><button id="btnLinkCheckInSenha" type="button" class="btn btn-primary" style="white-space: normal;"><i class="fa fa-copy"></i>Clique aqui para copiar a senha do check-in</button></div>
+				<div class="mb-3">Acesse o link acima para realizar a chamada das sessões do evento, ou para atribuir uma presença tardia. A <b>senha do check-in</b> será requisitada para confirmar o processo.</div>
+				<div class="mb-3"><button id="btnLinkCheckInSenha" type="button" class="btn btn-primary" style="white-space: normal;"><i class="fa fa-copy"></i>Clique aqui para copiar a senha do check-in</button></div>
 				<div>Para alterar a senha do check-in, basta ir até a aba <b>Informações Básicas</b> &gt; <b>Senhas</b>.</div>
 			</div>
 			<div class="modal-footer">
@@ -205,6 +205,11 @@
 
 	#a-avancado:not(:hover) {
 		color: #aaa;
+	}
+
+	.col-larga {
+		min-width: 200px;
+		max-width: 300px;
 	}
 </style>
 

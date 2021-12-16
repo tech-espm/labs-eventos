@@ -3,7 +3,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body dataTable_wrapper">
-				<div class="col-xs-space-bottom">
+				<div class="mb-3">
 					<button class="btn btn-primary" type="button" onclick="criarPalestrante()"><i class="fa fa-plus"></i>Criar Palestrante...</button>
 					<button class="btn btn-primary btn-outline" type="button" onclick="mostrarGridAceite()"><i class="fa fa-table"></i>Exibir Grade de Aceites...</button>
 				</div>
@@ -135,7 +135,7 @@
 				<h4 class="modal-title">Link</h4>
 			</div>
 			<div class="modal-body">
-				<div class="col-xs-space-bottom"><button id="btnLinkPalestrante" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
+				<div class="mb-3"><button id="btnLinkPalestrante" type="button" class="btn btn-primary"><i class="fa fa-copy"></i>Copiar</button></div>
 				<a id="aLinkPalestrante" href="#" target="_blank" style="word-break: break-all;"></a>
 			</div>
 			<div class="modal-footer">
@@ -178,10 +178,10 @@
 			order: [[2, "asc"]],
 			deferRender: true,
 			columns: [
-				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Link de Edição Externa\" type=\"button\" data-link=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-link\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button> <button title=\"Certificado\" type=\"button\" data-certificado=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
+				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Editar\" type=\"button\" class=\"btn btn-outline btn-primary\"><i class=\"fa fa-nomargin fa-edit\"></i></button> <button title=\"Link de Edição Externa\" type=\"button\" data-link=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-link\"></i></button> <button title=\"Link de Compartilhamento\" type=\"button\" data-share=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-share-alt\"></i></button><br /><button title=\"Certificado\" type=\"button\" data-certificado=\"1\" class=\"btn btn-outline btn-default\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button> <button title=\"Excluir\" type=\"button\" data-excluir=\"1\" class=\"btn btn-outline btn-danger\"><i class=\"fa fa-nomargin fa-times\"></i></button>"; } },
 				{ title: "", "class": "col-min", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<img alt=\"Imagem da Palestrante\" class=\"palestrante-img\" src=\"" + caminhoAbsolutoPastaExterno + "/" + v + "." + extensaoImagem + "?v=" + row.versao + "\" />"; } },
-				{ title: "Nome", data: "nome" },
-				{ title: "Nome para Divulgação", data: "nome_curto" },
+				{ title: "Nome", "class": "col-larga", data: "nome" },
+				{ title: "Nome para Divulgação", "class": "col-larga", data: "nome_curto" },
 				{ title: "Oculto", "class": "col-min", data: function (row, type, set, meta) { return (row.oculto ? "<span class=\"col-h\">SIM</span>" : "NÃO"); } },
 				{ title: "Confirmado", "class": "col-min", data: function (row, type, set, meta) { return (row.confirmado ? "SIM" : "<span class=\"col-h\">NÃO</span>"); } },
 				{ title: "Prioridade", "class": "col-min text-right", data: "prioridade" },
@@ -745,7 +745,7 @@
 						partes, maiorEmail, data, dataMaiorEmail,
 						temSessao, faltaEmail, aceiteCompleto,
 						placeholder = { versao: 0 },
-						html = '<div class="text-center col-xs-space-bottom"><button type="button" class="btn btn-primary" onclick="enviarEmailsFaltantes()"><i class="fa fa-envelope-o"></i>Enviar E-mails Faltantes</button></div><div class="table-responsive"><table id="gridAceite" class="table table-striped table-hover no-margin-bottom"><thead><tr><th class="col-min" data-orderable="false" data-searchable="false"></th><th class="col-min" data-orderable="false" data-searchable="false"></th><th class="left">Palestrante</th><th class="col-min left">Sessões sem E-mail</th><th class="col-min left">Aceite Completo</th><th class="col-min text-right" data-type="customdateint">Data do Último E-mail</th></tr></thead><tbody>'
+						html = '<div class="text-center mb-3"><button type="button" class="btn btn-primary" onclick="enviarEmailsFaltantes()"><i class="fa fa-envelope-o"></i>Enviar E-mails Faltantes</button></div><div class="table-responsive"><table id="gridAceite" class="table table-striped table-hover mb-0"><thead><tr><th class="col-min" data-orderable="false" data-searchable="false"></th><th class="col-min" data-orderable="false" data-searchable="false"></th><th class="left">Palestrante</th><th class="col-min left">Sessões sem E-mail</th><th class="col-min left">Aceite Completo</th><th class="col-min text-right" data-type="customdateint">Data do Último E-mail</th></tr></thead><tbody>'
 
 					for (i = 0; i < eventoPalestrantes.length; i++) {
 						palestrante = eventoPalestrantes[i];
