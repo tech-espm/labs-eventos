@@ -464,3 +464,7 @@ label.error {
 .swal2-cancel {
 	margin-left: 8px;
 }
+
+.btn > i {
+	pointer-events: none;
+}

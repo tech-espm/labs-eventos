@@ -179,15 +179,15 @@
 
 					tabela = prepareDataTable("tabelaInscritosGeral", {
 						// <% if (usuario.admin) { %>
-						order: [[2, "asc"], [3, "asc"], [4, "asc"], [5, "asc"]],
+						order: [[2, "asc"], [3, "asc"], [4, "asc"], [5, "asc"], [6, "asc"]],
 						// <% } else { %>
-						order: [[1, "asc"], [2, "asc"], [3, "asc"], [4, "asc"]],
+						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"], [4, "asc"]],
 						// <% } %>
 						deferRender: true,
 						columns: [
 							// <% if (usuario.admin) { %>
 							{ title: "Verificado", "class": "col-min text-center", "type": "text", data: {
-								display: function (row, type, set, meta) { return '<button type="button" id="btnVerificado' + row.idesp + '" class="btn btn-sm ' + (row.alterado ? 'btn-primary' : (row.verificado ? 'btn-outline btn-success' : 'btn-outline btn-danger')) + '" ' + (row.creditaracom ? '' : 'style="pointer-events: none;" tabindex="-1"') + '>' + (row.alterado ? '*' : '') + (row.verificado ? 'SIM' : 'NÃO') + '</button>'; },
+								display: function (row, type, set, meta) { return '<button type="button" id="btnVerificado' + row.idesp + '" class="btn ' + (row.alterado ? 'btn-primary' : (row.verificado ? 'btn-outline btn-success' : 'btn-outline btn-danger')) + '" ' + (row.creditaracom ? '' : 'style="pointer-events: none;" tabindex="-1"') + '>' + (row.alterado ? '*' : '') + (row.verificado ? 'SIM' : 'NÃO') + '</button>'; },
 								_: function (row, type, set, meta) { return (row.alterado ? '*' : '') + (row.verificado ? "SIM" : "NÃO"); }
 							} },
 							{ title: "Horas ACOM", "class": "col-min text-right", "type": "number", data: { sort: "acomminutos", _: function (row, type, set, meta) { return (row.acomminutos / 60).toFixed(1).replace(".", ","); } } },
@@ -195,6 +195,7 @@
 							{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 							{ title: "Início", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.inicio); } },
 							{ title: "Término", "class": "col-min text-right", data: function (row, type, set, meta) { return formatHourDec(row.termino); } },
+							{ title: "Evento", "class": "col-larga", render: function (v, type, row) { return '<button type="button" title="Gerenciar Evento" data-gerenciar="1" class="btn btn-outline btn-default"><i class="fa fa-nomargin fa-bullhorn"></i></button> ' + encode(v) }, data: "nome_evento" },
 							{ title: "Sessão", "class": "col-larga", render: encode, data: "nome_sessao" },
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
 							{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
@@ -219,9 +220,21 @@
 					});
 
 					// <% if (usuario.admin) { %>
-					$("#tabelaInscritosGeral").on("click", "tbody tr", function () {
+					$("#tabelaInscritosGeral").on("click", "tbody tr", function (e) {
 						var dado = tabela.row(this).data();
-						if (dado.creditaracom) {
+						if (e.target.getAttribute("data-gerenciar")) {
+							Notification.wait();
+
+							JsonWebApi.get("<%- root %>/api/usuario/eventoSelecionar", function (response) {
+								if (response.success) {
+									Notification.hide();
+									$("#navbar-a-evento-logado").html('<i class="fa fa-bullhorn fa-fw"></i>' + encode(dado.nome_evento));
+									window.open("<%- root %>/evento");
+								} else {
+									Notification.error(response.value, true);
+								}
+							}, "idevento", dado.idevento);
+						} else if (dado.creditaracom) {
 							dado.alterado = !dado.alterado;
 							dado.verificado = !dado.verificado;
 							tabela.row(this).invalidate().draw("page");

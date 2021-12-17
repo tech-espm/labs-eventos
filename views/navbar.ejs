@@ -55,7 +55,7 @@
 						<% if (usuario.idevento_logado && usuario.nomeevento_logado) { %>
 
 						<li>
-							<a href="<%- root %>/evento"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
+							<a id="navbar-a-evento-logado" href="<%- root %>/evento"><i class="fa fa-bullhorn fa-fw"></i><%=usuario.nomeevento_logado %></a>
 						</li>
 
 						<% } else if (!usuario.admin) { %>
