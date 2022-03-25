@@ -613,4 +613,70 @@ export = class Participante {
 
 		return r;
 	}
+
+	public static async conferirTelefone(email: string, senha: string): Promise<string> {
+		if (!(email = (email || "").normalize().trim().toUpperCase()))
+			return "E-mail inválido";
+		if (!senha)
+			return "Senha inválida";
+
+		if (email.endsWith("@ESPM.BR") || email.endsWith("@ACAD.ESPM.BR"))
+			return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
+
+		let r: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			let rows = await sql.query("select telefone, senha from participante where email = ?", [email]);
+			let row: Participante;
+
+			if (!rows || !rows.length || !(row = rows[0])) {
+				r = "E-mail ou senha inválidos";
+				return;
+			}
+
+			if (!await GeradorHash.validarSenha(senha.normalize(), row.senha)) {
+				r = "E-mail ou senha inválidos";
+				return;
+			}
+
+			if (!row.telefone || !row.telefone.trim())
+				r = "1";
+		});
+
+		return r;
+	}
+
+	public static async atualizarTelefone(email: string, senha: string, telefone: string): Promise<string> {
+		if (!(email = (email || "").normalize().trim().toUpperCase()))
+			return "E-mail inválido";
+		if (!senha)
+			return "Senha inválida";
+		telefone = (telefone || "").normalize().trim().toUpperCase();
+		if (telefone.length < 14 || telefone.length > 25)
+			return "Telefone inválido";
+
+		if (email.endsWith("@ESPM.BR") || email.endsWith("@ACAD.ESPM.BR"))
+			return "Alunos e funcionários da ESPM devem utilizar o portal integrado para efetuar login";
+
+		let r: string = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			let rows = await sql.query("select id, senha from participante where email = ?", [email]);
+			let row: Participante;
+
+			if (!rows || !rows.length || !(row = rows[0])) {
+				r = "E-mail ou senha inválidos";
+				return;
+			}
+
+			if (!await GeradorHash.validarSenha(senha.normalize(), row.senha)) {
+				r = "E-mail ou senha inválidos";
+				return;
+			}
+
+			await sql.query("update participante set telefone = ? where id = ?", [telefone, row.id]);
+		});
+
+		return r;
+	}
 }

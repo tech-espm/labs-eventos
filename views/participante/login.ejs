@@ -64,6 +64,27 @@
 	</div>
 </form>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="modalConferirTelefone">
+	<div class="modal-dialog" role="document">
+		<form class="modal-content" id="modalConferirTelefoneForm">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Credenciamento ESPM</h4>
+			</div>
+			<div class="modal-body">
+				<p>Por favor, atualize seu telefone antes de prosseguir.</p>
+				<div class="form-group mb-0">
+					<label for="modalConferirTelefoneInput">Telefone</label>
+					<input id="modalConferirTelefoneInput" name="telefone" type="text" spellcheck="false" class="form-control upper" maxlength="15" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-success"><i class="fa fa-check"></i>Atualizar Telefone</button>
+			</div>
+		</form>
+	</div>
+</div>
+
 <%- contentFor("styles") %>
 <style type="text/css">
 	.nav > li > a {
@@ -84,7 +105,44 @@
 	//<![CDATA[
 	"use strict";
 
+	maskMobilePhone("#modalConferirTelefoneInput");
+
 	var formSubmit = false;
+
+	$("#modalConferirTelefoneForm").validate({
+		rules: {
+			telefone: {
+				minlength: 14,
+				required: true
+			}
+		},
+		submitHandler: function (form) {
+			debugger;
+			if (formSubmit || $.active || JsonWebApi.active)
+				return;
+
+			Notification.wait();
+
+			var email = trim($("#email").val()),
+				senha = $("#senha").val(),
+				telefone = $("#modalConferirTelefoneInput").val();
+
+			JsonWebApi.post("<%- root %>/api/participante/atualizarTelefone", {
+				email: email,
+				senha: senha,
+				telefone: telefone
+			}, function (response) {
+				debugger;
+				if (response.success && !response.value) {
+					formSubmit = true;
+
+					_("form").submit();
+				} else {
+					Notification.error(response.value, true);
+				}
+			});
+		}
+	});
 
 	$("#form").validate({
 		rules: {
@@ -97,14 +155,39 @@
 			}
 		},
 		submitHandler: function (form) {
+			debugger;
 			if (formSubmit || $.active || JsonWebApi.active)
 				return;
 
-			formSubmit = true;
-
 			Notification.wait();
 
-			form.submit();
+			var email = trim($("#email").val()),
+				senha = $("#senha").val();
+
+			JsonWebApi.post("<%- root %>/api/participante/conferirTelefone", {
+				email: email,
+				senha: senha
+			}, function (response) {
+				debugger;
+				if (response.success) {
+					if (!response.value) {
+						formSubmit = true;
+
+						form.submit();
+					} else if (response.value == "1") {
+						Notification.hide();
+
+						$("#modalConferirTelefone").modal({
+							keyboard: false,
+							backdrop: "static"
+						});
+					} else {
+						Notification.error(response.value, true);
+					}
+				} else {
+					Notification.error(response.value, true);
+				}
+			});
 		}
 	});
 

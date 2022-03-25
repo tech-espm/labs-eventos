@@ -101,6 +101,33 @@ router.post("/definirSenha", wrap(async (req: express.Request, res: express.Resp
 	jsonRes(res, 400, (email && token && senha) ? await Participante.definirSenha(email, token, senha) : "Dados inválidos");
 }));
 
+router.post("/conferirTelefone", wrap(async (req: express.Request, res: express.Response) => {
+	let r: string = null;
+	if (req.body) {
+		const email = req.body["email"],
+			senha = req.body["senha"];
+
+		r = await Participante.conferirTelefone(email, senha);
+	} else {
+		r = "Dados inválidos!";
+	}
+	res.json(r);
+}));
+
+router.post("/atualizarTelefone", wrap(async (req: express.Request, res: express.Response) => {
+	let r: string;
+	if (req.body) {
+		const email = req.body["email"],
+			senha = req.body["senha"],
+			telefone = req.body["telefone"];
+
+		r = await Participante.atualizarTelefone(email, senha, telefone);
+	} else {
+		r = "Dados inválidos!";
+	}
+	res.json(r);
+}));
+
 router.get("/idQRParaIdParticipante/:i", wrap(async (req: express.Request, res: express.Response) => {
 	res.json(Participante.idQRParaIdParticipante(req.params["i"]));
 }));
