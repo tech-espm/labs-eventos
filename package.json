@@ -17,7 +17,7 @@
 		"express-async-error-wrapper": "1.0.3",
 		"express-ejs-layouts": "2.5.1",
 		"lru-cache": "6.0.0",
-		"moment": "2.29.1",
+		"moment": "2.29.2",
 		"multer": "1.4.2",
 		"mysql": "2.18.1",
 		"nodemailer": "6.4.17",
