@@ -32,8 +32,23 @@ import Participante = require("./models/participante");
 // Configura o cache, para armazenar as 200 últimas páginas
 // já processadas, por ordem de uso
 import ejs = require("ejs");
-import lru = require("lru-cache");
-ejs.cache = new lru(200);
+
+import LRU = require("lru-cache");
+const cache = new LRU({
+	max: 200
+});
+// Ver comentários no pacote https://github.com/tech-espm/labs-teem :)
+if (!("remove" in cache)) {
+	if (("delete" in cache))
+		cache.remove = cache.delete;
+	else if (("del" in cache))
+		cache.remove = cache.delete;
+}
+if (!("reset" in cache)) {
+	if (("clear" in cache))
+		cache.reset = cache.clear;
+}
+ejs.cache = cache;
 
 const app = express();
 
