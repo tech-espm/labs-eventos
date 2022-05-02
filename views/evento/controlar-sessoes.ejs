@@ -221,7 +221,7 @@
 				{ title: "Avaliações", "class": "col-min text-right", "type": "number", data: "avaliacoes" },
 				{ title: "Nota Média", "class": "text-right", "type": "number", data: "media" },
 				{ title: "Capacidade Real", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
-				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
+				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: function (row, type, set, meta) { if (row.capacidade !== null && row.capacidade >= 0) return row.capacidade; var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", data: "termino" },
@@ -254,7 +254,7 @@
 
 					atualizarInscricoesEPresencas(response.value);
 
-					tabelaSessoes.rows().invalidate().draw();
+					tabelaSessoes.rows().invalidate().draw("page");
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
@@ -273,7 +273,7 @@
 
 					atualizarAvaliacoes(response.value);
 
-					tabelaSessoes.rows().invalidate().draw();
+					tabelaSessoes.rows().invalidate().draw("page");
 				} else {
 					Notification.error("Algo saiu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
@@ -505,7 +505,7 @@
 						}
 					}
 					Notification.success("Sessão excluída com sucesso! " + emoji.happy);
-					tabelaSessoes.row(trSessaoClicada).remove().draw();
+					tabelaSessoes.row(trSessaoClicada).remove().draw("page");
 				} else {
 					Notification.error(response.value, true);
 				}
@@ -984,7 +984,7 @@
 						var tabela = _("tabela-palestrantes");
 						if (tabela) {
 							tabela = $(tabela).DataTable();
-							tabela.row.add(p).draw();
+							tabela.row.add(p).draw("page");
 						}
 						window.adicionarPalestrante(p.id, 0);
 
@@ -1040,7 +1040,7 @@
 						var tabela = _("tabela-empresas");
 						if (tabela) {
 							tabela = $(tabela).DataTable();
-							tabela.row.add(e).draw();
+							tabela.row.add(e).draw("page");
 						}
 						criarPalestrante();
 					} else {

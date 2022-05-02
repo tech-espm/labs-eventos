@@ -2023,7 +2023,7 @@ window.BlobDownloader = {
 	};
 })();
 
-function fixMessage(message, obj) {
+function fixMessage(message, extraOptions, obj) {
 	if (message) {
 		if (message.html)
 			obj.html = message.html;
@@ -2032,53 +2032,82 @@ function fixMessage(message, obj) {
 	} else {
 		obj.text = "";
 	}
+	if (extraOptions) {
+		for (var p in extraOptions)
+			obj[p] = extraOptions[p];
+	}
 	return obj;
 }
 
-Notification.success = function (message, title) {
+Notification.oldWait = Notification.wait;
+Notification.oldHide = Notification.hide;
+
+Notification.hide = function () {
+	Swal.close();
+	Notification.oldHide();
+};
+
+Notification.wait = function (msg) {
+	Swal.close();
+	Notification.oldWait(msg);
+};
+
+Notification.success = function (message, title, extraOptions) {
 	Notification.hide();
 
-	return swal(fixMessage(message, {
+	return Swal.fire(fixMessage(message, extraOptions, {
 		title: ((title && title !== true) ? title : "Sucesso!"),
-		type: "success",
+		icon: "success",
+		returnFocus: false,
 		buttonsStyling: false,
-		confirmButtonClass: "btn btn-success"
+		customClass: {
+			confirmButton: "btn btn-success"
+		}
 	}));
 };
 
-Notification.info = function (message, title) {
+Notification.info = function (message, title, extraOptions) {
 	Notification.hide();
 
-	return swal(fixMessage(message, {
+	return Swal.fire(fixMessage(message, extraOptions, {
 		title: ((title && title !== true) ? title : "Informação"),
-		type: "info",
+		icon: "info",
+		returnFocus: false,
 		buttonsStyling: false,
-		confirmButtonClass: "btn btn-default"
+		customClass: {
+			confirmButton: "btn btn-info"
+		}
 	}));
 };
 
-Notification.error = function (message, title) {
+Notification.error = function (message, title, extraOptions) {
 	Notification.hide();
 
-	return swal(fixMessage(message, {
+	return Swal.fire(fixMessage(message, extraOptions, {
 		title: ((title && title !== true) ? title : "Oops..."),
-		type: "error",
+		icon: "error",
+		returnFocus: false,
 		buttonsStyling: false,
-		confirmButtonClass: "btn btn-danger"
+		customClass: {
+			confirmButton: "btn btn-danger"
+		}
 	}));
 };
 
-Notification.okcancel = function (message, title, danger, confirmButtonText) {
+Notification.okcancel = function (message, title, danger, confirmButtonText, extraOptions) {
 	Notification.hide();
 
-	return swal(fixMessage(message, {
+	return Swal.fire(fixMessage(message, extraOptions, {
 		title: ((title && title !== true) ? title : (danger ? "Oops..." : "Confirmação")),
-		type: (danger ? "warning" : "question"),
+		icon: (danger ? "warning" : "question"),
+		returnFocus: false,
 		buttonsStyling: false,
 		showCancelButton: true,
-		confirmButtonClass: (danger ? "btn btn-danger" : "btn btn-primary"),
+		customClass: {
+			confirmButton: (danger ? "btn btn-danger" : "btn btn-primary"),
+			cancelButton: "btn btn-neutral"
+		},
 		confirmButtonText: (confirmButtonText || "OK"),
-		cancelButtonClass: "btn btn-default",
 		cancelButtonText: "Cancelar",
 		focusCancel: true
 	}));

@@ -76,7 +76,7 @@
 		JsonWebApi.get("<%- root %>/api/tipoSessao/excluir", function (response) {
 			if (response.success) {
 				Notification.success("Tipo de sessão excluído com sucesso! " + emoji.happy);
-				tabela.row(trClicada).remove().draw();
+				tabela.row(trClicada).remove().draw("page");
 			} else {
 				Notification.error(response.value, true);
 			}

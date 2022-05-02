@@ -76,7 +76,7 @@
 		JsonWebApi.get("<%- root %>/api/industria/excluir", function (response) {
 			if (response.success) {
 				Notification.success("Indústria excluída com sucesso! " + emoji.happy);
-				tabela.row(trClicada).remove().draw();
+				tabela.row(trClicada).remove().draw("page");
 			} else {
 				Notification.error(response.value, true);
 			}

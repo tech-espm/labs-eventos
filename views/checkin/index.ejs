@@ -263,7 +263,7 @@
 					var participante = tabela.row(trClicada).data();
 					if (participante) {
 						participante.presente = 1;
-						tabela.row(trClicada).invalidate().draw();
+						tabela.row(trClicada).invalidate().draw("page");
 					}
 					trClicada = null;
 				}

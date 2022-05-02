@@ -446,7 +446,7 @@
 								palestrante.versao = p.versao;
 								eventoPalestrantes.sort(comparadorNome);
 								Notification.success("Palestrante alterado com sucesso! " + emoji.happy);
-								tabela.row(trClicada).invalidate().draw();
+								tabela.row(trClicada).invalidate().draw("page");
 								trClicada = null;
 							} else {
 								Notification.error(response.value, true);
@@ -465,7 +465,7 @@
 								eventoPalestrantes.push(p);
 								eventoPalestrantes.sort(comparadorNome);
 								Notification.success("Palestrante criado com sucesso! " + emoji.happy);
-								tabela.row.add(p).draw();
+								tabela.row.add(p).draw("page");
 							} else {
 								Notification.error(response.value, true);
 							}
@@ -671,7 +671,7 @@
 						}
 					}
 					Notification.success("Palestrante excluído com sucesso! " + emoji.happy);
-					tabela.row(trClicada).remove().draw();
+					tabela.row(trClicada).remove().draw("page");
 				} else {
 					Notification.error(response.value, true);
 				}
@@ -879,7 +879,7 @@
 			var $row = gridAceite.row(row), dados = $row.data();
 			dados[3] = "NÃO";
 			dados[5] = data;
-			$row.data(dados).invalidate().draw();
+			$row.data(dados).invalidate().draw("page");
 		}
 
 		window.gerarLinkExterno = function (id) {

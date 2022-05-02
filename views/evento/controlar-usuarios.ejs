@@ -58,7 +58,7 @@
 						delete usuariosSelecionados[usuario.id];
 						Notification.success("Usuário desassociado do evento com sucesso! " + emoji.happy);
 						$(trClicada).removeClass("col-h2");
-						tabela.row(trClicada).invalidate().draw();
+						tabela.row(trClicada).invalidate().draw("page");
 					} else {
 						Notification.error(response.value, true);
 					}
@@ -70,7 +70,7 @@
 						usuariosSelecionados[usuario.id] = 1;
 						Notification.success("Usuário associado ao evento com sucesso! " + emoji.happy);
 						$(trClicada).addClass("col-h2");
-						tabela.row(trClicada).invalidate().draw();
+						tabela.row(trClicada).invalidate().draw("page");
 					} else {
 						Notification.error(response.value, true);
 					}

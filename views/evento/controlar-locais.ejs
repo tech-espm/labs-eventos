@@ -172,7 +172,7 @@
 							$("#modalLocalCor").modal("hide");
 
 							local.cor = cor;
-							tabela.row(trClicada).invalidate().draw();
+							tabela.row(trClicada).invalidate().draw("page");
 							trClicada = null;
 
 							Notification.success("Cor do local para o evento alterada com sucesso! " + emoji.happy);
@@ -204,7 +204,7 @@
 						atualizarEventoLocais();
 						Notification.success("Local desassociado do evento com sucesso! " + emoji.happy);
 						$(trClicada).removeClass("col-h2");
-						tabela.row(trClicada).invalidate().draw();
+						tabela.row(trClicada).invalidate().draw("page");
 					} else {
 						Notification.error(response.value, true);
 					}
@@ -277,7 +277,7 @@
 						atualizarEventoLocais();
 						Notification.success("Local associado ao evento com sucesso! " + emoji.happy);
 						$(trClicada).addClass("col-h2");
-						tabela.row(trClicada).invalidate().draw();
+						tabela.row(trClicada).invalidate().draw("page");
 					} else {
 						Notification.error(response.value, true);
 					}

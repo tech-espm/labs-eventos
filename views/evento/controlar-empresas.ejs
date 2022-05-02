@@ -223,7 +223,7 @@
 								empresa.versao = e.versao;
 								eventoEmpresas.sort(comparadorNome);
 								Notification.success("Empresa alterada com sucesso! " + emoji.happy);
-								tabela.row(trClicada).invalidate().draw();
+								tabela.row(trClicada).invalidate().draw("page");
 								trClicada = null;
 							} else {
 								Notification.error(response.value, true);
@@ -240,7 +240,7 @@
 								eventoEmpresas.push(e);
 								eventoEmpresas.sort(comparadorNome);
 								Notification.success("Empresa criada com sucesso! " + emoji.happy);
-								tabela.row.add(e).draw();
+								tabela.row.add(e).draw("page");
 							} else {
 								Notification.error(response.value, true);
 							}
@@ -423,7 +423,7 @@
 						}
 					}
 					Notification.success("Empresa excluída com sucesso! " + emoji.happy);
-					tabela.row(trClicada).remove().draw();
+					tabela.row(trClicada).remove().draw("page");
 				} else {
 					Notification.error(response.value, true);
 				}

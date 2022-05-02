@@ -78,7 +78,7 @@
 		JsonWebApi.get("<%- root %>/api/local/excluir", function (response) {
 			if (response.success) {
 				Notification.success("Local excluído com sucesso! " + emoji.happy);
-				tabela.row(trClicada).remove().draw();
+				tabela.row(trClicada).remove().draw("page");
 			} else {
 				Notification.error(response.value, true);
 			}

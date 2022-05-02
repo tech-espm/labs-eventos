@@ -247,6 +247,7 @@ CREATE TABLE eventosessao (
   senhacontrole varchar(45) NOT NULL,
   senhapresenca varchar(45) NOT NULL,
   mensagemesgotada varchar(250) NOT NULL,
+  capacidade int NULL,
   -- TIPOMULTIDATA_NENHUM = 0
   -- TIPOMULTIDATA_MINIMO_EXIGIDO = 1
   -- TIPOMULTIDATA_PROPORCIONAL = 2

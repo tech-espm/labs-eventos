@@ -196,7 +196,7 @@
 				if (response.success) {
 					Notification.success("Arquivo renomeado com sucesso! " + emoji.happy);
 					arquivo.nome = nomeNovo;
-					tabela.row(trClicada).invalidate().draw();
+					tabela.row(trClicada).invalidate().draw("page");
 				} else {
 					Notification.error(response.value, true);
 				}
@@ -231,7 +231,7 @@
 			JsonWebApi.get("<%- root %>/api/evento/excluirArquivo", function (response) {
 				if (response.success) {
 					Notification.success("Arquivo excluído com sucesso! " + emoji.happy);
-					tabela.row(trClicada).remove().draw();
+					tabela.row(trClicada).remove().draw("page");
 				} else {
 					Notification.error(response.value, true);
 				}
@@ -323,14 +323,14 @@
 								a.modificacao = novo.modificacao;
 								a.modificacaoMs = novo.modificacaoMs;
 								if (a.row)
-									tabela.row(a.row).invalidate().draw();
+									tabela.row(a.row).invalidate().draw("page");
 								break;
 							}
 						}
 
 						if (!ok) {
 							arquivos.push(novo);
-							tabela.row.add(novo).draw();
+							tabela.row.add(novo).draw("page");
 						}
 
 						enviarProximo(proximoIndice + 1);

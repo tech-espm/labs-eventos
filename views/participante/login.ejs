@@ -117,7 +117,6 @@
 			}
 		},
 		submitHandler: function (form) {
-			debugger;
 			if (formSubmit || $.active || JsonWebApi.active)
 				return;
 
@@ -132,7 +131,6 @@
 				senha: senha,
 				telefone: telefone
 			}, function (response) {
-				debugger;
 				if (response.success && !response.value) {
 					formSubmit = true;
 
@@ -155,7 +153,6 @@
 			}
 		},
 		submitHandler: function (form) {
-			debugger;
 			if (formSubmit || $.active || JsonWebApi.active)
 				return;
 
@@ -168,7 +165,6 @@
 				email: email,
 				senha: senha
 			}, function (response) {
-				debugger;
 				if (response.success) {
 					if (!response.value) {
 						formSubmit = true;
