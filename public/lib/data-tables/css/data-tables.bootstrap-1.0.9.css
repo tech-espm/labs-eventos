@@ -24,7 +24,12 @@ table.dataTable.nowrap th,
 table.dataTable.nowrap td {
 	white-space: nowrap;
 }
-
+div.dataTables_wrapper {
+	text-align: left;
+}
+div.dataTables_wrapper div.dataTables_length {
+	text-align: left;
+}
 div.dataTables_wrapper div.dataTables_length label {
 	font-size: 12px; /*new*/
 	font-weight: normal;
@@ -52,6 +57,7 @@ div.dataTables_wrapper div.dataTables_info {
 	font-size: 12px; /*new*/
 	padding-top: 8px;
 	white-space: nowrap;
+	text-align: left;
 }
 div.dataTables_wrapper div.dataTables_paginate {
 	font-size: 12px; /*new*/

@@ -717,7 +717,7 @@
 				if (response.success) {
 					Notification.hide();
 
-					var i, presenca, presencas = response.value;
+					var i, presenca, presencas = response.value, tabela;
 
 					//for (i = 0; i < presencas.length; i++) {
 					//	presenca = presencas[i];
@@ -726,7 +726,7 @@
 
 					$("#modalGridDataDialogBody").html('<div class="dataTable_wrapper"><table class="table table-striped table-hover" id="tabelaInscritosGeral"></table></div>');
 
-					prepareDataTable("tabelaInscritosGeral", {
+					tabela = prepareDataTable("tabelaInscritosGeral", {
 						order: [[0, "asc"], [1, "asc"], [2, "asc"], [3, "asc"]],
 						deferRender: true,
 						columns: [
@@ -737,8 +737,14 @@
 							{ title: "Unidade", render: encode, data: "sigla_unidade" },
 							{ title: "Local", "class": "col-larga", render: encode, data: "nome_local" },
 							{ title: "Âncora", render: encode, data: "nome_curso" },
-							{ title: "Participante", "class": "col-larga", render: encode, data: "nome" },
-							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" onclick=\"mostrarCertificadoParticipante(" + v + ")\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
+							{ title: "Participante", "class": "col-larga", data: "nome", render: function (v, type, row) {
+								// <% if (usuario.admin) { %>
+								return (row.encontrospresentes ? encode(v) : ('<button title="Excluir Inscrição" type="button" data-excluir-inscricao="1" class="btn btn-outline btn-danger"><i class="fa fa-nomargin fa-times"></i></button> ' + encode(v)));
+								// <% } else { %>
+								return encode(v);
+								// <% } %>
+							} },
+							{ title: "Certificado", "class": "col-min text-center", searchable: false, orderable: false, data: "id", render: function (v, type, row) { return "<button title=\"Link do Certificado\" type=\"button\" class=\"btn btn-outline btn-default\" data-exibir-certificado=\"1\"><i class=\"fa fa-nomargin fa-id-card-o\"></i></button>"; } },
 							{ title: "Tipo", "class": "col-min", data: function (row, type, set, meta) { return (row.tipo === 1 ? "ALUNO" : (row.tipo === 2 ? "FUNCIONÁRIO" : "EXTERNO")); } },
 							{ title: "RA", "class": "col-min", data: "ra" },
 							{ title: "Campus", "class": "col-min", data: "campus" },
@@ -753,6 +759,33 @@
 						],
 						data: presencas,
 						export: { title: "Participantes e Presenças" }
+					});
+
+					$("#tabelaInscritosGeral").on("click", "tbody button", function () {
+						if ($.active || JsonWebApi.active)
+							return;
+
+						var trClicada, inscricao = tabela.row(trClicada = this.parentNode.parentNode).data();
+
+						if (this.getAttribute("data-exibir-certificado")) {
+							mostrarCertificadoParticipante(inscricao.id);
+						} else if (this.getAttribute("data-excluir-inscricao")) {
+							Notification.okcancel("Deseja mesmo excluir a inscrição de " + inscricao.nome + " na sessão " + inscricao.nome_sessao + "?", "Oops...", true).then(function (r) {
+								if (!r.value || $.active || JsonWebApi.active)
+									return;
+
+								Notification.wait();
+
+								JsonWebApi.get("<%- root %>/api/participante/excluirInscricaoInterno", function (response) {
+									if (response.success) {
+										Notification.success("Inscrição excluída com sucesso! " + emoji.happy);
+										tabela.row(trClicada).remove().draw("page");
+									} else {
+										Notification.error(response.value, true);
+									}
+								}, "id", inscricao.idesp);
+							});
+						}
 					});
 
 					$("#modalGridDataDialogTitle").text("Participantes e Presenças");

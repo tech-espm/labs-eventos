@@ -89,6 +89,13 @@ router.get("/excluirInscricao", wrap(async (req: express.Request, res: express.R
 	}
 }));
 
+router.get("/excluirInscricaoInterno", wrap(async (req: express.Request, res: express.Response) => {
+	const u = await Usuario.cookie(req, res, true);
+	if (!u)
+		return;
+	jsonRes(res, 400, await Sessao.excluirInscricaoInterno(parseInt(req.query["id"] as string), u.idevento_logado));
+}));
+
 router.get("/redefinirSenha", wrap(async (req: express.Request, res: express.Response) => {
 	const email = req.query["email"] as string;
 	jsonRes(res, 400, email ? await Participante.redefinirSenha(email) : "Dados inválidos");

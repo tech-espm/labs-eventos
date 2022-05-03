@@ -820,6 +820,18 @@ Tenha um excelente evento :)`;
 		});
 	}
 
+	public static async excluirInscricaoInterno(ideventosessaoparticipante: number, idevento: number): Promise<string> {
+		let erro = null;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("delete from eventosessaoparticipante where id = " + ideventosessaoparticipante + " and idevento = " + idevento + " and encontrospresentes = 0");
+			if (!sql.linhasAfetadas)
+				erro = "Inscrição não encontrada ou já possuía presença marcada";
+		});
+
+		return erro;
+	}
+
 	public static async obterSenhaPresenca(id: number, idevento: number): Promise<string> {
 		let res: string = null;
 
