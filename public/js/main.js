@@ -48,9 +48,9 @@ window.parseQueryString = function () {
 	return assoc;
 };
 window.encode = (function () {
-	var lt = /</g, gt = />/g;
+	var amp = /\&/g, lt = /</g, gt = />/g;
 	return function (x) {
-		return (x ? x.replace(lt, "&lt;").replace(gt, "&gt;") : "");
+		return (x ? x.replace(amp, "&amp;").replace(lt, "&lt;").replace(gt, "&gt;") : "");
 	};
 })();
 window.prepareCopyHandler = function (modal, selector) {
