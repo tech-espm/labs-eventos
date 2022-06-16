@@ -136,6 +136,12 @@ window.prepareCustomFilter = function (table, tableId, customFilterLabel, placeh
 window.format2 = function (x) {
 	return ((x < 10) ? ("0" + x) : x);
 };
+window.formatCurrency = function (x, digits) {
+	return "R$ " + x.toFixed(digits | 0).replace(".", ",");
+};
+window.formatPercent = function (x, digits) {
+	return x.toFixed(digits | 0).replace(".", ",") + "%";
+};
 window.formatHex8 = function (x) {
 	var s = "0000000" + x.toString(16).toLowerCase();
 	return s.substr(s.length - 8);
@@ -197,7 +203,12 @@ window.maskPhone = function (field) {
 	$(field).mask("(00) 0000-0000JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ", { translation: { "J": { pattern: /[\d\D]/g } } });
 };
 window.maskHour = function (field) {
-	$(field).mask("00:00");
+	$(field).mask("A0:B0", {
+		translation: {
+			A: { pattern: /[0-2]/, optional: false },
+			B: { pattern: /[0-5]/, optional: false },
+		}
+	});
 };
 window.maskTextId = function (field) {
 	$(field).mask("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ", { translation: { Z: { pattern: /[A-Za-z0-9\-]/, optional: true } } });
@@ -667,6 +678,20 @@ window.resetForm = function (f) {
 		validator.formSubmitted = false;
 	}
 };
+window.validateColor = function (color) {
+	if (!color || color.length !== 7 || color.charCodeAt(0) !== 0x23)
+		return false;
+
+	var i, c;
+
+	for (i = 1; i < 7; i++) {
+		c = color.charCodeAt(i);
+		if (!((c >= 0x30 && c <= 0x39) || (c >= 0x41 && c <= 0x46) || (c >= 0x61 && c <= 0x66)))
+			return false;
+	}
+
+	return true;
+}
 window.validateCNPJ = function (cnpj) {
 	if (!cnpj || !(cnpj = trim(cnpj.replace(/\./g, "").replace(/\-/g, "").replace(/\//g, ""))) || cnpj.length !== 14)
 		return false;
