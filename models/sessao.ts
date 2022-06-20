@@ -2,7 +2,7 @@
 import appsettings = require("../appsettings");
 import ajustarInicioTermino = require("../utils/ajustarInicioTermino");
 import preencherMultidatas = require("../utils/preencherMultidatas");
-import converterDataISO = require("../utils/converterDataISO");
+import DataUtil = require("../utils/dataUtil");
 import Evento = require("./evento");
 import IntegracaoAgendamento = require("./integracao/agendamento");
 import PalestranteResumido = require("./palestranteResumido");
@@ -70,7 +70,7 @@ export = class Sessao {
 		s.nome_curto = (s.nome_curto || "").normalize().trim();
 		if (s.nome_curto.length < 3 || s.nome_curto.length > 100)
 			return "Nome curto inválido";
-		if (!(s.data = converterDataISO(s.data)))
+		if (!(s.data = DataUtil.converterDataISO(s.data)))
 			return "Data inválida";
 		if (isNaN(s.inicio) || s.inicio < 0 || s.inicio > 2359 || (s.inicio % 100) > 59)
 			return "Horário de início inválido";
@@ -136,7 +136,7 @@ export = class Sessao {
 				let multidataOk = false;
 				for (let i = s.multidatas.length - 1; i >= 0; i--) {
 					const multidata = s.multidatas[i];
-					if (!multidata || !(multidata.data = converterDataISO(multidata.data)))
+					if (!multidata || !(multidata.data = DataUtil.converterDataISO(multidata.data)))
 						return "Data adicional inválida";
 					if (multidata.data === s.data)
 						return "Não é permitido uma data adicional igual à data inicial";

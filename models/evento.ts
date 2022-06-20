@@ -3,12 +3,12 @@ import nodemailer = require("nodemailer");
 import unzipper = require("unzipper");
 import Arquivo = require("../infra/arquivo");
 import ClusterEventos = require("../infra/clusterEventos");
+import DataUtil = require("../utils/dataUtil");
 import FS = require("../infra/fs");
 import Sql = require("../infra/sql");
 import Upload = require("../infra/upload");
 import ajustarACOMMinutos = require("../utils/ajustarACOMMinutos");
 import emailValido = require("../utils/emailValido");
-import converterDataISO = require("../utils/converterDataISO");
 import appsettings = require("../appsettings");
 import Empresa = require("./empresa");
 import Participante = require("./participante");
@@ -138,10 +138,10 @@ export = class Evento {
 		ev.descricao = (ev.descricao || "").normalize().trim();
 		if (ev.descricao.length > 250)
 			return "Descrição da landing page inválida";
-		if (!(ev.inicio = converterDataISO(ev.inicio)))
+		if (!(ev.inicio = DataUtil.converterDataISO(ev.inicio)))
 			return "Data inicial inválida";
 		// Por uma incrível coincidência, uma data ISO pode ser comparada com outra direto como string! :)
-		if (!(ev.termino = converterDataISO(ev.termino)) || ev.termino < ev.inicio)
+		if (!(ev.termino = DataUtil.converterDataISO(ev.termino)) || ev.termino < ev.inicio)
 			return "Data final inválida";
 		ev.aspectratioempresa = (ev.aspectratioempresa || "").normalize().trim().toUpperCase();
 		if (ev.aspectratioempresa && (ev.aspectratioempresa.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratioempresa)))
@@ -601,7 +601,7 @@ export = class Evento {
 		if (tipo === 1) {
 			ideventosessao = 0;
 			dataMarcacao = null;
-		} else if (!(dataMarcacao = converterDataISO(dataMarcacao))) {
+		} else if (!(dataMarcacao = DataUtil.converterDataISO(dataMarcacao))) {
 			return [];
 		}
 
@@ -650,9 +650,9 @@ export = class Evento {
 
 	public static async listarInscritosPresencasEACOMFiltro(idusuario: number, data_minima: string, data_maxima: string, nome: string, nome_curto: string, apenas_acom: number, apenas_nao_verificados: number): Promise<any[]> {
 		if (data_minima)
-			data_minima = converterDataISO(data_minima);
+			data_minima = DataUtil.converterDataISO(data_minima);
 		if (data_maxima)
-			data_maxima = converterDataISO(data_maxima);
+			data_maxima = DataUtil.converterDataISO(data_maxima);
 		if (nome)
 			nome = nome.normalize().trim().toUpperCase();
 		if (nome_curto)

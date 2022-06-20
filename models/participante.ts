@@ -5,16 +5,15 @@ import lru = require("lru-cache");
 import nodemailer = require("nodemailer");
 import Sql = require("../infra/sql");
 import Cas = require("./cas");
+import DataUtil = require("../utils/dataUtil");
 import GeradorHash = require("../utils/geradorHash");
 import appsettings = require("../appsettings");
 import intToHex = require("../utils/intToHex");
 import ajustarACOMMinutos = require("../utils/ajustarACOMMinutos");
-import converterDataISOParaPtBr = require("../utils/converterDataISOParaPtBr");
 import preencherMultidatas = require("../utils/preencherMultidatas");
 import formatar2 = require("../utils/formatar2");
 import IntegracaoMicroservices = require("./integracao/microservices");
 import SessaoConstantes = require("./sessaoConstantes");
-import converterDataISO = require("../utils/converterDataISO");
 
 export = class Participante {
 	private static readonly HashId = appsettings.participanteHashId;
@@ -403,7 +402,7 @@ export = class Participante {
 					return;
 				}
 
-				if (!(dataMarcacao = converterDataISO(dataMarcacao))) {
+				if (!(dataMarcacao = DataUtil.converterDataISO(dataMarcacao))) {
 					res = "Data inválida";
 					return;
 				}
@@ -423,7 +422,7 @@ export = class Participante {
 				if (sessao.tipomultidata) {
 					if (dataMarcacao !== sessao.data &&
 						!(await sql.scalar("select 1 from eventosessaomultidata where ideventosessao = ? and data = ?", [ideventosessao, dataMarcacao]))) {
-						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (converterDataISOParaPtBr(dataMarcacao) || dataMarcacao);
+						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (DataUtil.converterDataISO(dataMarcacao, true) || dataMarcacao);
 						return;
 					}
 
@@ -460,7 +459,7 @@ export = class Participante {
 					await sql.commit();
 				} else {
 					if (dataMarcacao !== sessao.data) {
-						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (converterDataISOParaPtBr(dataMarcacao) || dataMarcacao);
+						res = "Não foi possível encontrar uma ocorrência da sessão na data " + (DataUtil.converterDataISO(dataMarcacao, true) || dataMarcacao);
 						return;
 					}
 
