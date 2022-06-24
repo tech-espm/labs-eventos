@@ -144,6 +144,7 @@ Evento.nomesReservados.push(
 	"home",
 	"industria",
 	"instrucao",
+	"lifelab", // Usado pelo sistema de controle do LifeLab
 	"local",
 	"participante",
 	"profissao",
