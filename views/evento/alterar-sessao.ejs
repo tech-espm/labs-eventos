@@ -693,7 +693,7 @@
 							preencherDadosSessao(s);
 							eventoSessoesPorId[s.id] = s;
 							eventoSessoes.push(s);
-							tabelaSessoes.row.add(s).draw("page");
+							tabelaSessoes.row.add(s).draw(false);
 							$("#modalAlterarSessao").modal("hide");
 							Notification.success("Sessão criada com sucesso! " + emoji.happy);
 

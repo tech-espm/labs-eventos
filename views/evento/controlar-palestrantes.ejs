@@ -465,7 +465,7 @@
 								eventoPalestrantes.push(p);
 								eventoPalestrantes.sort(comparadorNome);
 								Notification.success("Palestrante criado com sucesso! " + emoji.happy);
-								tabela.row.add(p).draw("page");
+								tabela.row.add(p).draw(false);
 							} else {
 								Notification.error(response.value, true);
 							}

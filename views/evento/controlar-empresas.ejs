@@ -240,7 +240,7 @@
 								eventoEmpresas.push(e);
 								eventoEmpresas.sort(comparadorNome);
 								Notification.success("Empresa criada com sucesso! " + emoji.happy);
-								tabela.row.add(e).draw("page");
+								tabela.row.add(e).draw(false);
 							} else {
 								Notification.error(response.value, true);
 							}

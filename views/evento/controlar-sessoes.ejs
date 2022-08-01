@@ -1017,7 +1017,7 @@
 						var tabela = _("tabela-palestrantes");
 						if (tabela) {
 							tabela = $(tabela).DataTable();
-							tabela.row.add(p).draw("page");
+							tabela.row.add(p).draw(false);
 						}
 						window.adicionarPalestrante(p.id, 0);
 
@@ -1073,7 +1073,7 @@
 						var tabela = _("tabela-empresas");
 						if (tabela) {
 							tabela = $(tabela).DataTable();
-							tabela.row.add(e).draw("page");
+							tabela.row.add(e).draw(false);
 						}
 						criarPalestrante();
 					} else {
