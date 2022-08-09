@@ -1960,6 +1960,7 @@ window.BlobDownloader = {
 		groupdiv.style.top = "0";
 		groupdiv.style.pointerEvents = "none";
 		groupdiv.style.height = "34px";
+		groupdiv.style.width = "100%";
 		span.className = "input-group-btn";
 		span.style.height = "34px";
 		button.className = "btn btn-default btn-force-border";
