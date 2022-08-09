@@ -48,7 +48,10 @@ window.parseQueryString = function () {
 	return assoc;
 };
 window.encode = (function () {
-	var amp = /\&/g, lt = /</g, gt = />/g;
+	var amp = /\&/g, lt = /</g, gt = />/g, quot = /\"/g, apos = /\'/g;
+	window.encodeValue = function (x) {
+		return (x ? x.replace(amp, "&amp;").replace(lt, "&lt;").replace(gt, "&gt;").replace(quot, "&quot;").replace(apos, "&apos;") : "");
+	};
 	return function (x) {
 		return (x ? x.replace(amp, "&amp;").replace(lt, "&lt;").replace(gt, "&gt;") : "");
 	};
