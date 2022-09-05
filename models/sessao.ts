@@ -205,7 +205,36 @@ export = class Sessao {
 		let lista: Sessao[] = null;
 
 		await Sql.conectar(async (sql: Sql) => {
-			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query("select s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data, s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade, s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical, v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao, " + (externo ? "" : "s.oculta, s.sugestao, s.status_integra, ") + "s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos, s.senhacontrole, s.mensagemesgotada, s.capacidade, s.tipomultidata, s.presencaminima, s.encontrostotais, (select group_concat(concat(esp.ideventopalestrante, ',', esp.mediador) order by esp.ordem) from eventosessaopalestrante esp where esp.idevento = " + idevento + " and esp.ideventosessao = s.id) idspalestrante from eventosessao s inner join curso c on c.id = s.idcurso inner join eventolocal el on el.id = s.ideventolocal inner join local l on l.id = el.idlocal inner join unidade u on u.id = l.idunidade inner join formato f on f.id = s.idformato inner join tiposessao t on t.id = s.idtiposessao inner join vertical v on v.id = s.idvertical where s.idevento = " + idevento + (externo ? " and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" : "") + " order by s.data asc, s.inicio asc, s.termino asc, l.nome asc")), true);
+			lista = await preencherMultidatas(sql, ajustarInicioTermino(await sql.query(`select
+				s.id, s.idcurso, c.nome nome_curso, s.idevento, date_format(s.data, '%d/%m/%Y') data,
+				s.inicio, s.termino, s.ideventolocal, el.idlocal, l.nome nome_local, u.sigla sigla_unidade,
+				s.idformato, f.nome nome_formato, s.idtiposessao, t.nome nome_tipo, s.idvertical,
+				v.nome nome_vertical, s.nome, s.nome_curto, s.url_remota, s.url_privada, s.descricao,
+				${(externo ? "" : "s.oculta, s.sugestao, s.status_integra,")}
+				s.publico_alvo, s.tags, s.permiteinscricao, s.permitesimultanea, s.acomminutos,
+				s.senhacontrole, s.mensagemesgotada, s.capacidade, s.tipomultidata, s.presencaminima, s.encontrostotais,
+				(
+					select group_concat(concat(esp.ideventopalestrante, ',', esp.mediador) order by esp.ordem)
+					from eventosessaopalestrante esp
+					where esp.idevento = ${idevento} and esp.ideventosessao = s.id
+				) idspalestrante
+				from eventosessao s
+				inner join curso c on c.id = s.idcurso
+				inner join eventolocal el on el.id = s.ideventolocal
+				inner join local l on l.id = el.idlocal
+				inner join unidade u on u.id = l.idunidade
+				inner join formato f on f.id = s.idformato
+				inner join tiposessao t on t.id = s.idtiposessao
+				inner join vertical v on v.id = s.idvertical
+				where s.idevento = ${idevento}
+				${(externo ?
+					//"and s.oculta = 0 and s.sugestao = 0 and s.status_integra = 1" :
+					// Permite listar na landing page sessões ainda com status_integra != 1
+					"and s.oculta = 0 and s.sugestao = 0" :
+					""
+				)}
+				order by s.data asc, s.inicio asc, s.termino asc, l.nome asc
+			`)), true);
 			if (externo && lista && lista.length) {
 				for (let i = lista.length - 1; i >= 0; i--) {
 					if (lista[i].url_privada)
