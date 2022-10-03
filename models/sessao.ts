@@ -474,7 +474,8 @@ export = class Sessao {
 			id_integra_local: infoLocal.id_integra as string
 		};
 
-		if (appsettings.integracaoAgendamento) {
+		// Ajuste da regra de integração com o sistema de agendamento
+		if (appsettings.integracaoAgendamento && r.id_integra_local) {
 			const id_integra_sessao = (s.id ? await sql.scalar("select id_integra from eventosessao where id = " + s.id) as number : 0);
 
 			r.erro = (!r.id_integra_local ?
@@ -559,7 +560,9 @@ export = class Sessao {
 				await Sessao.sincronizarMultidatas(sql, s);
 
 				let status_integra: number;
-				if (appsettings.integracaoAgendamento && infoLocal && u)
+
+				// Ajuste da regra de integração com o sistema de agendamento
+				if (appsettings.integracaoAgendamento && infoLocal && infoLocal.id_integra_local && u)
 					status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
 				else
 					status_integra = SessaoConstantes.STATUS_APROVADO;
@@ -636,7 +639,9 @@ export = class Sessao {
 
 				// Quando info é null, ou é uma sessão com local a definir, online, ou sugestão
 				let ideventolocalOriginal = 0, inicioOriginal = 0, terminoOriginal = 0, dataOriginal: string = null, nome_curtoOriginal: string = null;
-				if (infoLocal && appsettings.integracaoAgendamento) {
+
+				// Ajuste da regra de integração com o sistema de agendamento
+				if (infoLocal && appsettings.integracaoAgendamento && infoLocal.id_integra_local) {
 					const infosOriginais = await sql.query("select ideventolocal, inicio, termino, date_format(data, '%Y-%m-%d') data, nome_curto from eventosessao where id = " + s.id + " and idevento = " + s.idevento);
 					if (infosOriginais && infosOriginais.length) {
 						const infoOriginal = infosOriginais[0];
@@ -666,7 +671,8 @@ export = class Sessao {
 					const id_integra_sessao = await sql.scalar("select id_integra from eventosessao s where id = " + s.id + " and idevento = " + s.idevento) as number;
 
 					if (id_integra_sessao) {
-						if (!infoLocal) {
+						// Ajuste da regra de integração com o sistema de agendamento
+						if (!infoLocal || !infoLocal.id_integra_local) {
 							// Como passou a ser uma sessão com local a definir, online, ou sugestão,
 							// mas antes não era, então exclui o agendamento existente.
 							await sql.query("update eventosessao set id_integra = 0, status_integra = 1 where id = " + s.id + " and idevento = " + s.idevento);
@@ -683,8 +689,16 @@ export = class Sessao {
 					} else {
 						// Se era uma sessão com local a definir, online, ou sugestão, ou se era uma
 						// sessão legada que ainda não tinha o id_integra, cria o agendamento agora
-						if (infoLocal && u)
-							status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+						if (infoLocal && u) {
+							// Ajuste da regra de integração com o sistema de agendamento
+							if (infoLocal.id_integra_local) {
+								status_integra = await Sessao.criarAgendamento(sql, s, u, infoLocal.id_integra_local);
+							} else {
+								// Apenas marca a sessão como aprovada
+								await sql.query("update eventosessao set id_integra = 0, status_integra = 1 where id = " + s.id + " and idevento = " + s.idevento);
+								status_integra = 1;
+							}
+						}
 					}
 				}
 
