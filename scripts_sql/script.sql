@@ -236,7 +236,7 @@ CREATE TABLE eventosessao (
   termino smallint NOT NULL,
   url_remota varchar(100) NOT NULL,
   url_privada tinyint NOT NULL,
-  descricao varchar(200) NOT NULL,
+  descricao varchar(2000) NOT NULL,
   oculta tinyint NOT NULL,
   sugestao tinyint NOT NULL,
   publico_alvo varchar(100) NOT NULL,

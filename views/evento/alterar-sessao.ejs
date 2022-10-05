@@ -199,7 +199,7 @@
 	<div class="panel-body pb-0">
 		<div class="form-group">
 			<label for="txtSessaoDescricao">Descrição <small>(Permite uso de tags HTML)</small></label>
-			<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="200" rows="4"></textarea>
+			<textarea id="txtSessaoDescricao" name="txtSessaoDescricao" class="form-control" maxlength="2000" rows="4"></textarea>
 		</div>
 		<div class="<%- (usuario ? 'form-group' : 'hidden') %>">
 			<label for="txtSessaoMensagemEsgotada">Mensagem de Sessão Esgotada</label>
@@ -472,7 +472,7 @@
 					}
 				},
 				txtSessaoDescricao: {
-					maxlength: 200
+					maxlength: 2000
 				},
 				txtSessaoAcomMinutos: {
 					required: true,

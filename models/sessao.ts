@@ -80,7 +80,7 @@ export = class Sessao {
 		if (s.url_remota.length > 100)
 			return "URL da sessão remota inválida";
 		s.descricao = (s.descricao || "").normalize().trim();
-		if (s.descricao.length > 200)
+		if (s.descricao.length > 2000)
 			return "Descrição inválida";
 		if (isNaN(s.oculta) || s.oculta < 0 || s.oculta > 1)
 			s.oculta = 0;
