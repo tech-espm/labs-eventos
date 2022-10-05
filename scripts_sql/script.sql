@@ -125,7 +125,7 @@ CREATE TABLE evento (
   cidade varchar(40) NOT NULL,
   url varchar(50) NOT NULL,
   titulo varchar(100) NOT NULL,
-  descricao varchar(250) NOT NULL,
+  descricao varchar(2500) NOT NULL,
   inicio datetime NOT NULL,
   termino datetime NOT NULL,
   versao int NOT NULL,

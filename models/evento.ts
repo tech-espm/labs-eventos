@@ -136,7 +136,7 @@ export = class Evento {
 		if (!ev.titulo || ev.titulo.length > 250)
 			return "Título da landing page inválido";
 		ev.descricao = (ev.descricao || "").normalize().trim();
-		if (ev.descricao.length > 250)
+		if (ev.descricao.length > 2500)
 			return "Descrição da landing page inválida";
 		if (!(ev.inicio = DataUtil.converterDataISO(ev.inicio)))
 			return "Data inicial inválida";
