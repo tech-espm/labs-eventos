@@ -806,10 +806,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 			s.local = locaisPorId[s.idlocal];
 			s.lotada = false;
 			if (s.local) {
-				if ((s.capacidade !== null && s.capacidade >= 0 && inscricoesPorId[s.id] >= s.capacidade) || (inscricoesPorId[s.id] >= s.local.capacidade))
+				if (s.capacidade !== null && s.capacidade >= 0) {
+					if (inscricoesPorId[s.id] >= s.capacidade)
+						s.lotada = true;
+				} else if (inscricoesPorId[s.id] >= s.local.capacidade) {
 					s.lotada = true;
+				}
 			} else {
 				s.local = localPlaceholder;
+				if (s.capacidade !== null && s.capacidade >= 0) {
+					if (inscricoesPorId[s.id] >= s.capacidade)
+						s.lotada = true;
+				}
 			}
 			if ((ids = s.idspalestrante)) {
 				ids = ids.split(",");

@@ -170,6 +170,15 @@
 		var modalGridDataSelect, modalGridDataBody, modalGridDataTable, modalGridDataLocal, modalGridDataHorario, modalGridDataCanto;
 		var aceites, clonar;
 
+		function capacidadeDaSessao(sessao) {
+			if (sessao.capacidade !== null && sessao.capacidade >= 0)
+				return sessao.capacidade;
+
+			var local = eventoLocaisPorIdEventoLocal[sessao.ideventolocal];
+
+			return (local ? local.capacidade : 0);
+		}
+
 		window.tabelaSessoes = prepareDataTable("tabela-sessoes", {
 			order: [],
 			deferRender: true,
@@ -215,13 +224,13 @@
 				{ title: "Oculta", "class": "col-min", data: function (row, type, set, meta) { return (row.oculta ? "<span class=\"col-h\">OCULTA</span>" : ""); } },
 				{ title: "Sugestão", "class": "col-min", data: function (row, type, set, meta) { return (row.sugestao ? "<span class=\"col-h\">SUGESTÃO</span>" : ""); } },
 				{ title: "Secretaria", "class": "col-min", data: function (row, type, set, meta) { return (row.status_integra == 1 ? "APROVADO" : (row.status_integra == 2 ? "<span class=\"col-h\">REPROVADO</span>" : "<span class=\"col-h2\">PENDENTE</span>")); } },
-				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return ((local && row.inscritos >= local.capacidade) ? "<span class=\"col-h\">LOTADA</span>" : ""); } },
+				{ title: "Lotada", "class": "col-min text-center", data: function (row, type, set, meta) { var capacidade = capacidadeDaSessao(row); return ((capacidade && row.inscritos >= capacidade) ? "<span class=\"col-h\">LOTADA</span>" : ""); } },
 				{ title: "Inscrições", "class": "col-min text-right", "type": "number", data: "inscritos" },
 				{ title: "Presenças", "class": "col-min text-right", "type": "number", data: "presentes" },
 				{ title: "Avaliações", "class": "col-min text-right", "type": "number", data: "avaliacoes" },
 				{ title: "Nota Média", "class": "text-right", "type": "number", data: "media" },
 				{ title: "Capacidade Real", "class": "text-right", "type": "number", data: function (row, type, set, meta) { var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade_real : 0); } },
-				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: function (row, type, set, meta) { if (row.capacidade !== null && row.capacidade >= 0) return row.capacidade; var local = eventoLocaisPorIdEventoLocal[row.ideventolocal]; return (local ? local.capacidade : 0); } },
+				{ title: "Capacidade Alocada", "class": "text-right", "type": "number", data: capacidadeDaSessao },
 				{ title: "Data", "class": "col-min text-right", "type": "customdateint", data: "data" },
 				{ title: "Início", "class": "col-min text-right", data: "inicio" },
 				{ title: "Término", "class": "col-min text-right", data: "termino" },
