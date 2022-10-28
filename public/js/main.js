@@ -2035,8 +2035,8 @@ window.BlobDownloader = {
 
 		select.addEventListener("change", function () {
 			var i, nextValue = emptyValue, opt, opts = optsCallback(select.options.selectedIndex, select.value);
-			while (nextSelect.childNodes.length > 1)
-				nextSelect.removeChild(nextSelect.childNodes[1]);
+			while (nextSelect.children.length > 1)
+				nextSelect.removeChild(nextSelect.children[1]);
 			if (opts && opts.length) {
 				for (i = 0; i < opts.length; i++) {
 					opt = document.createElement("option");
