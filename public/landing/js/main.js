@@ -858,7 +858,7 @@ window.relativeLuminance = function (rgb) {
 	return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
 };
 window.textColorForBackground = function (i) {
-	return (relativeLuminance(i) < 0.4) ? "#fff" : "#000";
+	return (relativeLuminance(i) < 0.4) ? "#ffffff" : "#000000";
 };
 window.fixUrlOnBlur = function (input) {
 	var i = _(input);
