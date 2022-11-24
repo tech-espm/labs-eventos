@@ -842,6 +842,9 @@ window.intToColor = function (i) {
 	return "#" + s.substr(s.length - 6);
 };
 window.relativeLuminance = function (rgb) {
+	if ((typeof rgb) === "string")
+		rgb = parseInt(rgb.replace("#", ""), 16);
+	rgb |= 0;
 	if (rgb < 0)
 		return 1;
 	//http://www.w3.org/TR/2007/WD-WCAG20-TECHS-20070517/Overview.html#G18
@@ -855,7 +858,7 @@ window.relativeLuminance = function (rgb) {
 	return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
 };
 window.textColorForBackground = function (i) {
-	return ((relativeLuminance((typeof i) === "string" ? parseInt(i.replace("#", ""), 16) : i) < 0.4) ? "#fff" : "#000");
+	return (relativeLuminance(i) < 0.4) ? "#fff" : "#000";
 };
 window.fixUrlOnBlur = function (input) {
 	var i = _(input);
