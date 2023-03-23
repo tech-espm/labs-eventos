@@ -3,6 +3,7 @@ node_modules/
 appsettings.ts
 appsettings.js
 appsettings-producao.js
+backup-producao/
 deploy/
 _misc/
 dados/
