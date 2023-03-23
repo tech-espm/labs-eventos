@@ -68,6 +68,12 @@ export = class Unidade {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
+				const id_integra = await sql.scalar("select id_integra from unidade where id = " + u.id) as number;
+				if (id_integra) {
+					res = "Não é permitido editar uma unidade integrada à secretaria";
+					return;
+				}
+
 				await sql.query("update unidade set nome = ?, sigla = ? where id = " + u.id, [u.nome, u.sigla]);
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
@@ -91,6 +97,12 @@ export = class Unidade {
 			//await sql.beginTransaction();
 			//await sql.query("update xxx set idunidade = null... where idunidade = " + id);
 			try {
+				const id_integra = await sql.scalar("select id_integra from unidade where id = " + id) as number;
+				if (id_integra) {
+					res = "Não é permitido excluir uma unidade integrada à secretaria";
+					return;
+				}
+
 				await sql.query("delete from unidade where id = " + id);
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {

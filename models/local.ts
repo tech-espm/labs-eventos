@@ -53,6 +53,12 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
+				const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
+				if (id_integra) {
+					res = "Não é permitido criar um local em uma unidade integrada à secretaria";
+					return;
+				}
+
 				await sql.query("insert into local (nome, idunidade, capacidade_real, id_integra) values (?, ?, ?, '')", [l.nome, l.idunidade, l.capacidade_real]);
 			} catch (e) {
 				if (e.code) {
@@ -86,6 +92,18 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
+				const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
+				if (id_integra) {
+					res = "Não é permitido editar um local de uma unidade integrada à secretaria";
+					return;
+				}
+
+				const id_integra_local = await sql.scalar("select id_integra from local where id = " + l.id) as string;
+				if (id_integra_local && id_integra_local.trim()) {
+					res = "Não é permitido editar um local integrado à secretaria";
+					return;
+				}
+
 				await sql.query("update local set nome = ?, idunidade = ?, capacidade_real = ? where id = " + l.id, [l.nome, l.idunidade, l.capacidade_real]);
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
@@ -120,6 +138,24 @@ export = class Local {
 			//await sql.beginTransaction();
 			//await sql.query("update xxx set idlocal = null... where idlocal = " + id);
 			try {
+				const lista = await sql.scalar("select id_integra, idunidade from local where id = " + id) as any[];
+				if (!lista || !lista[0]) {
+					res = "Local não encontrado";
+					return;
+				}
+
+				const id_integra_local = lista[0].id_integra;
+				if (id_integra_local && id_integra_local.trim()) {
+					res = "Não é permitido excluir um local integrado à secretaria";
+					return;
+				}
+
+				const id_integra = await sql.scalar("select id_integra from unidade where id = " + lista[0].idunidade) as number;
+				if (id_integra) {
+					res = "Não é permitido excluir um local de uma unidade integrada à secretaria";
+					return;
+				}
+
 				await sql.query("delete from local where id = " + id);
 				res = sql.linhasAfetadas.toString();
 			} catch (e) {
