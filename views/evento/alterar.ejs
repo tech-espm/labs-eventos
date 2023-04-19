@@ -112,8 +112,25 @@
 							<textarea id="contatocoluna2" name="contatocoluna2" maxlength="4000" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna2 : '') %></textarea>
 						</div>
 						<div class="form-group">
-							<label for="urlmapa">URL do Mapa<br /><small>(Deixe em branco para utilizar <a target="_blank" href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr">este mapa padrão</a>)</small></label>
-							<input id="urlmapa" name="urlmapa" maxlength="400" class="form-control" type="url" value="<%=(item ? item.urlmapa : '') %>" />
+							<%
+							let mapas = [
+								{ nome: "ESPM SP - AA", url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.7480040673154!2d-46.64123347226995!3d-23.589980071632333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5a284ae5ee1b%3A0x44c61850ef3e8516!2sESPM!5e0!3m2!1spt-BR!2sbr!4v1570823855470!5m2!1spt-BR!2sbr" },
+								{ nome: "ESPM SP - JT", url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.4788815832917!2d-46.646564785959384!3d-23.58715256842826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59890047d255%3A0xa989be78fddf062a!2sESPM%20Tech!5e0!3m2!1spt-BR!2sbr!4v1667846764610!5m2!1spt-BR!2sbr" },
+								{ nome: "ESPM Rio", url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.7712468333866!2d-43.17875042455019!3d-22.921806779244495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x997f7e60c2a181%3A0x225d3b24597bec39!2sESPM%20-%20Villa%20Aymor%C3%A9!5e0!3m2!1spt-BR!2sbr!4v1681846199845!5m2!1spt-BR!2sbr" },
+								{ nome: "ESPM Sul", url: "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6710.164173324009!2d-51.209579605372625!3d-30.054256036184253!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95197869bc6c7a85%3A0xf64fac27bc9e97ea!2sRua%20Guilherme%20Schell%2C%20268%20-%20Santo%20Ant%C3%B4nio%2C%20Porto%20Alegre%20-%20RS%2C%2090640-040%2C%20Brasil!5e0!3m2!1spt-BR!2sus!4v1681931678554!5m2!1spt-BR!2sus" },
+								{ nome: "Personalizado", url: "" },
+							];
+							%>
+							<label for="urlmapa">Mapa<small id="spanLabelMapa" class="hidden"><br />(Utilize o valor de src do iframe de um mapa do Google Maps, compartilhado pela opção "Incorporar um mapa")</small></label>
+							<select class="form-control" id="urlmapa" name="urlmapa" onchange="atualizarDivMapa()">
+								<% for (let i = 0, ok = false, forcar = false; i < mapas.length; i++) { if (item && !ok && i === (mapas.length - 1)) { forcar = true; } %>
+								<option value="<%- mapas[i].url %>" <%- ((forcar || (item && item.urlmapa === mapas[i].url && (ok = true))) ? 'selected="selected"' : '') %>><%= mapas[i].nome %></option>
+								<% } %>
+							</select>
+						</div>
+						<div class="form-group hidden" id="divMapaPersonalizado">
+							<label for="urlmapaPersonalizado">URL do Mapa Personalizado</label>
+							<input id="urlmapaPersonalizado" name="urlmapaPersonalizado" maxlength="400" class="form-control" type="url" value="<%=(item ? item.urlmapa : '') %>" />
 						</div>
 						<div class="form-group">
 							<label for="mensagemrodape">HTML do Rodapé</label>
@@ -380,10 +397,22 @@
 	})();
 	//<% } %>
 
+	function atualizarDivMapa() {
+		if ($("#urlmapa").val()) {
+			$("#spanLabelMapa").addClass("hidden");
+			$("#divMapaPersonalizado").addClass("hidden");
+		} else {
+			$("#spanLabelMapa").removeClass("hidden");
+			$("#divMapaPersonalizado").removeClass("hidden");
+		}
+	}
+
 	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
 	$(function () {
+		atualizarDivMapa();
+
 		window.idempresapadrao = <%- (item ? item.idempresapadrao : 0) %>;
 
 		prepareDatePickerNumber("#inicio");

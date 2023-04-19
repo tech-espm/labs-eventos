@@ -165,7 +165,7 @@ export = class Evento {
 		ev.contatocoluna2 = (ev.contatocoluna2 || "").normalize().trim();
 		if (ev.contatocoluna2.length > 4000)
 			return "HTML da coluna 2 do contato inválido";
-		ev.urlmapa = (ev.urlmapa || "").normalize().trim();
+		ev.urlmapa = (ev.urlmapa || ((ev as any).urlmapaPersonalizado) || "").normalize().trim();
 		if (ev.urlmapa.length > 400)
 			return "URL do mapa inválido";
 		ev.mensagemrodape = (ev.mensagemrodape || "").normalize().trim();
