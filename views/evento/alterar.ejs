@@ -325,8 +325,6 @@
 							Deixe em branco a linha 2 do certificado do palestrante para utilizar o texto padrão:
 							<div class="text-center"><b>(sob o e-mail &lt;b&gt;{EMAIL}&lt;/b&gt;) ministrou as sessões descritas na página seguinte, com uma carga horária total de &lt;b&gt;{HORAS}&lt;/b&gt;, nos respectivos dias e horários, como parte do evento &lt;b&gt;{EVENTO}&lt;/b&gt;.</b></div>
 							<hr />
-							É possível utilizar tags HTML tanto na linha 1 como na linha 2.
-							<br />
 							É possível utilizar as combinações a seguir como substitutos dos valores reais ao longo da linha 2: <b>{EMAIL}</b>, <b>{HORAS}</b> e <b>{EVENTO}</b>.
 						</div>
 					</div>
@@ -414,7 +412,6 @@
 	}
 
 	function validarHTMLDeUmaLinha(id, origemErro, maxlength) {
-		debugger;
 		var html = (CKEDITOR.instances[id].getData() || "").trim();
 
 		if (html) {
