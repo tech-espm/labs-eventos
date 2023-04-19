@@ -104,12 +104,12 @@
 							<textarea id="descricao" name="descricao" maxlength="2500" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.descricao : '') %></textarea>
 						</div>
 						<div class="form-group">
-							<label for="contatocoluna1">HTML da Coluna 1 do Contato</label>
-							<textarea id="contatocoluna1" name="contatocoluna1" maxlength="4000" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna1 : '') %></textarea>
+							<label for="contatocoluna1">Coluna 1 do Contato</label>
+							<textarea id="contatocoluna1" name="contatocoluna1" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna1 : '') %></textarea>
 						</div>
 						<div class="form-group">
-							<label for="contatocoluna2">HTML da Coluna 2 do Contato</label>
-							<textarea id="contatocoluna2" name="contatocoluna2" maxlength="4000" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna2 : '') %></textarea>
+							<label for="contatocoluna2">Coluna 2 do Contato</label>
+							<textarea id="contatocoluna2" name="contatocoluna2" class="form-control" rows="4" style="min-height: 50px; resize: vertical;"><%=(item ? item.contatocoluna2 : '') %></textarea>
 						</div>
 						<div class="form-group">
 							<%
@@ -133,8 +133,8 @@
 							<input id="urlmapaPersonalizado" name="urlmapaPersonalizado" maxlength="400" class="form-control" type="url" value="<%=(item ? item.urlmapa : '') %>" />
 						</div>
 						<div class="form-group">
-							<label for="mensagemrodape">HTML do Rodapé</label>
-							<input id="mensagemrodape" name="mensagemrodape" maxlength="100" class="form-control" type="text" value="<%=(item ? item.mensagemrodape : '') %>" />
+							<label for="mensagemrodape">Rodapé</label>
+							<textarea id="mensagemrodape" name="mensagemrodape" class="form-control"><%= (item ? item.mensagemrodape : '') %></textarea>
 						</div>
 					</div>
 
@@ -300,19 +300,19 @@
 						</div>
 						<div class="form-group">
 							<label for="certificado1">Linha 1 do Certificado do Participante</label>
-							<input id="certificado1" name="certificado1" maxlength="100" class="form-control" type="text" value="<%=(item ? item.certificado1 : '') %>" />
+							<textarea id="certificado1" name="certificado1" class="form-control"><%=(item ? item.certificado1 : '') %></textarea>
 						</div>
 						<div class="form-group">
 							<label for="certificado2">Linha 2 do Certificado do Participante</label>
-							<input id="certificado2" name="certificado2" maxlength="400" class="form-control" type="text" value="<%=(item ? item.certificado2 : '') %>" />
+							<textarea id="certificado2" name="certificado2" class="form-control"><%=(item ? item.certificado2 : '') %></textarea>
 						</div>
 						<div class="form-group">
 							<label for="certificado1palestrante">Linha 1 do Certificado do Palestrante</label>
-							<input id="certificado1palestrante" name="certificado1palestrante" maxlength="100" class="form-control" type="text" value="<%=(item ? item.certificado1palestrante : '') %>" />
+							<textarea id="certificado1palestrante" name="certificado1palestrante" class="form-control"><%=(item ? item.certificado1palestrante : '') %></textarea>
 						</div>
 						<div class="form-group">
 							<label for="certificado2palestrante">Linha 2 do Certificado do Palestrante</label>
-							<input id="certificado2palestrante" name="certificado2palestrante" maxlength="400" class="form-control" type="text" value="<%=(item ? item.certificado2palestrante : '') %>" />
+							<textarea id="certificado2palestrante" name="certificado2palestrante" class="form-control"><%=(item ? item.certificado2palestrante : '') %></textarea>
 						</div>
 						<hr />
 						<div class="form-group">
@@ -386,6 +386,8 @@
 	</div>
 </div>
 
+<script type="text/javascript" src="<%- staticRoot %>/lib/ckeditor/ckeditor.js"></script>
+
 <script type="text/javascript">
 	//<![CDATA[
 	"use strict";
@@ -407,6 +409,36 @@
 		}
 	}
 
+	function setDataWithoutUndo(editor, data) {
+		editor.setData(data, function() { this.resetUndo(); });
+	}
+
+	function validarHTMLDeUmaLinha(id, origemErro, maxlength) {
+		debugger;
+		var html = (CKEDITOR.instances[id].getData() || "").trim();
+
+		if (html) {
+			var div = document.createElement("div");
+			div.innerHTML = html;
+
+			if (div.children.length > 1) {
+				Notification.error("O código-fonte " + origemErro + " deve ter apenas uma linha " + emoji.sad, true);
+				return false;
+			}
+
+			html = div.firstElementChild.innerHTML;
+
+			if (html.length > maxlength) {
+				Notification.error("O código-fonte " + origemErro + " excede " + maxlength + " caracteres " + emoji.sad, true);
+				return false;
+			}
+		}
+
+		$("#" + id).val(html);
+
+		return true;
+	}
+
 	// Como não podemos utilizar o contentFor("scripts"), porque o alterar.ejs
 	// será utilizado como include para outra página, precisamos executar a
 	// função apenas quando o documento estiver ok
@@ -414,6 +446,14 @@
 		atualizarDivMapa();
 
 		window.idempresapadrao = <%- (item ? item.idempresapadrao : 0) %>;
+
+		CKEDITOR.replace("contatocoluna1");
+		CKEDITOR.replace("contatocoluna2");
+		CKEDITOR.replace("mensagemrodape");
+		CKEDITOR.replace("certificado1");
+		CKEDITOR.replace("certificado2");
+		CKEDITOR.replace("certificado1palestrante");
+		CKEDITOR.replace("certificado2palestrante");
 
 		prepareDatePickerNumber("#inicio");
 		prepareDatePickerNumber("#termino");
@@ -504,12 +544,6 @@
 				descricao: {
 					maxlength: 2500
 				},
-				contatocoluna1: {
-					maxlength: 4000
-				},
-				contatocoluna2: {
-					maxlength: 4000
-				},
 				urlmapa: {
 					url: true,
 					maxlength: 400
@@ -539,18 +573,6 @@
 				termoaceite: {
 					maxlength: 4000
 				},
-				certificado1: {
-					maxlength: 100
-				},
-				certificado2: {
-					maxlength: 400
-				},
-				certificado1palestrante: {
-					maxlength: 100
-				},
-				certificado2palestrante: {
-					maxlength: 400
-				},
 				assuntoemailinscricao: {
 					maxlength: 250
 				},
@@ -578,6 +600,25 @@
 			},
 			submitHandler: function (form) {
 				if ($.active || JsonWebApi.active)
+					return;
+
+				$("#contatocoluna1").val(CKEDITOR.instances.contatocoluna1.getData());
+				if ($("#contatocoluna1").val().length > 4000) {
+					Notification.error("O código-fonte da coluna 1 do contato excede 4000 caracteres " + emoji.sad, true);
+					return;
+				}
+
+				$("#contatocoluna2").val(CKEDITOR.instances.contatocoluna2.getData());
+				if ($("#contatocoluna2").val().length > 4000) {
+					Notification.error("O código-fonte da coluna 2 do contato excede 4000 caracteres " + emoji.sad, true);
+					return;
+				}
+
+				if (!validarHTMLDeUmaLinha("mensagemrodape", "do rodapé", 100) ||
+					!validarHTMLDeUmaLinha("certificado1", "da linha 1 do certificado do participante", 100) ||
+					!validarHTMLDeUmaLinha("certificado2", "da linha 2 do certificado do participante", 400) ||
+					!validarHTMLDeUmaLinha("certificado1palestrante", "da linha 1 do certificado do palestrante", 100) ||
+					!validarHTMLDeUmaLinha("certificado2palestrante", "da linha 2 do certificado do palestrante", 400))
 					return;
 
 				document.getElementById("secoesocultas").value = 
@@ -623,6 +664,13 @@
 								location.href = "/evento";
 							} else {
 								resetForm("#form");
+								setDataWithoutUndo(CKEDITOR.instances.contatocoluna1, "");
+								setDataWithoutUndo(CKEDITOR.instances.contatocoluna2, "");
+								setDataWithoutUndo(CKEDITOR.instances.mensagemrodape, "");
+								setDataWithoutUndo(CKEDITOR.instances.certificado1, "");
+								setDataWithoutUndo(CKEDITOR.instances.certificado2, "");
+								setDataWithoutUndo(CKEDITOR.instances.certificado1palestrante, "");
+								setDataWithoutUndo(CKEDITOR.instances.certificado2palestrante, "");
 								$("#aspectratioempresa").val("4:3");
 								$("#aspectratiopalestrante").val("1:1");
 								Notification.success("Evento criado com sucesso! " + emoji.happy);
