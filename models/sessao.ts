@@ -65,11 +65,15 @@ export = class Sessao {
 		if (isNaN(s.idvertical) || s.idvertical <= 0)
 			return "Vertical inválida";
 		s.nome = (s.nome || "").normalize().trim();
-		if (s.nome.length < 3 || s.nome.length > 100)
+		if (s.nome.length < 3)
 			return "Nome inválido";
+		if (s.nome.length > 100)
+			return "Nome com mais de 100 caracteres";
 		s.nome_curto = (s.nome_curto || "").normalize().trim();
-		if (s.nome_curto.length < 3 || s.nome_curto.length > 100)
+		if (s.nome_curto.length < 3)
 			return "Nome curto inválido";
+		if (s.nome_curto.length > 100)
+			return "Nome curto com mais de 100 caracteres";
 		if (!(s.data = DataUtil.converterDataISO(s.data)))
 			return "Data inválida";
 		if (isNaN(s.inicio) || s.inicio < 0 || s.inicio > 2359 || (s.inicio % 100) > 59)
@@ -78,10 +82,10 @@ export = class Sessao {
 			return "Horário de término inválido";
 		s.url_remota = (s.url_remota || "").normalize().trim();
 		if (s.url_remota.length > 100)
-			return "URL da sessão remota inválida";
+			return "URL da sessão remota com mais de 100 caracteres";
 		s.descricao = (s.descricao || "").normalize().trim();
 		if (s.descricao.length > 2000)
-			return "Descrição inválida";
+			return "Descrição com mais de 2000 caracteres";
 		if (isNaN(s.oculta) || s.oculta < 0 || s.oculta > 1)
 			s.oculta = 0;
 		if (isNaN(s.url_privada) || s.url_privada < 0 || s.url_privada > 1)
@@ -90,7 +94,7 @@ export = class Sessao {
 			s.sugestao = 0;
 		s.publico_alvo = (s.publico_alvo || "").normalize().trim();
 		if (s.publico_alvo.length > 100)
-			return "Público-alvo inválido";
+			return "Público-alvo com mais de 100 caracteres";
 		s.tags = (s.tags || "").normalize().trim().toUpperCase();
 		let stags = s.tags.split(",");
 		if (stags.length === 1) {
@@ -107,7 +111,7 @@ export = class Sessao {
 		}
 		s.tags = stags.join(", ");
 		if (s.tags.length > 100)
-			return "Tags inválidas";
+			return "Tags com mais de 100 caracteres";
 		if (isNaN(s.permiteinscricao) || s.permiteinscricao < 0 || s.permiteinscricao > 1)
 			s.permiteinscricao = 0;
 		if (isNaN(s.permitesimultanea) || s.permitesimultanea < 0 || s.permitesimultanea > 1)
@@ -172,10 +176,10 @@ export = class Sessao {
 		}
 		s.senhacontrole = (s.senhacontrole || "").normalize();
 		if (s.senhacontrole.length > 45)
-			return "Senha de controle inválida";
+			return "Senha de controle com mais de 45 caracteres";
 		s.mensagemesgotada = (s.mensagemesgotada || "").trim();
 		if (s.mensagemesgotada.length > 250)
-			return "Mensagem de sessão esgotada inválida";
+			return "Mensagem de sessão esgotada com mais de 250 caracteres";
 		if (!("capacidade" in s) || (s.capacidade as any) === "") {
 			s.capacidade = null;
 		} else if (s.capacidade !== null) {

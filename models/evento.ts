@@ -120,90 +120,98 @@ export = class Evento {
 
 	private static validar(ev: Evento): string {
 		ev.nome = (ev.nome || "").normalize().trim();
-		if (ev.nome.length < 3 || ev.nome.length > 100)
+		if (ev.nome.length < 3)
 			return "Nome inválido";
+		if (ev.nome.length > 100)
+			return "Nome com mais de 100 caracteres";
 		ev.cidade = (ev.cidade || "").normalize().trim();
-		if (ev.cidade.length < 3 || ev.cidade.length > 40)
+		if (ev.cidade.length < 3)
 			return "Cidade inválida";
+		if (ev.cidade.length > 40)
+			return "Cidade com mais de 40 caracteres";
 		ev.url = (ev.url || "").normalize().trim().toLowerCase();
-		if (ev.url.length < 2 || ev.url.length > 50 || Evento.urlRegExp.test(ev.url))
+		if (ev.url.length < 2 || Evento.urlRegExp.test(ev.url))
 			return "URL inválida";
+		if (ev.url.length > 50)
+			return "URL com mais de 50 caracteres";
 		for (let i = Evento.nomesReservados.length - 1; i >= 0; i--) {
 			if (ev.url == Evento.nomesReservados[i])
 				return "A URL \"" + ev.url + "\" é reservada para o sistema";
 		}
 		ev.titulo = (ev.titulo || "").normalize().trim();
 		if (!ev.titulo || ev.titulo.length > 250)
-			return "Título da landing page inválido";
+			return "Título da landing page com mais de 250 caracteres";
 		ev.descricao = (ev.descricao || "").normalize().trim();
 		if (ev.descricao.length > 2500)
-			return "Descrição da landing page inválida";
+			return "Descrição da landing page com mais de 2500 caracteres";
 		if (!(ev.inicio = DataUtil.converterDataISO(ev.inicio)))
 			return "Data inicial inválida";
 		// Por uma incrível coincidência, uma data ISO pode ser comparada com outra direto como string! :)
 		if (!(ev.termino = DataUtil.converterDataISO(ev.termino)) || ev.termino < ev.inicio)
-			return "Data final inválida";
+			return "Data final inválida (ela deve ser maior ou igual à data inicial)";
 		ev.aspectratioempresa = (ev.aspectratioempresa || "").normalize().trim().toUpperCase();
 		if (ev.aspectratioempresa && (ev.aspectratioempresa.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratioempresa)))
-			return "O aspect ratio das imagens das empresas é inválido";
+			return "O aspect ratio das imagens das empresas é inválido (devem ser dois valores numéricos separados por \":\", como 4:3)";
 		ev.aspectratiopalestrante = (ev.aspectratiopalestrante || "").normalize().trim().toUpperCase();
 		if (ev.aspectratiopalestrante && (ev.aspectratiopalestrante.length > 11 || !Evento.aspectRatioRegExp.test(ev.aspectratiopalestrante)))
-			return "O aspect ratio das imagens dos palestrantes é inválido";
+			return "O aspect ratio das imagens dos palestrantes é inválido (devem ser dois valores numéricos separados por \":\", como 1:1)";
 		if (!ev.permitealuno && !ev.permitefuncionario && !ev.permiteexterno)
-			return "Nenhuma permissão especificada";
+			return "Nenhuma permissão de inscrição selecionada na aba \"Inscrições\" (alunos / funcionários / participantes externos)";
 		if (isNaN(ev.secoesocultas))
 			ev.secoesocultas = 0;
 		ev.contatocorfundo = (ev.contatocorfundo || "").normalize().trim();
 		if (!ev.contatocorfundo || ev.contatocorfundo.length > 7 || ev.contatocorfundo.charAt(0) !== "#")
-			return "Cor do fundo do contato inválida";
+			return "Cor do fundo do contato inválida (deve ser uma cor no formato hexadecimal, iniciado por \"#\", como #0033ff)";
 		ev.contatocortexto = (ev.contatocortexto || "").normalize().trim();
 		if (!ev.contatocortexto || ev.contatocortexto.length > 7 || ev.contatocortexto.charAt(0) !== "#")
-			return "Cor do texto do contato inválida";
+			return "Cor do texto do contato inválida (deve ser uma cor no formato hexadecimal, iniciado por \"#\", como #0033ff)";
 		ev.contatocoluna1 = (ev.contatocoluna1 || "").normalize().trim();
 		if (ev.contatocoluna1.length > 4000)
-			return "HTML da coluna 1 do contato inválido";
+			return "HTML da coluna 1 do contato com mais de 4000 caracteres";
 		ev.contatocoluna2 = (ev.contatocoluna2 || "").normalize().trim();
 		if (ev.contatocoluna2.length > 4000)
-			return "HTML da coluna 2 do contato inválido";
+			return "HTML da coluna 2 do contato com mais de 4000 caracteres";
 		ev.urlmapa = (ev.urlmapa || ((ev as any).urlmapaPersonalizado) || "").normalize().trim();
 		if (ev.urlmapa.length > 400)
-			return "URL do mapa inválido";
+			return "URL do mapa com mais de 400 caracteres";
 		ev.mensagemrodape = (ev.mensagemrodape || "").normalize().trim();
 		if (ev.mensagemrodape.length > 100)
-			return "HTML do rodapé inválido";
+			return "HTML do rodapé com mais de 100 caracteres";
 		ev.emailpadrao = (ev.emailpadrao || "").normalize().trim().toUpperCase();
-		if (!ev.emailpadrao || ev.emailpadrao.length > 100 || !emailValido(ev.emailpadrao))
+		if (!ev.emailpadrao || !emailValido(ev.emailpadrao))
 			return "E-mail padrão para envios inválido";
+		if (ev.emailpadrao.length > 100)
+			return "E-mail padrão para envios com mais de 100 caracteres";
 		ev.senharecepcao = (ev.senharecepcao || "").normalize();
 		if (ev.senharecepcao.length > 45)
-			return "Senha da recepção muito longa";
+			return "Senha da recepção com mais de 45 caracteres";
 		ev.senhacheckin = (ev.senhacheckin || "").normalize();
 		if (ev.senhacheckin.length > 45)
-			return "Senha do check-in muito longa";
+			return "Senha do check-in com mais de 45 caracteres";
 		ev.senhasugestao = (ev.senhasugestao || "").normalize();
 		if (ev.senhasugestao.length > 45)
-			return "Senha das sugestões muito longa";
+			return "Senha das sugestões com mais de 45 caracteres";
 		ev.termoaceite = (ev.termoaceite || "").normalize().trim();
 		if (ev.termoaceite.length > 4000)
-			return "Termo de aceite de uso de imagem muito longo";
+			return "Termo de aceite de uso de imagem com mais de 4000 caracteres";
 		ev.certificado1 = (ev.certificado1 || "").normalize().trim();
 		if (ev.certificado1.length > 100)
-			return "Linha 1 do certificado do participante muito longa";
+			return "Linha 1 do certificado do participante com mais de 100 caracteres";
 		ev.certificado2 = (ev.certificado2 || "").normalize().trim();
 		if (ev.certificado2.length > 400)
-			return "Linha 2 do certificado do participante muito longa";
+			return "Linha 2 do certificado do participante com mais de 400 caracteres";
 		ev.certificado1palestrante = (ev.certificado1palestrante || "").normalize().trim();
 		if (ev.certificado1palestrante.length > 100)
-			return "Linha 1 do certificado do palestrante muito longa";
+			return "Linha 1 do certificado do palestrante com mais de 100 caracteres";
 		ev.certificado2palestrante = (ev.certificado2palestrante || "").normalize().trim();
 		if (ev.certificado2palestrante.length > 400)
-			return "Linha 2 do certificado do palestrante muito longa";
+			return "Linha 2 do certificado do palestrante com mais de 400 caracteres";
 		ev.assuntoemailinscricao = (ev.assuntoemailinscricao || "").normalize().trim();
 		if (ev.assuntoemailinscricao.length > 250)
-			return "Assunto do e-mail de confirmação de inscrição muito longo";
+			return "Assunto do e-mail de confirmação de inscrição com mais de 250 caracteres";
 		ev.emailinscricao = (ev.emailinscricao || "").normalize().trim();
 		if (ev.emailinscricao.length > 4000)
-			return "E-mail de confirmação de inscrição muito longo";
+			return "E-mail de confirmação de inscrição com mais de 4000 caracteres";
 		return null;
 	}
 
