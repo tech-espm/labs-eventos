@@ -213,7 +213,7 @@ export = class Usuario {
 	}
 
 	private static validar(u: Usuario): string {
-		u.nome = (u.nome || "").normalize().trim().toUpperCase();
+		u.nome = (u.nome || "").normalize().trim();
 		if (u.nome.length < 3 || u.nome.length > 100)
 			return "Nome inválido";
 
