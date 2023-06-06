@@ -551,7 +551,7 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				if (infoLocal && s.multidatas && s.multidatas.length) {
+				if (appsettings.integracaoAgendamento && infoLocal && s.multidatas && s.multidatas.length) {
 					res = "Cadastro de sessões com múltiplas datas em salas físicas ainda não é suportado";
 					return;
 				}
@@ -636,7 +636,7 @@ export = class Sessao {
 				if (infoLocal && (res = infoLocal.erro))
 					return;
 
-				if (infoLocal && s.multidatas && s.multidatas.length) {
+				if (appsettings.integracaoAgendamento && infoLocal && s.multidatas && s.multidatas.length) {
 					res = "Cadastro de sessões com múltiplas datas em salas físicas ainda não é suportado";
 					return;
 				}
