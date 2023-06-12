@@ -71,7 +71,7 @@
 			JsonWebApi.postFormData("<%- root %>/api/usuario/criar", form, function (response) {
 				if (response.success) {
 					resetForm("#form");
-					Notification.success("Usuário criado com sucesso (senha padrão: 1234)! " + emoji.happy);
+					Notification.success("Usuário criado com sucesso! " + emoji.happy);
 				} else {
 					Notification.error(response.value, true);
 				}
