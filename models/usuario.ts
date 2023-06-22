@@ -87,7 +87,7 @@ export = class Usuario {
 					u.idevento_logado = idevento_logado;
 					u.nomeevento_logado = (nomeevento_logado || null);
 					u.admin = (u.tipo === Usuario.TipoAdmin);
-					u.cas = u.login.endsWith("@ESPM.BR");
+					u.cas = (u.login.endsWith("@ESPM.BR") || u.login.endsWith("@ACAD.ESPM.BR"));
 
 					//Usuario.cacheUsuarioLogados.set(id, u);
 
@@ -209,7 +209,7 @@ export = class Usuario {
 	}
 
 	private static hashSenhaPadraoDeLogin(login: string): string {
-		return (login.endsWith("@ESPM.BR") ? appsettings.hashSenhaPadraoUsuariosIntegracaoCAS : Usuario.HashSenhaPadrao);
+		return ((login.endsWith("@ESPM.BR") || login.endsWith("@ACAD.ESPM.BR")) ? appsettings.hashSenhaPadraoUsuariosIntegracaoCAS : Usuario.HashSenhaPadrao);
 	}
 
 	private static validar(u: Usuario): string {
@@ -252,8 +252,8 @@ export = class Usuario {
 		if (u.login.length < 3 || u.login.length > 50)
 			return "Login inválido";
 
-		if (!u.login.endsWith("@ESPM.BR"))
-			return "O login deve ser uma conta do domínio @ESPM.BR";
+		if (!u.login.endsWith("@ESPM.BR") && !u.login.endsWith("@ACAD.ESPM.BR"))
+			return "O login deve ser uma conta do domínio @ESPM.BR ou @ACAD.ESPM.BR";
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
