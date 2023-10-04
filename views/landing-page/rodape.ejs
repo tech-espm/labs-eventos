@@ -404,6 +404,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 		var j, tags, idspalestrante, palestrante, mediadores, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
 
+		if (sessao.local && sessao.local.nome_unidade && sessao.local.sigla_unidade !== "VIRTUAL")
+			htmlTemp = '<h2 class="nome-unidade unidade-' + sessao.local.sigla_unidade + '">' + encode(sessao.local.nome_unidade) + '</h2>' + htmlTemp;
+
 		if (mostrarData) {
 			if (sessao.multidatas && sessao.multidatas.length) {
 				htmlTemp += '<p><i class="fa fa-calendar"></i>' + sessao.data + '<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino + '</p>';
