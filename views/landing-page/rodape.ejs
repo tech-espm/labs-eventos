@@ -102,13 +102,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		}, 1000);
 	}
 
+	function gerarNomeBadgeRemoto(sessao) {
+		var upper;
+		if (sessao.local && sessao.local.nome && ((upper = sessao.local.nome.toUpperCase()).indexOf("HÍBRID") >= 0 || upper.indexOf("HIBRID") >= 0))
+			return sessao.local.nome + (sessao.url_privada ? " (Link para acesso remoto disponível apenas na área \"Minhas Inscrições\")" : " (Clique aqui para acessar a sessão remotamente)");
+
+		return (sessao.url_privada ? "Sessão via Internet (Link disponível apenas na área \"Minhas Inscrições\")" : "Sessão via Internet (Clique para acessar)");
+	}
+
 	function gerarBadgeSalaSessao(sessao, exibirHorarioSeMultidata) {
 		var local = sessao.local;
 		return ((local.idunidade === -1 && sessao.url_remota) ?
 			('<a target="_blank" href="' + sessao.url_remota + '"') :
 			'<span') +
 			' class="badge badge-sala" style="background-color: ' + intToColor(local.cor) + '; color: ' + textColorForBackground(local.cor) + ';">' +
-			((local.idunidade === -1 && sessao.url_remota) ? '<i class="fa fa-external-link"></i>Sessão via Internet (Clique para acessar)' : ((local.idunidade === -1 && sessao.url_privada) ? '<i class="fa fa-map-marker"></i>Sessão via Internet (Link disponível apenas na área "Minhas Inscrições")' : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local))) +
+			((local.idunidade === -1 && sessao.url_remota) ? ('<i class="fa fa-external-link"></i>' + gerarNomeBadgeRemoto(sessao)) : ((local.idunidade === -1 && sessao.url_privada) ? ('<i class="fa fa-map-marker"></i>' + gerarNomeBadgeRemoto(sessao)) : ('<i class="fa fa-map-marker"></i>' + sessao.nome_local))) +
 			((!sessao.multidatas || !sessao.multidatas.length || exibirHorarioSeMultidata) ? ('<br/><i class="fa fa-clock-o"></i>' + sessao.inicio + ' - ' + sessao.termino) : '') +
 			((local.idunidade === -1 && sessao.url_remota) ? '</a>' : '</span>');
 	}
@@ -404,7 +412,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 		var j, tags, idspalestrante, palestrante, mediadores, palestrantes, htmlTemp = '<h2 class="section-subheader">' + encode(sessao.nome) + '</h2>';
 
-		if (sessao.local && sessao.local.nome_unidade && sessao.local.sigla_unidade !== "VIRTUAL")
+		if (sessao.local && sessao.local.nome_unidade && sessao.local.idunidade !== -1)
 			htmlTemp = '<h2 class="nome-unidade unidade-' + sessao.local.sigla_unidade + '">' + encode(sessao.local.nome_unidade) + '</h2>' + htmlTemp;
 
 		if (mostrarData) {
