@@ -174,9 +174,10 @@ export = class Participante {
 							r = "E-mail ou senha inválidos";
 							return;
 						}
-					} else if (row.ra) {
-						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
 					}
+
+					if (row.ra)
+						await sql.query("update participante set ra = ? where id = " + row.id, [row.ra]);
 				}
 				if (row.tipo === Participante.TipoAluno && !row.campus && row.ra) {
 					const campusPlano = await IntegracaoMicroservices.obterCampusPlano(row.ra);

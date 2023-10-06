@@ -1,4 +1,5 @@
 ﻿import Sql = require("../infra/sql");
+import appsettings = require("../appsettings");
 
 export = class Unidade {
 	public static readonly idADefinir = 1;
@@ -68,10 +69,12 @@ export = class Unidade {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const id_integra = await sql.scalar("select id_integra from unidade where id = " + u.id) as number;
-				if (id_integra) {
-					res = "Não é permitido editar uma unidade integrada à secretaria";
-					return;
+				if (appsettings.integracaoAgendamento) {
+					const id_integra = await sql.scalar("select id_integra from unidade where id = " + u.id) as number;
+					if (id_integra) {
+						res = "Não é permitido editar uma unidade integrada à secretaria";
+						return;
+					}
 				}
 
 				await sql.query("update unidade set nome = ?, sigla = ? where id = " + u.id, [u.nome, u.sigla]);

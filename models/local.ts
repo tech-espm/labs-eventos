@@ -1,5 +1,6 @@
 ﻿import Sql = require("../infra/sql");
 import Unidade = require("./unidade");
+import appsettings = require("../appsettings");
 
 export = class Local {
 	public static readonly idADefinir = 1;
@@ -53,10 +54,12 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
-				if (id_integra) {
-					res = "Não é permitido criar um local em uma unidade integrada à secretaria";
-					return;
+				if (appsettings.integracaoAgendamento) {
+					const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
+					if (id_integra) {
+						res = "Não é permitido criar um local em uma unidade integrada à secretaria";
+						return;
+					}
 				}
 
 				await sql.query("insert into local (nome, idunidade, capacidade_real, id_integra) values (?, ?, ?, '')", [l.nome, l.idunidade, l.capacidade_real]);
@@ -92,16 +95,18 @@ export = class Local {
 
 		await Sql.conectar(async (sql: Sql) => {
 			try {
-				const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
-				if (id_integra) {
-					res = "Não é permitido editar um local de uma unidade integrada à secretaria";
-					return;
-				}
+				if (appsettings.integracaoAgendamento) {
+					const id_integra = await sql.scalar("select id_integra from unidade where id = " + l.idunidade) as number;
+					if (id_integra) {
+						res = "Não é permitido editar um local de uma unidade integrada à secretaria";
+						return;
+					}
 
-				const id_integra_local = await sql.scalar("select id_integra from local where id = " + l.id) as string;
-				if (id_integra_local && id_integra_local.trim()) {
-					res = "Não é permitido editar um local integrado à secretaria";
-					return;
+					const id_integra_local = await sql.scalar("select id_integra from local where id = " + l.id) as string;
+					if (id_integra_local && id_integra_local.trim()) {
+						res = "Não é permitido editar um local integrado à secretaria";
+						return;
+					}
 				}
 
 				await sql.query("update local set nome = ?, idunidade = ?, capacidade_real = ? where id = " + l.id, [l.nome, l.idunidade, l.capacidade_real]);
